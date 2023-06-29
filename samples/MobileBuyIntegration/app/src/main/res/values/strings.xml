@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Checkout SDK Mobile Buy Integration Sample</string>
+    <string name="color_scheme_light">Light</string>
+    <string name="color_scheme_dark">Dark</string>
+    <string name="color_scheme_web">Web</string>
+    <string name="color_scheme_automatic">Automatic</string>
+    <string name="checkout_error">Checkout failed, please try again</string>
+</resources>

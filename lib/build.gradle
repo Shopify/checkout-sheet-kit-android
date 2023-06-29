@@ -1,0 +1,183 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    id 'signing'
+    id 'maven-publish'
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+    id 'org.jetbrains.kotlin.plugin.serialization'
+    id 'io.gitlab.arturbosch.detekt'
+}
+
+def resolveEnvVarValue(name, defaultValue) {
+    def rawValue = providers.environmentVariable(name).getOrElse("")
+    return rawValue ? rawValue : defaultValue
+}
+
+def versionName = resolveEnvVarValue("CHECKOUT_KIT_VERSION", "0.2.1")
+
+ext {
+    app_compat_version = '1.6.1'
+    kotlin_serialization_version = '1.5.1'
+
+    androidx_test_version = '1.5.0'
+    androidx_junit_ext_version = '1.1.5'
+
+    junit_version = '4.13.2'
+    robolectric_version = '4.9'
+    mockito_core_version = '4.11.0'
+    mockito_kotlin_version = '4.1.0'
+    assertj_version = '3.24.2'
+    awaitility_version = '4.2.0'
+}
+
+android {
+    namespace 'com.shopify.checkout'
+    compileSdk 33
+
+    defaultConfig {
+        minSdk 23
+        targetSdk 33
+        versionCode 1
+        versionName
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField "String", "SDK_VERSION", "\"$versionName\""
+    }
+
+    lintOptions {
+        baseline file("lint-baseline.xml")
+        checkDependencies true
+        warningsAsErrors true
+        warning 'LintBaseline'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
+    testOptions {
+        unitTests.includeAndroidResources = true
+        unitTests.all {
+            testLogging {
+                events "passed", "skipped", "failed", "standardOut", "standardError"
+                outputs.upToDateWhen { false }
+                showStandardStreams = true
+            }
+        }
+    }
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
+}
+
+dependencies {
+    // Tests
+    testImplementation "junit:junit:$junit_version"
+    testImplementation "org.robolectric:robolectric:$robolectric_version"
+    // noinspection GradleDependency -- mockito 5 requires jvm target 1.11
+    testImplementation "org.mockito:mockito-core:$mockito_core_version"
+    // noinspection GradleDependency -- mockito 5 requires jvm target 1.11
+    testImplementation "org.mockito.kotlin:mockito-kotlin:$mockito_kotlin_version"
+    // noinspection GradleDependency -- mockito 5 requires jvm target 1.11
+    testImplementation "org.mockito:mockito-android:$mockito_core_version"
+    testImplementation "org.assertj:assertj-core:$assertj_version"
+    testImplementation "org.awaitility:awaitility:$awaitility_version"
+
+    androidTestImplementation "androidx.test:core-ktx:$androidx_test_version"
+    androidTestImplementation "androidx.test.ext:junit-ktx:$androidx_junit_ext_version"
+
+    //Implementation
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlin_serialization_version"
+    implementation "androidx.appcompat:appcompat:$app_compat_version"
+}
+
+signing {
+    def signingKeyId = findProperty("signingKeyId")
+    def signingKey = findProperty("signingKey")
+    def signingPassword = findProperty("signingPassword")
+    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+    sign publishing.publications
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    config.setFrom('detekt.config.yml')
+}
+
+tasks.withType(KotlinCompile) {
+    if (!it.name.contains("Test")) {
+        kotlinOptions.freeCompilerArgs += "-Xexplicit-api=strict"
+    }
+}
+
+project.afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                pom {
+                    name = "CheckoutKit"
+                    description = "Shopify's Checkout SDK makes it simple to render checkouts inside your mobile app."
+                    url = "https://github.com/Shopify/checkout-kit-android"
+
+                    licenses {
+                        license {
+                            name = "MIT"
+                            url = "https://opensource.org/licenses/MIT"
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            name = "Shopify Inc."
+                        }
+                    }
+
+                    scm {
+                        connection = "https://github.com/Shopify/checkout-kit-android.git"
+                        developerConnection = "https://github.com/Shopify/checkout-kit-android.git"
+                        url = "https://github.com/Shopify/checkout-kit-android.git"
+                    }
+                }
+
+                groupId "com.shopify.checkout"
+                artifactId "checkout-kit"
+                version versionName
+
+                afterEvaluate {
+                    from components.release
+                }
+            }
+        }
+
+        repositories {
+            maven {
+                url "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+                credentials {
+                    username System.getenv("OSSRH_USERNAME")
+                    password System.getenv("OSSRH_PASSWORD")
+                }
+            }
+
+            maven {
+                url "https://oss.sonatype.org/content/repositories/snapshots/"
+                credentials {
+                    username System.getenv("OSSRH_USERNAME")
+                    password System.getenv("OSSRH_PASSWORD")
+                }
+            }
+        }
+    }
+}

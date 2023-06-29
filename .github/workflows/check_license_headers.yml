@@ -1,0 +1,21 @@
+name: Check License Headers
+
+on: pull_request
+
+jobs:
+  build:
+    runs-on: shopify-ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Install Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0'
+
+      - name: Check license files
+        run: ./scripts/check_license_headers.rb

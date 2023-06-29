@@ -1,0 +1,21 @@
+buildscript {
+    ext {
+        app_compat_version = '1.6.1'
+        core_version = '1.12.0'
+        activity_version = '1.7.2'
+        lifecycle_version = '2.6.2'
+        datastore_version = '1.0.0'
+        nav_version = '2.7.4'
+        compose_ui_version = '1.5.2'
+        mobile_buy_version = '16.0.0'
+        coil_version = '2.4.0'
+        kotlin_serialization_version = '1.5.0'
+        koin_android_compose_version = '3.5.0'
+    }
+}
+plugins {
+    id 'com.android.application' version '8.1.2' apply false
+    id 'org.jetbrains.kotlin.android' version '1.8.22' apply false
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.22' apply false
+    id 'io.gitlab.arturbosch.detekt' version '1.23.0' apply false
+}

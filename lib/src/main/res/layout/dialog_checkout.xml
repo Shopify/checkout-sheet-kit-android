@@ -1,0 +1,39 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/checkoutSdkHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        app:title="@string/checkout_web_view_title"
+        android:theme="@style/Theme.AppCompat.DayNight"
+        android:elevation="4dp" />
+
+    <com.shopify.checkout.CheckoutWebViewContainer
+        android:id="@+id/checkoutSdkContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:layout_below="@id/checkoutSdkHeader"
+        android:visibility="gone" />
+
+    <FrameLayout
+        android:id="@+id/checkoutSdkLoadingSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible">
+
+        <ProgressBar
+            android:id="@+id/checkoutSdkLoadingSpinnerProgressBar"
+            android:indeterminateDrawable="@drawable/progress_bar"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:indeterminate="true"
+            android:layout_gravity="center" />
+    </FrameLayout>
+
+</RelativeLayout>

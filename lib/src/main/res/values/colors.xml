@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="checkoutLightBg">#fff</color>
+    <color name="checkoutLightFont">#1d1d1f</color>
+    <color name="checkoutDarkBg">#1d1d1f</color>
+    <color name="checkoutDarkFont">#fff</color>
+    <color name="checkoutLightLoadingSpinner">#1773b0</color>
+    <color name="checkoutDarkLoadingSpinner">#1e8cc8</color>
+    <color name="white">#fff</color>
+</resources>
