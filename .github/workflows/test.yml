@@ -28,7 +28,7 @@ jobs:
         run: ./gradlew clean test --console=plain
 
   lint:
-    runs-on: shopify-ubuntu-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
