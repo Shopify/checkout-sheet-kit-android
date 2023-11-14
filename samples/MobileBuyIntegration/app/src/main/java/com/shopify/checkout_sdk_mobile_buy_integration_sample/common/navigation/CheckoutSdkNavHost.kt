@@ -29,8 +29,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.shopify.checkout.CheckoutException
-import com.shopify.checkout.DefaultCheckoutEventProcessor
+import com.shopify.checkoutkit.CheckoutException
+import com.shopify.checkoutkit.DefaultCheckoutEventProcessor
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.AppBarState
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartView

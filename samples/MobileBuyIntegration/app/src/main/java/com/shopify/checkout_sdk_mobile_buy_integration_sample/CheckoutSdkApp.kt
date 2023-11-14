@@ -42,7 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.compose.rememberNavController
-import com.shopify.checkout.ColorScheme
+import com.shopify.checkoutkit.ColorScheme
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.BottomAppBarWithNavigation
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.CheckoutSdkNavHost

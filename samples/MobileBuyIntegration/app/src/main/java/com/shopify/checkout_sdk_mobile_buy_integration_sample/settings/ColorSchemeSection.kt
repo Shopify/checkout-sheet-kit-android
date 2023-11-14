@@ -45,8 +45,8 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.shopify.checkout.ColorScheme
-import com.shopify.checkout.Colors
+import com.shopify.checkoutkit.ColorScheme
+import com.shopify.checkoutkit.Colors
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 
 @Composable

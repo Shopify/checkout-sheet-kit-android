@@ -35,9 +35,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import com.shopify.checkout.ColorScheme
-import com.shopify.checkout.Preloading
-import com.shopify.checkout.ShopifyCheckoutKit
+import com.shopify.checkoutkit.ColorScheme
+import com.shopify.checkoutkit.Preloading
+import com.shopify.checkoutkit.ShopifyCheckoutKit
 
 @Composable
 fun CheckoutSdkApp() {

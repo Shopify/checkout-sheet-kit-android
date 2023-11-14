@@ -32,7 +32,7 @@ ext {
 }
 
 android {
-    namespace 'com.shopify.checkout'
+    namespace 'com.shopify.checkoutkit'
     compileSdk 33
 
     defaultConfig {
@@ -152,7 +152,7 @@ project.afterEvaluate {
                     }
                 }
 
-                groupId "com.shopify.checkout"
+                groupId "com.shopify"
                 artifactId "checkout-kit"
                 version versionName
 

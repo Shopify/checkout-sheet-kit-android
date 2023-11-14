@@ -20,11 +20,11 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkout
+package com.shopify.checkoutkit
 
 import android.webkit.JavascriptInterface
-import com.shopify.checkout.CheckoutBridge.CheckoutWebOperation.COMPLETED
-import com.shopify.checkout.CheckoutBridge.CheckoutWebOperation.MODAL
+import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
+import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.MODAL
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 

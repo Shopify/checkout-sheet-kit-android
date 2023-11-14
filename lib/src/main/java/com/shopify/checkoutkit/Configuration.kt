@@ -20,25 +20,13 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkout
+package com.shopify.checkoutkit
 
-import android.content.Context
-import android.util.AttributeSet
-import android.view.View
-import android.widget.FrameLayout
+public data class Configuration internal constructor(
+    var colorScheme: ColorScheme = ColorScheme.Automatic(),
+    var preloading: Preloading = Preloading(),
+)
 
-internal class CheckoutWebViewContainer @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0,
-    defStyleRes: Int = 0
-) : FrameLayout(context, attrs, defStyleAttr, defStyleRes) {
-
-    // Clear the cache whenever the WebView is removed from it's container
-    override fun onViewRemoved(child: View?) {
-        super.onViewRemoved(child)
-        if (child is CheckoutWebView) {
-            CheckoutWebView.clearCache()
-        }
-    }
-}
+public data class Preloading(
+    val enabled: Boolean = false
+)

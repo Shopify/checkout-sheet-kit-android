@@ -24,9 +24,9 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.shopify.checkout.ColorScheme
-import com.shopify.checkout.Preloading
-import com.shopify.checkout.ShopifyCheckoutKit
+import com.shopify.checkoutkit.ColorScheme
+import com.shopify.checkoutkit.Preloading
+import com.shopify.checkoutkit.ShopifyCheckoutKit
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.BuildConfig
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

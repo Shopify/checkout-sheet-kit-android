@@ -26,15 +26,10 @@ import android.app.Application
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import android.widget.Toast
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.shopify.checkout.CheckoutEventProcessor
-import com.shopify.checkout.CheckoutException
-import com.shopify.checkout.DefaultCheckoutEventProcessor
+import com.shopify.checkoutkit.CheckoutEventProcessor
+import com.shopify.checkoutkit.CheckoutException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
