@@ -41,7 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.shopify.checkout.ShopifyCheckoutKit
+import com.shopify.checkoutkit.ShopifyCheckoutKit
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.AppBarState
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import org.koin.androidx.compose.koinViewModel

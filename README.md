@@ -38,9 +38,9 @@ implementation "com.shopify.checkout:checkout-kit:$checkoutSdkVersion"
 ```xml
 
 <dependency>
-    <groupId>com.shopify.checkout</groupId>
-    <artifactId>checkout-kit</artifactId>
-    <version>${checkoutSdkVersion}</version>
+   <groupId>com.shopify</groupId>
+   <artifactId>checkout-kit</artifactId>
+   <version>${checkoutSdkVersion}</version>
 </dependency>
 ```
 
@@ -49,7 +49,7 @@ implementation "com.shopify.checkout:checkout-kit:$checkoutSdkVersion"
 Once the SDK has been added as a dependency, you can import the library:
 
 ```kotlin
-import com.shopify.checkout.ShopifyCheckoutKit
+import com.shopify.checkoutkit.ShopifyCheckoutKit
 ```
 
 To present a checkout to the buyer, your application must first obtain a checkout URL.

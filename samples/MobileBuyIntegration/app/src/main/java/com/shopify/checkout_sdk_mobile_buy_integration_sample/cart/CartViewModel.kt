@@ -28,8 +28,8 @@ import androidx.lifecycle.viewModelScope
 import com.shopify.buy3.Storefront
 import com.shopify.buy3.Storefront.Cart
 import com.shopify.buy3.Storefront.CartLineInput
-import com.shopify.checkout.CheckoutEventProcessor
-import com.shopify.checkout.ShopifyCheckoutKit
+import com.shopify.checkoutkit.CheckoutEventProcessor
+import com.shopify.checkoutkit.ShopifyCheckoutKit
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
 import com.shopify.graphql.support.ID

@@ -29,8 +29,8 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.shopify.checkout.ColorScheme
-import com.shopify.checkout.Preloading
+import com.shopify.checkoutkit.ColorScheme
+import com.shopify.checkoutkit.Preloading
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json

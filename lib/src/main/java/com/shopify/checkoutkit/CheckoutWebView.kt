@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkout
+package com.shopify.checkoutkit
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -39,7 +39,7 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.ComponentActivity
-import com.shopify.checkout.CheckoutBridgeMetadata.userAgentSuffix
+import com.shopify.checkoutkit.CheckoutBridgeMetadata.userAgentSuffix
 import java.net.HttpURLConnection.HTTP_GONE
 import java.net.HttpURLConnection.HTTP_INTERNAL_ERROR
 import java.net.HttpURLConnection.HTTP_NOT_FOUND
