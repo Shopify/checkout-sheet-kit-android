@@ -4,7 +4,7 @@
 ![Tests](https://github.com/Shopify/checkout-kit-android/actions/workflows/test.yml/badge.svg?branch=main)
 [![GitHub release](https://img.shields.io/github/release/shopify/checkout-kit-android.svg)](https://github.com/Shopify/checkout-kit-android/releases)
 
-![mobile-checkout-sdk](checkout-kit.png)
+![image](https://github.com/Shopify/checkout-kit-android/assets/318265/9f59cb42-7ee1-4fea-959f-c2cfad445e00)
 
 **Checkout Kit for Android** is a library that enables Android apps to
 provide the world's highest converting, customizable, one-page checkout within the mobile app. The
