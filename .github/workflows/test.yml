@@ -9,7 +9,7 @@ on:
 
 jobs:
   test:
-    runs-on: shopify-ubuntu-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
