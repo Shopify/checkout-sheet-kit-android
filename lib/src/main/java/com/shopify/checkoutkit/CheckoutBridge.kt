@@ -23,25 +23,31 @@
 package com.shopify.checkoutkit
 
 import android.webkit.JavascriptInterface
+import android.webkit.WebView
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.MODAL
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-
-internal object CheckoutBridgeMetadata {
-    private const val SDK_VERSION_NUMBER: String = BuildConfig.SDK_VERSION
-    private const val SCHEMA_VERSION_NUMBER: String = "5.3"
-
-    fun userAgentSuffix(): String {
-        val theme = ShopifyCheckoutKit.configuration.colorScheme.id
-        return "ShopifyCheckoutSDK/$SDK_VERSION_NUMBER ($SCHEMA_VERSION_NUMBER;$theme;standard)"
-    }
-}
 
 internal class CheckoutBridge(
     private var eventProcessor: CheckoutWebViewEventProcessor,
     private val decoder: Json = Json { ignoreUnknownKeys = true }
 ) {
+    companion object {
+        private const val SDK_VERSION_NUMBER: String = BuildConfig.SDK_VERSION
+        private const val SCHEMA_VERSION_NUMBER: String = "6.0"
+
+        fun userAgentSuffix(): String {
+            val theme = ShopifyCheckoutKit.configuration.colorScheme.id
+            return "ShopifyCheckoutSDK/$SDK_VERSION_NUMBER ($SCHEMA_VERSION_NUMBER;$theme;standard)"
+        }
+
+        fun instrument(webView: WebView, payload: InstrumentationPayload) {
+            val event = SdkToWebEvent(payload)
+            webView.evaluateJavascript("setTimeout(()=> {window.MobileCheckoutSdk.dispatchMessage('instrumentation', ${Json.encodeToString(event)}); }, 2000)", null)
+        }
+    }
 
     fun setEventProcessor(eventProcessor: CheckoutWebViewEventProcessor) {
         this.eventProcessor = eventProcessor
@@ -80,3 +86,21 @@ internal class CheckoutBridge(
     @Serializable
     internal data class JSMessage(val name: String, val body: String = "")
 }
+
+@Serializable
+internal data class SdkToWebEvent<T>(
+    val detail: T
+)
+@Serializable
+internal data class InstrumentationPayload(
+    val name: String,
+    val value: Long,
+    val type: InstrumentationType,
+    val tags: Map<String, String>
+)
+
+@Serializable
+internal enum class InstrumentationType {
+    histogram, incrementCounter
+}
+

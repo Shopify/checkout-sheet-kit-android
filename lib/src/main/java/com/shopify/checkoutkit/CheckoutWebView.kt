@@ -42,7 +42,8 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.ComponentActivity
-import com.shopify.checkoutkit.CheckoutBridgeMetadata.userAgentSuffix
+import com.shopify.checkoutkit.CheckoutBridge.Companion.userAgentSuffix
+import com.shopify.checkoutkit.InstrumentationType.histogram
 import java.net.HttpURLConnection.HTTP_GONE
 import java.net.HttpURLConnection.HTTP_INTERNAL_ERROR
 import java.net.HttpURLConnection.HTTP_NOT_FOUND
@@ -56,6 +57,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
 
     private val checkoutBridge = CheckoutBridge(CheckoutWebViewEventProcessor(NoopEventProcessor()))
     private var loadComplete = false
+    private var initLoadTime: Long = -1
 
     init {
         configureWebView()
@@ -101,6 +103,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
     }
 
     fun loadCheckout(url: String) {
+        initLoadTime = System.currentTimeMillis()
         Handler(Looper.getMainLooper()).post {
             loadUrl(url)
         }
@@ -116,6 +119,10 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         override fun onPageFinished(view: WebView?, url: String?) {
             super.onPageFinished(view, url)
             loadComplete = true
+            val timeToLoad = System.currentTimeMillis() - initLoadTime
+            CheckoutBridge.instrument(view!!, InstrumentationPayload(
+                "checkout_finished_loading", timeToLoad, histogram, mapOf()
+            ))
             checkoutBridge.getEventProcessor().onCheckoutViewLoadComplete()
         }
 
