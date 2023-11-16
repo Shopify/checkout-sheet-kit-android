@@ -27,6 +27,9 @@ import android.content.Intent
 import android.net.Uri
 import kotlinx.serialization.Serializable
 
+/**
+ * Superclass for the Shopify Checkout Kit exceptions
+ */
 @Serializable
 public abstract class CheckoutException(private val errorDescription: String) : Exception(errorDescription)
 
@@ -62,15 +65,18 @@ public class CheckoutLiquidNotMigratedException : CheckoutException(
             "supports checkout with extensibility."
 )
 
+/**
+ * Interface to implement to allow responding to lifecycle events in checkout.
+ */
 public interface CheckoutEventProcessor {
     /**
-     * Event representing the completion of a checkout.
+     * Event representing the successful completion of a checkout.
      */
     public fun onCheckoutCompleted()
 
     /**
      * Event representing an error that occurred during checkout. This can be used to display
-     * error modals for example.
+     * error messages for example.
      *
      * @param error - the CheckoutErrorException that occurred
      * @see Exception
@@ -78,13 +84,13 @@ public interface CheckoutEventProcessor {
     public fun onCheckoutFailed(error: CheckoutException)
 
     /**
-     * Event representing the cancellation of checkout
+     * Event representing the cancellation/closing of checkout
      */
     public fun onCheckoutCanceled()
 
     /**
-     * Event indicating that a link has been clicked within checkout
-     * Protocols can be http/https/mailto/tel
+     * Event indicating that a link has been clicked within checkout that should be opened outside
+     * of the WebView, e.g. in a system browser or email client. Protocols can be http/https/mailto/tel
      */
     public fun onCheckoutLinkClicked(uri: Uri)
 }
@@ -106,7 +112,7 @@ internal class NoopEventProcessor : CheckoutEventProcessor {
 /**
  * An abstract class that provides a default implementation of the CheckoutEventProcessor interface
  * for handling checkout events and interacting with the Android operating system.
- * @param context from which we will perform intents.
+ * @param context from which we will launch intents.
  */
 public abstract class DefaultCheckoutEventProcessor(private val context: Context) : CheckoutEventProcessor {
 

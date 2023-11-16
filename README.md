@@ -135,6 +135,8 @@ ShopifyCheckoutKit.configure {
 
 _Note: use preloading to optimize and deliver an instant buyer experience._
 
+The current configuration can be obtained by calling `ShopifyCheckoutKit.getConfiguration()`.
+
 ### Preloading
 
 Initializing a checkout session requires communicating with Shopify servers and, depending
