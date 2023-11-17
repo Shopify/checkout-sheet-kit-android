@@ -27,7 +27,7 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 
 /**
- * Entrypoint to the library. Allows configuring, preloading, and presenting Shopify checkouts.
+ * Entrypoint to the library, allows configuring, preloading, and presenting Shopify checkouts.
  */
 public object ShopifyCheckoutKit {
 

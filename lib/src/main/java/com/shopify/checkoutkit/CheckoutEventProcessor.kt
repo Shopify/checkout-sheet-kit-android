@@ -34,8 +34,8 @@ import kotlinx.serialization.Serializable
 public abstract class CheckoutException(private val errorDescription: String) : Exception(errorDescription)
 
 /**
- * Issued when an internal error within Shopify Checkout SDK.
- * In event of an sdkError you could use the stacktrace to inform you of how to proceed,
+ * Issued when an internal error occurs within Shopify Checkout Kit.
+ * In event of an error you could use the stacktrace to inform you of how to proceed,
  * if the issue persists, it is recommended to open a bug report in https://github.com/Shopify/checkout-kit-android
  */
 public class CheckoutSdkError(errorMsg: String) : CheckoutException(errorMsg)
