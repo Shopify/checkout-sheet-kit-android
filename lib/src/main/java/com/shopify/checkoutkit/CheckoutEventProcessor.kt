@@ -84,7 +84,7 @@ public interface CheckoutEventProcessor {
     public fun onCheckoutFailed(error: CheckoutException)
 
     /**
-     * Event representing the cancellation/closing of checkout
+     * Event representing the cancellation/closing of checkout by the buyer
      */
     public fun onCheckoutCanceled()
 
