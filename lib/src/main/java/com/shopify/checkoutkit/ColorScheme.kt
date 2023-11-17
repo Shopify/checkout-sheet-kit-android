@@ -24,22 +24,41 @@ package com.shopify.checkoutkit
 
 import kotlinx.serialization.Serializable
 
+/**
+ * The color scheme to be used when presenting checkout.
+ *
+ * This determines the color of both web elements (displayed in the WebView) as well as native elements
+ * such as the header background and header font
+ */
 @Serializable
 public sealed class ColorScheme(public val id: String) {
+    /**
+     * Always show checkout in an idiomatic light color scheme.
+     */
     @Serializable
-    public class Light(public var colors: Colors = defaultLightColors) : ColorScheme("light")
+    public data class Light(public var colors: Colors = defaultLightColors) : ColorScheme("light")
 
+    /**
+     * Always show checkout in an idiomatic dark color scheme.
+     */
     @Serializable
-    public class Dark(public var colors: Colors = defaultDarkColors) : ColorScheme("dark")
+    public data class Dark(public var colors: Colors = defaultDarkColors) : ColorScheme("dark")
 
+    /**
+     * Automatically toggle between idiomatic light and dark color schemes based on device preference.
+     */
     @Serializable
-    public class Automatic(
+    public data class Automatic(
         internal var lightColors: Colors = defaultLightColors,
         internal var darkColors: Colors = defaultDarkColors
     ) : ColorScheme("automatic")
 
+    /**
+     * Show checkout in a color scheme matching the store's web/desktop checkout branding.
+     * This is especially useful for stores where checkout branding settings have been customised.
+     */
     @Serializable
-    public class Web(public var colors: Colors = defaultLightColors) : ColorScheme("web_default")
+    public data class Web(public var colors: Colors = defaultLightColors) : ColorScheme("web_default")
 
     internal fun headerBackgroundColor(isDark: Boolean) = when (this) {
         is Automatic -> if (isDark) this.darkColors.headerBackground else this.lightColors.headerBackground
@@ -70,6 +89,17 @@ public sealed class ColorScheme(public val id: String) {
     }
 }
 
+/**
+ * Specifies the colors for native elements within a ColorScheme.
+ *
+ * A Colors instance can be passed into a ColorScheme constructor to override its default colors. Colors
+ * that can be overridden are:
+ * - The WebView background color,
+ * - The native header background and font color,
+ * - The loading spinner.
+ *
+ * @see ColorScheme
+ */
 @Serializable
 public data class Colors(
     val webViewBackground: Int,

@@ -22,11 +22,23 @@
  */
 package com.shopify.checkoutkit
 
+/**
+ * Configuration for ShopifyKit.
+ *
+ * Allows:
+ * - Enabling/disabling preloading,
+ * - Specifying the colorScheme that should be used for checkout.
+ */
 public data class Configuration internal constructor(
     var colorScheme: ColorScheme = ColorScheme.Automatic(),
     var preloading: Preloading = Preloading(),
 )
 
+/**
+ * Configuration related to preloading.
+ *
+ * Initially allows toggling the preloading feature.
+ */
 public data class Preloading(
     val enabled: Boolean = false
 )
