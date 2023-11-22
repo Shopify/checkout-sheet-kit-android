@@ -130,7 +130,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
                     return true
                 }
             }
-            return super.onRenderProcessGone(view, detail)
+            return false
         }
 
         override fun shouldOverrideUrlLoading(

@@ -23,6 +23,7 @@
 package com.shopify.checkoutkit
 
 import android.net.Uri
+import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -39,6 +40,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 class CheckoutWebViewClientTest {
@@ -147,6 +149,47 @@ class CheckoutWebViewClientTest {
         verify(checkoutWebViewEventProcessor).onCheckoutViewLoadComplete()
     }
 
+    @Test
+    fun `onRenderProcessGone should return false if sdk version is too low to check detail#didCrash()`() {
+        val view = viewWithProcessor(activity).withParent()
+        val webViewClient = view.CheckoutWebViewClient()
+        val detail = mock<RenderProcessGoneDetail>()
+        whenever(detail.didCrash()).thenReturn(false)
+
+        val result = webViewClient.onRenderProcessGone(view, detail)
+
+        assertThat(result).isFalse
+        assertThat(view.parent).isNotNull
+    }
+
+    @Config(sdk = [26])
+    @Test
+    fun `onRenderProcessGone should do nothing if the renderer crashed`() {
+        val view = viewWithProcessor(activity).withParent()
+        val webViewClient = view.CheckoutWebViewClient()
+        val detail = mock<RenderProcessGoneDetail>()
+        whenever(detail.didCrash()).thenReturn(true)
+
+        val result = webViewClient.onRenderProcessGone(view, detail)
+
+        assertThat(result).isFalse
+        assertThat(view.parent).isNotNull
+    }
+
+    @Config(sdk = [26])
+    @Test
+    fun `onRenderProcessGone should remove the view from its parent if the render process crashed due to low memory`() {
+        val view = viewWithProcessor(activity).withParent()
+        val webViewClient = view.CheckoutWebViewClient()
+        val detail = mock<RenderProcessGoneDetail>()
+        whenever(detail.didCrash()).thenReturn(false)
+
+        val result = webViewClient.onRenderProcessGone(view, detail)
+
+        assertThat(result).isTrue
+        assertThat(view.parent).isNull()
+    }
+
     private fun mockWebRequest(uri: Uri, forMainFrame: Boolean = false): WebResourceRequest {
         val mockRequest = mock<WebResourceRequest>()
         whenever(mockRequest.url).thenReturn(uri)
@@ -180,5 +223,11 @@ class CheckoutWebViewClientTest {
         whenever(mock.statusCode).thenReturn(status)
         whenever(mock.reasonPhrase).thenReturn(description)
         return mock
+    }
+
+    private fun CheckoutWebView.withParent(): CheckoutWebView {
+        val container = CheckoutWebViewContainer(activity)
+        container.addView(this)
+        return this
     }
 }
