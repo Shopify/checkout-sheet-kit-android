@@ -120,15 +120,13 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         }
 
         override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                if (!detail.didCrash()) {
-                    // Renderer was killed because system ran out of memory.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !detail.didCrash()) {
+                // Renderer was killed because system ran out of memory.
 
-                    // Removing the view from `CheckoutWebViewContainer will trigger a cache clear
-                    // and call webView.destroy()
-                    (view.parent as ViewGroup).removeView(view)
-                    return true
-                }
+                // Removing the view from `CheckoutWebViewContainer will trigger a cache clear
+                // and call webView.destroy()
+                (view.parent as ViewGroup).removeView(view)
+                return true
             }
             return false
         }
