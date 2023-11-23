@@ -114,14 +114,17 @@ internal class NoopEventProcessor : CheckoutEventProcessor {
  * for handling checkout events and interacting with the Android operating system.
  * @param context from which we will launch intents.
  */
-public abstract class DefaultCheckoutEventProcessor(private val context: Context) : CheckoutEventProcessor {
+public abstract class DefaultCheckoutEventProcessor(
+    private val context: Context,
+    private val log: LogWrapper = LogWrapper(),
+) : CheckoutEventProcessor {
 
     override fun onCheckoutLinkClicked(uri: Uri) {
         when (uri.scheme) {
             "tel" -> context.launchPhoneApp(uri.schemeSpecificPart)
             "mailto" -> context.launchEmailApp(uri.schemeSpecificPart)
             "https", "http" -> context.launchBrowser(uri)
-            else -> println("Unrecognized scheme for uri $uri")
+            else -> log.w(TAG, "Unrecognized scheme for link clicked in checkout '$uri'")
         }
     }
 
@@ -141,5 +144,9 @@ public abstract class DefaultCheckoutEventProcessor(private val context: Context
     private fun Context.launchPhoneApp(phone: String) {
         val intent = Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null))
         startActivity(intent)
+    }
+
+    private companion object {
+        private const val TAG = "DefaultCheckoutEventProcessor"
     }
 }
