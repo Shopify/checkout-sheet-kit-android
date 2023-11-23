@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.sp
 import com.shopify.checkoutkit.ColorScheme
 import com.shopify.checkoutkit.Colors
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
+import com.shopify.checkoutkit.Color
 
 @Composable
 fun ColorSchemeSection(
@@ -109,10 +110,10 @@ fun ColorSchemeSection(
         ColorSchemeOption(
             colorScheme = ColorScheme.Web(
                 colors = Colors(
-                    headerBackground = R.color.header_bg,
-                    webViewBackground = R.color.web_view_bg,
-                    headerFont = R.color.header_font,
-                    spinnerColor = R.color.bright_spinner,
+                    headerBackground = Color.ResourceId(R.color.header_bg),
+                    webViewBackground = Color.ResourceId(R.color.web_view_bg),
+                    headerFont = Color.ResourceId(R.color.header_font),
+                    spinnerColor = Color.ResourceId(R.color.bright_spinner),
                 )
             ),
             description = "Applies a color scheme in checkout based on the current checkout web configuration",

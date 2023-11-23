@@ -32,156 +32,156 @@ class ColorSchemeTest {
     fun `dark color scheme has defaults matching idiomatic dark checkout`() {
         val dark = ColorScheme.Dark()
 
-        assertThat(dark.colors.headerBackground).isEqualTo(R.color.checkoutDarkBg)
-        assertThat(dark.colors.headerFont).isEqualTo(R.color.checkoutDarkFont)
-        assertThat(dark.colors.webViewBackground).isEqualTo(R.color.checkoutDarkBg)
-        assertThat(dark.colors.spinnerColor).isEqualTo(R.color.checkoutDarkLoadingSpinner)
+        assertThat(dark.colors.headerBackground).isEqualTo(Color.ResourceId(R.color.checkoutDarkBg))
+        assertThat(dark.colors.headerFont).isEqualTo(Color.ResourceId(R.color.checkoutDarkFont))
+        assertThat(dark.colors.webViewBackground).isEqualTo(Color.ResourceId(R.color.checkoutDarkBg))
+        assertThat(dark.colors.spinnerColor).isEqualTo(Color.ResourceId(R.color.checkoutDarkLoadingSpinner))
     }
 
     @Test
     fun `light color scheme has defaults matching idiomatic light checkout`() {
         val light = ColorScheme.Light()
 
-        assertThat(light.colors.headerBackground).isEqualTo(R.color.checkoutLightBg)
-        assertThat(light.colors.headerFont).isEqualTo(R.color.checkoutLightFont)
-        assertThat(light.colors.webViewBackground).isEqualTo(R.color.checkoutLightBg)
-        assertThat(light.colors.spinnerColor).isEqualTo(R.color.checkoutLightLoadingSpinner)
+        assertThat(light.colors.headerBackground).isEqualTo(Color.ResourceId(R.color.checkoutLightBg))
+        assertThat(light.colors.headerFont).isEqualTo(Color.ResourceId(R.color.checkoutLightFont))
+        assertThat(light.colors.webViewBackground).isEqualTo(Color.ResourceId(R.color.checkoutLightBg))
+        assertThat(light.colors.spinnerColor).isEqualTo(Color.ResourceId(R.color.checkoutLightLoadingSpinner))
     }
 
     @Test
     fun `automatic color scheme has defaults matching both idiomatic light and dark checkout`() {
         val automatic = ColorScheme.Automatic()
 
-        assertThat(automatic.darkColors.headerBackground).isEqualTo(R.color.checkoutDarkBg)
-        assertThat(automatic.darkColors.headerFont).isEqualTo(R.color.checkoutDarkFont)
-        assertThat(automatic.darkColors.webViewBackground).isEqualTo(R.color.checkoutDarkBg)
-        assertThat(automatic.darkColors.spinnerColor).isEqualTo(R.color.checkoutDarkLoadingSpinner)
+        assertThat(automatic.darkColors.headerBackground).isEqualTo(Color.ResourceId(R.color.checkoutDarkBg))
+        assertThat(automatic.darkColors.headerFont).isEqualTo(Color.ResourceId(R.color.checkoutDarkFont))
+        assertThat(automatic.darkColors.webViewBackground).isEqualTo(Color.ResourceId(R.color.checkoutDarkBg))
+        assertThat(automatic.darkColors.spinnerColor).isEqualTo(Color.ResourceId(R.color.checkoutDarkLoadingSpinner))
 
-        assertThat(automatic.lightColors.headerBackground).isEqualTo(R.color.checkoutLightBg)
-        assertThat(automatic.lightColors.headerFont).isEqualTo(R.color.checkoutLightFont)
-        assertThat(automatic.lightColors.webViewBackground).isEqualTo(R.color.checkoutLightBg)
-        assertThat(automatic.lightColors.spinnerColor).isEqualTo(R.color.checkoutLightLoadingSpinner)
+        assertThat(automatic.lightColors.headerBackground).isEqualTo(Color.ResourceId(R.color.checkoutLightBg))
+        assertThat(automatic.lightColors.headerFont).isEqualTo(Color.ResourceId(R.color.checkoutLightFont))
+        assertThat(automatic.lightColors.webViewBackground).isEqualTo(Color.ResourceId(R.color.checkoutLightBg))
+        assertThat(automatic.lightColors.spinnerColor).isEqualTo(Color.ResourceId(R.color.checkoutLightLoadingSpinner))
     }
 
     @Test
     fun `web color scheme has defaults matching idiomatic light checkout`() {
         val web = ColorScheme.Web()
 
-        assertThat(web.colors.headerBackground).isEqualTo(R.color.checkoutLightBg)
-        assertThat(web.colors.headerFont).isEqualTo(R.color.checkoutLightFont)
-        assertThat(web.colors.webViewBackground).isEqualTo(R.color.checkoutLightBg)
-        assertThat(web.colors.spinnerColor).isEqualTo(R.color.checkoutLightLoadingSpinner)
+        assertThat(web.colors.headerBackground).isEqualTo(Color.ResourceId(R.color.checkoutLightBg))
+        assertThat(web.colors.headerFont).isEqualTo(Color.ResourceId(R.color.checkoutLightFont))
+        assertThat(web.colors.webViewBackground).isEqualTo(Color.ResourceId(R.color.checkoutLightBg))
+        assertThat(web.colors.spinnerColor).isEqualTo(Color.ResourceId(R.color.checkoutLightLoadingSpinner))
     }
 
     @Test
     fun `color schemes defaults can be overridden`() {
         val web = ColorScheme.Web(
             Colors(
-                headerBackground = 1,
-                headerFont = 2,
-                webViewBackground = 3,
-                spinnerColor = 4,
+                headerBackground = Color.ResourceId(1),
+                headerFont = Color.ResourceId(2),
+                webViewBackground = Color.ResourceId(3),
+                spinnerColor = Color.ResourceId(4),
             )
         )
 
-        assertThat(web.colors.headerBackground).isEqualTo(1)
-        assertThat(web.colors.headerFont).isEqualTo(2)
-        assertThat(web.colors.webViewBackground).isEqualTo(3)
-        assertThat(web.colors.spinnerColor).isEqualTo(4)
+        assertThat(web.colors.headerBackground).isEqualTo(Color.ResourceId(1))
+        assertThat(web.colors.headerFont).isEqualTo(Color.ResourceId(2))
+        assertThat(web.colors.webViewBackground).isEqualTo(Color.ResourceId(3))
+        assertThat(web.colors.spinnerColor).isEqualTo(Color.ResourceId(4))
     }
 
     @Test
     fun `color schemes has a helper function for retrieving header background color`() {
         val automatic = ColorScheme.Automatic(
             lightColors = Colors(
-                headerBackground = 1,
-                headerFont = 2,
-                webViewBackground = 3,
-                spinnerColor = 4,
+                headerBackground = Color.ResourceId(1),
+                headerFont = Color.ResourceId(2),
+                webViewBackground = Color.ResourceId(3),
+                spinnerColor = Color.ResourceId(4),
             ),
             darkColors = Colors(
-                headerBackground = 5,
-                headerFont = 6,
-                webViewBackground = 7,
-                spinnerColor = 8,
+                headerBackground = Color.ResourceId(5),
+                headerFont = Color.ResourceId(6),
+                webViewBackground = Color.ResourceId(7),
+                spinnerColor = Color.ResourceId(8),
             )
         )
 
         assertThat(
             automatic.headerBackgroundColor(isDark = false)
-        ).isEqualTo(1)
+        ).isEqualTo(Color.ResourceId(1))
 
         assertThat(
             automatic.headerBackgroundColor(isDark = true)
-        ).isEqualTo(5)
+        ).isEqualTo(Color.ResourceId(5))
     }
 
     @Test
     fun `color schemes has a helper function for retrieving header font color`() {
         val automatic = ColorScheme.Automatic(
             lightColors = Colors(
-                headerBackground = 1,
-                headerFont = 2,
-                webViewBackground = 3,
-                spinnerColor = 4,
+                headerBackground = Color.ResourceId(1),
+                headerFont = Color.ResourceId(2),
+                webViewBackground = Color.ResourceId(3),
+                spinnerColor = Color.ResourceId(4),
             ),
             darkColors = Colors(
-                headerBackground = 5,
-                headerFont = 6,
-                webViewBackground = 7,
-                spinnerColor = 8
+                headerBackground = Color.ResourceId(5),
+                headerFont = Color.ResourceId(6),
+                webViewBackground = Color.ResourceId(7),
+                spinnerColor = Color.ResourceId(8),
             )
         )
 
         assertThat(
             automatic.headerFontColor(isDark = false)
-        ).isEqualTo(2)
+        ).isEqualTo(Color.ResourceId(2))
 
         assertThat(
             automatic.headerFontColor(isDark = true)
-        ).isEqualTo(6)
+        ).isEqualTo(Color.ResourceId(6))
     }
 
     @Test
     fun `color schemes has a helper function for retrieving webview background color`() {
         val automatic = ColorScheme.Automatic(
             lightColors = Colors(
-                headerBackground = 1,
-                headerFont = 2,
-                webViewBackground = 3,
-                spinnerColor = 4,
+                headerBackground = Color.ResourceId(1),
+                headerFont = Color.ResourceId(2),
+                webViewBackground = Color.ResourceId(3),
+                spinnerColor = Color.ResourceId(4),
             ),
             darkColors = Colors(
-                headerBackground = 5,
-                headerFont = 6,
-                webViewBackground = 7,
-                spinnerColor = 8,
+                headerBackground = Color.ResourceId(5),
+                headerFont = Color.ResourceId(6),
+                webViewBackground = Color.ResourceId(7),
+                spinnerColor = Color.ResourceId(8),
             )
         )
 
         assertThat(
             automatic.webViewBackgroundColor(isDark = false)
-        ).isEqualTo(3)
+        ).isEqualTo(Color.ResourceId(3))
 
         assertThat(
             automatic.webViewBackgroundColor(isDark = true)
-        ).isEqualTo(7)
+        ).isEqualTo(Color.ResourceId(7))
     }
 
     @Test
     fun `color scheme can be serialized`() {
         val automatic = ColorScheme.Automatic(
             lightColors = Colors(
-                headerBackground = 1,
-                headerFont = 2,
-                webViewBackground = 3,
-                spinnerColor = 4
+                headerBackground = Color.ResourceId(1),
+                headerFont = Color.ResourceId(2),
+                webViewBackground = Color.ResourceId(3),
+                spinnerColor = Color.ResourceId(4),
             ),
             darkColors = Colors(
-                headerBackground = 5,
-                headerFont = 6,
-                webViewBackground = 8,
-                spinnerColor = 9,
+                headerBackground = Color.ResourceId(5),
+                headerFont = Color.ResourceId(6),
+                webViewBackground = Color.ResourceId(8),
+                spinnerColor = Color.ResourceId(9),
             )
         )
 

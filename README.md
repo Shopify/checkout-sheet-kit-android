@@ -124,14 +124,16 @@ ShopifyCheckoutKit.configure {
     // Force web theme, passing colors for the modal header and background
     it.colorScheme = ColorScheme.Web(
         Colors(
-            webViewBackground = R.color.web_view_background,
-            headerFont = R.color.header_font,
-            headerBackground = R.color.header_background,
-            spinnerColor = R.color.loading_spinner,
+            webViewBackground = Color.ResourceId(R.color.web_view_background),
+            headerFont = Color.ResourceId(R.color.header_font),
+            headerBackground = Color.ResourceId(R.color.header_background),
+            spinnerColor = Color.ResourceId(R.color.loading_spinner),
         )
     )
 }
 ```
+
+_Note: Colors can also be specified in sRGB format (e.g. `Color.SRGB(-0xff0001)`)_
 
 _Note: use preloading to optimize and deliver an instant buyer experience._
 

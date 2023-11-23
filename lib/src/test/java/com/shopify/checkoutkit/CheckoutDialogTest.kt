@@ -131,7 +131,7 @@ class CheckoutDialogTest {
         val dialog = ShadowDialog.getLatestDialog()
         val header = dialog.findViewById<Toolbar>(R.id.checkoutSdkHeader)
         val headerBackgroundColor = backgroundColor(header)
-        val configuredColor = activity.getColor(customColors.headerBackground)
+        val configuredColor = customColors.headerBackground.getValue(activity)
 
         assertThat(headerBackgroundColor).isEqualTo(configuredColor)
     }
@@ -146,7 +146,7 @@ class CheckoutDialogTest {
         val dialog = ShadowDialog.getLatestDialog()
         val webViewContainer = dialog.findViewById<FrameLayout>(R.id.checkoutSdkContainer)
         val webViewContainerBackgroundColor = backgroundColor(webViewContainer)
-        val configuredColor = activity.getColor(customColors.webViewBackground)
+        val configuredColor = customColors.webViewBackground.getValue(activity)
 
         assertThat(webViewContainerBackgroundColor).isEqualTo(configuredColor)
     }
@@ -157,10 +157,10 @@ class CheckoutDialogTest {
 
     private fun customColors(): Colors {
         return Colors(
-            headerFont = androidx.appcompat.R.color.material_grey_850,
-            headerBackground = androidx.appcompat.R.color.material_blue_grey_900,
-            webViewBackground = androidx.appcompat.R.color.material_deep_teal_200,
-            spinnerColor = androidx.appcompat.R.color.background_material_dark,
+            headerFont = Color.ResourceId(androidx.appcompat.R.color.material_grey_850),
+            headerBackground = Color.ResourceId(androidx.appcompat.R.color.material_blue_grey_900),
+            webViewBackground = Color.ResourceId(androidx.appcompat.R.color.material_deep_teal_200),
+            spinnerColor = Color.ResourceId(androidx.appcompat.R.color.background_material_dark),
         )
     }
 

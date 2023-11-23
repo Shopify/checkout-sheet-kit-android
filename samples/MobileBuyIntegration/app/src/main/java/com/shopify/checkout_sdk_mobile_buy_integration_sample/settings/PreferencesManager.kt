@@ -35,7 +35,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
 
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "checkoutSdkSettings")
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "checkoutKitSettings")
 
 class PreferencesManager(private val context: Context) {
     private val decoder: Json = Json { ignoreUnknownKeys = true }
