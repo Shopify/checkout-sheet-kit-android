@@ -26,13 +26,16 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color.TRANSPARENT
 import android.net.Uri
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -114,6 +117,19 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             super.onPageFinished(view, url)
             loadComplete = true
             checkoutBridge.getEventProcessor().onCheckoutViewLoadComplete()
+        }
+
+        override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !detail.didCrash()) {
+                // Renderer was killed because system ran out of memory.
+
+                // Removing the view from `CheckoutWebViewContainer will trigger a cache clear
+                // and call webView.destroy()
+                (view.parent as ViewGroup).removeView(view)
+                true
+            } else {
+                false
+            }
         }
 
         override fun shouldOverrideUrlLoading(

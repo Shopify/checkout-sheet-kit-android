@@ -107,7 +107,9 @@ internal class CheckoutDialog(
 
         setOnCancelListener {
             checkoutEventProcessor.onCheckoutCanceled()
-            (checkoutWebView.parent as ViewGroup).removeView(checkoutWebView)
+            checkoutWebView.parent?.let {
+                (checkoutWebView.parent as ViewGroup).removeView(checkoutWebView)
+            }
         }
 
         header.setOnMenuItemClickListener {
