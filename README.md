@@ -133,9 +133,26 @@ ShopifyCheckoutKit.configure {
 }
 ```
 
-_Note: Colors can also be specified in sRGB format (e.g. `Color.SRGB(-0xff0001)`)_
+- _Note: use preloading to optimize and deliver an instant buyer experience._
+- _Note: Colors can also be specified in sRGB format (e.g. `Color.SRGB(-0xff0001)`)_
+- _Note: Colors can also be overridden for Light/Dark/Automatic themes, e.g:_
 
-_Note: use preloading to optimize and deliver an instant buyer experience._
+```kotlin
+val automatic = ColorScheme.Automatic(
+    lightColors = Colors(
+        headerBackground = Color.ResourceId(R.color.headerLight),
+        headerFont = Color.ResourceId(R.color.headerFontLight),
+        webViewBackground = Color.ResourceId(R.color.webViewBgLight),
+        spinnerColor = Color.ResourceId(R.color.spinnerLight),
+    ),
+    darkColors = Colors(
+        headerBackground = Color.ResourceId(R.color.headerDark),
+        headerFont = Color.ResourceId(R.color.headerFontDark,
+        webViewBackground = Color.ResourceId(R.color.webViewBgDark),
+        spinnerColor = Color.ResourceId(R.color.spinnerDark),
+    )
+)
+```
 
 The current configuration can be obtained by calling `ShopifyCheckoutKit.getConfiguration()`.
 
