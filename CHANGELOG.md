@@ -20,3 +20,7 @@
 
 Note: breaking changes may be made during Dev Preview with minor version increments, but will receive a major version increments 
 after release for General Availability.
+
+## 0.3.1 - November 24, 2023
+
+- Fix for Java interoperability related to default arguments on `DefaultCheckoutEventProcessor`.
