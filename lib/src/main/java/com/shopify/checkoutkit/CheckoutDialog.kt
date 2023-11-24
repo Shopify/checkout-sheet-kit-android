@@ -41,6 +41,7 @@ import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.ProgressBar
 import androidx.activity.ComponentActivity
+import androidx.annotation.ColorInt
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat.getColor
 
@@ -132,15 +133,19 @@ internal class CheckoutDialog(
         findViewById<CheckoutWebViewContainer>(R.id.checkoutSdkContainer).visibility = VISIBLE
     }
 
+    @ColorInt
     private fun ColorScheme.headerBackgroundColor() =
         this.headerBackgroundColor(context.isDarkTheme()).getValue(context)
 
+    @ColorInt
     private fun ColorScheme.webViewBackgroundColor() =
         this.webViewBackgroundColor(context.isDarkTheme()).getValue(context)
 
+    @ColorInt
     private fun ColorScheme.headerFontColor() =
         this.headerFontColor(context.isDarkTheme()).getValue(context)
 
+    @ColorInt
     private fun ColorScheme.loadingSpinnerColor() =
         this.loadingSpinnerColor(context.isDarkTheme()).getValue(context)
 
