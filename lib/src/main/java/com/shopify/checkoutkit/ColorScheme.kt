@@ -22,6 +22,8 @@
  */
 package com.shopify.checkoutkit
 
+import android.content.Context
+import androidx.core.content.ContextCompat.getColor
 import kotlinx.serialization.Serializable
 
 /**
@@ -102,22 +104,35 @@ public sealed class ColorScheme(public val id: String) {
  */
 @Serializable
 public data class Colors(
-    val webViewBackground: Int,
-    val headerBackground: Int,
-    val headerFont: Int,
-    val spinnerColor: Int,
+    val webViewBackground: Color,
+    val headerBackground: Color,
+    val headerFont: Color,
+    val spinnerColor: Color,
 )
 
+@Serializable
+public sealed class Color {
+    @Serializable
+    public data class SRGB(public val sRGB: Int): Color()
+    @Serializable
+    public data class ResourceId(public val id: Int): Color()
+
+    public fun getValue(context: Context): Int = when (this) {
+        is ResourceId -> getColor(context, this.id)
+        is SRGB -> this.sRGB
+    }
+}
+
 private val defaultLightColors = Colors(
-    webViewBackground = R.color.checkoutLightBg,
-    headerBackground = R.color.checkoutLightBg,
-    headerFont = R.color.checkoutLightFont,
-    spinnerColor = R.color.checkoutLightLoadingSpinner,
+    webViewBackground = Color.ResourceId(R.color.checkoutLightBg),
+    headerBackground = Color.ResourceId(R.color.checkoutLightBg),
+    headerFont = Color.ResourceId(R.color.checkoutLightFont),
+    spinnerColor = Color.ResourceId(R.color.checkoutLightLoadingSpinner),
 )
 
 private val defaultDarkColors = Colors(
-    webViewBackground = R.color.checkoutDarkBg,
-    headerBackground = R.color.checkoutDarkBg,
-    headerFont = R.color.checkoutDarkFont,
-    spinnerColor = R.color.checkoutDarkLoadingSpinner,
+    webViewBackground = Color.ResourceId(R.color.checkoutDarkBg),
+    headerBackground = Color.ResourceId(R.color.checkoutDarkBg),
+    headerFont = Color.ResourceId(R.color.checkoutDarkFont),
+    spinnerColor = Color.ResourceId(R.color.checkoutDarkLoadingSpinner),
 )

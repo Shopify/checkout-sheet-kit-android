@@ -133,16 +133,16 @@ internal class CheckoutDialog(
     }
 
     private fun ColorScheme.headerBackgroundColor() =
-        getColor(context, this.headerBackgroundColor(context.isDarkTheme()))
+        this.headerBackgroundColor(context.isDarkTheme()).getValue(context)
 
     private fun ColorScheme.webViewBackgroundColor() =
-        getColor(context, this.webViewBackgroundColor(context.isDarkTheme()))
+        this.webViewBackgroundColor(context.isDarkTheme()).getValue(context)
 
     private fun ColorScheme.headerFontColor() =
-        getColor(context, this.headerFontColor(context.isDarkTheme()))
+        this.headerFontColor(context.isDarkTheme()).getValue(context)
 
     private fun ColorScheme.loadingSpinnerColor() =
-        getColor(context, this.loadingSpinnerColor(context.isDarkTheme()))
+        this.loadingSpinnerColor(context.isDarkTheme()).getValue(context)
 
     private fun Context.isDarkTheme() =
         resources.configuration.uiMode and UI_MODE_NIGHT_MASK == UI_MODE_NIGHT_YES
