@@ -114,7 +114,7 @@ internal class NoopEventProcessor : CheckoutEventProcessor {
  * for handling checkout events and interacting with the Android operating system.
  * @param context from which we will launch intents.
  */
-public abstract class DefaultCheckoutEventProcessor(
+public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
     private val context: Context,
     private val log: LogWrapper = LogWrapper(),
 ) : CheckoutEventProcessor {
