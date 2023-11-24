@@ -30,7 +30,7 @@ your project:
 #### Gradle
 
 ```groovy
-implementation "com.shopify.checkout:checkout-kit:$checkoutSdkVersion"
+implementation "com.shopify:checkout-kit:$checkoutSdkVersion"
 ```
 
 #### Maven
