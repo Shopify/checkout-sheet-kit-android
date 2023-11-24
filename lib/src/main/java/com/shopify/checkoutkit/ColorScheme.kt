@@ -23,6 +23,8 @@
 package com.shopify.checkoutkit
 
 import android.content.Context
+import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat.getColor
 import kotlinx.serialization.Serializable
 
@@ -48,11 +50,13 @@ public sealed class ColorScheme(public val id: String) {
 
     /**
      * Automatically toggle between idiomatic light and dark color schemes based on device preference.
+     * @property lightColors The color scheme to use when the device is in light mode.
+     * @property darkColors The color scheme to use when the device is in dark mode.
      */
     @Serializable
     public data class Automatic(
-        internal var lightColors: Colors = defaultLightColors,
-        internal var darkColors: Colors = defaultDarkColors
+        public var lightColors: Colors = defaultLightColors,
+        public var darkColors: Colors = defaultDarkColors
     ) : ColorScheme("automatic")
 
     /**
@@ -110,13 +114,31 @@ public data class Colors(
     val spinnerColor: Color,
 )
 
+/**
+ * Represents a color which can be either a resource id or an sRGB value.
+ */
 @Serializable
 public sealed class Color {
+    /**
+     * Represents a color in sRGB color space.
+     * @property sRGB The sRGB value of the color.
+     */
     @Serializable
     public data class SRGB(public val sRGB: Int): Color()
-    @Serializable
-    public data class ResourceId(public val id: Int): Color()
 
+    /**
+     * Represents a color as a resource id (e.g. {@code android.R.color.black}).
+     * @property id The resource id of the color.
+     */
+    @Serializable
+    public data class ResourceId(@ColorRes public val id: Int): Color()
+
+    /**
+     * Returns the color value.
+     * @param context The context to use when retrieving the color.
+     * @return The color value.
+     */
+    @ColorInt
     public fun getValue(context: Context): Int = when (this) {
         is ResourceId -> getColor(context, this.id)
         is SRGB -> this.sRGB
