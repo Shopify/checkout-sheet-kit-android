@@ -50,11 +50,13 @@ public sealed class ColorScheme(public val id: String) {
 
     /**
      * Automatically toggle between idiomatic light and dark color schemes based on device preference.
+     * @property lightColors The color scheme to use when the device is in light mode.
+     * @property darkColors The color scheme to use when the device is in dark mode.
      */
     @Serializable
     public data class Automatic(
-        internal var lightColors: Colors = defaultLightColors,
-        internal var darkColors: Colors = defaultDarkColors
+        public var lightColors: Colors = defaultLightColors,
+        public var darkColors: Colors = defaultDarkColors
     ) : ColorScheme("automatic")
 
     /**
