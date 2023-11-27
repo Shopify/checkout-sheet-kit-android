@@ -101,6 +101,30 @@ class DefaultCheckoutEventProcessorTest {
         verify(log).w("DefaultCheckoutEventProcessor", "Unrecognized scheme for link clicked in checkout 'ftp:lsklsm'")
     }
 
+    @Test
+    fun `onCheckoutFailed returns an error description`() {
+        val log = mock<LogWrapper>()
+        var description = ""
+        val processor =
+                object : DefaultCheckoutEventProcessor(activity, log) {
+                    override fun onCheckoutCompleted() {
+                        /* not implemented */
+                    }
+                    override fun onCheckoutFailed(error: CheckoutException) {
+                        description = error.errorDescription
+                    }
+                    override fun onCheckoutCanceled() {
+                        /* not implemented */
+                    }
+                }
+
+        val error = object : CheckoutException("error description") {}
+
+        processor.onCheckoutFailed(error)
+
+        assertThat(description).isEqualTo("error description")
+    }
+
     private fun processor(activity: ComponentActivity): DefaultCheckoutEventProcessor {
         return object: DefaultCheckoutEventProcessor(activity) {
             override fun onCheckoutCompleted() {/* not implemented */}
