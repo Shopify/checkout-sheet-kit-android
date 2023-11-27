@@ -29,3 +29,7 @@ after release for General Availability.
 
 - Adds annotations (`@ColorInt` and `@ColorRes`) for more robust color value enforcement.
 - Exposes the `lightColors` and `darkColors` properties of the `Automatic` ColorScheme class to allow overrides.
+
+## 0.3.3 - November 27, 2023
+
+- Exposes the `errorDescription` internal variable on the `CheckoutException` class.
