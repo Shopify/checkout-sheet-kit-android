@@ -39,6 +39,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
@@ -104,7 +106,10 @@ fun NavigationItem(
     badge: @Composable () -> Unit = {}
 ) {
     IconButton(
-        onClick = { navController.navigate(screen.route) }
+        onClick = { navController.navigate(screen.route) },
+        modifier = Modifier.semantics {
+            this.contentDescription = "$label icon"
+        }
     ) {
         val tint = if (currentScreen == screen) {
             MaterialTheme.colors.primary
