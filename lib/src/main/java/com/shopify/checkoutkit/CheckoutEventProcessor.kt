@@ -31,7 +31,7 @@ import kotlinx.serialization.Serializable
  * Superclass for the Shopify Checkout Kit exceptions
  */
 @Serializable
-public abstract class CheckoutException(private val errorDescription: String) : Exception(errorDescription)
+public abstract class CheckoutException(public val errorDescription: String) : Exception(errorDescription)
 
 /**
  * Issued when an internal error occurs within Shopify Checkout Kit.
