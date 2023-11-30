@@ -69,7 +69,7 @@ class CheckoutBridgeSdkEventsTest {
         val payload = InstrumentationPayload(
             name = "Test",
             value = 123L,
-            type = InstrumentationType.Histogram,
+            type = InstrumentationType.histogram,
             tags = mapOf("tag1" to "value1", "tag2" to "value2")
         )
         val expectedPayload = """{"detail":{"name":"Test","value":123,"type":"histogram","tags":{"tag1":"value1","tag2":"value2"}}}"""

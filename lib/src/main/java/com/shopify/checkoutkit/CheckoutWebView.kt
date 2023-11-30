@@ -43,7 +43,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.ComponentActivity
 import com.shopify.checkoutkit.CheckoutBridge.Companion.userAgentSuffix
-import com.shopify.checkoutkit.InstrumentationType.Histogram
+import com.shopify.checkoutkit.InstrumentationType.histogram
 import java.net.HttpURLConnection.HTTP_GONE
 import java.net.HttpURLConnection.HTTP_INTERNAL_ERROR
 import java.net.HttpURLConnection.HTTP_NOT_FOUND
@@ -121,7 +121,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             loadComplete = true
             val timeToLoad = System.currentTimeMillis() - initLoadTime
             CheckoutBridge.instrument(view!!, InstrumentationPayload(
-                "checkout_finished_loading", timeToLoad, Histogram, mapOf()
+                "checkout_finished_loading", timeToLoad, histogram, mapOf()
             ))
             checkoutBridge.getEventProcessor().onCheckoutViewLoadComplete()
         }

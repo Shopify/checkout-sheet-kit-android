@@ -102,8 +102,9 @@ internal data class InstrumentationPayload(
     val tags: Map<String, String>
 )
 
+@Suppress("EnumEntryName", "EnumNaming")
 @Serializable
 internal enum class InstrumentationType {
-    Histogram, IncrementCounter
+    histogram, incrementCounter
 }
 
