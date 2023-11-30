@@ -74,7 +74,7 @@ class CheckoutBridgeSdkEventsTest {
         )
         val expectedPayload = """{"detail":{"name":"Test","value":123,"type":"histogram","tags":{"tag1":"value1","tag2":"value2"}}}"""
         val expectedJavascript = "window.MobileCheckoutSdk.dispatchMessage('instrumentation', ${expectedPayload})"
-        val timeoutEncapsulatedExpectation = "setTimeout(()=> {${expectedJavascript}; }, 2000)"
+        val timeoutEncapsulatedExpectation = "setTimeout(()=> {${expectedJavascript}; }, 1000)"
 
         CheckoutBridge.instrument(webView, payload)
         verify(webView).evaluateJavascript(timeoutEncapsulatedExpectation, null)
