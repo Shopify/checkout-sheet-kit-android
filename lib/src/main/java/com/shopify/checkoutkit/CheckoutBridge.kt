@@ -45,7 +45,10 @@ internal class CheckoutBridge(
 
         fun instrument(webView: WebView, payload: InstrumentationPayload) {
             val event = SdkToWebEvent(payload)
-            webView.evaluateJavascript("setTimeout(()=> {window.MobileCheckoutSdk.dispatchMessage('instrumentation', ${Json.encodeToString(event)}); }, 2000)", null)
+            val json = Json.encodeToString(event)
+            webView.evaluateJavascript(
+                "setTimeout(()=> {window.MobileCheckoutSdk.dispatchMessage('instrumentation', $json); }, 1000)",
+                null)
         }
     }
 
@@ -101,6 +104,6 @@ internal data class InstrumentationPayload(
 
 @Serializable
 internal enum class InstrumentationType {
-    histogram, incrementCounter
+    Histogram, IncrementCounter
 }
 
