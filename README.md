@@ -1,4 +1,4 @@
-# Checkout Kit - Android (Developer Preview)
+# Shopify Checkout Kit - Android (Developer Preview)
 
 [![GitHub license](https://img.shields.io/badge/license-MIT-lightgrey.svg?style=flat)](/LICENSE)
 ![Tests](https://github.com/Shopify/checkout-kit-android/actions/workflows/test.yml/badge.svg?branch=main)
