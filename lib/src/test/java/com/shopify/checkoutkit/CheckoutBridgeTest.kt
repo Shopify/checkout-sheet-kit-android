@@ -22,37 +22,48 @@
  */
 package com.shopify.checkoutkit
 
+import android.webkit.WebView
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.MODAL
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mock
-import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.Mockito
+import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.whenever
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.shadows.ShadowLooper
+import java.lang.RuntimeException
 
-@RunWith(MockitoJUnitRunner::class)
+@RunWith(RobolectricTestRunner::class)
 class CheckoutBridgeTest {
-    @Mock
-    private lateinit var mockEventProcessor: CheckoutWebViewEventProcessor
+
+    private var webView = mock<CheckoutWebView>()
+    private var mockEventProcessor = mock<CheckoutWebViewEventProcessor>()
     private lateinit var checkoutBridge: CheckoutBridge
 
     @Before
     fun init() {
-        checkoutBridge = CheckoutBridge(mockEventProcessor)
+        checkoutBridge = CheckoutBridge(webView, mockEventProcessor)
     }
 
     @Test
-    fun `parseMessage calls web event processor onCheckoutViewComplete when completed message received`() {
+    fun `postMessage calls web event processor onCheckoutViewComplete when completed message received`() {
         checkoutBridge.postMessage(Json.encodeToString(CheckoutBridge.JSMessage(COMPLETED.key)))
         verify(mockEventProcessor).onCheckoutViewComplete()
     }
 
     @Test
-    fun `parseMessage calls web event processor onCheckoutModalToggled when modal message received - false`() {
+    fun `postMessage calls web event processor onCheckoutModalToggled when modal message received - false`() {
         checkoutBridge.postMessage(
             Json.encodeToString(
                 CheckoutBridge.JSMessage(
@@ -65,7 +76,7 @@ class CheckoutBridgeTest {
     }
 
     @Test
-    fun `parseMessage calls web event processor onCheckoutModalToggled when modal message received - true`() {
+    fun `postMessage calls web event processor onCheckoutModalToggled when modal message received - true`() {
         checkoutBridge.postMessage(
             Json.encodeToString(
                 CheckoutBridge.JSMessage(
@@ -78,8 +89,92 @@ class CheckoutBridgeTest {
     }
 
     @Test
-    fun `parseMessage does not issue a msg to the event processor when unsupported message received`() {
+    fun `postMessage does not issue a msg to the event processor when unsupported message received`() {
         checkoutBridge.postMessage(Json.encodeToString(CheckoutBridge.JSMessage("boom")))
         verifyNoInteractions(mockEventProcessor)
+    }
+
+    @Test
+    fun `user agent suffix includes ShopifyCheckoutSDK and version number`() {
+        ShopifyCheckoutKit.configuration.colorScheme = ColorScheme.Dark()
+        assertThat(CheckoutBridge.userAgentSuffix()).startsWith("ShopifyCheckoutSDK/${BuildConfig.SDK_VERSION} ")
+    }
+
+    @Test
+    fun `user agent suffix includes metadata for the schema version, theme, and variant - dark`() {
+        ShopifyCheckoutKit.configuration.colorScheme = ColorScheme.Dark()
+        assertThat(CheckoutBridge.userAgentSuffix()).endsWith("(7.0;dark;standard)")
+    }
+
+    @Test
+    fun `user agent suffix includes metadata for the schema version, theme, and variant - light`() {
+        ShopifyCheckoutKit.configuration.colorScheme = ColorScheme.Light()
+        assertThat(CheckoutBridge.userAgentSuffix()).endsWith("(7.0;light;standard)")
+    }
+
+    @Test
+    fun `user agent suffix includes metadata for the schema version, theme, and variant - web`() {
+        ShopifyCheckoutKit.configuration.colorScheme = ColorScheme.Web()
+        assertThat(CheckoutBridge.userAgentSuffix()).endsWith("(7.0;web_default;standard)")
+    }
+
+    @Test
+    fun `user agent suffix includes metadata for the schema version, theme, and variant - automatic`() {
+        ShopifyCheckoutKit.configuration.colorScheme = ColorScheme.Automatic()
+        assertThat(CheckoutBridge.userAgentSuffix()).endsWith("(7.0;automatic;standard)")
+    }
+
+    @Test
+    fun `sendMessage evaluates javascript on the provided WebView`() {
+        val initMessage = Json.encodeToString(CheckoutBridge.JSMessage("init"))
+        checkoutBridge.postMessage(initMessage)
+        checkoutBridge.sendMessage(CheckoutBridge.SDKOperation.PRESENTED)
+
+        verify(webView).evaluateJavascript("window.MobileCheckoutSdk.dispatchMessage('presented');", null)
+    }
+
+    @Test
+    fun `sendMessage returns error if evaluating javascript fails`() {
+        val initMessage = Json.encodeToString(CheckoutBridge.JSMessage("init"))
+        checkoutBridge.postMessage(initMessage)
+        whenever(webView.evaluateJavascript(any(), eq(null))).thenThrow(RuntimeException("something went wrong"))
+
+        checkoutBridge.sendMessage(CheckoutBridge.SDKOperation.PRESENTED)
+
+        val errorCaptor = argumentCaptor<CheckoutSdkError>()
+        verify(mockEventProcessor).onCheckoutViewFailedWithError(errorCaptor.capture())
+        assertThat(errorCaptor.firstValue.message).isEqualTo(
+            "Failed to send 'presented' message to checkout, some features may not work."
+        )
+    }
+
+    @Test
+    fun `sendMessage buffers messages until init event received`() {
+        checkoutBridge.sendMessage(CheckoutBridge.SDKOperation.PRESENTED)
+        ShadowLooper.runUiThreadTasks()
+        verify(webView, never()).evaluateJavascript(any(), any())
+
+        val initMessage = Json.encodeToString(CheckoutBridge.JSMessage("init"))
+        checkoutBridge.postMessage(initMessage)
+
+        ShadowLooper.runUiThreadTasks()
+        verify(webView).evaluateJavascript("window.MobileCheckoutSdk.dispatchMessage('presented');", null)
+    }
+
+    @Test
+    fun `instrumentation sends message to the bridge`() {
+        val webView = Mockito.mock(WebView::class.java)
+        val payload = InstrumentationPayload(
+            name = "Test",
+            value = 123L,
+            type = InstrumentationType.histogram,
+            tags = mapOf("tag1" to "value1", "tag2" to "value2")
+        )
+        val expectedPayload = """{"detail":{"name":"Test","value":123,"type":"histogram","tags":{"tag1":"value1","tag2":"value2"}}}"""
+        val expectedJavascript = "window.MobileCheckoutSdk.dispatchMessage('instrumentation', ${expectedPayload})"
+        val timeoutEncapsulatedExpectation = "setTimeout(()=> {${expectedJavascript}; }, 1000)"
+
+        CheckoutBridge.instrument(webView, payload)
+        Mockito.verify(webView).evaluateJavascript(timeoutEncapsulatedExpectation, null)
     }
 }

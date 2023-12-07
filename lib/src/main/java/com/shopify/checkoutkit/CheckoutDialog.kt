@@ -119,6 +119,7 @@ internal class CheckoutDialog(
         }
 
         show()
+        checkoutWebView.isPresented()
     }
 
     private fun toggleHeader(modalVisible: Boolean) {
