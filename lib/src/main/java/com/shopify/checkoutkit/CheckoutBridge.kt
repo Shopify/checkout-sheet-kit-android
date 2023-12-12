@@ -40,7 +40,7 @@ internal class CheckoutBridge(
 ) {
 
     private var hasInitialized = false
-    private var messageBuffer = mutableListOf<String>()
+    private val messageBuffer = mutableListOf<String>()
 
     fun setEventProcessor(eventProcessor: CheckoutWebViewEventProcessor) {
         this.eventProcessor = eventProcessor

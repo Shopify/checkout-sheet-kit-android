@@ -72,7 +72,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         checkoutBridge.setEventProcessor(eventProcessor)
     }
 
-    fun isPresented() {
+    fun notifyPresented() {
         checkoutBridge.sendMessage(CheckoutBridge.SDKOperation.PRESENTED)
     }
 

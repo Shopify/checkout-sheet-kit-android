@@ -118,8 +118,11 @@ internal class CheckoutDialog(
             true
         }
 
+        setOnShowListener {
+            checkoutWebView.notifyPresented()
+        }
+
         show()
-        checkoutWebView.isPresented()
     }
 
     private fun toggleHeader(modalVisible: Boolean) {
