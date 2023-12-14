@@ -22,12 +22,12 @@
  */
 package com.shopify.checkoutkit
 
-import android.util.Log
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.ANALYTICS
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.MODAL
+import com.shopify.checkoutkit.messages.AnalyticsEventDecoder
 import com.shopify.checkoutkit.messages.InstrumentationPayload
 import com.shopify.checkoutkit.messages.SDKToWebEvent
 import com.shopify.checkoutkit.messages.WebToSDKMessage
@@ -36,7 +36,8 @@ import kotlinx.serialization.json.Json
 
 internal class CheckoutBridge(
     private var eventProcessor: CheckoutWebViewEventProcessor,
-    private val decoder: Json = Json { ignoreUnknownKeys = true }
+    private val decoder: Json = Json { ignoreUnknownKeys = true },
+    private val analyticsEventDecoder: AnalyticsEventDecoder = AnalyticsEventDecoder(decoder),
 ) {
 
     fun setEventProcessor(eventProcessor: CheckoutWebViewEventProcessor) {
@@ -76,7 +77,10 @@ internal class CheckoutBridge(
                 }
             }
             ANALYTICS -> {
-                Log.e("CheckoutBridge", "${decodedMsg.name}: ${decodedMsg.body}")
+                val analyticsEvent = analyticsEventDecoder.decode(decodedMsg)
+                analyticsEvent?.let {
+                    eventProcessor.onAnalyticsEvent(analyticsEvent)
+                }
             }
             else -> {}
         }

@@ -25,6 +25,7 @@ package com.shopify.checkoutkit
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import com.shopify.checkoutkit.messages.AnalyticsEvent
 import kotlinx.serialization.Serializable
 
 /**
@@ -93,6 +94,12 @@ public interface CheckoutEventProcessor {
      * of the WebView, e.g. in a system browser or email client. Protocols can be http/https/mailto/tel
      */
     public fun onCheckoutLinkClicked(uri: Uri)
+
+    /**
+     * Event with analytics data that can be optionally transformed, enhanced (e.g. with user and session identifiers),
+     * and forwarded on to an analytics service
+     */
+    public fun onAnalyticsEvent(analyticsEvent: AnalyticsEvent)
 }
 
 internal class NoopEventProcessor : CheckoutEventProcessor {
@@ -106,6 +113,9 @@ internal class NoopEventProcessor : CheckoutEventProcessor {
     }
 
     override fun onCheckoutLinkClicked(uri: Uri) {/* noop */
+    }
+
+    override fun onAnalyticsEvent(analyticsEvent: AnalyticsEvent) {/* noop */
     }
 }
 

@@ -25,6 +25,7 @@ package com.shopify.checkoutkit
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
+import com.shopify.checkoutkit.messages.AnalyticsEvent
 
 /**
  * Event processor that can handle events internally, delegate to the CheckoutEventProcessor
@@ -61,6 +62,10 @@ internal class CheckoutWebViewEventProcessor(
         onMainThread {
             hideProgressBar()
         }
+    }
+
+    fun onAnalyticsEvent(event: AnalyticsEvent) {
+        eventProcessor.onAnalyticsEvent(event)
     }
 
     private fun onMainThread(block: () -> Unit) {

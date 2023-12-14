@@ -22,6 +22,7 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
@@ -38,6 +39,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.product.ProductView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsViewModel
+import com.shopify.checkoutkit.messages.AnalyticsEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -101,6 +103,10 @@ fun CheckoutSdkNavHost(
 
                     override fun onCheckoutCanceled() {
                         // optionally respond to checkout being canceled/closed
+                    }
+
+                    override fun onAnalyticsEvent(analyticsEvent: AnalyticsEvent) {
+                        Log.e("CheckoutSdkNavHost", "Received analytics event $analyticsEvent")
                     }
                 }
             )
