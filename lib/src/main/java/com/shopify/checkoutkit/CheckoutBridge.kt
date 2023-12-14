@@ -24,15 +24,18 @@ package com.shopify.checkoutkit
 
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
+import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.ANALYTICS
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.MODAL
+import com.shopify.checkoutkit.messages.AnalyticsEventDecoder
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 internal class CheckoutBridge(
     private var eventProcessor: CheckoutWebViewEventProcessor,
-    private val decoder: Json = Json { ignoreUnknownKeys = true }
+    private val decoder: Json = Json { ignoreUnknownKeys = true },
+    private val analyticsEventDecoder: AnalyticsEventDecoder = AnalyticsEventDecoder(decoder),
 ) {
 
     fun setEventProcessor(eventProcessor: CheckoutWebViewEventProcessor) {
@@ -43,7 +46,8 @@ internal class CheckoutBridge(
 
     enum class CheckoutWebOperation(val key: String) {
         COMPLETED("completed"),
-        MODAL("checkoutBlockingEvent");
+        MODAL("checkoutBlockingEvent"),
+        ANALYTICS("analytics");
 
         companion object {
             fun fromKey(key: String): CheckoutWebOperation? {
@@ -60,7 +64,7 @@ internal class CheckoutBridge(
     // Allows Web to postMessages back to the SDK
     @JavascriptInterface
     fun postMessage(message: String) {
-        val decodedMsg = decoder.decodeFromString<JSMessage>(message)
+        val decodedMsg = decoder.decodeFromString<WebToSdkEvent>(message)
 
         when (CheckoutWebOperation.fromKey(decodedMsg.name)) {
             COMPLETED -> eventProcessor.onCheckoutViewComplete()
@@ -68,6 +72,12 @@ internal class CheckoutBridge(
                 val modalVisible = decodedMsg.body.toBooleanStrictOrNull()
                 modalVisible?.let {
                     eventProcessor.onCheckoutViewModalToggled(modalVisible)
+                }
+            }
+            ANALYTICS -> {
+                val analyticsEvent = analyticsEventDecoder.decode(decodedMsg)
+                analyticsEvent?.let {
+                    eventProcessor.onAnalyticsEvent(analyticsEvent)
                 }
             }
             else -> {}
@@ -93,9 +103,6 @@ internal class CheckoutBridge(
         }
     }
 
-    @Serializable
-    internal data class JSMessage(val name: String, val body: String = "")
-
     companion object {
         private const val SDK_VERSION_NUMBER: String = BuildConfig.SDK_VERSION
         private const val SCHEMA_VERSION_NUMBER: String = "7.0"
@@ -120,6 +127,7 @@ internal class CheckoutBridge(
 internal data class SdkToWebEvent<T>(
     val detail: T
 )
+
 @Serializable
 internal data class InstrumentationPayload(
     val name: String,
@@ -133,3 +141,9 @@ internal data class InstrumentationPayload(
 internal enum class InstrumentationType {
     histogram, incrementCounter
 }
+
+@Serializable
+internal data class WebToSdkEvent(
+    val name: String,
+    val body: String = ""
+)

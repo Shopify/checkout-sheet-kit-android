@@ -25,6 +25,7 @@ package com.shopify.checkoutkit
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.ComponentActivity
+import com.shopify.checkoutkit.messages.AnalyticsEvent
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -91,6 +92,7 @@ class DefaultCheckoutEventProcessorTest {
             override fun onCheckoutCompleted() {/* not implemented */}
             override fun onCheckoutFailed(error: CheckoutException) {/* not implemented */}
             override fun onCheckoutCanceled() {/* not implemented */}
+            override fun onAnalyticsEvent(analyticsEvent: AnalyticsEvent) {/* not implemented */}
         }
 
         val uri = Uri.parse("ftp:lsklsm")
@@ -116,6 +118,10 @@ class DefaultCheckoutEventProcessorTest {
                     override fun onCheckoutCanceled() {
                         /* not implemented */
                     }
+
+                    override fun onAnalyticsEvent(analyticsEvent: AnalyticsEvent) {
+                        /* not implemented */
+                    }
                 }
 
         val error = object : CheckoutException("error description") {}
@@ -130,6 +136,7 @@ class DefaultCheckoutEventProcessorTest {
             override fun onCheckoutCompleted() {/* not implemented */}
             override fun onCheckoutFailed(error: CheckoutException) {/* not implemented */}
             override fun onCheckoutCanceled() {/* not implemented */}
+            override fun onAnalyticsEvent(analyticsEvent: AnalyticsEvent) {/* not implemented */}
         }
     }
 }

@@ -35,4 +35,8 @@ public class LogWrapper {
     public fun e(tag: String, msg: String) {
         Log.e(tag, msg)
     }
+
+    public fun e(tag: String, msg: String, throwable: Throwable) {
+        Log.e(tag, msg, throwable)
+    }
 }
