@@ -22,11 +22,15 @@
  */
 package com.shopify.checkoutkit
 
+import android.util.Log
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
+import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.ANALYTICS
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.MODAL
-import kotlinx.serialization.Serializable
+import com.shopify.checkoutkit.messages.InstrumentationPayload
+import com.shopify.checkoutkit.messages.SDKToWebEvent
+import com.shopify.checkoutkit.messages.WebToSDKMessage
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -43,7 +47,8 @@ internal class CheckoutBridge(
 
     enum class CheckoutWebOperation(val key: String) {
         COMPLETED("completed"),
-        MODAL("checkoutBlockingEvent");
+        MODAL("checkoutBlockingEvent"),
+        ANALYTICS("analytics");
 
         companion object {
             fun fromKey(key: String): CheckoutWebOperation? {
@@ -60,7 +65,7 @@ internal class CheckoutBridge(
     // Allows Web to postMessages back to the SDK
     @JavascriptInterface
     fun postMessage(message: String) {
-        val decodedMsg = decoder.decodeFromString<JSMessage>(message)
+        val decodedMsg = decoder.decodeFromString<WebToSDKMessage>(message)
 
         when (CheckoutWebOperation.fromKey(decodedMsg.name)) {
             COMPLETED -> eventProcessor.onCheckoutViewComplete()
@@ -69,6 +74,9 @@ internal class CheckoutBridge(
                 modalVisible?.let {
                     eventProcessor.onCheckoutViewModalToggled(modalVisible)
                 }
+            }
+            ANALYTICS -> {
+                Log.e("CheckoutBridge", "${decodedMsg.name}: ${decodedMsg.body}")
             }
             else -> {}
         }
@@ -80,7 +88,7 @@ internal class CheckoutBridge(
         val script = when (operation) {
             is SDKOperation.Presented -> dispatchMessageTemplate("'${operation.key}'")
             is SDKOperation.Instrumentation -> {
-                val body = Json.encodeToString(SdkToWebEvent(operation.payload))
+                val body = Json.encodeToString(SDKToWebEvent(operation.payload))
                 dispatchMessageTemplate("'${operation.key}', $body")
             }
         }
@@ -92,9 +100,6 @@ internal class CheckoutBridge(
             )
         }
     }
-
-    @Serializable
-    internal data class JSMessage(val name: String, val body: String = "")
 
     companion object {
         private const val SDK_VERSION_NUMBER: String = BuildConfig.SDK_VERSION
@@ -114,22 +119,4 @@ internal class CheckoutBridge(
             return "ShopifyCheckoutSDK/$SDK_VERSION_NUMBER ($SCHEMA_VERSION_NUMBER;$theme;standard)"
         }
     }
-}
-
-@Serializable
-internal data class SdkToWebEvent<T>(
-    val detail: T
-)
-@Serializable
-internal data class InstrumentationPayload(
-    val name: String,
-    val value: Long,
-    val type: InstrumentationType,
-    val tags: Map<String, String>
-)
-
-@Suppress("EnumEntryName", "EnumNaming")
-@Serializable
-internal enum class InstrumentationType {
-    histogram, incrementCounter
 }
