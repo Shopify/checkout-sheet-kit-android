@@ -118,6 +118,10 @@ internal class CheckoutDialog(
             true
         }
 
+        setOnShowListener {
+            checkoutWebView.notifyPresented()
+        }
+
         show()
     }
 

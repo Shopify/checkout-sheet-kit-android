@@ -55,7 +55,10 @@ import kotlin.time.Duration.Companion.minutes
 internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = null) :
     WebView(context, attributeSet) {
 
-    private val checkoutBridge = CheckoutBridge(CheckoutWebViewEventProcessor(NoopEventProcessor()))
+    private val checkoutBridge = CheckoutBridge(
+        this,
+        CheckoutWebViewEventProcessor(NoopEventProcessor())
+    )
     private var loadComplete = false
     private var initLoadTime: Long = -1
 
@@ -67,6 +70,10 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
 
     fun setEventProcessor(eventProcessor: CheckoutWebViewEventProcessor) {
         checkoutBridge.setEventProcessor(eventProcessor)
+    }
+
+    fun notifyPresented() {
+        checkoutBridge.sendMessage(CheckoutBridge.SDKOperation.PRESENTED)
     }
 
     private fun configureWebView() {
