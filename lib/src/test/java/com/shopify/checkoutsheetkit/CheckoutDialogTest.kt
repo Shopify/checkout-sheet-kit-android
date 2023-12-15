@@ -31,6 +31,7 @@ import androidx.activity.ComponentActivity
 import androidx.appcompat.widget.Toolbar
 import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.Awaitility.await
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,7 +49,17 @@ class CheckoutDialogTest {
 
     @Before
     fun setUp() {
+        ShopifyCheckoutKit.configure {
+            it.preloading = Preloading(enabled = false)
+        }
         activity = Robolectric.buildActivity(ComponentActivity::class.java).get()
+    }
+
+    @After
+    fun tearDown() {
+        ShopifyCheckoutKit.configure {
+            it.preloading = Preloading(enabled = true)
+        }
     }
 
     @Test
