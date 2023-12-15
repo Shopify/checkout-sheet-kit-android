@@ -29,13 +29,13 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.shopify.checkoutkit.ColorScheme
-import com.shopify.checkoutkit.Preloading
+import com.shopify.checkoutsheetkit.ColorScheme
+import com.shopify.checkoutsheetkit.Preloading
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
 
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "checkoutKitSettings")
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "checkoutSheetKitSettings")
 
 class PreferencesManager(private val context: Context) {
     private val decoder: Json = Json { ignoreUnknownKeys = true }

@@ -23,7 +23,7 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample
 
 import android.app.Application
-import com.shopify.checkoutkit.ShopifyCheckoutKit
+import com.shopify.checkoutsheetkit.ShopifyCheckoutSheet
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.di.setupDI
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
 import kotlinx.coroutines.CoroutineScope
@@ -49,7 +49,7 @@ class MobileBuyIntegration : Application() {
     private fun initCheckoutSdk(preferencesManager: PreferencesManager) {
         applicationScope.launch {
             val settings = preferencesManager.userPreferencesFlow.first()
-            ShopifyCheckoutKit.configure {
+            ShopifyCheckoutSheet.configure {
                 it.colorScheme = settings.colorScheme
                 it.preloading = settings.preloading
             }

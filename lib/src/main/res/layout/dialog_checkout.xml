@@ -13,7 +13,7 @@
         android:theme="@style/Theme.AppCompat.DayNight"
         android:elevation="4dp" />
 
-    <com.shopify.checkoutkit.CheckoutWebViewContainer
+    <com.shopify.checkoutsheetkit.CheckoutWebViewContainer
         android:id="@+id/checkoutSdkContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

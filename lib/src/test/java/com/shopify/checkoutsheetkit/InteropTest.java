@@ -1,4 +1,4 @@
-package com.shopify.checkoutkit;
+package com.shopify.checkoutsheetkit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

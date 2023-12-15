@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutkit
+package com.shopify.checkoutsheetkit
 
 import android.app.Dialog
 import android.content.Context
@@ -43,7 +43,6 @@ import android.widget.ProgressBar
 import androidx.activity.ComponentActivity
 import androidx.annotation.ColorInt
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.ContextCompat.getColor
 
 internal class CheckoutDialog(
     private val checkoutUrl: String,
@@ -76,7 +75,7 @@ internal class CheckoutDialog(
             )
         )
 
-        val colorScheme = ShopifyCheckoutKit.configuration.colorScheme
+        val colorScheme = ShopifyCheckoutSheet.configuration.colorScheme
         val header = findViewById<Toolbar>(R.id.checkoutSdkHeader)
 
         header.apply {

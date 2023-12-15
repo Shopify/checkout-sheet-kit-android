@@ -20,25 +20,23 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutkit
+package com.shopify.checkoutsheetkit
+
+import android.util.Log
 
 /**
- * Configuration for ShopifyKit.
- *
- * Allows:
- * - Enabling/disabling preloading,
- * - Specifying the colorScheme that should be used for checkout.
+ * Wrap Log class static methods to allow testing
  */
-public data class Configuration internal constructor(
-    var colorScheme: ColorScheme = ColorScheme.Automatic(),
-    var preloading: Preloading = Preloading(),
-)
+public class LogWrapper {
+    public fun w(tag: String, msg: String) {
+        Log.w(tag, msg)
+    }
 
-/**
- * Configuration related to preloading.
- *
- * Initially allows toggling the preloading feature.
- */
-public data class Preloading(
-    val enabled: Boolean = false
-)
+    public fun e(tag: String, msg: String) {
+        Log.e(tag, msg)
+    }
+
+    public fun e(tag: String, msg: String, throwable: Throwable) {
+        Log.e(tag, msg, throwable)
+    }
+}

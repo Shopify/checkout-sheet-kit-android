@@ -20,13 +20,13 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutkit
+package com.shopify.checkoutsheetkit
 
 import android.webkit.WebView
-import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
-import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.MODAL
-import com.shopify.checkoutkit.pixelevents.PixelEvent
-import com.shopify.checkoutkit.pixelevents.CheckoutStartedEvent
+import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
+import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.MODAL
+import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
+import com.shopify.checkoutsheetkit.pixelevents.CheckoutStartedEvent
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.assertj.core.api.Assertions.assertThat
@@ -96,31 +96,31 @@ class CheckoutBridgeTest {
 
     @Test
     fun `user agent suffix includes ShopifyCheckoutSDK and version number`() {
-        ShopifyCheckoutKit.configuration.colorScheme = ColorScheme.Dark()
+        ShopifyCheckoutSheet.configuration.colorScheme = ColorScheme.Dark()
         assertThat(CheckoutBridge.userAgentSuffix()).startsWith("ShopifyCheckoutSDK/${BuildConfig.SDK_VERSION} ")
     }
 
     @Test
     fun `user agent suffix includes metadata for the schema version, theme, and variant - dark`() {
-        ShopifyCheckoutKit.configuration.colorScheme = ColorScheme.Dark()
+        ShopifyCheckoutSheet.configuration.colorScheme = ColorScheme.Dark()
         assertThat(CheckoutBridge.userAgentSuffix()).endsWith("(7.0;dark;standard)")
     }
 
     @Test
     fun `user agent suffix includes metadata for the schema version, theme, and variant - light`() {
-        ShopifyCheckoutKit.configuration.colorScheme = ColorScheme.Light()
+        ShopifyCheckoutSheet.configuration.colorScheme = ColorScheme.Light()
         assertThat(CheckoutBridge.userAgentSuffix()).endsWith("(7.0;light;standard)")
     }
 
     @Test
     fun `user agent suffix includes metadata for the schema version, theme, and variant - web`() {
-        ShopifyCheckoutKit.configuration.colorScheme = ColorScheme.Web()
+        ShopifyCheckoutSheet.configuration.colorScheme = ColorScheme.Web()
         assertThat(CheckoutBridge.userAgentSuffix()).endsWith("(7.0;web_default;standard)")
     }
 
     @Test
     fun `user agent suffix includes metadata for the schema version, theme, and variant - automatic`() {
-        ShopifyCheckoutKit.configuration.colorScheme = ColorScheme.Automatic()
+        ShopifyCheckoutSheet.configuration.colorScheme = ColorScheme.Automatic()
         assertThat(CheckoutBridge.userAgentSuffix()).endsWith("(7.0;automatic;standard)")
     }
 

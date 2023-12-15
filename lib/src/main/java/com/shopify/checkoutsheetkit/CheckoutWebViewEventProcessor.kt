@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutkit
+package com.shopify.checkoutsheetkit
 
 import android.net.Uri
 import android.os.Handler
@@ -29,7 +29,7 @@ import com.shopify.checkoutkit.pixelevents.PixelEvent
 
 /**
  * Event processor that can handle events internally, delegate to the CheckoutEventProcessor
- * passed into ShopifyCheckoutKit.present(), or preprocess arguments and then delegate
+ * passed into ShopifyCheckoutSheet.present(), or preprocess arguments and then delegate
  */
 internal class CheckoutWebViewEventProcessor(
     private val eventProcessor: CheckoutEventProcessor,
