@@ -20,23 +20,25 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutkit
+package com.shopify.checkoutsheetkit
 
-import android.util.Log
+import android.content.Context
+import android.util.AttributeSet
+import android.view.View
+import android.widget.FrameLayout
 
-/**
- * Wrap Log class static methods to allow testing
- */
-public class LogWrapper {
-    public fun w(tag: String, msg: String) {
-        Log.w(tag, msg)
-    }
+internal class CheckoutWebViewContainer @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0,
+    defStyleRes: Int = 0
+) : FrameLayout(context, attrs, defStyleAttr, defStyleRes) {
 
-    public fun e(tag: String, msg: String) {
-        Log.e(tag, msg)
-    }
-
-    public fun e(tag: String, msg: String, throwable: Throwable) {
-        Log.e(tag, msg, throwable)
+    // Clear the cache whenever the WebView is removed from it's container
+    override fun onViewRemoved(child: View?) {
+        super.onViewRemoved(child)
+        if (child is CheckoutWebView) {
+            CheckoutWebView.clearCache()
+        }
     }
 }

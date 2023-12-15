@@ -20,14 +20,16 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutkit
+package com.shopify.checkoutsheetkit
 
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
-import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.ANALYTICS
-import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
-import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.MODAL
-import com.shopify.checkoutkit.pixelevents.PixelEventDecoder
+
+import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.ANALYTICS
+import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
+import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.MODAL
+import com.shopify.checkoutsheetkit.pixelevents.PixelEventDecoder
+
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -116,7 +118,7 @@ internal class CheckoutBridge(
         |""".trimMargin()
 
         fun userAgentSuffix(): String {
-            val theme = ShopifyCheckoutKit.configuration.colorScheme.id
+            val theme = ShopifyCheckoutSheet.configuration.colorScheme.id
             return "ShopifyCheckoutSDK/$SDK_VERSION_NUMBER ($SCHEMA_VERSION_NUMBER;$theme;standard)"
         }
     }

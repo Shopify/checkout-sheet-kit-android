@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutkit
+package com.shopify.checkoutsheetkit
 
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -29,23 +29,23 @@ import androidx.lifecycle.LifecycleOwner
 /**
  * Entrypoint to the library, allows configuring, preloading, and presenting Shopify checkouts.
  */
-public object ShopifyCheckoutKit {
+public object ShopifyCheckoutSheet {
 
     internal val configuration = Configuration()
 
     /**
-     * Returns the current version of ShopifyCheckoutKit.
+     * Returns the current version of ShopifyCheckoutSheet.
 
      * @return the current version
      */
     public const val version: String = BuildConfig.SDK_VERSION
 
     /**
-     * Returns the currently applied ShopifyKit configuration.
+     * Returns the currently applied ShopifyCheckoutSheet configuration.
      * Note: configuration changes should be made through the configure function.
      *
      * @return the currently applied configuration
-     * @see ShopifyCheckoutKit.configure(ConfigurationUpdater)
+     * @see ShopifyCheckoutSheet.configure(ConfigurationUpdater)
      */
     @JvmStatic
     public fun getConfiguration(): Configuration {
@@ -53,11 +53,11 @@ public object ShopifyCheckoutKit {
     }
 
     /**
-     * Allows configuring ShopifyCheckoutKit.
+     * Allows configuring ShopifyCheckoutSheet.
      *
      * Current configuration options are for enabling and disabling preloading, and for setting the checkout color scheme.
      * Kotlin example:
-     * {@code ShopifyCheckoutKit.configure { it.preloading = Preloading(enabled = enabled) }}
+     * {@code ShopifyCheckoutSheet.configure { it.preloading = Preloading(enabled = enabled) }}
      *
      * @param setter a function that modifies the configuration object
      * @see Configuration
@@ -72,7 +72,7 @@ public object ShopifyCheckoutKit {
      * Preloads a Shopify checkout in the background.
      *
      * Preloading checkout is fully optional, but allows reducing the time taken between calling
-     * {@link ShopifyCheckoutKit#present(String, ComponentActivity, CheckoutEventProcessor)} and having a fully interactive checkout.
+     * {@link ShopifyCheckoutSheet#present(String, ComponentActivity, CheckoutEventProcessor)} and having a fully interactive checkout.
      * Note: Preload must be called on all cart changes to avoid stale checkouts being presented.
      * Preloaded checkouts also have a TTL of 5 minutes, after checkout will be re-loaded on calling present.
      *

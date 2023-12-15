@@ -26,9 +26,9 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.shopify.checkoutkit.CheckoutEventProcessor
-import com.shopify.checkoutkit.CheckoutException
-import com.shopify.checkoutkit.pixelevents.PixelEvent
+import com.shopify.checkoutsheetkit.CheckoutEventProcessor
+import com.shopify.checkoutsheetkit.CheckoutException
+import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
