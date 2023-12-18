@@ -56,7 +56,25 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
     WebView(context, attributeSet) {
 
     private val checkoutBridge = CheckoutBridge(CheckoutWebViewEventProcessor(NoopEventProcessor()))
+    private var dispatchedPresented = false
     private var loadComplete = false
+        set(value) {
+            field = value
+            dispatchWhenPresentedAndLoaded(value, presented)
+        }
+    private var presented = false
+        set(value) {
+            field = value
+            dispatchWhenPresentedAndLoaded(loadComplete, value)
+        }
+
+    private fun dispatchWhenPresentedAndLoaded(loadComplete: Boolean, hasBeenPresented: Boolean) {
+        if (!dispatchedPresented && (loadComplete && hasBeenPresented)) {
+            checkoutBridge.sendMessage(this, CheckoutBridge.SDKOperation.Presented)
+            dispatchedPresented = true
+        }
+    }
+
     private var initLoadTime: Long = -1
 
     init {
@@ -70,7 +88,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
     }
 
     fun notifyPresented() {
-        checkoutBridge.sendMessage(this, CheckoutBridge.SDKOperation.Presented)
+        presented = true
     }
 
     private fun configureWebView() {
