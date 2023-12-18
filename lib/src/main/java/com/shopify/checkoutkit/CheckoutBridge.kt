@@ -22,25 +22,18 @@
  */
 package com.shopify.checkoutkit
 
-import android.os.Handler
-import android.os.Looper
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.MODAL
-import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.INIT
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 internal class CheckoutBridge(
-    private val webView: CheckoutWebView,
     private var eventProcessor: CheckoutWebViewEventProcessor,
     private val decoder: Json = Json { ignoreUnknownKeys = true }
 ) {
-
-    private var hasInitialized = false
-    private val messageBuffer = mutableListOf<String>()
 
     fun setEventProcessor(eventProcessor: CheckoutWebViewEventProcessor) {
         this.eventProcessor = eventProcessor
@@ -50,8 +43,7 @@ internal class CheckoutBridge(
 
     enum class CheckoutWebOperation(val key: String) {
         COMPLETED("completed"),
-        MODAL("checkoutBlockingEvent"),
-        INIT("init");
+        MODAL("checkoutBlockingEvent");
 
         companion object {
             fun fromKey(key: String): CheckoutWebOperation? {
@@ -60,8 +52,9 @@ internal class CheckoutBridge(
         }
     }
 
-    enum class SDKOperation(val key: String) {
-        PRESENTED("presented")
+    sealed class SDKOperation(val key: String) {
+        object Presented : SDKOperation("presented")
+        class Instrumentation(val payload: InstrumentationPayload): SDKOperation("instrumentation")
     }
 
     // Allows Web to postMessages back to the SDK
@@ -77,34 +70,25 @@ internal class CheckoutBridge(
                     eventProcessor.onCheckoutViewModalToggled(modalVisible)
                 }
             }
-            INIT -> {
-                hasInitialized = true
-                Handler(Looper.getMainLooper()).post {
-                    messageBuffer.forEach { webView.evaluateJavascript(it, null) }
-                    messageBuffer.clear()
-                }
-            }
-
             else -> {}
         }
     }
 
     // Send messages from SDK to Web
     @Suppress("SwallowedException")
-    fun sendMessage(type: SDKOperation) {
-        val script = when (type) {
-            SDKOperation.PRESENTED -> "window.MobileCheckoutSdk.dispatchMessage('presented');"
+    fun sendMessage(view: WebView, operation: SDKOperation) {
+        val script = when (operation) {
+            is SDKOperation.Presented -> dispatchMessageTemplate("'${operation.key}'")
+            is SDKOperation.Instrumentation -> {
+                val body = Json.encodeToString(SdkToWebEvent(operation.payload))
+                dispatchMessageTemplate("'${operation.key}', $body")
+            }
         }
         try {
-            if (!hasInitialized) {
-                // Buffer messages until the web SDK is ready to receive events
-                messageBuffer.add(script)
-            } else {
-                webView.evaluateJavascript(script, null)
-            }
+            view.evaluateJavascript(script, null)
         } catch (e: Exception) {
             eventProcessor.onCheckoutViewFailedWithError(
-                CheckoutSdkError("Failed to send '${type.key}' message to checkout, some features may not work.")
+                CheckoutSdkError("Failed to send '${operation.key}' message to checkout, some features may not work.")
             )
         }
     }
@@ -115,18 +99,15 @@ internal class CheckoutBridge(
     companion object {
         private const val SDK_VERSION_NUMBER: String = BuildConfig.SDK_VERSION
         private const val SCHEMA_VERSION_NUMBER: String = "7.0"
+        private fun dispatchMessageTemplate(body: String) = """window.addEventListener('mobileCheckoutBridgeReady', function () {
+            window.MobileCheckoutSdk.dispatchMessage(
+                $body
+            );
+        }, {passive: true, once: true});""".trimMargin()
 
         fun userAgentSuffix(): String {
             val theme = ShopifyCheckoutKit.configuration.colorScheme.id
             return "ShopifyCheckoutSDK/$SDK_VERSION_NUMBER ($SCHEMA_VERSION_NUMBER;$theme;standard)"
-        }
-
-        fun instrument(webView: WebView, payload: InstrumentationPayload) {
-            val event = SdkToWebEvent(payload)
-            val json = Json.encodeToString(event)
-            webView.evaluateJavascript(
-                "setTimeout(()=> {window.MobileCheckoutSdk.dispatchMessage('instrumentation', $json); }, 1000)",
-                null)
         }
     }
 }

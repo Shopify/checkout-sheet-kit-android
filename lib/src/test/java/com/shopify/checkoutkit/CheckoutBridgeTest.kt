@@ -36,24 +36,21 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.shadows.ShadowLooper
 import java.lang.RuntimeException
 
 @RunWith(RobolectricTestRunner::class)
 class CheckoutBridgeTest {
 
-    private var webView = mock<CheckoutWebView>()
     private var mockEventProcessor = mock<CheckoutWebViewEventProcessor>()
     private lateinit var checkoutBridge: CheckoutBridge
 
     @Before
     fun init() {
-        checkoutBridge = CheckoutBridge(webView, mockEventProcessor)
+        checkoutBridge = CheckoutBridge(mockEventProcessor)
     }
 
     @Test
@@ -126,20 +123,24 @@ class CheckoutBridgeTest {
 
     @Test
     fun `sendMessage evaluates javascript on the provided WebView`() {
+        val webView = mock<WebView>()
         val initMessage = Json.encodeToString(CheckoutBridge.JSMessage("init"))
         checkoutBridge.postMessage(initMessage)
-        checkoutBridge.sendMessage(CheckoutBridge.SDKOperation.PRESENTED)
+        checkoutBridge.sendMessage(webView, CheckoutBridge.SDKOperation.Presented)
 
-        verify(webView).evaluateJavascript("window.MobileCheckoutSdk.dispatchMessage('presented');", null)
+        verify(webView).evaluateJavascript("""window.addEventListener('mobileCheckoutBridgeReady', function () {
+            window.MobileCheckoutSdk.dispatchMessage(
+                'presented'
+            );
+        }, {passive: true, once: true});""", null)
     }
 
     @Test
     fun `sendMessage returns error if evaluating javascript fails`() {
-        val initMessage = Json.encodeToString(CheckoutBridge.JSMessage("init"))
-        checkoutBridge.postMessage(initMessage)
+        val webView = mock<WebView>()
         whenever(webView.evaluateJavascript(any(), eq(null))).thenThrow(RuntimeException("something went wrong"))
 
-        checkoutBridge.sendMessage(CheckoutBridge.SDKOperation.PRESENTED)
+        checkoutBridge.sendMessage(webView, CheckoutBridge.SDKOperation.Presented)
 
         val errorCaptor = argumentCaptor<CheckoutSdkError>()
         verify(mockEventProcessor).onCheckoutViewFailedWithError(errorCaptor.capture())
@@ -149,21 +150,8 @@ class CheckoutBridgeTest {
     }
 
     @Test
-    fun `sendMessage buffers messages until init event received`() {
-        checkoutBridge.sendMessage(CheckoutBridge.SDKOperation.PRESENTED)
-        ShadowLooper.runUiThreadTasks()
-        verify(webView, never()).evaluateJavascript(any(), any())
-
-        val initMessage = Json.encodeToString(CheckoutBridge.JSMessage("init"))
-        checkoutBridge.postMessage(initMessage)
-
-        ShadowLooper.runUiThreadTasks()
-        verify(webView).evaluateJavascript("window.MobileCheckoutSdk.dispatchMessage('presented');", null)
-    }
-
-    @Test
     fun `instrumentation sends message to the bridge`() {
-        val webView = Mockito.mock(WebView::class.java)
+        val webView = mock<WebView>()
         val payload = InstrumentationPayload(
             name = "Test",
             value = 123L,
@@ -171,10 +159,14 @@ class CheckoutBridgeTest {
             tags = mapOf("tag1" to "value1", "tag2" to "value2")
         )
         val expectedPayload = """{"detail":{"name":"Test","value":123,"type":"histogram","tags":{"tag1":"value1","tag2":"value2"}}}"""
-        val expectedJavascript = "window.MobileCheckoutSdk.dispatchMessage('instrumentation', ${expectedPayload})"
-        val timeoutEncapsulatedExpectation = "setTimeout(()=> {${expectedJavascript}; }, 1000)"
+        val expectedJavascript = """window.addEventListener('mobileCheckoutBridgeReady', function () {
+            window.MobileCheckoutSdk.dispatchMessage(
+                'instrumentation', $expectedPayload
+            );
+        }, {passive: true, once: true});"""
 
-        CheckoutBridge.instrument(webView, payload)
-        Mockito.verify(webView).evaluateJavascript(timeoutEncapsulatedExpectation, null)
+        checkoutBridge.sendMessage(webView, CheckoutBridge.SDKOperation.Instrumentation(payload))
+
+        Mockito.verify(webView).evaluateJavascript(expectedJavascript, null)
     }
 }

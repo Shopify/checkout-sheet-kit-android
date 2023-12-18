@@ -55,10 +55,7 @@ import kotlin.time.Duration.Companion.minutes
 internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = null) :
     WebView(context, attributeSet) {
 
-    private val checkoutBridge = CheckoutBridge(
-        this,
-        CheckoutWebViewEventProcessor(NoopEventProcessor())
-    )
+    private val checkoutBridge = CheckoutBridge(CheckoutWebViewEventProcessor(NoopEventProcessor()))
     private var loadComplete = false
     private var initLoadTime: Long = -1
 
@@ -73,7 +70,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
     }
 
     fun notifyPresented() {
-        checkoutBridge.sendMessage(CheckoutBridge.SDKOperation.PRESENTED)
+        checkoutBridge.sendMessage(this, CheckoutBridge.SDKOperation.Presented)
     }
 
     private fun configureWebView() {
@@ -123,12 +120,14 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             }
         }
 
-        override fun onPageFinished(view: WebView?, url: String?) {
+        override fun onPageFinished(view: WebView, url: String) {
             super.onPageFinished(view, url)
             loadComplete = true
             val timeToLoad = System.currentTimeMillis() - initLoadTime
-            CheckoutBridge.instrument(view!!, InstrumentationPayload(
-                "checkout_finished_loading", timeToLoad, histogram, mapOf()
+            checkoutBridge.sendMessage(view, CheckoutBridge.SDKOperation.Instrumentation(
+                InstrumentationPayload(
+                    "checkout_finished_loading", timeToLoad, histogram, mapOf()
+                )
             ))
             checkoutBridge.getEventProcessor().onCheckoutViewLoadComplete()
         }
