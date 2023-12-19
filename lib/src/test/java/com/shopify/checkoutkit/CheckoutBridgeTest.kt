@@ -25,10 +25,6 @@ package com.shopify.checkoutkit
 import android.webkit.WebView
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.MODAL
-import com.shopify.checkoutkit.messages.InstrumentationPayload
-import com.shopify.checkoutkit.messages.InstrumentationType
-import com.shopify.checkoutkit.messages.SDKToWebMessageType
-import com.shopify.checkoutkit.messages.WebToSDKMessage
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.assertj.core.api.Assertions.assertThat
@@ -59,7 +55,7 @@ class CheckoutBridgeTest {
 
     @Test
     fun `postMessage calls web event processor onCheckoutViewComplete when completed message received`() {
-        checkoutBridge.postMessage(Json.encodeToString(WebToSDKMessage(COMPLETED.key)))
+        checkoutBridge.postMessage(Json.encodeToString(WebToSDKEvent(COMPLETED.key)))
         verify(mockEventProcessor).onCheckoutViewComplete()
     }
 
@@ -67,7 +63,7 @@ class CheckoutBridgeTest {
     fun `postMessage calls web event processor onCheckoutModalToggled when modal message received - false`() {
         checkoutBridge.postMessage(
             Json.encodeToString(
-                WebToSDKMessage(
+                WebToSDKEvent(
                     MODAL.key,
                     "false"
                 )
@@ -80,7 +76,7 @@ class CheckoutBridgeTest {
     fun `postMessage calls web event processor onCheckoutModalToggled when modal message received - true`() {
         checkoutBridge.postMessage(
             Json.encodeToString(
-                WebToSDKMessage(
+                WebToSDKEvent(
                     MODAL.key,
                     "true"
                 )
@@ -91,7 +87,7 @@ class CheckoutBridgeTest {
 
     @Test
     fun `postMessage does not issue a msg to the event processor when unsupported message received`() {
-        checkoutBridge.postMessage(Json.encodeToString(WebToSDKMessage("boom")))
+        checkoutBridge.postMessage(Json.encodeToString(WebToSDKEvent("boom")))
         verifyNoInteractions(mockEventProcessor)
     }
 

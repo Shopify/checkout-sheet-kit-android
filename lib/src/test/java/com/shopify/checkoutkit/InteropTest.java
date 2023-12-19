@@ -7,6 +7,8 @@ import android.app.Activity;
 import androidx.activity.ComponentActivity;
 import androidx.annotation.NonNull;
 
+import com.shopify.checkoutkit.messages.AnalyticsEvent;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,6 +28,11 @@ public class InteropTest {
     @Test
     public void canInstantiateCustomEventProcessorWithDefaultArg() {
         DefaultCheckoutEventProcessor processor = new DefaultCheckoutEventProcessor(activity) {
+            @Override
+            public void onAnalyticsEvent(@NonNull AnalyticsEvent analyticsEvent) {
+
+            }
+
             @Override
             public void onCheckoutCompleted() {
 

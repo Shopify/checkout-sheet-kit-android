@@ -28,9 +28,7 @@ import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.ANALYTICS
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.MODAL
 import com.shopify.checkoutkit.messages.AnalyticsEventDecoder
-import com.shopify.checkoutkit.messages.InstrumentationPayload
-import com.shopify.checkoutkit.messages.SDKToWebEvent
-import com.shopify.checkoutkit.messages.WebToSDKMessage
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -66,7 +64,7 @@ internal class CheckoutBridge(
     // Allows Web to postMessages back to the SDK
     @JavascriptInterface
     fun postMessage(message: String) {
-        val decodedMsg = decoder.decodeFromString<WebToSDKMessage>(message)
+        val decodedMsg = decoder.decodeFromString<WebToSDKEvent>(message)
 
         when (CheckoutWebOperation.fromKey(decodedMsg.name)) {
             COMPLETED -> eventProcessor.onCheckoutViewComplete()
@@ -124,3 +122,28 @@ internal class CheckoutBridge(
         }
     }
 }
+
+@Serializable
+internal data class SDKToWebEvent<T>(
+    val detail: T
+)
+
+@Serializable
+internal data class InstrumentationPayload(
+    val name: String,
+    val value: Long,
+    val type: InstrumentationType,
+    val tags: Map<String, String>
+)
+
+@Suppress("EnumEntryName", "EnumNaming")
+@Serializable
+internal enum class InstrumentationType {
+    histogram, incrementCounter
+}
+
+@Serializable
+internal data class WebToSDKEvent(
+    val name: String,
+    val body: String = ""
+)

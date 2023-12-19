@@ -43,8 +43,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.ComponentActivity
 import com.shopify.checkoutkit.CheckoutBridge.Companion.userAgentSuffix
-import com.shopify.checkoutkit.messages.InstrumentationPayload
-import com.shopify.checkoutkit.messages.InstrumentationType.histogram
+import com.shopify.checkoutkit.InstrumentationType.histogram
 import java.net.HttpURLConnection.HTTP_GONE
 import java.net.HttpURLConnection.HTTP_INTERNAL_ERROR
 import java.net.HttpURLConnection.HTTP_NOT_FOUND
