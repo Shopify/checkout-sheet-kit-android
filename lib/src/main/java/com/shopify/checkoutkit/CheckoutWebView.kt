@@ -55,11 +55,26 @@ import kotlin.time.Duration.Companion.minutes
 internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = null) :
     WebView(context, attributeSet) {
 
-    private val checkoutBridge = CheckoutBridge(
-        this,
-        CheckoutWebViewEventProcessor(NoopEventProcessor())
-    )
+    private val checkoutBridge = CheckoutBridge(CheckoutWebViewEventProcessor(NoopEventProcessor()))
+    private var dispatchedPresented = false
     private var loadComplete = false
+        set(value) {
+            field = value
+            dispatchWhenPresentedAndLoaded(value, presented)
+        }
+    private var presented = false
+        set(value) {
+            field = value
+            dispatchWhenPresentedAndLoaded(loadComplete, value)
+        }
+
+    private fun dispatchWhenPresentedAndLoaded(loadComplete: Boolean, hasBeenPresented: Boolean) {
+        if (!dispatchedPresented && (loadComplete && hasBeenPresented)) {
+            checkoutBridge.sendMessage(this, CheckoutBridge.SDKOperation.Presented)
+            dispatchedPresented = true
+        }
+    }
+
     private var initLoadTime: Long = -1
 
     init {
@@ -73,7 +88,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
     }
 
     fun notifyPresented() {
-        checkoutBridge.sendMessage(CheckoutBridge.SDKOperation.PRESENTED)
+        presented = true
     }
 
     private fun configureWebView() {
@@ -123,12 +138,14 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             }
         }
 
-        override fun onPageFinished(view: WebView?, url: String?) {
+        override fun onPageFinished(view: WebView, url: String) {
             super.onPageFinished(view, url)
             loadComplete = true
             val timeToLoad = System.currentTimeMillis() - initLoadTime
-            CheckoutBridge.instrument(view!!, InstrumentationPayload(
-                "checkout_finished_loading", timeToLoad, histogram, mapOf()
+            checkoutBridge.sendMessage(view, CheckoutBridge.SDKOperation.Instrumentation(
+                InstrumentationPayload(
+                    "checkout_finished_loading", timeToLoad, histogram, mapOf()
+                )
             ))
             checkoutBridge.getEventProcessor().onCheckoutViewLoadComplete()
         }
