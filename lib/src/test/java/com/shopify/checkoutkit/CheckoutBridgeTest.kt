@@ -55,7 +55,7 @@ class CheckoutBridgeTest {
 
     @Test
     fun `postMessage calls web event processor onCheckoutViewComplete when completed message received`() {
-        checkoutBridge.postMessage(Json.encodeToString(WebToSDKEvent(COMPLETED.key)))
+        checkoutBridge.postMessage(Json.encodeToString(WebToSdkEvent(COMPLETED.key)))
         verify(mockEventProcessor).onCheckoutViewComplete()
     }
 
@@ -63,7 +63,7 @@ class CheckoutBridgeTest {
     fun `postMessage calls web event processor onCheckoutModalToggled when modal message received - false`() {
         checkoutBridge.postMessage(
             Json.encodeToString(
-                WebToSDKEvent(
+                WebToSdkEvent(
                     MODAL.key,
                     "false"
                 )
@@ -76,7 +76,7 @@ class CheckoutBridgeTest {
     fun `postMessage calls web event processor onCheckoutModalToggled when modal message received - true`() {
         checkoutBridge.postMessage(
             Json.encodeToString(
-                WebToSDKEvent(
+                WebToSdkEvent(
                     MODAL.key,
                     "true"
                 )
@@ -87,7 +87,7 @@ class CheckoutBridgeTest {
 
     @Test
     fun `postMessage does not issue a msg to the event processor when unsupported message received`() {
-        checkoutBridge.postMessage(Json.encodeToString(WebToSDKEvent("boom")))
+        checkoutBridge.postMessage(Json.encodeToString(WebToSdkEvent("boom")))
         verifyNoInteractions(mockEventProcessor)
     }
 

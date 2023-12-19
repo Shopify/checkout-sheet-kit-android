@@ -23,12 +23,12 @@
 package com.shopify.checkoutkit.messages
 
 import android.util.Log
-import com.shopify.checkoutkit.WebToSDKEvent
+import com.shopify.checkoutkit.WebToSdkEvent
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
 
 internal class AnalyticsEventDecoder(private val decoder: Json) {
-    internal fun decode(decodedMsg: WebToSDKEvent): AnalyticsEvent? {
+    internal fun decode(decodedMsg: WebToSdkEvent): AnalyticsEvent? {
         return try {
             val rawEvent = decoder.decodeFromString<RawAnalyticsEvent>(decodedMsg.body)
             when (rawEvent.name) {

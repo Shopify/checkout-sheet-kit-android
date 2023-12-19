@@ -64,7 +64,7 @@ internal class CheckoutBridge(
     // Allows Web to postMessages back to the SDK
     @JavascriptInterface
     fun postMessage(message: String) {
-        val decodedMsg = decoder.decodeFromString<WebToSDKEvent>(message)
+        val decodedMsg = decoder.decodeFromString<WebToSdkEvent>(message)
 
         when (CheckoutWebOperation.fromKey(decodedMsg.name)) {
             COMPLETED -> eventProcessor.onCheckoutViewComplete()
@@ -90,7 +90,7 @@ internal class CheckoutBridge(
         val script = when (operation) {
             is SDKOperation.Presented -> dispatchMessageTemplate("'${operation.key}'")
             is SDKOperation.Instrumentation -> {
-                val body = Json.encodeToString(SDKToWebEvent(operation.payload))
+                val body = Json.encodeToString(SdkToWebEvent(operation.payload))
                 dispatchMessageTemplate("'${operation.key}', $body")
             }
         }
@@ -124,7 +124,7 @@ internal class CheckoutBridge(
 }
 
 @Serializable
-internal data class SDKToWebEvent<T>(
+internal data class SdkToWebEvent<T>(
     val detail: T
 )
 
@@ -143,7 +143,7 @@ internal enum class InstrumentationType {
 }
 
 @Serializable
-internal data class WebToSDKEvent(
+internal data class WebToSdkEvent(
     val name: String,
     val body: String = ""
 )
