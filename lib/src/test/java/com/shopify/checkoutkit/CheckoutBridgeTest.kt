@@ -128,11 +128,15 @@ class CheckoutBridgeTest {
         checkoutBridge.postMessage(initMessage)
         checkoutBridge.sendMessage(webView, CheckoutBridge.SDKOperation.Presented)
 
-        verify(webView).evaluateJavascript("""window.addEventListener('mobileCheckoutBridgeReady', function () {
-            window.MobileCheckoutSdk.dispatchMessage(
-                'presented'
-            );
-        }, {passive: true, once: true});""", null)
+        verify(webView).evaluateJavascript("""|
+        |if (window.MobileCheckoutSdk && window.MobileCheckoutSdk.dispatchMessage) {
+        |    window.MobileCheckoutSdk.dispatchMessage('presented');
+        |} else {
+        |    window.addEventListener('mobileCheckoutBridgeReady', function () {
+        |        window.MobileCheckoutSdk.dispatchMessage('presented');
+        |    }, {passive: true, once: true});
+        |}
+        |""".trimMargin(), null)
     }
 
     @Test
@@ -159,11 +163,15 @@ class CheckoutBridgeTest {
             tags = mapOf("tag1" to "value1", "tag2" to "value2")
         )
         val expectedPayload = """{"detail":{"name":"Test","value":123,"type":"histogram","tags":{"tag1":"value1","tag2":"value2"}}}"""
-        val expectedJavascript = """window.addEventListener('mobileCheckoutBridgeReady', function () {
-            window.MobileCheckoutSdk.dispatchMessage(
-                'instrumentation', $expectedPayload
-            );
-        }, {passive: true, once: true});"""
+        val expectedJavascript = """|
+        |if (window.MobileCheckoutSdk && window.MobileCheckoutSdk.dispatchMessage) {
+        |    window.MobileCheckoutSdk.dispatchMessage('instrumentation', $expectedPayload);
+        |} else {
+        |    window.addEventListener('mobileCheckoutBridgeReady', function () {
+        |        window.MobileCheckoutSdk.dispatchMessage('instrumentation', $expectedPayload);
+        |    }, {passive: true, once: true});
+        |}
+        |""".trimMargin()
 
         checkoutBridge.sendMessage(webView, CheckoutBridge.SDKOperation.Instrumentation(payload))
 

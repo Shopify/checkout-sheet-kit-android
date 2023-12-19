@@ -99,19 +99,15 @@ internal class CheckoutBridge(
     companion object {
         private const val SDK_VERSION_NUMBER: String = BuildConfig.SDK_VERSION
         private const val SCHEMA_VERSION_NUMBER: String = "7.0"
-        private fun dispatchMessageTemplate(body: String) = """
-            if (window.MobileCheckoutSdk && window.MobileCheckoutSdk.dispatchMessage) {
-                window.MobileCheckoutSdk.dispatchMessage(
-                    $body
-                );                
-            } else {
-                window.addEventListener('mobileCheckoutBridgeReady', function () {
-                    window.MobileCheckoutSdk.dispatchMessage(
-                        $body
-                    );
-                }, {passive: true, once: true});
-            }
-        """.trimMargin()
+        private fun dispatchMessageTemplate(body: String) = """|
+        |if (window.MobileCheckoutSdk && window.MobileCheckoutSdk.dispatchMessage) {
+        |    window.MobileCheckoutSdk.dispatchMessage($body);
+        |} else {
+        |    window.addEventListener('mobileCheckoutBridgeReady', function () {
+        |        window.MobileCheckoutSdk.dispatchMessage($body);
+        |    }, {passive: true, once: true});
+        |}
+        |""".trimMargin()
 
         fun userAgentSuffix(): String {
             val theme = ShopifyCheckoutKit.configuration.colorScheme.id
