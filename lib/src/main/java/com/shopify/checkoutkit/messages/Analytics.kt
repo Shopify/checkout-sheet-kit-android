@@ -24,7 +24,30 @@ package com.shopify.checkoutkit.messages
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
+import kotlin.reflect.KClass
 
+public enum class AnalyticsEventType(public val eventName: String) {
+    CART_VIEWED("cart_viewed"),
+    CHECKOUT_ADDRESS_INFO_SUBMITTED("checkout_address_info_submitted"),
+    CHECKOUT_COMPLETED("checkout_completed"),
+    CHECKOUT_CONTACT_INFO_SUBMITTED("checkout_contact_info_submitted"),
+    CHECKOUT_SHIPPING_INFO_SUBMITTED("checkout_shipping_info_submitted"),
+    CHECKOUT_STARTED("checkout_started"),
+    COLLECTION_VIEWED("collection_viewed"),
+    PAGE_VIEWED("page_viewed"),
+    PAYMENT_INFO_SUBMITTED("payment_info_submitted"),
+    PRODUCT_ADDED_TO_CART("product_added_to_cart"),
+    PRODUCT_REMOVED_FROM_CART("product_removed_from_cart"),
+    PRODUCT_VIEWED("product_viewed"),
+    SEARCH_SUBMITTED("search_submitted");
+
+    public companion object {
+        public fun fromEventName(eventName: String): AnalyticsEventType? =
+            AnalyticsEventType.values().firstOrNull {
+                it.eventName == eventName
+            }
+    }
+}
 
 /**
  * The `cart_viewed` event logs an instance where a customer visited the cart

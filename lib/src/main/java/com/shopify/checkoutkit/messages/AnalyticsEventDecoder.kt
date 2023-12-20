@@ -23,7 +23,6 @@
 package com.shopify.checkoutkit.messages
 
 import android.util.Log
-import androidx.annotation.VisibleForTesting
 import com.shopify.checkoutkit.WebToSdkEvent
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -35,21 +34,21 @@ internal class AnalyticsEventDecoder(private val decoder: Json) {
     fun decode(decodedMsg: WebToSdkEvent): AnalyticsEvent? {
         return try {
             val rawEvent = decoder.decodeFromString<RawAnalyticsEvent>(decodedMsg.body)
-            when (rawEvent.name) {
-                "cart_viewed" -> decoder.decodeFromJsonElement<CartViewed>(rawEvent.event)
-                "checkout_address_info_submitted" -> decoder.decodeFromJsonElement<CheckoutAddressInfoSubmitted>(rawEvent.event)
-                "checkout_completed" -> decoder.decodeFromJsonElement<CheckoutCompleted>(rawEvent.event)
-                "checkout_contact_info_submitted" -> decoder.decodeFromJsonElement<CheckoutContactInfoSubmitted>(rawEvent.event)
-                "checkout_shipping_info_submitted" -> decoder.decodeFromJsonElement<CheckoutShippingInfoSubmitted>(rawEvent.event)
-                "checkout_started" -> decoder.decodeFromJsonElement<CheckoutStarted>(rawEvent.event)
-                "collection_viewed" -> decoder.decodeFromJsonElement<CollectionViewed>(rawEvent.event)
-                "page_viewed" -> decoder.decodeFromJsonElement<PageViewed>(rawEvent.event)
-                "payment_info_submitted" -> decoder.decodeFromJsonElement<PaymentInfoSubmitted>(rawEvent.event)
-                "product_added_to_cart" -> decoder.decodeFromJsonElement<ProductAddedToCart>(rawEvent.event)
-                "product_removed_from_cart" -> decoder.decodeFromJsonElement<ProductRemovedFromCart>(rawEvent.event)
-                "product_viewed" -> decoder.decodeFromJsonElement<ProductViewed>(rawEvent.event)
-                "search_submitted" -> decoder.decodeFromJsonElement<SearchSubmitted>(rawEvent.event)
-                else -> {
+            when (AnalyticsEventType.fromEventName(rawEvent.name)) {
+                AnalyticsEventType.CART_VIEWED -> decoder.decodeFromJsonElement<CartViewed>(rawEvent.event)
+                AnalyticsEventType.CHECKOUT_ADDRESS_INFO_SUBMITTED -> decoder.decodeFromJsonElement<CheckoutAddressInfoSubmitted>(rawEvent.event)
+                AnalyticsEventType.CHECKOUT_COMPLETED -> decoder.decodeFromJsonElement<CheckoutCompleted>(rawEvent.event)
+                AnalyticsEventType.CHECKOUT_CONTACT_INFO_SUBMITTED -> decoder.decodeFromJsonElement<CheckoutContactInfoSubmitted>(rawEvent.event)
+                AnalyticsEventType.CHECKOUT_SHIPPING_INFO_SUBMITTED -> decoder.decodeFromJsonElement<CheckoutShippingInfoSubmitted>(rawEvent.event)
+                AnalyticsEventType.CHECKOUT_STARTED -> decoder.decodeFromJsonElement<CheckoutStarted>(rawEvent.event)
+                AnalyticsEventType.COLLECTION_VIEWED -> decoder.decodeFromJsonElement<CollectionViewed>(rawEvent.event)
+                AnalyticsEventType.PAGE_VIEWED -> decoder.decodeFromJsonElement<PageViewed>(rawEvent.event)
+                AnalyticsEventType.PAYMENT_INFO_SUBMITTED -> decoder.decodeFromJsonElement<PaymentInfoSubmitted>(rawEvent.event)
+                AnalyticsEventType.PRODUCT_ADDED_TO_CART -> decoder.decodeFromJsonElement<ProductAddedToCart>(rawEvent.event)
+                AnalyticsEventType.PRODUCT_REMOVED_FROM_CART -> decoder.decodeFromJsonElement<ProductRemovedFromCart>(rawEvent.event)
+                AnalyticsEventType.PRODUCT_VIEWED -> decoder.decodeFromJsonElement<ProductViewed>(rawEvent.event)
+                AnalyticsEventType.SEARCH_SUBMITTED -> decoder.decodeFromJsonElement<SearchSubmitted>(rawEvent.event)
+                null -> {
                     Log.w("CheckoutBridge", "Non standard event received ${rawEvent.name}, decoding to custom event")
                     decoder.decodeFromJsonElement<CustomEvent>(rawEvent.event)
                 }
