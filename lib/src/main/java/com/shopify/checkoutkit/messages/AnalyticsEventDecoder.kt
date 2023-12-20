@@ -35,19 +35,32 @@ internal class AnalyticsEventDecoder(private val decoder: Json) {
         return try {
             val rawEvent = decoder.decodeFromString<RawAnalyticsEvent>(decodedMsg.body)
             when (AnalyticsEventType.fromEventName(rawEvent.name)) {
-                AnalyticsEventType.CART_VIEWED -> decoder.decodeFromJsonElement<CartViewed>(rawEvent.event)
-                AnalyticsEventType.CHECKOUT_ADDRESS_INFO_SUBMITTED -> decoder.decodeFromJsonElement<CheckoutAddressInfoSubmitted>(rawEvent.event)
-                AnalyticsEventType.CHECKOUT_COMPLETED -> decoder.decodeFromJsonElement<CheckoutCompleted>(rawEvent.event)
-                AnalyticsEventType.CHECKOUT_CONTACT_INFO_SUBMITTED -> decoder.decodeFromJsonElement<CheckoutContactInfoSubmitted>(rawEvent.event)
-                AnalyticsEventType.CHECKOUT_SHIPPING_INFO_SUBMITTED -> decoder.decodeFromJsonElement<CheckoutShippingInfoSubmitted>(rawEvent.event)
-                AnalyticsEventType.CHECKOUT_STARTED -> decoder.decodeFromJsonElement<CheckoutStarted>(rawEvent.event)
-                AnalyticsEventType.COLLECTION_VIEWED -> decoder.decodeFromJsonElement<CollectionViewed>(rawEvent.event)
-                AnalyticsEventType.PAGE_VIEWED -> decoder.decodeFromJsonElement<PageViewed>(rawEvent.event)
-                AnalyticsEventType.PAYMENT_INFO_SUBMITTED -> decoder.decodeFromJsonElement<PaymentInfoSubmitted>(rawEvent.event)
-                AnalyticsEventType.PRODUCT_ADDED_TO_CART -> decoder.decodeFromJsonElement<ProductAddedToCart>(rawEvent.event)
-                AnalyticsEventType.PRODUCT_REMOVED_FROM_CART -> decoder.decodeFromJsonElement<ProductRemovedFromCart>(rawEvent.event)
-                AnalyticsEventType.PRODUCT_VIEWED -> decoder.decodeFromJsonElement<ProductViewed>(rawEvent.event)
-                AnalyticsEventType.SEARCH_SUBMITTED -> decoder.decodeFromJsonElement<SearchSubmitted>(rawEvent.event)
+                AnalyticsEventType.CART_VIEWED ->
+                    decoder.decodeFromJsonElement<CartViewed>(rawEvent.event)
+                AnalyticsEventType.CHECKOUT_ADDRESS_INFO_SUBMITTED ->
+                    decoder.decodeFromJsonElement<CheckoutAddressInfoSubmitted>(rawEvent.event)
+                AnalyticsEventType.CHECKOUT_COMPLETED ->
+                    decoder.decodeFromJsonElement<CheckoutCompleted>(rawEvent.event)
+                AnalyticsEventType.CHECKOUT_CONTACT_INFO_SUBMITTED ->
+                    decoder.decodeFromJsonElement<CheckoutContactInfoSubmitted>(rawEvent.event)
+                AnalyticsEventType.CHECKOUT_SHIPPING_INFO_SUBMITTED ->
+                    decoder.decodeFromJsonElement<CheckoutShippingInfoSubmitted>(rawEvent.event)
+                AnalyticsEventType.CHECKOUT_STARTED ->
+                    decoder.decodeFromJsonElement<CheckoutStarted>(rawEvent.event)
+                AnalyticsEventType.COLLECTION_VIEWED ->
+                    decoder.decodeFromJsonElement<CollectionViewed>(rawEvent.event)
+                AnalyticsEventType.PAGE_VIEWED ->
+                    decoder.decodeFromJsonElement<PageViewed>(rawEvent.event)
+                AnalyticsEventType.PAYMENT_INFO_SUBMITTED ->
+                    decoder.decodeFromJsonElement<PaymentInfoSubmitted>(rawEvent.event)
+                AnalyticsEventType.PRODUCT_ADDED_TO_CART ->
+                    decoder.decodeFromJsonElement<ProductAddedToCart>(rawEvent.event)
+                AnalyticsEventType.PRODUCT_REMOVED_FROM_CART ->
+                    decoder.decodeFromJsonElement<ProductRemovedFromCart>(rawEvent.event)
+                AnalyticsEventType.PRODUCT_VIEWED ->
+                    decoder.decodeFromJsonElement<ProductViewed>(rawEvent.event)
+                AnalyticsEventType.SEARCH_SUBMITTED ->
+                    decoder.decodeFromJsonElement<SearchSubmitted>(rawEvent.event)
                 null -> {
                     Log.w("CheckoutBridge", "Non standard event received ${rawEvent.name}, decoding to custom event")
                     decoder.decodeFromJsonElement<CustomEvent>(rawEvent.event)
