@@ -23,6 +23,7 @@
 package com.shopify.checkoutkit.messages
 
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import com.shopify.checkoutkit.WebToSdkEvent
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -31,7 +32,7 @@ import kotlinx.serialization.json.decodeFromJsonElement
 
 internal class AnalyticsEventDecoder(private val decoder: Json) {
     @Suppress("CyclomaticComplexMethod")
-    internal fun decode(decodedMsg: WebToSdkEvent): AnalyticsEvent? {
+    fun decode(decodedMsg: WebToSdkEvent): AnalyticsEvent? {
         return try {
             val rawEvent = decoder.decodeFromString<RawAnalyticsEvent>(decodedMsg.body)
             when (rawEvent.name) {
@@ -66,4 +67,22 @@ internal class RawAnalyticsEvent(
     internal val event: JsonObject,
 )
 
-public interface AnalyticsEvent
+public interface AnalyticsEvent {
+    /**
+     * The ID of the customer event
+     */
+    public val id: String?
+
+    /**
+     * The name of the customer event
+     */
+    public val name: String?
+
+    /**
+     * The timestamp of when the customer event occurred, in [ISO
+     * 8601](https://en.wikipedia.org/wiki/ISO_8601) format
+     */
+    public val timestamp: String?
+
+    public val context: Context?
+}

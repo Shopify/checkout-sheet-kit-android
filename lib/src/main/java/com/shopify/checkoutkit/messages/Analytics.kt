@@ -32,24 +32,11 @@ import kotlinx.serialization.json.JsonObject
  */
 @Serializable
 public data class CartViewed (
-    val context: Context? = null,
-    val data: CartViewedData? = null,
-
-    /**
-     * The ID of the customer event
-     */
-    val id: String? = null,
-
-    /**
-     * The name of the customer event
-     */
-    val name: String? = null,
-
-    /**
-     * The timestamp of when the customer event occurred, in [ISO
-     * 8601](https://en.wikipedia.org/wiki/ISO_8601) format
-     */
-    val timestamp: String? = null
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val context: Context? = null,
+    public val data: CartViewedData? = null,
 ): AnalyticsEvent
 
 /**
@@ -62,19 +49,19 @@ public data class Context (
      * Snapshot of a subset of properties of the `document` object in the top
      * frame of the browser
      */
-    val document: WebPixelsDocument? = null,
+    public val document: WebPixelsDocument? = null,
 
     /**
      * Snapshot of a subset of properties of the `navigator` object in the top
      * frame of the browser
      */
-    val navigator: WebPixelsNavigator? = null,
+    public val navigator: WebPixelsNavigator? = null,
 
     /**
      * Snapshot of a subset of properties of the `window` object in the top frame
      * of the browser
      */
-    val window: WebPixelsWindow? = null
+    public val window: WebPixelsWindow? = null
 )
 
 /**
@@ -90,25 +77,25 @@ public data class WebPixelsDocument (
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Document),
      * returns the character set being used by the document
      */
-    val characterSet: String? = null,
+    public val characterSet: String? = null,
 
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Document),
      * returns the URI of the current document
      */
-    val location: Location? = null,
+    public val location: Location? = null,
 
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Document),
      * returns the URI of the page that linked to this page
      */
-    val referrer: String? = null,
+    public val referrer: String? = null,
 
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Document),
      * returns the title of the current document
      */
-    val title: String? = null
+    public val title: String? = null
 )
 
 /**
@@ -127,58 +114,58 @@ public data class Location (
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Location), a
      * string containing a `'#'` followed by the fragment identifier of the URL
      */
-    val hash: String? = null,
+    public val hash: String? = null,
 
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Location), a
      * string containing the host, that is the hostname, a `':'`, and the port of
      * the URL
      */
-    val host: String? = null,
+    public val host: String? = null,
 
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Location), a
      * string containing the domain of the URL
      */
-    val hostname: String? = null,
+    public val hostname: String? = null,
 
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Location), a
      * string containing the entire URL
      */
-    val href: String? = null,
+    public val href: String? = null,
 
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Location), a
      * string containing the canonical form of the origin of the specific location
      */
-    val origin: String? = null,
+    public val origin: String? = null,
 
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Location), a
      * string containing an initial `'/'` followed by the path of the URL, not
      * including the query string or fragment
      */
-    val pathname: String? = null,
+    public val pathname: String? = null,
 
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Location), a
      * string containing the port number of the URL
      */
-    val port: String? = null,
+    public val port: String? = null,
 
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Location), a
      * string containing the protocol scheme of the URL, including the final `':'`
      */
-    val protocol: String? = null,
+    public val protocol: String? = null,
 
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Location), a
      * string containing a `'?'` followed by the parameters or "querystring" of
      * the URL
      */
-    val search: String? = null
+    public val search: String? = null
 )
 
 /**
@@ -194,7 +181,7 @@ public data class WebPixelsNavigator (
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Navigator),
      * returns `false` if setting a cookie will be ignored and true otherwise
      */
-    val cookieEnabled: Boolean? = null,
+    public val cookieEnabled: Boolean? = null,
 
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Navigator),
@@ -202,20 +189,20 @@ public data class WebPixelsNavigator (
      * the language of the browser UI. The `null` value is returned when this
      * is unknown
      */
-    val language: String? = null,
+    public val language: String? = null,
 
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Navigator),
      * returns an array of strings representing the languages known to the user,
      * by order of preference
      */
-    val languages: List<String>? = null,
+    public val languages: List<String>? = null,
 
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Navigator),
      * returns the user agent string for the current browser
      */
-    val userAgent: String? = null
+    public val userAgent: String? = null
 )
 
 /**
@@ -232,83 +219,83 @@ public data class WebPixelsWindow (
      * gets the height of the content area of the browser window including, if
      * rendered, the horizontal scrollbar
      */
-    val innerHeight: Double? = null,
+    public val innerHeight: Double? = null,
 
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Window), gets
      * the width of the content area of the browser window including, if rendered,
      * the vertical scrollbar
      */
-    val innerWidth: Double? = null,
+    public val innerWidth: Double? = null,
 
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Window), the
      * location, or current URL, of the window object
      */
-    val location: Location? = null,
+    public val location: Location? = null,
 
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Window), the
      * global object's origin, serialized as a string
      */
-    val origin: String? = null,
+    public val origin: String? = null,
 
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Window), gets
      * the height of the outside of the browser window
      */
-    val outerHeight: Double? = null,
+    public val outerHeight: Double? = null,
 
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Window), gets
      * the width of the outside of the browser window
      */
-    val outerWidth: Double? = null,
+    public val outerWidth: Double? = null,
 
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Window), an
      * alias for window.scrollX
      */
-    val pageXOffset: Double? = null,
+    public val pageXOffset: Double? = null,
 
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Window), an
      * alias for window.scrollY
      */
-    val pageYOffset: Double? = null,
+    public val pageYOffset: Double? = null,
 
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Screen), the
      * interface representing a screen, usually the one on which the current
      * window is being rendered
      */
-    val screen: Screen? = null,
+    public val screen: Screen? = null,
 
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Window), the
      * horizontal distance from the left border of the user's browser viewport to
      * the left side of the screen
      */
-    val screenX: Double? = null,
+    public val screenX: Double? = null,
 
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Window), the
      * vertical distance from the top border of the user's browser viewport to the
      * top side of the screen
      */
-    val screenY: Double? = null,
+    public val screenY: Double? = null,
 
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Window), the
      * number of pixels that the document has already been scrolled horizontally
      */
-    val scrollX: Double? = null,
+    public val scrollX: Double? = null,
 
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Window), the
      * number of pixels that the document has already been scrolled vertically
      */
-    val scrollY: Double? = null
+    public val scrollY: Double? = null
 )
 
 /**
@@ -325,18 +312,18 @@ public data class Screen (
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Screen/height),
      * the height of the screen
      */
-    val height: Double? = null,
+    public val height: Double? = null,
 
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Screen/width),
      * the width of the screen
      */
-    val width: Double? = null
+    public val width: Double? = null
 )
 
 @Serializable
 public data class CartViewedData (
-    val cart: Cart? = null
+    public val cart: Cart? = null
 )
 
 /**
@@ -348,19 +335,19 @@ public data class Cart (
     /**
      * The estimated costs that the customer will pay at checkout.
      */
-    val cost: CartCost? = null,
+    public val cost: CartCost? = null,
 
     /**
      * A globally unique identifier.
      */
-    val id: String? = null,
+    public val id: String? = null,
 
-    val lines: List<CartLine>? = null,
+    public val lines: List<CartLine>? = null,
 
     /**
      * The total number of items in the cart.
      */
-    val totalQuantity: Double? = null
+    public val totalQuantity: Double? = null
 )
 
 /**
@@ -376,7 +363,7 @@ public data class CartCost (
     /**
      * The total amount for the customer to pay.
      */
-    val totalAmount: MoneyV2? = null
+    public val totalAmount: MoneyV2? = null
 )
 
 /**
@@ -407,14 +394,14 @@ public data class MoneyV2 (
     /**
      * The decimal money amount.
      */
-    val amount: Double? = null,
+    public val amount: Double? = null,
 
     /**
      * The three-letter code that represents the currency, for example, USD.
      * Supported codes include standard ISO 4217 codes, legacy codes, and non-
      * standard codes.
      */
-    val currencyCode: String? = null
+    public val currencyCode: String? = null
 )
 
 /**
@@ -426,17 +413,17 @@ public data class CartLine (
      * The cost of the merchandise that the customer will pay for at checkout. The
      * costs are subject to change and changes will be reflected at checkout.
      */
-    val cost: CartLineCost? = null,
+    public val cost: CartLineCost? = null,
 
     /**
      * The merchandise that the buyer intends to purchase.
      */
-    val merchandise: ProductVariant? = null,
+    public val merchandise: ProductVariant? = null,
 
     /**
      * The quantity of the merchandise that the customer intends to purchase.
      */
-    val quantity: Double? = null
+    public val quantity: Double? = null
 )
 
 /**
@@ -450,7 +437,7 @@ public data class CartLineCost (
     /**
      * The total cost of the merchandise line.
      */
-    val totalAmount: MoneyV2? = null
+    public val totalAmount: MoneyV2? = null
 )
 
 /**
@@ -464,38 +451,38 @@ public data class ProductVariant (
     /**
      * A globally unique identifier.
      */
-    val id: String? = null,
+    public val id: String? = null,
 
     /**
      * Image associated with the product variant. This field falls back to the
      * product image if no image is available.
      */
-    val image: Image? = null,
+    public val image: Image? = null,
 
     /**
      * The product variant’s price.
      */
-    val price: MoneyV2? = null,
+    public val price: MoneyV2? = null,
 
     /**
      * The product object that the product variant belongs to.
      */
-    val product: Product? = null,
+    public val product: Product? = null,
 
     /**
      * The SKU (stock keeping unit) associated with the variant.
      */
-    val sku: String? = null,
+    public val sku: String? = null,
 
     /**
      * The product variant’s title.
      */
-    val title: String? = null,
+    public val title: String? = null,
 
     /**
      * The product variant’s untranslated title.
      */
-    val untranslatedTitle: String? = null
+    public val untranslatedTitle: String? = null
 )
 
 /**
@@ -506,7 +493,7 @@ public data class Image (
     /**
      * The location of the image as a URL.
      */
-    val src: String? = null
+    public val src: String? = null
 )
 
 /**
@@ -519,34 +506,34 @@ public data class Product (
     /**
      * The ID of the product.
      */
-    val id: String? = null,
+    public val id: String? = null,
 
     /**
      * The product’s title.
      */
-    val title: String? = null,
+    public val title: String? = null,
 
     /**
      * The [product
      * type](https://help.shopify.com/en/manual/products/details/product-type)
      * specified by the merchant.
      */
-    val type: String? = null,
+    public val type: String? = null,
 
     /**
      * The product’s untranslated title.
      */
-    val untranslatedTitle: String? = null,
+    public val untranslatedTitle: String? = null,
 
     /**
      * The relative URL of the product.
      */
-    val url: String? = null,
+    public val url: String? = null,
 
     /**
      * The product’s vendor name.
      */
-    val vendor: String? = null
+    public val vendor: String? = null
 )
 
 /**
@@ -556,29 +543,16 @@ public data class Product (
  */
 @Serializable
 public data class CheckoutAddressInfoSubmitted (
-    val context: Context? = null,
-    val data: CheckoutAddressInfoSubmittedData? = null,
-
-    /**
-     * The ID of the customer event
-     */
-    val id: String? = null,
-
-    /**
-     * The name of the customer event
-     */
-    val name: String? = null,
-
-    /**
-     * The timestamp of when the customer event occurred, in [ISO
-     * 8601](https://en.wikipedia.org/wiki/ISO_8601) format
-     */
-    val timestamp: String? = null
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val context: Context? = null,
+    public val data: CheckoutAddressInfoSubmittedData? = null,
 ): AnalyticsEvent
 
 @Serializable
 public data class CheckoutAddressInfoSubmittedData (
-    val checkout: Checkout? = null
+    public val checkout: Checkout? = null
 )
 
 /**
@@ -590,84 +564,84 @@ public data class Checkout (
     /**
      * A list of attributes accumulated throughout the checkout process.
      */
-    val attributes: List<Attribute>? = null,
+    public val attributes: List<Attribute>? = null,
 
     /**
      * The billing address to where the order will be charged.
      */
-    val billingAddress: MailingAddress? = null,
+    public val billingAddress: MailingAddress? = null,
 
     /**
      * The three-letter code that represents the currency, for example, USD.
      * Supported codes include standard ISO 4217 codes, legacy codes, and non-
      * standard codes.
      */
-    val currencyCode: String? = null,
+    public val currencyCode: String? = null,
 
     /**
      * A list of discount applications.
      */
-    val discountApplications: List<DiscountApplication>? = null,
+    public val discountApplications: List<DiscountApplication>? = null,
 
     /**
      * The email attached to this checkout.
      */
-    val email: String? = null,
+    public val email: String? = null,
 
     /**
      * A list of line item objects, each one containing information about an item
      * in the checkout.
      */
-    val lineItems: List<CheckoutLineItem>? = null,
+    public val lineItems: List<CheckoutLineItem>? = null,
 
     /**
      * The resulting order from a paid checkout.
      */
-    val order: Order? = null,
+    public val order: Order? = null,
 
     /**
      * A unique phone number for the customer. Formatted using E.164 standard. For
      * example, *+16135551111*.
      */
-    val phone: String? = null,
+    public val phone: String? = null,
 
     /**
      * The shipping address to where the line items will be shipped.
      */
-    val shippingAddress: MailingAddress? = null,
+    public val shippingAddress: MailingAddress? = null,
 
     /**
      * Once a shipping rate is selected by the customer it is transitioned to a
      * `shipping_line` object.
      */
-    val shippingLine: ShippingRate? = null,
+    public val shippingLine: ShippingRate? = null,
 
     /**
      * The price at checkout before duties, shipping, and taxes.
      */
-    val subtotalPrice: MoneyV2? = null,
+    public val subtotalPrice: MoneyV2? = null,
 
     /**
      * A unique identifier for a particular checkout.
      */
-    val token: String? = null,
+    public val token: String? = null,
 
     /**
      * The sum of all the prices of all the items in the checkout, including
      * duties, taxes, and discounts.
      */
-    val totalPrice: MoneyV2? = null,
+    public val totalPrice: MoneyV2? = null,
 
     /**
      * The sum of all the taxes applied to the line items and shipping lines in
      * the checkout.
      */
-    val totalTax: MoneyV2? = null,
+    public val totalTax: MoneyV2? = null,
 
     /**
      * A list of transactions associated with a checkout or order.
      */
-    val transactions: List<Transaction>? = null
+    public val transactions: List<Transaction>? = null
 )
 
 /**
@@ -679,12 +653,12 @@ public data class Attribute (
     /**
      * The key for the attribute.
      */
-    val key: String? = null,
+    public val key: String? = null,
 
     /**
      * The value for the attribute.
      */
-    val value: String? = null
+    public val value: String? = null
 )
 
 /**
@@ -696,60 +670,60 @@ public data class MailingAddress (
      * The first line of the address. This is usually the street address or a P.O.
      * Box number.
      */
-    val address1: String? = null,
+    public val address1: String? = null,
 
     /**
      * The second line of the address. This is usually an apartment, suite, or
      * unit number.
      */
-    val address2: String? = null,
+    public val address2: String? = null,
 
     /**
      * The name of the city, district, village, or town.
      */
-    val city: String? = null,
+    public val city: String? = null,
 
     /**
      * The name of the country.
      */
-    val country: String? = null,
+    public val country: String? = null,
 
     /**
      * The two-letter code that represents the country, for example, US.
      * The country codes generally follows ISO 3166-1 alpha-2 guidelines.
      */
-    val countryCode: String? = null,
+    public val countryCode: String? = null,
 
     /**
      * The customer’s first name.
      */
-    val firstName: String? = null,
+    public val firstName: String? = null,
 
     /**
      * The customer’s last name.
      */
-    val lastName: String? = null,
+    public val lastName: String? = null,
 
     /**
      * The phone number for this mailing address as entered by the customer.
      */
-    val phone: String? = null,
+    public val phone: String? = null,
 
     /**
      * The region of the address, such as the province, state, or district.
      */
-    val province: String? = null,
+    public val province: String? = null,
 
     /**
      * The two-letter code for the region.
      * For example, ON.
      */
-    val provinceCode: String? = null,
+    public val provinceCode: String? = null,
 
     /**
      * The ZIP or postal code of the address.
      */
-    val zip: String? = null
+    public val zip: String? = null
 )
 
 /**
@@ -763,7 +737,7 @@ public data class DiscountApplication (
      * - `ACROSS`: The value is spread across all entitled lines.
      * - `EACH`: The value is applied onto every entitled line.
      */
-    val allocationMethod: String? = null,
+    public val allocationMethod: String? = null,
 
     /**
      * How the discount amount is distributed on the discounted lines.
@@ -773,7 +747,7 @@ public data class DiscountApplication (
      * entitled for.
      * - `EXPLICIT`: The discount is allocated onto explicitly chosen lines.
      */
-    val targetSelection: String? = null,
+    public val targetSelection: String? = null,
 
     /**
      * The type of line (i.e. line item or shipping line) on an order that the
@@ -782,14 +756,14 @@ public data class DiscountApplication (
      * - `LINE_ITEM`: The discount applies onto line items.
      * - `SHIPPING_LINE`: The discount applies onto shipping lines.
      */
-    val targetType: String? = null,
+    public val targetType: String? = null,
 
     /**
      * The customer-facing name of the discount. If the type of discount is
      * a `DISCOUNT_CODE`, this `title` attribute represents the code of the
      * discount.
      */
-    val title: String? = null,
+    public val title: String? = null,
 
     /**
      * The type of the discount.
@@ -803,13 +777,13 @@ public data class DiscountApplication (
      * through a script.
      * - `SCRIPT`: A discount applied to a customer's order using a script
      */
-    val type: String? = null,
+    public val type: String? = null,
 
     /**
      * The value of the discount. Fixed discounts return a `Money` Object, while
      * Percentage discounts return a `PricingPercentageValue` object.
      */
-    val value: Value? = null
+    public val value: Value? = null
 )
 
 /**
@@ -847,19 +821,19 @@ public data class Value (
     /**
      * The decimal money amount.
      */
-    val amount: Double? = null,
+    public val amount: Double? = null,
 
     /**
      * The three-letter code that represents the currency, for example, USD.
      * Supported codes include standard ISO 4217 codes, legacy codes, and non-
      * standard codes.
      */
-    val currencyCode: String? = null,
+    public val currencyCode: String? = null,
 
     /**
      * The percentage value of the object.
      */
-    val percentage: Double? = null
+    public val percentage: Double? = null
 )
 
 /**
@@ -871,27 +845,27 @@ public data class CheckoutLineItem (
      * The discounts that have been applied to the checkout line item by a
      * discount application.
      */
-    val discountAllocations: List<DiscountAllocation>? = null,
+    public val discountAllocations: List<DiscountAllocation>? = null,
 
     /**
      * A globally unique identifier.
      */
-    val id: String? = null,
+    public val id: String? = null,
 
     /**
      * The quantity of the line item.
      */
-    val quantity: Double? = null,
+    public val quantity: Double? = null,
 
     /**
      * The title of the line item. Defaults to the product's title.
      */
-    val title: String? = null,
+    public val title: String? = null,
 
     /**
      * Product variant of the line item.
      */
-    val variant: ProductVariant? = null
+    public val variant: ProductVariant? = null
 )
 
 /**
@@ -902,12 +876,12 @@ public data class DiscountAllocation (
     /**
      * The monetary value with currency allocated to the discount.
      */
-    val amount: MoneyV2? = null,
+    public val amount: MoneyV2? = null,
 
     /**
      * The information about the intent of the discount.
      */
-    val discountApplication: DiscountApplication? = null
+    public val discountApplication: DiscountApplication? = null
 )
 
 /**
@@ -920,7 +894,7 @@ public data class Order (
     /**
      * The ID of the order.
      */
-    val id: String? = null
+    public val id: String? = null
 )
 
 /**
@@ -931,7 +905,7 @@ public data class ShippingRate (
     /**
      * Price of this shipping rate.
      */
-    val price: MoneyV2? = null
+    public val price: MoneyV2? = null
 )
 
 /**
@@ -942,12 +916,12 @@ public data class Transaction (
     /**
      * The monetary value with currency allocated to the transaction method.
      */
-    val amount: MoneyV2? = null,
+    public val amount: MoneyV2? = null,
 
     /**
      * The name of the payment provider used for the transaction.
      */
-    val gateway: String? = null
+    public val gateway: String? = null
 )
 
 /**
@@ -959,29 +933,16 @@ public data class Transaction (
  */
 @Serializable
 public data class CheckoutCompleted (
-    val context: Context? = null,
-    val data: CheckoutCompletedData? = null,
-
-    /**
-     * The ID of the customer event
-     */
-    val id: String? = null,
-
-    /**
-     * The name of the customer event
-     */
-    val name: String? = null,
-
-    /**
-     * The timestamp of when the customer event occurred, in [ISO
-     * 8601](https://en.wikipedia.org/wiki/ISO_8601) format
-     */
-    val timestamp: String? = null
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val context: Context? = null,
+    public val data: CheckoutCompletedData? = null,
 ): AnalyticsEvent
 
 @Serializable
 public data class CheckoutCompletedData (
-    val checkout: Checkout? = null
+    public val checkout: Checkout? = null
 )
 
 /**
@@ -995,29 +956,16 @@ public data class CheckoutCompletedData (
  */
 @Serializable
 public data class CheckoutContactInfoSubmitted (
-    val context: Context? = null,
-    val data: CheckoutContactInfoSubmittedData? = null,
-
-    /**
-     * The ID of the customer event
-     */
-    val id: String? = null,
-
-    /**
-     * The name of the customer event
-     */
-    val name: String? = null,
-
-    /**
-     * The timestamp of when the customer event occurred, in [ISO
-     * 8601](https://en.wikipedia.org/wiki/ISO_8601) format
-     */
-    val timestamp: String? = null
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val context: Context? = null,
+    public val data: CheckoutContactInfoSubmittedData? = null,
 ): AnalyticsEvent
 
 @Serializable
 public data class CheckoutContactInfoSubmittedData (
-    val checkout: Checkout? = null
+    public val checkout: Checkout? = null
 )
 
 /**
@@ -1027,29 +975,16 @@ public data class CheckoutContactInfoSubmittedData (
  */
 @Serializable
 public data class CheckoutShippingInfoSubmitted (
-    val context: Context? = null,
-    val data: CheckoutShippingInfoSubmittedData? = null,
-
-    /**
-     * The ID of the customer event
-     */
-    val id: String? = null,
-
-    /**
-     * The name of the customer event
-     */
-    val name: String? = null,
-
-    /**
-     * The timestamp of when the customer event occurred, in [ISO
-     * 8601](https://en.wikipedia.org/wiki/ISO_8601) format
-     */
-    val timestamp: String? = null
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val context: Context? = null,
+    public val data: CheckoutShippingInfoSubmittedData? = null,
 ): AnalyticsEvent
 
 @Serializable
 public data class CheckoutShippingInfoSubmittedData (
-    val checkout: Checkout? = null
+    public val checkout: Checkout? = null
 )
 
 /**
@@ -1067,29 +1002,16 @@ public data class CheckoutShippingInfoSubmittedData (
  */
 @Serializable
 public data class CheckoutStarted (
-    val context: Context? = null,
-    val data: CheckoutStartedData? = null,
-
-    /**
-     * The ID of the customer event
-     */
-    val id: String? = null,
-
-    /**
-     * The name of the customer event
-     */
-    val name: String? = null,
-
-    /**
-     * The timestamp of when the customer event occurred, in [ISO
-     * 8601](https://en.wikipedia.org/wiki/ISO_8601) format
-     */
-    val timestamp: String? = null
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val context: Context? = null,
+    public val data: CheckoutStartedData? = null,
 ): AnalyticsEvent
 
 @Serializable
 public data class CheckoutStartedData (
-    val checkout: Checkout? = null
+    public val checkout: Checkout? = null
 )
 
 /**
@@ -1099,29 +1021,16 @@ public data class CheckoutStartedData (
  */
 @Serializable
 public data class CollectionViewed (
-    val context: Context? = null,
-    val data: CollectionViewedData? = null,
-
-    /**
-     * The ID of the customer event
-     */
-    val id: String? = null,
-
-    /**
-     * The name of the customer event
-     */
-    val name: String? = null,
-
-    /**
-     * The timestamp of when the customer event occurred, in [ISO
-     * 8601](https://en.wikipedia.org/wiki/ISO_8601) format
-     */
-    val timestamp: String? = null
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val context: Context? = null,
+    public val data: CollectionViewedData? = null,
 ): AnalyticsEvent
 
 @Serializable
 public data class CollectionViewedData (
-    val collection: Collection? = null
+    public val collection: Collection? = null
 )
 
 /**
@@ -1133,14 +1042,14 @@ public data class Collection (
     /**
      * A globally unique identifier.
      */
-    val id: String? = null,
+    public val id: String? = null,
 
-    val productVariants: List<ProductVariant>? = null,
+    public val productVariants: List<ProductVariant>? = null,
 
     /**
      * The collection’s name. Maximum length: 255 characters.
      */
-    val title: String? = null
+    public val title: String? = null
 )
 
 /**
@@ -1153,24 +1062,11 @@ public data class Collection (
  */
 @Serializable
 public data class PageViewed (
-    val context: Context? = null,
-    val data: PageViewedData? = null,
-
-    /**
-     * The ID of the customer event
-     */
-    val id: String? = null,
-
-    /**
-     * The name of the customer event
-     */
-    val name: String? = null,
-
-    /**
-     * The timestamp of when the customer event occurred, in [ISO
-     * 8601](https://en.wikipedia.org/wiki/ISO_8601) format
-     */
-    val timestamp: String? = null
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val context: Context? = null,
+    public val data: PageViewedData? = null,
 ): AnalyticsEvent
 
 public typealias PageViewedData = JsonObject
@@ -1185,29 +1081,16 @@ public typealias PageViewedData = JsonObject
  */
 @Serializable
 public data class PaymentInfoSubmitted (
-    val context: Context? = null,
-    val data: PaymentInfoSubmittedData? = null,
-
-    /**
-     * The ID of the customer event
-     */
-    val id: String? = null,
-
-    /**
-     * The name of the customer event
-     */
-    val name: String? = null,
-
-    /**
-     * The timestamp of when the customer event occurred, in [ISO
-     * 8601](https://en.wikipedia.org/wiki/ISO_8601) format
-     */
-    val timestamp: String? = null
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val context: Context? = null,
+    public val data: PaymentInfoSubmittedData? = null,
 ): AnalyticsEvent
 
 @Serializable
 public data class PaymentInfoSubmittedData (
-    val checkout: Checkout? = null
+    public val checkout: Checkout? = null
 )
 
 /**
@@ -1216,29 +1099,16 @@ public data class PaymentInfoSubmittedData (
  */
 @Serializable
 public data class ProductAddedToCart (
-    val context: Context? = null,
-    val data: ProductAddedToCartData? = null,
-
-    /**
-     * The ID of the customer event
-     */
-    val id: String? = null,
-
-    /**
-     * The name of the customer event
-     */
-    val name: String? = null,
-
-    /**
-     * The timestamp of when the customer event occurred, in [ISO
-     * 8601](https://en.wikipedia.org/wiki/ISO_8601) format
-     */
-    val timestamp: String? = null
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val context: Context? = null,
+    public val data: ProductAddedToCartData? = null,
 ): AnalyticsEvent
 
 @Serializable
 public data class ProductAddedToCartData (
-    val cartLine: CartLine? = null
+    public val cartLine: CartLine? = null
 )
 
 /**
@@ -1248,29 +1118,16 @@ public data class ProductAddedToCartData (
  */
 @Serializable
 public data class ProductRemovedFromCart (
-    val context: Context? = null,
-    val data: ProductRemovedFromCartData? = null,
-
-    /**
-     * The ID of the customer event
-     */
-    val id: String? = null,
-
-    /**
-     * The name of the customer event
-     */
-    val name: String? = null,
-
-    /**
-     * The timestamp of when the customer event occurred, in [ISO
-     * 8601](https://en.wikipedia.org/wiki/ISO_8601) format
-     */
-    val timestamp: String? = null
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val context: Context? = null,
+    public val data: ProductRemovedFromCartData? = null,
 ): AnalyticsEvent
 
 @Serializable
 public data class ProductRemovedFromCartData (
-    val cartLine: CartLine? = null
+    public val cartLine: CartLine? = null
 )
 
 /**
@@ -1281,29 +1138,16 @@ public data class ProductRemovedFromCartData (
  */
 @Serializable
 public data class ProductVariantViewed (
-    val context: Context? = null,
-    val data: ProductVariantViewedData? = null,
-
-    /**
-     * The ID of the customer event
-     */
-    val id: String? = null,
-
-    /**
-     * The name of the customer event
-     */
-    val name: String? = null,
-
-    /**
-     * The timestamp of when the customer event occurred, in [ISO
-     * 8601](https://en.wikipedia.org/wiki/ISO_8601) format
-     */
-    val timestamp: String? = null
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val context: Context? = null,
+    public val data: ProductVariantViewedData? = null,
 ): AnalyticsEvent
 
 @Serializable
 public data class ProductVariantViewedData (
-    val productVariant: ProductVariant? = null
+    public val productVariant: ProductVariant? = null
 )
 
 /**
@@ -1312,29 +1156,16 @@ public data class ProductVariantViewedData (
  */
 @Serializable
 public data class ProductViewed (
-    val context: Context? = null,
-    val data: ProductViewedData? = null,
-
-    /**
-     * The ID of the customer event
-     */
-    val id: String? = null,
-
-    /**
-     * The name of the customer event
-     */
-    val name: String? = null,
-
-    /**
-     * The timestamp of when the customer event occurred, in [ISO
-     * 8601](https://en.wikipedia.org/wiki/ISO_8601) format
-     */
-    val timestamp: String? = null
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val context: Context? = null,
+    public val data: ProductViewedData? = null,
 ): AnalyticsEvent
 
 @Serializable
 public data class ProductViewedData (
-    val productVariant: ProductVariant? = null
+    public val productVariant: ProductVariant? = null
 )
 
 /**
@@ -1343,29 +1174,16 @@ public data class ProductViewedData (
  */
 @Serializable
 public data class SearchSubmitted (
-    val context: Context? = null,
-    val data: SearchSubmittedData? = null,
-
-    /**
-     * The ID of the customer event
-     */
-    val id: String? = null,
-
-    /**
-     * The name of the customer event
-     */
-    val name: String? = null,
-
-    /**
-     * The timestamp of when the customer event occurred, in [ISO
-     * 8601](https://en.wikipedia.org/wiki/ISO_8601) format
-     */
-    val timestamp: String? = null
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val context: Context? = null,
+    public val data: SearchSubmittedData? = null,
 ): AnalyticsEvent
 
 @Serializable
 public data class SearchSubmittedData (
-    val searchResult: SearchResult? = null
+    public val searchResult: SearchResult? = null
 )
 
 /**
@@ -1373,12 +1191,12 @@ public data class SearchSubmittedData (
  */
 @Serializable
 public data class SearchResult (
-    val productVariants: List<ProductVariant>? = null,
+    public val productVariants: List<ProductVariant>? = null,
 
     /**
      * The search query that was executed
      */
-    val query: String? = null
+    public val query: String? = null
 )
 
 /**
@@ -1387,24 +1205,11 @@ public data class SearchResult (
  */
 @Serializable
 public data class CustomEvent (
-    val context: Context? = null,
-    val customData: CustomData? = null,
-
-    /**
-     * The ID of the customer event
-     */
-    val id: String? = null,
-
-    /**
-     * Arbitrary name of the custom event
-     */
-    val name: String? = null,
-
-    /**
-     * The timestamp of when the customer event occurred, in [ISO
-     * 8601](https://en.wikipedia.org/wiki/ISO_8601) format
-     */
-    val timestamp: String? = null
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val context: Context? = null,
+    public val customData: CustomData? = null,
 ): AnalyticsEvent
 
 /**
@@ -1422,10 +1227,10 @@ public typealias Data = JsonObject
 
 @Serializable
 public data class InitData (
-    val cart: Cart? = null,
-    val checkout: Checkout? = null,
-    val customer: Customer? = null,
-    val productVariants: List<ProductVariant>? = null
+    public val cart: Cart? = null,
+    public val checkout: Checkout? = null,
+    public val customer: Customer? = null,
+    public val productVariants: List<ProductVariant>? = null
 )
 
 /**
@@ -1438,32 +1243,32 @@ public data class Customer (
     /**
      * The customer’s email address.
      */
-    val email: String? = null,
+    public val email: String? = null,
 
     /**
      * The customer’s first name.
      */
-    val firstName: String? = null,
+    public val firstName: String? = null,
 
     /**
      * The ID of the customer.
      */
-    val id: String? = null,
+    public val id: String? = null,
 
     /**
      * The customer’s last name.
      */
-    val lastName: String? = null,
+    public val lastName: String? = null,
 
     /**
      * The total number of orders that the customer has placed.
      */
-    val ordersCount: Double? = null,
+    public val ordersCount: Double? = null,
 
     /**
      * The customer’s phone number.
      */
-    val phone: String? = null
+    public val phone: String? = null
 )
 
 /**
@@ -1476,5 +1281,5 @@ public data class PricingPercentageValue (
     /**
      * The percentage value of the object.
      */
-    val percentage: Double? = null
+    public val percentage: Double? = null
 )
