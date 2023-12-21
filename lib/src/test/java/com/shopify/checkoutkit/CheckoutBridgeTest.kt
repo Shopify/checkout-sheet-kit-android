@@ -25,6 +25,8 @@ package com.shopify.checkoutkit
 import android.webkit.WebView
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.MODAL
+import com.shopify.checkoutkit.messages.AnalyticsEvent
+import com.shopify.checkoutkit.messages.CheckoutStarted
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.assertj.core.api.Assertions.assertThat
@@ -36,6 +38,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.timeout
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
@@ -174,5 +177,37 @@ class CheckoutBridgeTest {
         checkoutBridge.sendMessage(webView, CheckoutBridge.SDKOperation.Instrumentation(payload))
 
         Mockito.verify(webView).evaluateJavascript(expectedJavascript, null)
+    }
+
+    @Test
+    fun `calls on analytics received when valid analytics event received`() {
+        val eventString = """|
+            |{
+            |   "name":"analytics",
+            |   "body": "{
+            |       \"name\": \"checkout_started\",
+            |       \"event\": {
+            |           \"id\": \"sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B\",
+            |           \"name\": \"checkout_started\",
+            |           \"timestamp\": \"2023-12-20T16:39:23+0000\",
+            |           \"data\": {
+            |               \"checkout\": {
+            |                   \"order\": {
+            |                       \"id\": \"123\"
+            |                   }
+            |               }
+            |           }
+            |       }
+            |   }"
+            |}
+        |""".trimMargin()
+
+
+       checkoutBridge.postMessage(eventString)
+
+        val captor = argumentCaptor<AnalyticsEvent>()
+        verify(mockEventProcessor, timeout(2000).times(1)).onAnalyticsEvent(captor.capture())
+
+        assertThat(captor.firstValue).isInstanceOf(CheckoutStarted::class.java)
     }
 }
