@@ -24,7 +24,32 @@ package com.shopify.checkoutkit.messages
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
-import kotlin.reflect.KClass
+
+@Serializable
+internal class RawAnalyticsEvent(
+    internal val name: String,
+    internal val event: JsonObject,
+)
+
+public interface AnalyticsEvent {
+    /**
+     * The ID of the customer event
+     */
+    public val id: String?
+
+    /**
+     * The name of the customer event
+     */
+    public val name: String?
+
+    /**
+     * The timestamp of when the customer event occurred, in [ISO
+     * 8601](https://en.wikipedia.org/wiki/ISO_8601) format
+     */
+    public val timestamp: String?
+
+    public val context: Context?
+}
 
 public enum class AnalyticsEventType(public val eventName: String) {
     CART_VIEWED("cart_viewed"),
@@ -1240,13 +1265,6 @@ public data class CustomEvent (
  * the custom event publisher
  */
 public typealias CustomData = JsonObject
-
-/**
- * A free-form object representing data specific to this event provided by
- * Shopify. Refer to [standard events](#standard-events) for details on the
- * payload available to each event
- */
-public typealias Data = JsonObject
 
 @Serializable
 public data class InitData (

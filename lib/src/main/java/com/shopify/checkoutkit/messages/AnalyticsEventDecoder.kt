@@ -23,13 +23,15 @@
 package com.shopify.checkoutkit.messages
 
 import android.util.Log
+import com.shopify.checkoutkit.LogWrapper
 import com.shopify.checkoutkit.WebToSdkEvent
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 
-internal class AnalyticsEventDecoder(private val decoder: Json) {
+internal class AnalyticsEventDecoder @JvmOverloads constructor(
+    private val decoder: Json,
+    private val log: LogWrapper = LogWrapper()
+) {
     @Suppress("CyclomaticComplexMethod")
     fun decode(decodedMsg: WebToSdkEvent): AnalyticsEvent? {
         return try {
@@ -62,39 +64,18 @@ internal class AnalyticsEventDecoder(private val decoder: Json) {
                 AnalyticsEventType.SEARCH_SUBMITTED ->
                     decoder.decodeFromJsonElement<SearchSubmitted>(rawEvent.event)
                 null -> {
-                    Log.w("CheckoutBridge", "Non standard event received ${rawEvent.name}, decoding to custom event")
-                    decoder.decodeFromJsonElement<CustomEvent>(rawEvent.event)
+                    // this could be a standard event we don't yet know about or a custom event
+                    if (rawEvent.event.containsKey("customData")) {
+                        decoder.decodeFromJsonElement<CustomEvent>(rawEvent.event)
+                    } else {
+                        log.w("CheckoutBridge", "Unrecognized standard analytics event received '${rawEvent.name}'")
+                        null
+                    }
                 }
             }
         } catch (e: Exception) {
-            Log.e("CheckoutBridge", "Couldn't decode event ${decodedMsg.body}")
+            log.e("CheckoutBridge", "Failed to decode analytics event", e)
             null
         }
     }
-}
-
-@Serializable
-internal class RawAnalyticsEvent(
-    internal val name: String,
-    internal val event: JsonObject,
-)
-
-public interface AnalyticsEvent {
-    /**
-     * The ID of the customer event
-     */
-    public val id: String?
-
-    /**
-     * The name of the customer event
-     */
-    public val name: String?
-
-    /**
-     * The timestamp of when the customer event occurred, in [ISO
-     * 8601](https://en.wikipedia.org/wiki/ISO_8601) format
-     */
-    public val timestamp: String?
-
-    public val context: Context?
 }

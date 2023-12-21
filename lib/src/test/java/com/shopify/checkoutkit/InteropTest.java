@@ -78,17 +78,16 @@ public class InteropTest {
         WebToSdkEvent webEvent = new WebToSdkEvent("analytics", eventString);
         Json json = Json.Default;
 
-        com.shopify.checkoutkit.messages.AnalyticsEventDecoder decoder = new com.shopify.checkoutkit.messages.AnalyticsEventDecoder(json);
+        com.shopify.checkoutkit.messages.AnalyticsEventDecoder decoder = new com.shopify.checkoutkit.messages.AnalyticsEventDecoder(
+            json
+        );
 
-        String checkoutStartedOrderId = null;
         AnalyticsEvent event = decoder.decode(webEvent);
-        switch (event.getName()) {
-            case "checkout_started": {
-                CheckoutStarted checkoutStarted = (CheckoutStarted) event;
-                CheckoutStartedData checkoutStartedData = checkoutStarted.getData();
-                checkoutStartedOrderId = checkoutStartedData.getCheckout().getOrder().getId();
-            }
-        }
+
+        assertThat(event).isInstanceOf(CheckoutStarted.class);
+        CheckoutStarted checkoutStarted = (CheckoutStarted) event;
+        CheckoutStartedData checkoutStartedData = checkoutStarted.getData();
+        String checkoutStartedOrderId = checkoutStartedData.getCheckout().getOrder().getId();
 
         assertThat(checkoutStartedOrderId).isEqualTo(orderId);
      }
