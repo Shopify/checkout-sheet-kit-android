@@ -138,6 +138,10 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
         }
     }
 
+    override fun onAnalyticsEvent(analyticsEvent: AnalyticsEvent) {
+        // no-op, override to implement
+    }
+
     private fun Context.launchEmailApp(to: String) {
         val intent = Intent(Intent.ACTION_SEND)
         intent.type = "vnd.android.cursor.item/email"
