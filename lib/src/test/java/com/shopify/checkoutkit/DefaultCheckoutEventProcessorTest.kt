@@ -25,7 +25,7 @@ package com.shopify.checkoutkit
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.ComponentActivity
-import com.shopify.checkoutkit.messages.AnalyticsEvent
+import com.shopify.checkoutkit.events.AnalyticsEvent
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test

@@ -25,8 +25,8 @@ package com.shopify.checkoutkit
 import android.webkit.WebView
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.MODAL
-import com.shopify.checkoutkit.messages.AnalyticsEvent
-import com.shopify.checkoutkit.messages.CheckoutStarted
+import com.shopify.checkoutkit.events.AnalyticsEvent
+import com.shopify.checkoutkit.events.CheckoutStarted
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.assertj.core.api.Assertions.assertThat
@@ -187,6 +187,7 @@ class CheckoutBridgeTest {
             |   "body": "{
             |       \"name\": \"checkout_started\",
             |       \"event\": {
+            |           \"type\": \"standard\",
             |           \"id\": \"sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B\",
             |           \"name\": \"checkout_started\",
             |           \"timestamp\": \"2023-12-20T16:39:23+0000\",

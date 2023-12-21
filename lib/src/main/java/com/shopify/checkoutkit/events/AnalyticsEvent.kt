@@ -20,9 +20,16 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutkit.messages
+package com.shopify.checkoutkit.events
 
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.JsonObject
 
 @Serializable
@@ -30,6 +37,24 @@ internal class RawAnalyticsEvent(
     internal val name: String,
     internal val event: JsonObject,
 )
+
+@Serializable
+public enum class EventType(public val typeName: String) {
+    @SerialName("dom") DOM("dom"),
+    @SerialName("standard") STANDARD("standard"),
+    @SerialName("custom") CUSTOM("custom");
+
+    public companion object {
+        public fun fromTypeName(typeName: String?): EventType? {
+            if (typeName == null) {
+                return null
+            }
+            return EventType.values().firstOrNull {
+                it.typeName == typeName
+            }
+        }
+    }
+}
 
 public interface AnalyticsEvent {
     /**
@@ -48,10 +73,14 @@ public interface AnalyticsEvent {
      */
     public val timestamp: String?
 
-    public val context: Context?
+    /**
+     * The timestamp of when the customer event occurred, in [ISO
+     * 8601](https://en.wikipedia.org/wiki/ISO_8601) format
+     */
+    public val type: EventType?
 }
 
-public enum class AnalyticsEventType(public val eventName: String) {
+public enum class StandardAnalyticsEventType(public val eventName: String) {
     CART_VIEWED("cart_viewed"),
     CHECKOUT_ADDRESS_INFO_SUBMITTED("checkout_address_info_submitted"),
     CHECKOUT_COMPLETED("checkout_completed"),
@@ -67,8 +96,22 @@ public enum class AnalyticsEventType(public val eventName: String) {
     SEARCH_SUBMITTED("search_submitted");
 
     public companion object {
-        public fun fromEventName(eventName: String): AnalyticsEventType? =
-            AnalyticsEventType.values().firstOrNull {
+        public fun fromEventName(eventName: String): StandardAnalyticsEventType? =
+            StandardAnalyticsEventType.values().firstOrNull {
+                it.eventName == eventName
+            }
+    }
+}
+
+public enum class DomEventType(public val eventName: String) {
+    DOM_EVENT_CLICKED("clicked"),
+    DOM_EVENT_FORM_SUBMITTED("form_submitted"),
+    DOM_EVENT_INPUT_BLURRED("input_blurred"),
+    DOM_EVENT_INPUT_CHANGED("input_changed"),
+    DOM_EVENT_INPUT_FOCUSED("input_focused");
+    public companion object {
+        public fun fromEventName(eventName: String): DomEventType? =
+            DomEventType.values().firstOrNull {
                 it.eventName == eventName
             }
     }
@@ -83,7 +126,8 @@ public data class CartViewed (
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
-    public override val context: Context? = null,
+    public override val type: EventType? = null,
+    public val context: Context? = null,
     public val data: CartViewedData? = null,
 ): AnalyticsEvent
 
@@ -594,7 +638,8 @@ public data class CheckoutAddressInfoSubmitted (
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
-    public override val context: Context? = null,
+    public override val type: EventType? = null,
+    public val context: Context? = null,
     public val data: CheckoutAddressInfoSubmittedData? = null,
 ): AnalyticsEvent
 
@@ -984,7 +1029,8 @@ public data class CheckoutCompleted (
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
-    public override val context: Context? = null,
+    public override val type: EventType? = null,
+    public val context: Context? = null,
     public val data: CheckoutCompletedData? = null,
 ): AnalyticsEvent
 
@@ -1007,7 +1053,8 @@ public data class CheckoutContactInfoSubmitted (
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
-    public override val context: Context? = null,
+    public override val type: EventType? = null,
+    public val context: Context? = null,
     public val data: CheckoutContactInfoSubmittedData? = null,
 ): AnalyticsEvent
 
@@ -1026,7 +1073,8 @@ public data class CheckoutShippingInfoSubmitted (
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
-    public override val context: Context? = null,
+    public override val type: EventType? = null,
+    public val context: Context? = null,
     public val data: CheckoutShippingInfoSubmittedData? = null,
 ): AnalyticsEvent
 
@@ -1053,7 +1101,8 @@ public data class CheckoutStarted (
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
-    public override val context: Context? = null,
+    public override val type: EventType? = null,
+    public val context: Context? = null,
     public val data: CheckoutStartedData? = null,
 ): AnalyticsEvent
 
@@ -1072,7 +1121,8 @@ public data class CollectionViewed (
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
-    public override val context: Context? = null,
+    public override val type: EventType? = null,
+    public val context: Context? = null,
     public val data: CollectionViewedData? = null,
 ): AnalyticsEvent
 
@@ -1113,11 +1163,13 @@ public data class PageViewed (
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
-    public override val context: Context? = null,
+    public override val type: EventType? = null,
+    public val context: Context? = null,
     public val data: PageViewedData? = null,
 ): AnalyticsEvent
 
-public typealias PageViewedData = JsonObject
+// The page viewed can be obtained via the context attribute
+public typealias PageViewedData = Unit
 
 /**
  * The `payment_info_submitted` event logs an instance of a customer submitting
@@ -1132,7 +1184,8 @@ public data class PaymentInfoSubmitted (
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
-    public override val context: Context? = null,
+    public override val type: EventType? = null,
+    public val context: Context? = null,
     public val data: PaymentInfoSubmittedData? = null,
 ): AnalyticsEvent
 
@@ -1150,7 +1203,8 @@ public data class ProductAddedToCart (
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
-    public override val context: Context? = null,
+    public override val type: EventType? = null,
+    public val context: Context? = null,
     public val data: ProductAddedToCartData? = null,
 ): AnalyticsEvent
 
@@ -1169,7 +1223,8 @@ public data class ProductRemovedFromCart (
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
-    public override val context: Context? = null,
+    public override val type: EventType? = null,
+    public val context: Context? = null,
     public val data: ProductRemovedFromCartData? = null,
 ): AnalyticsEvent
 
@@ -1189,7 +1244,8 @@ public data class ProductVariantViewed (
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
-    public override val context: Context? = null,
+    public override val type: EventType? = null,
+    public val context: Context? = null,
     public val data: ProductVariantViewedData? = null,
 ): AnalyticsEvent
 
@@ -1207,7 +1263,8 @@ public data class ProductViewed (
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
-    public override val context: Context? = null,
+    public override val type: EventType? = null,
+    public val context: Context? = null,
     public val data: ProductViewedData? = null,
 ): AnalyticsEvent
 
@@ -1225,7 +1282,8 @@ public data class SearchSubmitted (
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
-    public override val context: Context? = null,
+    public override val type: EventType? = null,
+    public val context: Context? = null,
     public val data: SearchSubmittedData? = null,
 ): AnalyticsEvent
 
@@ -1256,23 +1314,24 @@ public data class CustomEvent (
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
-    public override val context: Context? = null,
-    public val customData: CustomData? = null,
+    public override val type: EventType? = null,
+    public val context: Context? = null,
+    // Clients are expected to define their own type for each custom event, and deserialize from String
+    @Serializable(with = JsonObjectAsStringSerializer::class)
+    public val customData: String? = null,
 ): AnalyticsEvent
 
-/**
- * A free-form object representing data specific to a custom event provided by
- * the custom event publisher
- */
-public typealias CustomData = JsonObject
+public object JsonObjectAsStringSerializer : KSerializer<String> {
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("WithCustomDefault", PrimitiveKind.STRING)
 
-@Serializable
-public data class InitData (
-    public val cart: Cart? = null,
-    public val checkout: Checkout? = null,
-    public val customer: Customer? = null,
-    public val productVariants: List<ProductVariant>? = null
-)
+    override fun serialize(encoder: Encoder, value: String) {
+        encoder.encodeString(value)
+    }
+
+    override fun deserialize(decoder: Decoder): String {
+        return decoder.decodeSerializableValue(JsonObject.serializer()).toString()
+    }
+}
 
 /**
  * A customer represents a customer account with the shop. Customer accounts
@@ -1323,4 +1382,96 @@ public data class PricingPercentageValue (
      * The percentage value of the object.
      */
     public val percentage: Double? = null
+)
+
+@Serializable
+public data class DomEventsClicked(
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val type: EventType? = null,
+    public val data: DomEventsClickedData? = null
+): AnalyticsEvent
+
+@Serializable
+public data class DomEventsClickedData(
+    public val element: GenericElement? = null,
+)
+
+@Serializable
+public data class DomEventsFormSubmitted(
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val type: EventType? = null,
+    public val data: DomEventsFormSubmittedData? = null
+): AnalyticsEvent
+
+@Serializable
+public data class DomEventsFormSubmittedData(
+    public val element: FormElement? = null,
+)
+
+@Serializable
+public data class DomEventsInputBlurred(
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val type: EventType? = null,
+    public val data: DomEventsInputBlurredData? = null
+): AnalyticsEvent
+
+@Serializable
+public data class DomEventsInputBlurredData(
+    public val element: InputElement? = null
+)
+
+public data class DomEventsInputChanged(
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val type: EventType? = null,
+    public val data: DomEventsInputChangedData? = null
+): AnalyticsEvent
+
+public data class DomEventsInputChangedData(
+    public val element: InputElement? = null,
+)
+
+public data class DomEventsInputFocused(
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val type: EventType? = null,
+    public val data: DomEventsInputFocusedData? = null
+): AnalyticsEvent
+
+public data class DomEventsInputFocusedData(
+    public val element: InputElement? = null,
+)
+
+@Serializable
+public data class GenericElement(
+    public val href: String? = null,
+    public val id: String? = null,
+    public val name: String? = null,
+    public val tagName: String? = null,
+    public val type: String? = null,
+    public val value: String? = null
+)
+
+@Serializable
+public data class FormElement(
+    public val action: String? = null,
+    public val elements: List<InputElement>? = null,
+    public val id: String? = null,
+)
+
+@Serializable
+public data class InputElement(
+    public val id: String? = null,
+    public val name: String? = null,
+    public val tagName: String? = null,
+    public val type: String? = null,
+    public val value: String? = null,
 )

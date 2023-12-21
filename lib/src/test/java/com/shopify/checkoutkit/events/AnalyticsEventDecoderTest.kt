@@ -20,14 +20,12 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutkit.messages
+package com.shopify.checkoutkit.events
 
 import com.shopify.checkoutkit.LogWrapper
 import com.shopify.checkoutkit.WebToSdkEvent
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.decodeFromJsonElement
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.mockito.Mockito.mock
@@ -47,6 +45,7 @@ class AnalyticsEventDecoderTest {
             |{
             |    "name": "checkout_started",
             |    "event": {
+            |        "type": "standard",
             |        "id": "sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B",
             |        "name": "checkout_started",
             |        "timestamp": "2023-12-20T16:39:23+0000",
@@ -82,6 +81,7 @@ class AnalyticsEventDecoderTest {
             |{
             |    "name": "checkout_completed",
             |    "event": {
+            |        "type": "standard",
             |        "id": "sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B",
             |        "name": "checkout_completed",
             |        "timestamp": "2023-12-20T16:39:23+0000",
@@ -123,6 +123,7 @@ class AnalyticsEventDecoderTest {
             |{
             |    "name": "my_custom_event",
             |    "event": {
+            |        "type": "custom",
             |        "id": "sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B",
             |        "name": "my_custom_event",
             |        "timestamp": "2023-12-20T16:39:23+0000",
@@ -146,8 +147,135 @@ class AnalyticsEventDecoderTest {
         assertThat(customEvent.name).isEqualTo("my_custom_event")
         assertThat(customEvent.timestamp).isEqualTo("2023-12-20T16:39:23+0000")
         assertThat(customEvent.id).isEqualTo("sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B")
-        val customData = Json.decodeFromJsonElement<ExampleClientDefinedType>(customEvent.customData as JsonObject)
+        val customData = Json.decodeFromString<ExampleClientDefinedType>(customEvent.customData!!)
         assertThat(customData.a.b.c).isEqualTo("d")
+
+        verifyNoInteractions(logWrapper)
+    }
+
+    @Test
+    fun `should deserialize a dom event`() {
+        val event = """|
+            |{
+            |    "name": "clicked",
+            |    "event": {
+            |        "type": "dom",
+            |        "id": "sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B",
+            |        "name": "clicked",
+            |        "timestamp": "2023-12-20T16:39:23+0000",
+            |        "data": {
+            |           "element": {
+            |               "id": "my-element",
+            |               "name": "",
+            |               "tagName": "input",
+            |               "value": "value"
+            |            }
+            |        }
+            |    }
+            |}
+        |""".trimMargin()
+            .toWebToSdkEvent()
+
+        val result = decoder.decode(event)
+
+        assertThat(result).isInstanceOf(DomEventsClicked::class.java)
+
+        val domEvent = result as DomEventsClicked
+        assertThat(domEvent.name).isEqualTo("clicked")
+        assertThat(domEvent.timestamp).isEqualTo("2023-12-20T16:39:23+0000")
+        assertThat(domEvent.id).isEqualTo("sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B")
+        assertThat(domEvent.data?.element?.id).isEqualTo("my-element")
+        assertThat(domEvent.data?.element?.tagName).isEqualTo("input")
+        assertThat(domEvent.data?.element?.value).isEqualTo("value")
+
+        verifyNoInteractions(logWrapper)
+    }
+
+
+    @Test
+    @Suppress("LongMethod")
+    fun `should deserialize a page viewed event`() {
+        val event = """|
+            |{
+            |    "name": "page_viewed",
+            |    "event": {
+            |        "type": "standard",
+            |        "id": "sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B",
+            |        "name": "page_viewed",
+            |        "timestamp": "2023-12-20T16:39:23+0000",
+            |        "context": {
+            |            "document": {
+            |                "location": {
+            |                    "href": "https://test-store.myshopify.com/checkouts/cn/Z2NwLXVzLWNlbnRyYWwxOjAxSEs0U1BUSlozNDhFME5KTlM2MVhaOVE3?ew_m=f",
+            |                    "hash": "",
+            |                    "host": "test-store.myshopify.com",
+            |                    "hostname": "test-store.myshopify.com",
+            |                    "origin": "https://test-store.myshopify.com",
+            |                    "pathname": "/checkouts/cn/Z2NwLXVzLWNlbnRyYWwxOjAxSEs0U1BUSlozNDhFME5KTlM2MVhaOVE3",
+            |                    "port": "",
+            |                    "protocol": "https:",
+            |                    "search": "?ew_m=f"
+            |                },
+            |                "referrer": "https://test-store.myshopify.com/products/t-shirt",
+            |                "characterSet": "UTF-8",
+            |                "title": "Test Store"
+            |            },
+            |            "navigator": {
+            |                "language": "en-GB",
+            |                "cookieEnabled": true,
+            |                "languages": [
+            |                    "en-GB",
+            |                    "en-US",
+            |                    "en",
+            |                    "es"
+            |                ],
+            |                "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            |            },
+            |            "window": {
+            |                "innerHeight": 934,
+            |                "innerWidth": 1221,
+            |                "outerHeight": 1055,
+            |                "outerWidth": 1920,
+            |                "pageXOffset": 0,
+            |                "pageYOffset": 0,
+            |                "location": {
+            |                    "href": "https://test-store.myshopify.com/checkouts/cn/Z2NwLXVzLWNlbnRyYWwxOjAxSEs0U1BUSlozNDhFME5KTlM2MVhaOVE3?ew_m=f",
+            |                    "hash": "",
+            |                    "host": "test-store.myshopify.com",
+            |                    "hostname": "test-store.myshopify.com",
+            |                    "origin": "https://test-store.myshopify.com",
+            |                    "pathname": "/checkouts/cn/Z2NwLXVzLWNlbnRyYWwxOjAxSEs0U1BUSlozNDhFME5KTlM2MVhaOVE3",
+            |                    "port": "",
+            |                    "protocol": "https:",
+            |                    "search": "?ew_m=f"
+            |                },
+            |                "origin": "https://test-store.myshopify.com",
+            |                "screen": {
+            |                    "height": 1080,
+            |                    "width": 1920
+            |                },
+            |                "screenX": 0,
+            |                "screenY": 25,
+            |                "scrollX": 0,
+            |                "scrollY": 0
+            |            }
+            |        }
+            |    }
+            |}
+        |""".trimMargin()
+            .toWebToSdkEvent()
+
+        val result = decoder.decode(event)
+
+        assertThat(result).isInstanceOf(PageViewed::class.java)
+
+        val pageViewedEvent = result as PageViewed
+        assertThat(pageViewedEvent.name).isEqualTo("page_viewed")
+        assertThat(pageViewedEvent.timestamp).isEqualTo("2023-12-20T16:39:23+0000")
+        assertThat(pageViewedEvent.id).isEqualTo("sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B")
+        assertThat(pageViewedEvent.data).isNull()
+        assertThat(pageViewedEvent.context?.document?.location?.href)
+            .isEqualTo("https://test-store.myshopify.com/checkouts/cn/Z2NwLXVzLWNlbnRyYWwxOjAxSEs0U1BUSlozNDhFME5KTlM2MVhaOVE3?ew_m=f")
 
         verifyNoInteractions(logWrapper)
     }
@@ -158,6 +286,7 @@ class AnalyticsEventDecoderTest {
             |{
             |    "name": "new_standard_event",
             |    "event": {
+            |        "type": "standard",
             |        "id": "sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B",
             |        "name": "new_standard_event",
             |        "timestamp": "2023-12-20T16:39:23+0000",
@@ -183,11 +312,43 @@ class AnalyticsEventDecoderTest {
     }
 
     @Test
+    fun `should return null for a dom event we don't know about`() {
+        val event = """|
+            |{
+            |    "name": "new_dom_event",
+            |    "event": {
+            |        "type": "dom",
+            |        "id": "sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B",
+            |        "name": "new_dom_event",
+            |        "timestamp": "2023-12-20T16:39:23+0000",
+            |        "data": {
+            |            "a": {
+            |                "b": {
+            |                    "c": "d"
+            |                }
+            |            }
+            |        }
+            |    }
+            |}
+        |""".trimMargin()
+            .toWebToSdkEvent()
+
+        val result = decoder.decode(event)
+
+        assertThat(result).isNull()
+        verify(logWrapper).w(
+            "CheckoutBridge",
+            "Unrecognized dom analytics event received 'new_dom_event'"
+        )
+    }
+
+    @Test
     fun `should return null if event cannot be decoded`() {
         val event = """|
             |{
             |    "name": "cart_viewed",
             |    "event": {
+            |        "type": "standard",
             |        "id": "sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B",
             |}
         |""".trimMargin()

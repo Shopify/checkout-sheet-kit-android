@@ -25,7 +25,7 @@ package com.shopify.checkoutkit
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import com.shopify.checkoutkit.messages.AnalyticsEvent
+import com.shopify.checkoutkit.events.AnalyticsEvent
 import kotlinx.serialization.Serializable
 
 /**
