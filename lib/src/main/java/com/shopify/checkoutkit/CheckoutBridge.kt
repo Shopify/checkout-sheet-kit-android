@@ -27,7 +27,7 @@ import android.webkit.WebView
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.ANALYTICS
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.MODAL
-import com.shopify.checkoutkit.events.AnalyticsEventDecoder
+import com.shopify.checkoutkit.events.PixelEventDecoder
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -35,7 +35,7 @@ import kotlinx.serialization.json.Json
 internal class CheckoutBridge(
     private var eventProcessor: CheckoutWebViewEventProcessor,
     private val decoder: Json = Json { ignoreUnknownKeys = true },
-    private val analyticsEventDecoder: AnalyticsEventDecoder = AnalyticsEventDecoder(decoder),
+    private val pixelEventDecoder: PixelEventDecoder = PixelEventDecoder(decoder),
 ) {
 
     fun setEventProcessor(eventProcessor: CheckoutWebViewEventProcessor) {
@@ -75,9 +75,8 @@ internal class CheckoutBridge(
                 }
             }
             ANALYTICS -> {
-                val analyticsEvent = analyticsEventDecoder.decode(decodedMsg)
-                analyticsEvent?.let {
-                    eventProcessor.onAnalyticsEvent(analyticsEvent)
+                pixelEventDecoder.decode(decodedMsg)?.let { event ->
+                    eventProcessor.onAnalyticsEvent(event)
                 }
             }
             else -> {}

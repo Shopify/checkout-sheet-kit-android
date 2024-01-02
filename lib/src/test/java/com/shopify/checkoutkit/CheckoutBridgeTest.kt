@@ -25,7 +25,7 @@ package com.shopify.checkoutkit
 import android.webkit.WebView
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.MODAL
-import com.shopify.checkoutkit.events.AnalyticsEvent
+import com.shopify.checkoutkit.events.PixelEvent
 import com.shopify.checkoutkit.events.CheckoutStarted
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -206,7 +206,7 @@ class CheckoutBridgeTest {
 
        checkoutBridge.postMessage(eventString)
 
-        val captor = argumentCaptor<AnalyticsEvent>()
+        val captor = argumentCaptor<PixelEvent>()
         verify(mockEventProcessor, timeout(2000).times(1)).onAnalyticsEvent(captor.capture())
 
         assertThat(captor.firstValue).isInstanceOf(CheckoutStarted::class.java)

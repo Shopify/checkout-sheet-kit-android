@@ -29,11 +29,11 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonPrimitive
 
-internal class AnalyticsEventDecoder @JvmOverloads constructor(
+internal class PixelEventDecoder @JvmOverloads constructor(
     private val decoder: Json,
     private val log: LogWrapper = LogWrapper()
 ) {
-    fun decode(decodedMsg: WebToSdkEvent): AnalyticsEvent? {
+    fun decode(decodedMsg: WebToSdkEvent): PixelEvent? {
         return try {
             val rawEvent = decoder.decodeFromString<RawAnalyticsEvent>(decodedMsg.body)
             when (EventType.fromTypeName(rawEvent.event["type"]?.jsonPrimitive?.content)) {
@@ -48,17 +48,17 @@ internal class AnalyticsEventDecoder @JvmOverloads constructor(
         }
     }
 
-    private fun decodeDomEvent(name: String, jsonElement: JsonElement): AnalyticsEvent? {
-        return when (DomEventType.fromEventName(name)) {
-            DomEventType.DOM_EVENT_CLICKED ->
+    private fun decodeDomEvent(name: String, jsonElement: JsonElement): PixelEvent? {
+        return when (DomPixelsEventType.fromEventName(name)) {
+            DomPixelsEventType.DOM_EVENT_CLICKED ->
                 decoder.decodeFromJsonElement<DomEventsClicked>(jsonElement)
-            DomEventType.DOM_EVENT_FORM_SUBMITTED ->
+            DomPixelsEventType.DOM_EVENT_FORM_SUBMITTED ->
                 decoder.decodeFromJsonElement<DomEventsFormSubmitted>(jsonElement)
-            DomEventType.DOM_EVENT_INPUT_BLURRED ->
+            DomPixelsEventType.DOM_EVENT_INPUT_BLURRED ->
                 decoder.decodeFromJsonElement<DomEventsInputBlurred>(jsonElement)
-            DomEventType.DOM_EVENT_INPUT_CHANGED ->
+            DomPixelsEventType.DOM_EVENT_INPUT_CHANGED ->
                 decoder.decodeFromJsonElement<DomEventsInputChanged>(jsonElement)
-            DomEventType.DOM_EVENT_INPUT_FOCUSED ->
+            DomPixelsEventType.DOM_EVENT_INPUT_FOCUSED ->
                 decoder.decodeFromJsonElement<DomEventsInputFocused>(jsonElement)
             null -> {
                 log.w("CheckoutBridge", "Unrecognized dom analytics event received '$name'")
@@ -68,33 +68,33 @@ internal class AnalyticsEventDecoder @JvmOverloads constructor(
     }
 
     @Suppress("CyclomaticComplexMethod")
-    private fun decodeStandardEvent(name: String, jsonElement: JsonElement): AnalyticsEvent? {
-        return when (StandardAnalyticsEventType.fromEventName(name)) {
-            StandardAnalyticsEventType.CART_VIEWED ->
+    private fun decodeStandardEvent(name: String, jsonElement: JsonElement): PixelEvent? {
+        return when (StandardPixelsEventType.fromEventName(name)) {
+            StandardPixelsEventType.CART_VIEWED ->
                 decoder.decodeFromJsonElement<CartViewed>(jsonElement)
-            StandardAnalyticsEventType.CHECKOUT_ADDRESS_INFO_SUBMITTED ->
+            StandardPixelsEventType.CHECKOUT_ADDRESS_INFO_SUBMITTED ->
                 decoder.decodeFromJsonElement<CheckoutAddressInfoSubmitted>(jsonElement)
-            StandardAnalyticsEventType.CHECKOUT_COMPLETED ->
+            StandardPixelsEventType.CHECKOUT_COMPLETED ->
                 decoder.decodeFromJsonElement<CheckoutCompleted>(jsonElement)
-            StandardAnalyticsEventType.CHECKOUT_CONTACT_INFO_SUBMITTED ->
+            StandardPixelsEventType.CHECKOUT_CONTACT_INFO_SUBMITTED ->
                 decoder.decodeFromJsonElement<CheckoutContactInfoSubmitted>(jsonElement)
-            StandardAnalyticsEventType.CHECKOUT_SHIPPING_INFO_SUBMITTED ->
+            StandardPixelsEventType.CHECKOUT_SHIPPING_INFO_SUBMITTED ->
                 decoder.decodeFromJsonElement<CheckoutShippingInfoSubmitted>(jsonElement)
-            StandardAnalyticsEventType.CHECKOUT_STARTED ->
+            StandardPixelsEventType.CHECKOUT_STARTED ->
                 decoder.decodeFromJsonElement<CheckoutStarted>(jsonElement)
-            StandardAnalyticsEventType.COLLECTION_VIEWED ->
+            StandardPixelsEventType.COLLECTION_VIEWED ->
                 decoder.decodeFromJsonElement<CollectionViewed>(jsonElement)
-            StandardAnalyticsEventType.PAGE_VIEWED ->
+            StandardPixelsEventType.PAGE_VIEWED ->
                 decoder.decodeFromJsonElement<PageViewed>(jsonElement)
-            StandardAnalyticsEventType.PAYMENT_INFO_SUBMITTED ->
+            StandardPixelsEventType.PAYMENT_INFO_SUBMITTED ->
                 decoder.decodeFromJsonElement<PaymentInfoSubmitted>(jsonElement)
-            StandardAnalyticsEventType.PRODUCT_ADDED_TO_CART ->
+            StandardPixelsEventType.PRODUCT_ADDED_TO_CART ->
                 decoder.decodeFromJsonElement<ProductAddedToCart>(jsonElement)
-            StandardAnalyticsEventType.PRODUCT_REMOVED_FROM_CART ->
+            StandardPixelsEventType.PRODUCT_REMOVED_FROM_CART ->
                 decoder.decodeFromJsonElement<ProductRemovedFromCart>(jsonElement)
-            StandardAnalyticsEventType.PRODUCT_VIEWED ->
+            StandardPixelsEventType.PRODUCT_VIEWED ->
                 decoder.decodeFromJsonElement<ProductViewed>(jsonElement)
-            StandardAnalyticsEventType.SEARCH_SUBMITTED ->
+            StandardPixelsEventType.SEARCH_SUBMITTED ->
                 decoder.decodeFromJsonElement<SearchSubmitted>(jsonElement)
             null -> {
                 log.w("CheckoutBridge", "Unrecognized standard analytics event received '$name'")

@@ -25,7 +25,7 @@ package com.shopify.checkoutkit
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import com.shopify.checkoutkit.events.AnalyticsEvent
+import com.shopify.checkoutkit.events.PixelEvent
 import kotlinx.serialization.Serializable
 
 /**
@@ -99,7 +99,7 @@ public interface CheckoutEventProcessor {
      * Event with analytics data that can be optionally transformed, enhanced (e.g. with user and session identifiers),
      * and forwarded on to an analytics service
      */
-    public fun onAnalyticsEvent(analyticsEvent: AnalyticsEvent)
+    public fun onAnalyticsEvent(event: PixelEvent)
 }
 
 internal class NoopEventProcessor : CheckoutEventProcessor {
@@ -115,7 +115,7 @@ internal class NoopEventProcessor : CheckoutEventProcessor {
     override fun onCheckoutLinkClicked(uri: Uri) {/* noop */
     }
 
-    override fun onAnalyticsEvent(analyticsEvent: AnalyticsEvent) {/* noop */
+    override fun onAnalyticsEvent(event: PixelEvent) {/* noop */
     }
 }
 
@@ -138,7 +138,7 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
         }
     }
 
-    override fun onAnalyticsEvent(analyticsEvent: AnalyticsEvent) {
+    override fun onAnalyticsEvent(event: PixelEvent) {
         // no-op, override to implement
     }
 

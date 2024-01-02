@@ -34,10 +34,10 @@ import org.mockito.Mockito.verifyNoInteractions
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 
-class AnalyticsEventDecoderTest {
+class PixelEventDecoderTest {
 
     private val logWrapper = mock<LogWrapper>()
-    private val decoder = AnalyticsEventDecoder(Json { ignoreUnknownKeys = true }, logWrapper)
+    private val decoder = PixelEventDecoder(Json { ignoreUnknownKeys = true }, logWrapper)
 
     @Test
     fun `should deserialize a standard event - checkout started`() {

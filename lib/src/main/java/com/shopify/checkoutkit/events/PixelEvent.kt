@@ -56,7 +56,7 @@ public enum class EventType(public val typeName: String) {
     }
 }
 
-public interface AnalyticsEvent {
+public interface PixelEvent {
     /**
      * The ID of the customer event
      */
@@ -80,7 +80,7 @@ public interface AnalyticsEvent {
     public val type: EventType?
 }
 
-public enum class StandardAnalyticsEventType(public val eventName: String) {
+public enum class StandardPixelsEventType(public val eventName: String) {
     CART_VIEWED("cart_viewed"),
     CHECKOUT_ADDRESS_INFO_SUBMITTED("checkout_address_info_submitted"),
     CHECKOUT_COMPLETED("checkout_completed"),
@@ -96,22 +96,22 @@ public enum class StandardAnalyticsEventType(public val eventName: String) {
     SEARCH_SUBMITTED("search_submitted");
 
     public companion object {
-        public fun fromEventName(eventName: String): StandardAnalyticsEventType? =
-            StandardAnalyticsEventType.values().firstOrNull {
+        public fun fromEventName(eventName: String): StandardPixelsEventType? =
+            StandardPixelsEventType.values().firstOrNull {
                 it.eventName == eventName
             }
     }
 }
 
-public enum class DomEventType(public val eventName: String) {
+public enum class DomPixelsEventType(public val eventName: String) {
     DOM_EVENT_CLICKED("clicked"),
     DOM_EVENT_FORM_SUBMITTED("form_submitted"),
     DOM_EVENT_INPUT_BLURRED("input_blurred"),
     DOM_EVENT_INPUT_CHANGED("input_changed"),
     DOM_EVENT_INPUT_FOCUSED("input_focused");
     public companion object {
-        public fun fromEventName(eventName: String): DomEventType? =
-            DomEventType.values().firstOrNull {
+        public fun fromEventName(eventName: String): DomPixelsEventType? =
+            DomPixelsEventType.values().firstOrNull {
                 it.eventName == eventName
             }
     }
@@ -129,7 +129,7 @@ public data class CartViewed (
     public override val type: EventType? = null,
     public val context: Context? = null,
     public val data: CartViewedData? = null,
-): AnalyticsEvent
+): PixelEvent
 
 /**
  * A snapshot of various read-only properties of the browser at the time of
@@ -141,19 +141,19 @@ public data class Context (
      * Snapshot of a subset of properties of the `document` object in the top
      * frame of the browser
      */
-    public val document: WebPixelsDocument? = null,
+    public val document: Document? = null,
 
     /**
      * Snapshot of a subset of properties of the `navigator` object in the top
      * frame of the browser
      */
-    public val navigator: WebPixelsNavigator? = null,
+    public val navigator: Navigator? = null,
 
     /**
      * Snapshot of a subset of properties of the `window` object in the top frame
      * of the browser
      */
-    public val window: WebPixelsWindow? = null
+    public val window: Window? = null
 )
 
 /**
@@ -164,7 +164,7 @@ public data class Context (
  * frame of the browser
  */
 @Serializable
-public data class WebPixelsDocument (
+public data class Document (
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Document),
      * returns the character set being used by the document
@@ -268,7 +268,7 @@ public data class Location (
  * frame of the browser
  */
 @Serializable
-public data class WebPixelsNavigator (
+public data class Navigator (
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Navigator),
      * returns `false` if setting a cookie will be ignored and true otherwise
@@ -305,7 +305,7 @@ public data class WebPixelsNavigator (
  * of the browser
  */
 @Serializable
-public data class WebPixelsWindow (
+public data class Window (
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Window),
      * gets the height of the content area of the browser window including, if
@@ -641,7 +641,7 @@ public data class CheckoutAddressInfoSubmitted (
     public override val type: EventType? = null,
     public val context: Context? = null,
     public val data: CheckoutAddressInfoSubmittedData? = null,
-): AnalyticsEvent
+): PixelEvent
 
 @Serializable
 public data class CheckoutAddressInfoSubmittedData (
@@ -1032,7 +1032,7 @@ public data class CheckoutCompleted (
     public override val type: EventType? = null,
     public val context: Context? = null,
     public val data: CheckoutCompletedData? = null,
-): AnalyticsEvent
+): PixelEvent
 
 @Serializable
 public data class CheckoutCompletedData (
@@ -1056,7 +1056,7 @@ public data class CheckoutContactInfoSubmitted (
     public override val type: EventType? = null,
     public val context: Context? = null,
     public val data: CheckoutContactInfoSubmittedData? = null,
-): AnalyticsEvent
+): PixelEvent
 
 @Serializable
 public data class CheckoutContactInfoSubmittedData (
@@ -1076,7 +1076,7 @@ public data class CheckoutShippingInfoSubmitted (
     public override val type: EventType? = null,
     public val context: Context? = null,
     public val data: CheckoutShippingInfoSubmittedData? = null,
-): AnalyticsEvent
+): PixelEvent
 
 @Serializable
 public data class CheckoutShippingInfoSubmittedData (
@@ -1104,7 +1104,7 @@ public data class CheckoutStarted (
     public override val type: EventType? = null,
     public val context: Context? = null,
     public val data: CheckoutStartedData? = null,
-): AnalyticsEvent
+): PixelEvent
 
 @Serializable
 public data class CheckoutStartedData (
@@ -1124,7 +1124,7 @@ public data class CollectionViewed (
     public override val type: EventType? = null,
     public val context: Context? = null,
     public val data: CollectionViewedData? = null,
-): AnalyticsEvent
+): PixelEvent
 
 @Serializable
 public data class CollectionViewedData (
@@ -1166,7 +1166,7 @@ public data class PageViewed (
     public override val type: EventType? = null,
     public val context: Context? = null,
     public val data: PageViewedData? = null,
-): AnalyticsEvent
+): PixelEvent
 
 // The page viewed can be obtained via the context attribute
 public typealias PageViewedData = Unit
@@ -1187,7 +1187,7 @@ public data class PaymentInfoSubmitted (
     public override val type: EventType? = null,
     public val context: Context? = null,
     public val data: PaymentInfoSubmittedData? = null,
-): AnalyticsEvent
+): PixelEvent
 
 @Serializable
 public data class PaymentInfoSubmittedData (
@@ -1206,7 +1206,7 @@ public data class ProductAddedToCart (
     public override val type: EventType? = null,
     public val context: Context? = null,
     public val data: ProductAddedToCartData? = null,
-): AnalyticsEvent
+): PixelEvent
 
 @Serializable
 public data class ProductAddedToCartData (
@@ -1226,7 +1226,7 @@ public data class ProductRemovedFromCart (
     public override val type: EventType? = null,
     public val context: Context? = null,
     public val data: ProductRemovedFromCartData? = null,
-): AnalyticsEvent
+): PixelEvent
 
 @Serializable
 public data class ProductRemovedFromCartData (
@@ -1247,7 +1247,7 @@ public data class ProductVariantViewed (
     public override val type: EventType? = null,
     public val context: Context? = null,
     public val data: ProductVariantViewedData? = null,
-): AnalyticsEvent
+): PixelEvent
 
 @Serializable
 public data class ProductVariantViewedData (
@@ -1266,7 +1266,7 @@ public data class ProductViewed (
     public override val type: EventType? = null,
     public val context: Context? = null,
     public val data: ProductViewedData? = null,
-): AnalyticsEvent
+): PixelEvent
 
 @Serializable
 public data class ProductViewedData (
@@ -1285,7 +1285,7 @@ public data class SearchSubmitted (
     public override val type: EventType? = null,
     public val context: Context? = null,
     public val data: SearchSubmittedData? = null,
-): AnalyticsEvent
+): PixelEvent
 
 @Serializable
 public data class SearchSubmittedData (
@@ -1319,7 +1319,7 @@ public data class CustomEvent (
     // Clients are expected to define their own type for each custom event, and deserialize from String
     @Serializable(with = JsonObjectAsStringSerializer::class)
     public val customData: String? = null,
-): AnalyticsEvent
+): PixelEvent
 
 public object JsonObjectAsStringSerializer : KSerializer<String> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("WithCustomDefault", PrimitiveKind.STRING)
@@ -1391,7 +1391,7 @@ public data class DomEventsClicked(
     public override val timestamp: String? = null,
     public override val type: EventType? = null,
     public val data: DomEventsClickedData? = null
-): AnalyticsEvent
+): PixelEvent
 
 @Serializable
 public data class DomEventsClickedData(
@@ -1405,7 +1405,7 @@ public data class DomEventsFormSubmitted(
     public override val timestamp: String? = null,
     public override val type: EventType? = null,
     public val data: DomEventsFormSubmittedData? = null
-): AnalyticsEvent
+): PixelEvent
 
 @Serializable
 public data class DomEventsFormSubmittedData(
@@ -1419,7 +1419,7 @@ public data class DomEventsInputBlurred(
     public override val timestamp: String? = null,
     public override val type: EventType? = null,
     public val data: DomEventsInputBlurredData? = null
-): AnalyticsEvent
+): PixelEvent
 
 @Serializable
 public data class DomEventsInputBlurredData(
@@ -1432,7 +1432,7 @@ public data class DomEventsInputChanged(
     public override val timestamp: String? = null,
     public override val type: EventType? = null,
     public val data: DomEventsInputChangedData? = null
-): AnalyticsEvent
+): PixelEvent
 
 public data class DomEventsInputChangedData(
     public val element: InputElement? = null,
@@ -1444,7 +1444,7 @@ public data class DomEventsInputFocused(
     public override val timestamp: String? = null,
     public override val type: EventType? = null,
     public val data: DomEventsInputFocusedData? = null
-): AnalyticsEvent
+): PixelEvent
 
 public data class DomEventsInputFocusedData(
     public val element: InputElement? = null,

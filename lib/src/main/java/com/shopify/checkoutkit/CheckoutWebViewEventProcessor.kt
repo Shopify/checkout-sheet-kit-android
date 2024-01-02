@@ -25,7 +25,7 @@ package com.shopify.checkoutkit
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
-import com.shopify.checkoutkit.events.AnalyticsEvent
+import com.shopify.checkoutkit.events.PixelEvent
 
 /**
  * Event processor that can handle events internally, delegate to the CheckoutEventProcessor
@@ -64,7 +64,7 @@ internal class CheckoutWebViewEventProcessor(
         }
     }
 
-    fun onAnalyticsEvent(event: AnalyticsEvent) {
+    fun onAnalyticsEvent(event: PixelEvent) {
         eventProcessor.onAnalyticsEvent(event)
     }
 

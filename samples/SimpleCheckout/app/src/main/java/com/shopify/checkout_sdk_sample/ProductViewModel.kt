@@ -30,6 +30,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shopify.checkoutkit.CheckoutEventProcessor
 import com.shopify.checkoutkit.CheckoutException
+import com.shopify.checkoutkit.events.PixelEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -122,6 +123,10 @@ class ProductViewModel : ViewModel(), CheckoutEventProcessor {
 
     override fun onCheckoutLinkClicked(uri: Uri) {
         // handle links being clicked (mailto:, tel:, and web links that should be opened outside of checkout)
+    }
+
+    override fun onAnalyticsEvent(event: PixelEvent) {
+        // handle analytics events (e.g. transform, augment, and emit to analytics system)
     }
 }
 

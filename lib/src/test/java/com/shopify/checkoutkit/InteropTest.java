@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import android.app.Activity;
 import androidx.activity.ComponentActivity;
 import androidx.annotation.NonNull;
-import com.shopify.checkoutkit.events.AnalyticsEvent;
+import com.shopify.checkoutkit.events.PixelEvent;
 import com.shopify.checkoutkit.events.CheckoutStarted;
 import com.shopify.checkoutkit.events.CheckoutStartedData;
 
@@ -31,7 +31,7 @@ public class InteropTest {
     public void canInstantiateCustomEventProcessorWithDefaultArg() {
         DefaultCheckoutEventProcessor processor = new DefaultCheckoutEventProcessor(activity) {
             @Override
-            public void onAnalyticsEvent(@NonNull AnalyticsEvent analyticsEvent) {
+            public void onAnalyticsEvent(@NonNull PixelEvent event) {
 
             }
 
@@ -79,11 +79,11 @@ public class InteropTest {
         WebToSdkEvent webEvent = new WebToSdkEvent("analytics", eventString);
         Json json = Json.Default;
 
-        com.shopify.checkoutkit.events.AnalyticsEventDecoder decoder = new com.shopify.checkoutkit.events.AnalyticsEventDecoder(
+        com.shopify.checkoutkit.events.PixelEventDecoder decoder = new com.shopify.checkoutkit.events.PixelEventDecoder(
             json
         );
 
-        AnalyticsEvent event = decoder.decode(webEvent);
+        PixelEvent event = decoder.decode(webEvent);
 
         assertThat(event).isInstanceOf(CheckoutStarted.class);
         CheckoutStarted checkoutStarted = (CheckoutStarted) event;
