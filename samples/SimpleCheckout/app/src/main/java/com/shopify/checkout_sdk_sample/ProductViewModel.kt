@@ -125,8 +125,8 @@ class ProductViewModel : ViewModel(), CheckoutEventProcessor {
         // handle links being clicked (mailto:, tel:, and web links that should be opened outside of checkout)
     }
 
-    override fun onAnalyticsEvent(event: PixelEvent) {
-        // handle analytics events (e.g. transform, augment, and emit to analytics system)
+    override fun onWebPixelEvent(event: PixelEvent) {
+        // handle web pixel events (e.g. transform, augment, and emit to analytics system)
     }
 }
 

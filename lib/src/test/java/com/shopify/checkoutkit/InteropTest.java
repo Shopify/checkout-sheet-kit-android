@@ -31,7 +31,7 @@ public class InteropTest {
     public void canInstantiateCustomEventProcessorWithDefaultArg() {
         DefaultCheckoutEventProcessor processor = new DefaultCheckoutEventProcessor(activity) {
             @Override
-            public void onAnalyticsEvent(@NonNull PixelEvent event) {
+            public void onWebPixelEvent(@NonNull PixelEvent event) {
 
             }
 

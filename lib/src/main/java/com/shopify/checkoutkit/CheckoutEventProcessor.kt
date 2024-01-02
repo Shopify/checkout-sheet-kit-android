@@ -99,7 +99,7 @@ public interface CheckoutEventProcessor {
      * Event with analytics data that can be optionally transformed, enhanced (e.g. with user and session identifiers),
      * and forwarded on to an analytics service
      */
-    public fun onAnalyticsEvent(event: PixelEvent)
+    public fun onWebPixelEvent(event: PixelEvent)
 }
 
 internal class NoopEventProcessor : CheckoutEventProcessor {
@@ -115,7 +115,7 @@ internal class NoopEventProcessor : CheckoutEventProcessor {
     override fun onCheckoutLinkClicked(uri: Uri) {/* noop */
     }
 
-    override fun onAnalyticsEvent(event: PixelEvent) {/* noop */
+    override fun onWebPixelEvent(event: PixelEvent) {/* noop */
     }
 }
 
@@ -138,7 +138,7 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
         }
     }
 
-    override fun onAnalyticsEvent(event: PixelEvent) {
+    override fun onWebPixelEvent(event: PixelEvent) {
         // no-op, override to implement
     }
 

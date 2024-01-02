@@ -65,7 +65,7 @@ internal class CheckoutWebViewEventProcessor(
     }
 
     fun onAnalyticsEvent(event: PixelEvent) {
-        eventProcessor.onAnalyticsEvent(event)
+        eventProcessor.onWebPixelEvent(event)
     }
 
     private fun onMainThread(block: () -> Unit) {

@@ -104,8 +104,8 @@ fun CheckoutSdkNavHost(
                         // optionally respond to checkout being canceled/closed
                     }
 
-                    override fun onAnalyticsEvent(event: PixelEvent) {
-                        // handle analytics events (e.g. transform, augment, and emit to analytics system)
+                    override fun onWebPixelEvent(event: PixelEvent) {
+                        // handle pixel events (e.g. transform, augment, and emit to analytics system)
                     }
                 }
             )

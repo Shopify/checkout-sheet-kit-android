@@ -92,7 +92,7 @@ class DefaultCheckoutEventProcessorTest {
             override fun onCheckoutCompleted() {/* not implemented */}
             override fun onCheckoutFailed(error: CheckoutException) {/* not implemented */}
             override fun onCheckoutCanceled() {/* not implemented */}
-            override fun onAnalyticsEvent(event: PixelEvent) {/* not implemented */}
+            override fun onWebPixelEvent(event: PixelEvent) {/* not implemented */}
         }
 
         val uri = Uri.parse("ftp:lsklsm")
@@ -119,7 +119,7 @@ class DefaultCheckoutEventProcessorTest {
                         /* not implemented */
                     }
 
-                    override fun onAnalyticsEvent(event: PixelEvent) {
+                    override fun onWebPixelEvent(event: PixelEvent) {
                         /* not implemented */
                     }
                 }
@@ -136,7 +136,7 @@ class DefaultCheckoutEventProcessorTest {
             override fun onCheckoutCompleted() {/* not implemented */}
             override fun onCheckoutFailed(error: CheckoutException) {/* not implemented */}
             override fun onCheckoutCanceled() {/* not implemented */}
-            override fun onAnalyticsEvent(event: PixelEvent) {/* not implemented */}
+            override fun onWebPixelEvent(event: PixelEvent) {/* not implemented */}
         }
     }
 }
