@@ -180,7 +180,7 @@ class CheckoutBridgeTest {
     }
 
     @Test
-    fun `calls on analytics received when valid analytics event received`() {
+    fun `calls onPixelEvent when valid analytics event received`() {
         val eventString = """|
             |{
             |   "name":"analytics",
@@ -207,7 +207,7 @@ class CheckoutBridgeTest {
        checkoutBridge.postMessage(eventString)
 
         val captor = argumentCaptor<PixelEvent>()
-        verify(mockEventProcessor, timeout(2000).times(1)).onAnalyticsEvent(captor.capture())
+        verify(mockEventProcessor, timeout(2000).times(1)).onWebPixelEvent(captor.capture())
 
         assertThat(captor.firstValue).isInstanceOf(CheckoutStarted::class.java)
     }

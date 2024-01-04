@@ -33,7 +33,7 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.JsonObject
 
 @Serializable
-internal class RawAnalyticsEvent(
+internal class PixelEventWrapper(
     internal val name: String,
     internal val event: JsonObject,
 )

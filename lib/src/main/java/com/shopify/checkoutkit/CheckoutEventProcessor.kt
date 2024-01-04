@@ -96,8 +96,8 @@ public interface CheckoutEventProcessor {
     public fun onCheckoutLinkClicked(uri: Uri)
 
     /**
-     * Event with analytics data that can be optionally transformed, enhanced (e.g. with user and session identifiers),
-     * and forwarded on to an analytics service
+     * Web Pixel event emitted from checkout, that can be optionally transformed, enhanced (e.g. with user and session identifiers),
+     * and processed
      */
     public fun onWebPixelEvent(event: PixelEvent)
 }

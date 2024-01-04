@@ -307,7 +307,7 @@ class PixelEventDecoderTest {
         assertThat(result).isNull()
         verify(logWrapper).w(
             "CheckoutBridge",
-            "Unrecognized standard analytics event received 'new_standard_event'"
+            "Unrecognized standard pixel event received 'new_standard_event'"
         )
     }
 
@@ -338,7 +338,7 @@ class PixelEventDecoderTest {
         assertThat(result).isNull()
         verify(logWrapper).w(
             "CheckoutBridge",
-            "Unrecognized dom analytics event received 'new_dom_event'"
+            "Unrecognized dom pixel event received 'new_dom_event'"
         )
     }
 
@@ -359,7 +359,7 @@ class PixelEventDecoderTest {
         assertThat(result).isNull()
         verify(logWrapper).e(
             eq("CheckoutBridge"),
-            eq("Failed to decode analytics event"),
+            eq("Failed to decode pixel event"),
             any()
         )
     }

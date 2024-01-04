@@ -64,7 +64,7 @@ internal class CheckoutWebViewEventProcessor(
         }
     }
 
-    fun onAnalyticsEvent(event: PixelEvent) {
+    fun onWebPixelEvent(event: PixelEvent) {
         eventProcessor.onWebPixelEvent(event)
     }
 

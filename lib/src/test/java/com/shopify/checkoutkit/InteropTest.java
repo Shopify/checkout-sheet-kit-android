@@ -57,7 +57,7 @@ public class InteropTest {
     // java tests lack access to internal kotlin classes in the project
     @SuppressWarnings("all")
     @Test
-    public void canAccessFieldsOnAnalyticsEvents() {
+    public void canAccessFieldsOnPixelEvents() {
         String orderId = "123";
         String eventString = "{" +
             "\"name\": \"checkout_started\"," +

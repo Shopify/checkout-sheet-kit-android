@@ -105,7 +105,7 @@ fun CheckoutSdkNavHost(
                     }
 
                     override fun onWebPixelEvent(event: PixelEvent) {
-                        // handle pixel events (e.g. transform, augment, and emit to analytics system)
+                        // handle pixel events (e.g. transform, augment, and process)
                     }
                 }
             )

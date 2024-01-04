@@ -35,15 +35,15 @@ internal class PixelEventDecoder @JvmOverloads constructor(
 ) {
     fun decode(decodedMsg: WebToSdkEvent): PixelEvent? {
         return try {
-            val rawEvent = decoder.decodeFromString<RawAnalyticsEvent>(decodedMsg.body)
-            when (EventType.fromTypeName(rawEvent.event["type"]?.jsonPrimitive?.content)) {
-                EventType.DOM -> decodeDomEvent(rawEvent.name, rawEvent.event)
-                EventType.STANDARD -> decodeStandardEvent(rawEvent.name, rawEvent.event)
-                EventType.CUSTOM -> decodeCustomEvent(rawEvent.event)
+            val eventWrapper = decoder.decodeFromString<PixelEventWrapper>(decodedMsg.body)
+            when (EventType.fromTypeName(eventWrapper.event["type"]?.jsonPrimitive?.content)) {
+                EventType.DOM -> decodeDomEvent(eventWrapper.name, eventWrapper.event)
+                EventType.STANDARD -> decodeStandardEvent(eventWrapper.name, eventWrapper.event)
+                EventType.CUSTOM -> decodeCustomEvent(eventWrapper.event)
                 else -> return null
             }
         } catch (e: Exception) {
-            log.e("CheckoutBridge", "Failed to decode analytics event", e)
+            log.e("CheckoutBridge", "Failed to decode pixel event", e)
             null
         }
     }
@@ -61,7 +61,7 @@ internal class PixelEventDecoder @JvmOverloads constructor(
             DomPixelsEventType.DOM_EVENT_INPUT_FOCUSED ->
                 decoder.decodeFromJsonElement<DomEventsInputFocused>(jsonElement)
             null -> {
-                log.w("CheckoutBridge", "Unrecognized dom analytics event received '$name'")
+                log.w("CheckoutBridge", "Unrecognized dom pixel event received '$name'")
                 return null
             }
         }
@@ -97,7 +97,7 @@ internal class PixelEventDecoder @JvmOverloads constructor(
             StandardPixelsEventType.SEARCH_SUBMITTED ->
                 decoder.decodeFromJsonElement<SearchSubmitted>(jsonElement)
             null -> {
-                log.w("CheckoutBridge", "Unrecognized standard analytics event received '$name'")
+                log.w("CheckoutBridge", "Unrecognized standard pixel event received '$name'")
                 return null
             }
         }

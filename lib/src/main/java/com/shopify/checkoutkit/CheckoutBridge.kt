@@ -76,7 +76,7 @@ internal class CheckoutBridge(
             }
             ANALYTICS -> {
                 pixelEventDecoder.decode(decodedMsg)?.let { event ->
-                    eventProcessor.onAnalyticsEvent(event)
+                    eventProcessor.onWebPixelEvent(event)
                 }
             }
             else -> {}
