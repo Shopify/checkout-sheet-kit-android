@@ -56,7 +56,7 @@ public enum class EventType(public val typeName: String) {
     }
 }
 
-public interface PixelEvent {
+public sealed interface PixelEvent {
     /**
      * The ID of the customer event
      */
@@ -74,8 +74,8 @@ public interface PixelEvent {
     public val timestamp: String?
 
     /**
-     * The timestamp of when the customer event occurred, in [ISO
-     * 8601](https://en.wikipedia.org/wiki/ISO_8601) format
+     * The type of event standard, custom, or dom.
+     * See https://shopify.dev/docs/api/web-pixels-api#customer-events-reference
      */
     public val type: EventType?
 }
@@ -459,27 +459,7 @@ public data class CartCost (
 )
 
 /**
- * The total amount for the customer to pay.
- *
  * A monetary value with currency.
- *
- * The total cost of the merchandise line.
- *
- * The product variant’s price.
- *
- * The monetary value with currency allocated to the discount.
- *
- * Price of this shipping rate.
- *
- * The price at checkout before duties, shipping, and taxes.
- *
- * The sum of all the prices of all the items in the checkout, including
- * duties, taxes, and discounts.
- *
- * The sum of all the taxes applied to the line items and shipping lines in
- * the checkout.
- *
- * The monetary value with currency allocated to the transaction method.
  */
 @Serializable
 public data class MoneyV2 (
@@ -880,34 +860,7 @@ public data class DiscountApplication (
 )
 
 /**
- * The value of the discount. Fixed discounts return a `Money` Object, while
- * Percentage discounts return a `PricingPercentageValue` object.
- *
- * The total amount for the customer to pay.
- *
- * A monetary value with currency.
- *
- * The total cost of the merchandise line.
- *
- * The product variant’s price.
- *
- * The monetary value with currency allocated to the discount.
- *
- * Price of this shipping rate.
- *
- * The price at checkout before duties, shipping, and taxes.
- *
- * The sum of all the prices of all the items in the checkout, including
- * duties, taxes, and discounts.
- *
- * The sum of all the taxes applied to the line items and shipping lines in
- * the checkout.
- *
- * The monetary value with currency allocated to the transaction method.
- *
- * A value given to a customer when a discount is applied to an order. The
- * application of a discount with this value gives the customer the specified
- * percentage off a specified item.
+ * The value of the discount.
  */
 @Serializable
 public data class Value (

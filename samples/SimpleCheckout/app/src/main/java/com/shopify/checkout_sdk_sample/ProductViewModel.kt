@@ -126,7 +126,7 @@ class ProductViewModel : ViewModel(), CheckoutEventProcessor {
     }
 
     override fun onWebPixelEvent(event: PixelEvent) {
-        // handle web pixel events (e.g. transform, augment, and emit to analytics system)
+        // handle web pixel events (e.g. transform, augment, and process)
     }
 }
 
