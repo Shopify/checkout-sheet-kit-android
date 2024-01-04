@@ -34,7 +34,7 @@ after release for General Availability.
 
 - Exposes the `errorDescription` internal variable on the `CheckoutException` class.
 
-## 0.4.0 December 15, 2023
+## 0.4.0 January 04, 2024
 
 - Inform checkout when the sheet has been presented to help distinguish between preloads and presents. Groundwork for analytics.
 - Emit instrumentation payloads to improve observability.
