@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutkit
+package com.shopify.checkoutsheetkit
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -29,55 +29,55 @@ class ConfigurationTest {
 
     @Test
     fun `can set colorScheme via configure function - light`() {
-        ShopifyCheckoutKit.configure {
+        ShopifyCheckoutSheet.configure {
             it.colorScheme = ColorScheme.Light()
         }
 
-        assertThat(ShopifyCheckoutKit.getConfiguration().colorScheme).isEqualTo(ColorScheme.Light())
+        assertThat(ShopifyCheckoutSheet.getConfiguration().colorScheme).isEqualTo(ColorScheme.Light())
     }
 
     @Test
     fun `can set colorScheme via configure function - dark`() {
-        ShopifyCheckoutKit.configure {
+        ShopifyCheckoutSheet.configure {
             it.colorScheme = ColorScheme.Dark()
         }
 
-        assertThat(ShopifyCheckoutKit.getConfiguration().colorScheme).isEqualTo(ColorScheme.Dark())
+        assertThat(ShopifyCheckoutSheet.getConfiguration().colorScheme).isEqualTo(ColorScheme.Dark())
     }
 
     @Test
     fun `can set colorScheme via configure function - web`() {
-        ShopifyCheckoutKit.configure {
+        ShopifyCheckoutSheet.configure {
             it.colorScheme = ColorScheme.Web()
         }
 
-        assertThat(ShopifyCheckoutKit.getConfiguration().colorScheme).isEqualTo(ColorScheme.Web())
+        assertThat(ShopifyCheckoutSheet.getConfiguration().colorScheme).isEqualTo(ColorScheme.Web())
     }
 
     @Test
     fun `can set colorScheme via configure function - automatic`() {
-        ShopifyCheckoutKit.configure {
+        ShopifyCheckoutSheet.configure {
             it.colorScheme = ColorScheme.Automatic()
         }
 
-        assertThat(ShopifyCheckoutKit.getConfiguration().colorScheme).isEqualTo(ColorScheme.Automatic())
+        assertThat(ShopifyCheckoutSheet.getConfiguration().colorScheme).isEqualTo(ColorScheme.Automatic())
     }
 
     @Test
     fun `can set preloading via configure function - enabled`() {
-        ShopifyCheckoutKit.configure {
+        ShopifyCheckoutSheet.configure {
             it.preloading = Preloading(enabled = true)
         }
 
-        assertThat(ShopifyCheckoutKit.getConfiguration().preloading.enabled).isTrue
+        assertThat(ShopifyCheckoutSheet.getConfiguration().preloading.enabled).isTrue
     }
 
     @Test
     fun `can set preloading via configure function - disabled`() {
-        ShopifyCheckoutKit.configure {
+        ShopifyCheckoutSheet.configure {
             it.preloading = Preloading(enabled = false)
         }
 
-        assertThat(ShopifyCheckoutKit.getConfiguration().preloading.enabled).isFalse
+        assertThat(ShopifyCheckoutSheet.getConfiguration().preloading.enabled).isFalse
     }
 }

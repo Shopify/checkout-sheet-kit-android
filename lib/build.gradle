@@ -14,7 +14,7 @@ def resolveEnvVarValue(name, defaultValue) {
     return rawValue ? rawValue : defaultValue
 }
 
-def versionName = resolveEnvVarValue("CHECKOUT_KIT_VERSION", "0.3.3")
+def versionName = resolveEnvVarValue("CHECKOUT_SHEET_KIT_VERSION", "0.4.0")
 
 ext {
     app_compat_version = '1.6.1'
@@ -32,7 +32,7 @@ ext {
 }
 
 android {
-    namespace 'com.shopify.checkoutkit'
+    namespace 'com.shopify.checkoutsheetkit'
     compileSdk 33
 
     defaultConfig {
@@ -126,11 +126,27 @@ tasks.withType(KotlinCompile) {
 project.afterEvaluate {
     publishing {
         publications {
+            relocation(MavenPublication) {
+                pom {
+                    groupId = "com.shopify"
+                    artifactId = "checkout-kit"
+                    version versionName
+
+                    distributionManagement {
+                        relocation {
+                            groupId = "com.shopify"
+                            artifactId = "checkout-sheet-kit"
+                            version versionName
+                            message = "The project has been renamed to checkout-sheet-kit"
+                        }
+                    }
+                }
+            }
             release(MavenPublication) {
                 pom {
-                    name = "CheckoutKit"
-                    description = "Shopify's Checkout SDK makes it simple to render checkouts inside your mobile app."
-                    url = "https://github.com/Shopify/checkout-kit-android"
+                    name = "CheckoutSheetKit"
+                    description = "Shopify's Checkout Sheet Kit makes it simple to render checkouts inside your mobile app."
+                    url = "https://github.com/Shopify/checkout-sheet-kit-android"
 
                     licenses {
                         license {
@@ -146,14 +162,14 @@ project.afterEvaluate {
                     }
 
                     scm {
-                        connection = "https://github.com/Shopify/checkout-kit-android.git"
-                        developerConnection = "https://github.com/Shopify/checkout-kit-android.git"
-                        url = "https://github.com/Shopify/checkout-kit-android.git"
+                        connection = "https://github.com/Shopify/checkout-sheet-kit-android.git"
+                        developerConnection = "https://github.com/Shopify/checkout-sheet-kit-android.git"
+                        url = "https://github.com/Shopify/checkout-sheet-kit-android.git"
                     }
                 }
 
                 groupId "com.shopify"
-                artifactId "checkout-kit"
+                artifactId "checkout-sheet-kit"
                 version versionName
 
                 afterEvaluate {
