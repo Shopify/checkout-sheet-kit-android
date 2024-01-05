@@ -25,6 +25,7 @@ package com.shopify.checkoutkit
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import com.shopify.checkoutkit.pixelevents.PixelEvent
 import kotlinx.serialization.Serializable
 
 /**
@@ -93,6 +94,12 @@ public interface CheckoutEventProcessor {
      * of the WebView, e.g. in a system browser or email client. Protocols can be http/https/mailto/tel
      */
     public fun onCheckoutLinkClicked(uri: Uri)
+
+    /**
+     * Web Pixel event emitted from checkout, that can be optionally transformed, enhanced (e.g. with user and session identifiers),
+     * and processed
+     */
+    public fun onWebPixelEvent(event: PixelEvent)
 }
 
 internal class NoopEventProcessor : CheckoutEventProcessor {
@@ -106,6 +113,9 @@ internal class NoopEventProcessor : CheckoutEventProcessor {
     }
 
     override fun onCheckoutLinkClicked(uri: Uri) {/* noop */
+    }
+
+    override fun onWebPixelEvent(event: PixelEvent) {/* noop */
     }
 }
 
@@ -126,6 +136,10 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
             "https", "http" -> context.launchBrowser(uri)
             else -> log.w(TAG, "Unrecognized scheme for link clicked in checkout '$uri'")
         }
+    }
+
+    override fun onWebPixelEvent(event: PixelEvent) {
+        // no-op, override to implement
     }
 
     private fun Context.launchEmailApp(to: String) {

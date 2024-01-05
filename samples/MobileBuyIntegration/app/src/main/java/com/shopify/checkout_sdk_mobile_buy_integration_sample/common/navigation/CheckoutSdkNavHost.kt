@@ -38,6 +38,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.product.ProductView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsViewModel
+import com.shopify.checkoutkit.pixelevents.PixelEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -101,6 +102,10 @@ fun CheckoutSdkNavHost(
 
                     override fun onCheckoutCanceled() {
                         // optionally respond to checkout being canceled/closed
+                    }
+
+                    override fun onWebPixelEvent(event: PixelEvent) {
+                        // handle pixel events (e.g. transform, augment, and process)
                     }
                 }
             )

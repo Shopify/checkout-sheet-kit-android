@@ -25,6 +25,8 @@ package com.shopify.checkoutkit
 import android.webkit.WebView
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.MODAL
+import com.shopify.checkoutkit.pixelevents.PixelEvent
+import com.shopify.checkoutkit.pixelevents.CheckoutStartedEvent
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.assertj.core.api.Assertions.assertThat
@@ -36,6 +38,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.timeout
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
@@ -55,7 +58,7 @@ class CheckoutBridgeTest {
 
     @Test
     fun `postMessage calls web event processor onCheckoutViewComplete when completed message received`() {
-        checkoutBridge.postMessage(Json.encodeToString(CheckoutBridge.JSMessage(COMPLETED.key)))
+        checkoutBridge.postMessage(Json.encodeToString(WebToSdkEvent(COMPLETED.key)))
         verify(mockEventProcessor).onCheckoutViewComplete()
     }
 
@@ -63,7 +66,7 @@ class CheckoutBridgeTest {
     fun `postMessage calls web event processor onCheckoutModalToggled when modal message received - false`() {
         checkoutBridge.postMessage(
             Json.encodeToString(
-                CheckoutBridge.JSMessage(
+                WebToSdkEvent(
                     MODAL.key,
                     "false"
                 )
@@ -76,7 +79,7 @@ class CheckoutBridgeTest {
     fun `postMessage calls web event processor onCheckoutModalToggled when modal message received - true`() {
         checkoutBridge.postMessage(
             Json.encodeToString(
-                CheckoutBridge.JSMessage(
+                WebToSdkEvent(
                     MODAL.key,
                     "true"
                 )
@@ -87,7 +90,7 @@ class CheckoutBridgeTest {
 
     @Test
     fun `postMessage does not issue a msg to the event processor when unsupported message received`() {
-        checkoutBridge.postMessage(Json.encodeToString(CheckoutBridge.JSMessage("boom")))
+        checkoutBridge.postMessage(Json.encodeToString(WebToSdkEvent("boom")))
         verifyNoInteractions(mockEventProcessor)
     }
 
@@ -124,8 +127,6 @@ class CheckoutBridgeTest {
     @Test
     fun `sendMessage evaluates javascript on the provided WebView`() {
         val webView = mock<WebView>()
-        val initMessage = Json.encodeToString(CheckoutBridge.JSMessage("init"))
-        checkoutBridge.postMessage(initMessage)
         checkoutBridge.sendMessage(webView, CheckoutBridge.SDKOperation.Presented)
 
         verify(webView).evaluateJavascript("""|
@@ -176,5 +177,38 @@ class CheckoutBridgeTest {
         checkoutBridge.sendMessage(webView, CheckoutBridge.SDKOperation.Instrumentation(payload))
 
         Mockito.verify(webView).evaluateJavascript(expectedJavascript, null)
+    }
+
+    @Test
+    fun `calls onPixelEvent when valid analytics event received`() {
+        val eventString = """|
+            |{
+            |   "name":"analytics",
+            |   "body": "{
+            |       \"name\": \"checkout_started\",
+            |       \"event\": {
+            |           \"type\": \"standard\",
+            |           \"id\": \"sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B\",
+            |           \"name\": \"checkout_started\",
+            |           \"timestamp\": \"2023-12-20T16:39:23+0000\",
+            |           \"data\": {
+            |               \"checkout\": {
+            |                   \"order\": {
+            |                       \"id\": \"123\"
+            |                   }
+            |               }
+            |           }
+            |       }
+            |   }"
+            |}
+        |""".trimMargin()
+
+
+       checkoutBridge.postMessage(eventString)
+
+        val captor = argumentCaptor<PixelEvent>()
+        verify(mockEventProcessor, timeout(2000).times(1)).onWebPixelEvent(captor.capture())
+
+        assertThat(captor.firstValue).isInstanceOf(CheckoutStartedEvent::class.java)
     }
 }
