@@ -1,6 +1,6 @@
 # Sample Projects
 
-In this directory you will find sample projects which implement the `ShopifyCheckoutKit` library in
+In this directory you will find sample projects which implement the `ShopifyCheckoutSheetKit` library in
 various ways.
 
 Each project directory contains a `.env.example` file. Simply rename it

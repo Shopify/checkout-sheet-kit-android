@@ -22,8 +22,8 @@
  */
 package com.shopify.checkoutsheetkit.pixelevents
 
-import com.shopify.checkoutkit.LogWrapper
-import com.shopify.checkoutkit.WebToSdkEvent
+import com.shopify.checkoutsheetkit.LogWrapper
+import com.shopify.checkoutsheetkit.WebToSdkEvent
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement

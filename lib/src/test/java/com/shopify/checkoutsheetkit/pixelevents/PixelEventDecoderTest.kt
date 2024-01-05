@@ -22,13 +22,8 @@
  */
 package com.shopify.checkoutsheetkit.pixelevents
 
-import com.shopify.checkoutkit.LogWrapper
-import com.shopify.checkoutkit.WebToSdkEvent
-import com.shopify.checkoutsheetkit.pixelevents.CheckoutCompletedEvent
-import com.shopify.checkoutsheetkit.pixelevents.CheckoutStartedEvent
-import com.shopify.checkoutsheetkit.pixelevents.CustomEvent
-import com.shopify.checkoutsheetkit.pixelevents.PageViewedEvent
-import com.shopify.checkoutsheetkit.pixelevents.PixelEventDecoder
+import com.shopify.checkoutsheetkit.LogWrapper
+import com.shopify.checkoutsheetkit.WebToSdkEvent
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.assertj.core.api.Assertions.assertThat
