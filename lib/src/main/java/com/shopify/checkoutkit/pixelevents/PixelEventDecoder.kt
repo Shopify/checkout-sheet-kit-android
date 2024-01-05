@@ -37,7 +37,6 @@ internal class PixelEventDecoder @JvmOverloads constructor(
         return try {
             val eventWrapper = decoder.decodeFromString<PixelEventWrapper>(decodedMsg.body)
             when (EventType.fromTypeName(eventWrapper.event["type"]?.jsonPrimitive?.content)) {
-                EventType.DOM -> decodeDomEvent(eventWrapper.name, eventWrapper.event)
                 EventType.STANDARD -> decodeStandardEvent(eventWrapper.name, eventWrapper.event)
                 EventType.CUSTOM -> decodeCustomEvent(eventWrapper.event)
                 else -> return null
@@ -45,25 +44,6 @@ internal class PixelEventDecoder @JvmOverloads constructor(
         } catch (e: Exception) {
             log.e("CheckoutBridge", "Failed to decode pixel event", e)
             null
-        }
-    }
-
-    private fun decodeDomEvent(name: String, jsonElement: JsonElement): PixelEvent? {
-        return when (DomPixelsEventType.fromEventName(name)) {
-            DomPixelsEventType.DOM_EVENT_CLICKED ->
-                decoder.decodeFromJsonElement<ClickedDomEvent>(jsonElement)
-            DomPixelsEventType.DOM_EVENT_FORM_SUBMITTED ->
-                decoder.decodeFromJsonElement<FormSubmittedDomEvent>(jsonElement)
-            DomPixelsEventType.DOM_EVENT_INPUT_BLURRED ->
-                decoder.decodeFromJsonElement<InputBlurredDomEvent>(jsonElement)
-            DomPixelsEventType.DOM_EVENT_INPUT_CHANGED ->
-                decoder.decodeFromJsonElement<InputChangedDomEvent>(jsonElement)
-            DomPixelsEventType.DOM_EVENT_INPUT_FOCUSED ->
-                decoder.decodeFromJsonElement<InputFocusedDomEvent>(jsonElement)
-            null -> {
-                log.w("CheckoutBridge", "Unrecognized dom pixel event received '$name'")
-                return null
-            }
         }
     }
 
