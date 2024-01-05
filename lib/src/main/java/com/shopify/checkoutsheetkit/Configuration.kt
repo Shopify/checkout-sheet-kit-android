@@ -40,5 +40,5 @@ public data class Configuration internal constructor(
  * Initially allows toggling the preloading feature.
  */
 public data class Preloading(
-    val enabled: Boolean = false
+    val enabled: Boolean = true
 )
