@@ -25,8 +25,8 @@ package com.shopify.checkoutkit
 import android.webkit.WebView
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.MODAL
-import com.shopify.checkoutkit.events.PixelEvent
-import com.shopify.checkoutkit.events.CheckoutStarted
+import com.shopify.checkoutkit.pixelevents.PixelEvent
+import com.shopify.checkoutkit.pixelevents.CheckoutStarted
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.assertj.core.api.Assertions.assertThat

@@ -25,7 +25,7 @@ package com.shopify.checkoutkit
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import com.shopify.checkoutkit.events.PixelEvent
+import com.shopify.checkoutkit.pixelevents.PixelEvent
 import kotlinx.serialization.Serializable
 
 /**

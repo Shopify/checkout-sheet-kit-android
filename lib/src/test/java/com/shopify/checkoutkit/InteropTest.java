@@ -5,9 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import android.app.Activity;
 import androidx.activity.ComponentActivity;
 import androidx.annotation.NonNull;
-import com.shopify.checkoutkit.events.PixelEvent;
-import com.shopify.checkoutkit.events.CheckoutStarted;
-import com.shopify.checkoutkit.events.CheckoutStartedData;
+import com.shopify.checkoutkit.pixelevents.PixelEvent;
+import com.shopify.checkoutkit.pixelevents.CheckoutStarted;
+import com.shopify.checkoutkit.pixelevents.CheckoutStartedData;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -79,7 +79,7 @@ public class InteropTest {
         WebToSdkEvent webEvent = new WebToSdkEvent("analytics", eventString);
         Json json = Json.Default;
 
-        com.shopify.checkoutkit.events.PixelEventDecoder decoder = new com.shopify.checkoutkit.events.PixelEventDecoder(
+        com.shopify.checkoutkit.pixelevents.PixelEventDecoder decoder = new com.shopify.checkoutkit.pixelevents.PixelEventDecoder(
             json
         );
 

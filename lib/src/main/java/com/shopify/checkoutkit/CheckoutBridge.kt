@@ -27,7 +27,7 @@ import android.webkit.WebView
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.ANALYTICS
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.MODAL
-import com.shopify.checkoutkit.events.PixelEventDecoder
+import com.shopify.checkoutkit.pixelevents.PixelEventDecoder
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
