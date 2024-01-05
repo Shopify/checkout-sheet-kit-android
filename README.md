@@ -252,6 +252,11 @@ val processor = object : WebEventProcessor {
         // - web (http:)
         // and is being directed outside the application.
     }
+
+     override fun onWebPixelEvent(event: PixelEvent) {
+        // Called when a web pixel event is emitted in checkout.
+        // Use this to submit events to your analytics system, see below.
+    }
 }
 
 ```
