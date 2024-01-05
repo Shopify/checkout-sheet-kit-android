@@ -26,7 +26,7 @@ import android.webkit.WebView
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
 import com.shopify.checkoutkit.CheckoutBridge.CheckoutWebOperation.MODAL
 import com.shopify.checkoutkit.pixelevents.PixelEvent
-import com.shopify.checkoutkit.pixelevents.CheckoutStarted
+import com.shopify.checkoutkit.pixelevents.CheckoutStartedEvent
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.assertj.core.api.Assertions.assertThat
@@ -209,6 +209,6 @@ class CheckoutBridgeTest {
         val captor = argumentCaptor<PixelEvent>()
         verify(mockEventProcessor, timeout(2000).times(1)).onWebPixelEvent(captor.capture())
 
-        assertThat(captor.firstValue).isInstanceOf(CheckoutStarted::class.java)
+        assertThat(captor.firstValue).isInstanceOf(CheckoutStartedEvent::class.java)
     }
 }

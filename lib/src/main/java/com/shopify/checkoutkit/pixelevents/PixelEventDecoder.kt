@@ -51,15 +51,15 @@ internal class PixelEventDecoder @JvmOverloads constructor(
     private fun decodeDomEvent(name: String, jsonElement: JsonElement): PixelEvent? {
         return when (DomPixelsEventType.fromEventName(name)) {
             DomPixelsEventType.DOM_EVENT_CLICKED ->
-                decoder.decodeFromJsonElement<DomEventsClicked>(jsonElement)
+                decoder.decodeFromJsonElement<ClickedDomEvent>(jsonElement)
             DomPixelsEventType.DOM_EVENT_FORM_SUBMITTED ->
-                decoder.decodeFromJsonElement<DomEventsFormSubmitted>(jsonElement)
+                decoder.decodeFromJsonElement<FormSubmittedDomEvent>(jsonElement)
             DomPixelsEventType.DOM_EVENT_INPUT_BLURRED ->
-                decoder.decodeFromJsonElement<DomEventsInputBlurred>(jsonElement)
+                decoder.decodeFromJsonElement<InputBlurredDomEvent>(jsonElement)
             DomPixelsEventType.DOM_EVENT_INPUT_CHANGED ->
-                decoder.decodeFromJsonElement<DomEventsInputChanged>(jsonElement)
+                decoder.decodeFromJsonElement<InputChangedDomEvent>(jsonElement)
             DomPixelsEventType.DOM_EVENT_INPUT_FOCUSED ->
-                decoder.decodeFromJsonElement<DomEventsInputFocused>(jsonElement)
+                decoder.decodeFromJsonElement<InputFocusedDomEvent>(jsonElement)
             null -> {
                 log.w("CheckoutBridge", "Unrecognized dom pixel event received '$name'")
                 return null
@@ -71,31 +71,31 @@ internal class PixelEventDecoder @JvmOverloads constructor(
     private fun decodeStandardEvent(name: String, jsonElement: JsonElement): PixelEvent? {
         return when (StandardPixelsEventType.fromEventName(name)) {
             StandardPixelsEventType.CART_VIEWED ->
-                decoder.decodeFromJsonElement<CartViewed>(jsonElement)
+                decoder.decodeFromJsonElement<CartViewedEvent>(jsonElement)
             StandardPixelsEventType.CHECKOUT_ADDRESS_INFO_SUBMITTED ->
-                decoder.decodeFromJsonElement<CheckoutAddressInfoSubmitted>(jsonElement)
+                decoder.decodeFromJsonElement<CheckoutAddressInfoSubmittedEvent>(jsonElement)
             StandardPixelsEventType.CHECKOUT_COMPLETED ->
-                decoder.decodeFromJsonElement<CheckoutCompleted>(jsonElement)
+                decoder.decodeFromJsonElement<CheckoutCompletedEvent>(jsonElement)
             StandardPixelsEventType.CHECKOUT_CONTACT_INFO_SUBMITTED ->
-                decoder.decodeFromJsonElement<CheckoutContactInfoSubmitted>(jsonElement)
+                decoder.decodeFromJsonElement<CheckoutContactInfoSubmittedEvent>(jsonElement)
             StandardPixelsEventType.CHECKOUT_SHIPPING_INFO_SUBMITTED ->
-                decoder.decodeFromJsonElement<CheckoutShippingInfoSubmitted>(jsonElement)
+                decoder.decodeFromJsonElement<CheckoutShippingInfoSubmittedEvent>(jsonElement)
             StandardPixelsEventType.CHECKOUT_STARTED ->
-                decoder.decodeFromJsonElement<CheckoutStarted>(jsonElement)
+                decoder.decodeFromJsonElement<CheckoutStartedEvent>(jsonElement)
             StandardPixelsEventType.COLLECTION_VIEWED ->
-                decoder.decodeFromJsonElement<CollectionViewed>(jsonElement)
+                decoder.decodeFromJsonElement<CollectionViewedEvent>(jsonElement)
             StandardPixelsEventType.PAGE_VIEWED ->
-                decoder.decodeFromJsonElement<PageViewed>(jsonElement)
+                decoder.decodeFromJsonElement<PageViewedEvent>(jsonElement)
             StandardPixelsEventType.PAYMENT_INFO_SUBMITTED ->
-                decoder.decodeFromJsonElement<PaymentInfoSubmitted>(jsonElement)
+                decoder.decodeFromJsonElement<PaymentInfoSubmittedEvent>(jsonElement)
             StandardPixelsEventType.PRODUCT_ADDED_TO_CART ->
-                decoder.decodeFromJsonElement<ProductAddedToCart>(jsonElement)
+                decoder.decodeFromJsonElement<ProductAddedToCartEvent>(jsonElement)
             StandardPixelsEventType.PRODUCT_REMOVED_FROM_CART ->
-                decoder.decodeFromJsonElement<ProductRemovedFromCart>(jsonElement)
+                decoder.decodeFromJsonElement<ProductRemovedFromCartEvent>(jsonElement)
             StandardPixelsEventType.PRODUCT_VIEWED ->
-                decoder.decodeFromJsonElement<ProductViewed>(jsonElement)
+                decoder.decodeFromJsonElement<ProductViewedEvent>(jsonElement)
             StandardPixelsEventType.SEARCH_SUBMITTED ->
-                decoder.decodeFromJsonElement<SearchSubmitted>(jsonElement)
+                decoder.decodeFromJsonElement<SearchSubmittedEvent>(jsonElement)
             null -> {
                 log.w("CheckoutBridge", "Unrecognized standard pixel event received '$name'")
                 return null

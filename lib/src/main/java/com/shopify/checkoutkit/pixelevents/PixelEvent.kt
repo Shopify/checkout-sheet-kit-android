@@ -122,7 +122,7 @@ public enum class DomPixelsEventType(public val eventName: String) {
  * page
  */
 @Serializable
-public data class CartViewed (
+public data class CartViewedEvent(
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
@@ -136,7 +136,7 @@ public data class CartViewed (
  * event
  */
 @Serializable
-public data class Context (
+public data class Context(
     /**
      * Snapshot of a subset of properties of the `document` object in the top
      * frame of the browser
@@ -164,7 +164,7 @@ public data class Context (
  * frame of the browser
  */
 @Serializable
-public data class Document (
+public data class Document(
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Document),
      * returns the character set being used by the document
@@ -201,7 +201,7 @@ public data class Document (
  * location, or current URL, of the window object
  */
 @Serializable
-public data class Location (
+public data class Location(
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Location), a
      * string containing a `'#'` followed by the fragment identifier of the URL
@@ -268,7 +268,7 @@ public data class Location (
  * frame of the browser
  */
 @Serializable
-public data class Navigator (
+public data class Navigator(
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Navigator),
      * returns `false` if setting a cookie will be ignored and true otherwise
@@ -305,7 +305,7 @@ public data class Navigator (
  * of the browser
  */
 @Serializable
-public data class Window (
+public data class Window(
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Window),
      * gets the height of the content area of the browser window including, if
@@ -399,7 +399,7 @@ public data class Window (
  * window is being rendered
  */
 @Serializable
-public data class Screen (
+public data class Screen(
     /**
      * Per [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Screen/height),
      * the height of the screen
@@ -414,7 +414,7 @@ public data class Screen (
 )
 
 @Serializable
-public data class CartViewedData (
+public data class CartViewedData(
     public val cart: Cart? = null
 )
 
@@ -423,7 +423,7 @@ public data class CartViewedData (
  * the estimated cost associated with the cart.
  */
 @Serializable
-public data class Cart (
+public data class Cart(
     /**
      * The estimated costs that the customer will pay at checkout.
      */
@@ -451,7 +451,7 @@ public data class Cart (
  * storefronts/internationalization/international-pricing#create-a-cart).
  */
 @Serializable
-public data class CartCost (
+public data class CartCost(
     /**
      * The total amount for the customer to pay.
      */
@@ -462,7 +462,7 @@ public data class CartCost (
  * A monetary value with currency.
  */
 @Serializable
-public data class MoneyV2 (
+public data class MoneyV2(
     /**
      * The decimal money amount.
      */
@@ -480,7 +480,7 @@ public data class MoneyV2 (
  * Information about the merchandise in the cart.
  */
 @Serializable
-public data class CartLine (
+public data class CartLine(
     /**
      * The cost of the merchandise that the customer will pay for at checkout. The
      * costs are subject to change and changes will be reflected at checkout.
@@ -505,7 +505,7 @@ public data class CartLine (
  * The cost of the merchandise line that the customer will pay at checkout.
  */
 @Serializable
-public data class CartLineCost (
+public data class CartLineCost(
     /**
      * The total cost of the merchandise line.
      */
@@ -519,7 +519,7 @@ public data class CartLineCost (
  * differing sizes or differing colors.
  */
 @Serializable
-public data class ProductVariant (
+public data class ProductVariant(
     /**
      * A globally unique identifier.
      */
@@ -561,7 +561,7 @@ public data class ProductVariant (
  * An image resource.
  */
 @Serializable
-public data class Image (
+public data class Image(
     /**
      * The location of the image as a URL.
      */
@@ -574,7 +574,7 @@ public data class Image (
  * A product is an individual item for sale in a Shopify store.
  */
 @Serializable
-public data class Product (
+public data class Product(
     /**
      * The ID of the product.
      */
@@ -614,7 +614,7 @@ public data class Product (
  * where checkout extensibility for customizations is enabled
  */
 @Serializable
-public data class CheckoutAddressInfoSubmitted (
+public data class CheckoutAddressInfoSubmittedEvent(
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
@@ -624,7 +624,7 @@ public data class CheckoutAddressInfoSubmitted (
 ): PixelEvent
 
 @Serializable
-public data class CheckoutAddressInfoSubmittedData (
+public data class CheckoutAddressInfoSubmittedData(
     public val checkout: Checkout? = null
 )
 
@@ -633,7 +633,7 @@ public data class CheckoutAddressInfoSubmittedData (
  * pay.
  */
 @Serializable
-public data class Checkout (
+public data class Checkout(
     /**
      * A list of attributes accumulated throughout the checkout process.
      */
@@ -722,7 +722,7 @@ public data class Checkout (
  * or during checkout.
  */
 @Serializable
-public data class Attribute (
+public data class Attribute(
     /**
      * The key for the attribute.
      */
@@ -738,7 +738,7 @@ public data class Attribute (
  * A mailing address for customers and shipping.
  */
 @Serializable
-public data class MailingAddress (
+public data class MailingAddress(
     /**
      * The first line of the address. This is usually the street address or a P.O.
      * Box number.
@@ -803,7 +803,7 @@ public data class MailingAddress (
  * The information about the intent of the discount.
  */
 @Serializable
-public data class DiscountApplication (
+public data class DiscountApplication(
     /**
      * The method by which the discount's value is applied to its entitled items.
      *
@@ -863,7 +863,7 @@ public data class DiscountApplication (
  * The value of the discount.
  */
 @Serializable
-public data class Value (
+public data class Value(
     /**
      * The decimal money amount.
      */
@@ -886,7 +886,7 @@ public data class Value (
  * A single line item in the checkout, grouped by variant and attributes.
  */
 @Serializable
-public data class CheckoutLineItem (
+public data class CheckoutLineItem(
     /**
      * The discounts that have been applied to the checkout line item by a
      * discount application.
@@ -918,7 +918,7 @@ public data class CheckoutLineItem (
  * The discount that has been applied to the checkout line item.
  */
 @Serializable
-public data class DiscountAllocation (
+public data class DiscountAllocation(
     /**
      * The monetary value with currency allocated to the discount.
      */
@@ -936,7 +936,7 @@ public data class DiscountAllocation (
  * process.
  */
 @Serializable
-public data class Order (
+public data class Order(
     /**
      * The ID of the order.
      */
@@ -947,7 +947,7 @@ public data class Order (
  * A shipping rate to be applied to a checkout.
  */
 @Serializable
-public data class ShippingRate (
+public data class ShippingRate(
     /**
      * Price of this shipping rate.
      */
@@ -958,7 +958,7 @@ public data class ShippingRate (
  * A transaction associated with a checkout or order.
  */
 @Serializable
-public data class Transaction (
+public data class Transaction(
     /**
      * The monetary value with currency allocated to the transaction method.
      */
@@ -978,7 +978,7 @@ public data class Transaction (
  * This event is available on the order status and checkout pages
  */
 @Serializable
-public data class CheckoutCompleted (
+public data class CheckoutCompletedEvent(
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
@@ -988,7 +988,7 @@ public data class CheckoutCompleted (
 ): PixelEvent
 
 @Serializable
-public data class CheckoutCompletedData (
+public data class CheckoutCompletedData(
     public val checkout: Checkout? = null
 )
 
@@ -1002,7 +1002,7 @@ public data class CheckoutCompletedData (
  * where checkout extensibility for customizations is enabled
  */
 @Serializable
-public data class CheckoutContactInfoSubmitted (
+public data class CheckoutContactInfoSubmittedEvent(
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
@@ -1012,7 +1012,7 @@ public data class CheckoutContactInfoSubmitted (
 ): PixelEvent
 
 @Serializable
-public data class CheckoutContactInfoSubmittedData (
+public data class CheckoutContactInfoSubmittedData(
     public val checkout: Checkout? = null
 )
 
@@ -1022,7 +1022,7 @@ public data class CheckoutContactInfoSubmittedData (
  * where checkout extensibility for customizations is enabled
  */
 @Serializable
-public data class CheckoutShippingInfoSubmitted (
+public data class CheckoutShippingInfoSubmittedEvent(
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
@@ -1032,7 +1032,7 @@ public data class CheckoutShippingInfoSubmitted (
 ): PixelEvent
 
 @Serializable
-public data class CheckoutShippingInfoSubmittedData (
+public data class CheckoutShippingInfoSubmittedData(
     public val checkout: Checkout? = null
 )
 
@@ -1050,7 +1050,7 @@ public data class CheckoutShippingInfoSubmittedData (
  * triggered the first time a customer enters checkout.
  */
 @Serializable
-public data class CheckoutStarted (
+public data class CheckoutStartedEvent(
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
@@ -1060,7 +1060,7 @@ public data class CheckoutStarted (
 ): PixelEvent
 
 @Serializable
-public data class CheckoutStartedData (
+public data class CheckoutStartedData(
     public val checkout: Checkout? = null
 )
 
@@ -1070,7 +1070,7 @@ public data class CheckoutStartedData (
  * page
  */
 @Serializable
-public data class CollectionViewed (
+public data class CollectionViewedEvent(
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
@@ -1080,7 +1080,7 @@ public data class CollectionViewed (
 ): PixelEvent
 
 @Serializable
-public data class CollectionViewedData (
+public data class CollectionViewedData(
     public val collection: Collection? = null
 )
 
@@ -1089,7 +1089,7 @@ public data class CollectionViewedData (
  * them or make their shops easier to browse.
  */
 @Serializable
-public data class Collection (
+public data class Collection(
     /**
      * A globally unique identifier.
      */
@@ -1112,7 +1112,7 @@ public data class Collection (
  * pages
  */
 @Serializable
-public data class PageViewed (
+public data class PageViewedEvent(
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
@@ -1133,7 +1133,7 @@ public typealias PageViewedData = Unit
  * checkout page
  */
 @Serializable
-public data class PaymentInfoSubmitted (
+public data class PaymentInfoSubmittedEvent(
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
@@ -1143,7 +1143,7 @@ public data class PaymentInfoSubmitted (
 ): PixelEvent
 
 @Serializable
-public data class PaymentInfoSubmittedData (
+public data class PaymentInfoSubmittedData(
     public val checkout: Checkout? = null
 )
 
@@ -1152,7 +1152,7 @@ public data class PaymentInfoSubmittedData (
  * product to their cart. This event is available on the online store page
  */
 @Serializable
-public data class ProductAddedToCart (
+public data class ProductAddedToCartEvent(
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
@@ -1162,7 +1162,7 @@ public data class ProductAddedToCart (
 ): PixelEvent
 
 @Serializable
-public data class ProductAddedToCartData (
+public data class ProductAddedToCartData(
     public val cartLine: CartLine? = null
 )
 
@@ -1172,7 +1172,7 @@ public data class ProductAddedToCartData (
  * store page
  */
 @Serializable
-public data class ProductRemovedFromCart (
+public data class ProductRemovedFromCartEvent(
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
@@ -1182,7 +1182,7 @@ public data class ProductRemovedFromCart (
 ): PixelEvent
 
 @Serializable
-public data class ProductRemovedFromCartData (
+public data class ProductRemovedFromCartData(
     public val cartLine: CartLine? = null
 )
 
@@ -1193,7 +1193,7 @@ public data class ProductRemovedFromCartData (
  * page
  */
 @Serializable
-public data class ProductVariantViewed (
+public data class ProductVariantViewed(
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
@@ -1203,7 +1203,7 @@ public data class ProductVariantViewed (
 ): PixelEvent
 
 @Serializable
-public data class ProductVariantViewedData (
+public data class ProductVariantViewedData(
     public val productVariant: ProductVariant? = null
 )
 
@@ -1212,7 +1212,7 @@ public data class ProductVariantViewedData (
  * product details page. This event is available on the product page
  */
 @Serializable
-public data class ProductViewed (
+public data class ProductViewedEvent(
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
@@ -1222,7 +1222,7 @@ public data class ProductViewed (
 ): PixelEvent
 
 @Serializable
-public data class ProductViewedData (
+public data class ProductViewedData(
     public val productVariant: ProductVariant? = null
 )
 
@@ -1231,7 +1231,7 @@ public data class ProductViewedData (
  * search on the storefront. This event is available on the online store page
  */
 @Serializable
-public data class SearchSubmitted (
+public data class SearchSubmittedEvent(
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
@@ -1241,7 +1241,7 @@ public data class SearchSubmitted (
 ): PixelEvent
 
 @Serializable
-public data class SearchSubmittedData (
+public data class SearchSubmittedData(
     public val searchResult: SearchResult? = null
 )
 
@@ -1249,7 +1249,7 @@ public data class SearchSubmittedData (
  * An object that contains the metadata of when a search has been performed.
  */
 @Serializable
-public data class SearchResult (
+public data class SearchResult(
     public val productVariants: List<ProductVariant>? = null,
 
     /**
@@ -1263,7 +1263,7 @@ public data class SearchResult (
  * the `publish` method
  */
 @Serializable
-public data class CustomEvent (
+public data class CustomEvent(
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
@@ -1292,7 +1292,7 @@ public object JsonObjectAsStringSerializer : KSerializer<String> {
  * trouble of having to provide it at every checkout.
  */
 @Serializable
-public data class Customer (
+public data class Customer(
     /**
      * The customer’s email address.
      */
@@ -1330,7 +1330,7 @@ public data class Customer (
  * percentage off a specified item.
  */
 @Serializable
-public data class PricingPercentageValue (
+public data class PricingPercentageValue(
     /**
      * The percentage value of the object.
      */
@@ -1338,7 +1338,7 @@ public data class PricingPercentageValue (
 )
 
 @Serializable
-public data class DomEventsClicked(
+public data class ClickedDomEvent(
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
@@ -1352,7 +1352,7 @@ public data class DomEventsClickedData(
 )
 
 @Serializable
-public data class DomEventsFormSubmitted(
+public data class FormSubmittedDomEvent(
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
@@ -1366,7 +1366,7 @@ public data class DomEventsFormSubmittedData(
 )
 
 @Serializable
-public data class DomEventsInputBlurred(
+public data class InputBlurredDomEvent(
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
@@ -1379,7 +1379,7 @@ public data class DomEventsInputBlurredData(
     public val element: InputElement? = null
 )
 
-public data class DomEventsInputChanged(
+public data class InputChangedDomEvent(
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
@@ -1391,7 +1391,7 @@ public data class DomEventsInputChangedData(
     public val element: InputElement? = null,
 )
 
-public data class DomEventsInputFocused(
+public data class InputFocusedDomEvent(
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,

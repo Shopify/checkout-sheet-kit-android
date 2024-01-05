@@ -64,13 +64,13 @@ class PixelEventDecoderTest {
 
         val result = decoder.decode(event)
 
-        assertThat(result).isInstanceOf(CheckoutStarted::class.java)
+        assertThat(result).isInstanceOf(CheckoutStartedEvent::class.java)
 
-        val checkoutStarted = result as CheckoutStarted
-        assertThat(checkoutStarted.name).isEqualTo("checkout_started")
-        assertThat(checkoutStarted.timestamp).isEqualTo("2023-12-20T16:39:23+0000")
-        assertThat(checkoutStarted.id).isEqualTo("sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B")
-        assertThat(checkoutStarted.data?.checkout?.order?.id).isEqualTo("123")
+        val checkoutStartedEvent = result as CheckoutStartedEvent
+        assertThat(checkoutStartedEvent.name).isEqualTo("checkout_started")
+        assertThat(checkoutStartedEvent.timestamp).isEqualTo("2023-12-20T16:39:23+0000")
+        assertThat(checkoutStartedEvent.id).isEqualTo("sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B")
+        assertThat(checkoutStartedEvent.data?.checkout?.order?.id).isEqualTo("123")
 
         verifyNoInteractions(logWrapper)
     }
@@ -104,9 +104,9 @@ class PixelEventDecoderTest {
 
         val result = decoder.decode(event)
 
-        assertThat(result).isInstanceOf(CheckoutCompleted::class.java)
+        assertThat(result).isInstanceOf(CheckoutCompletedEvent::class.java)
 
-        val checkoutStarted = result as CheckoutCompleted
+        val checkoutStarted = result as CheckoutCompletedEvent
         assertThat(checkoutStarted.name).isEqualTo("checkout_completed")
         assertThat(checkoutStarted.timestamp).isEqualTo("2023-12-20T16:39:23+0000")
         assertThat(checkoutStarted.id).isEqualTo("sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B")
@@ -178,9 +178,9 @@ class PixelEventDecoderTest {
 
         val result = decoder.decode(event)
 
-        assertThat(result).isInstanceOf(DomEventsClicked::class.java)
+        assertThat(result).isInstanceOf(ClickedDomEvent::class.java)
 
-        val domEvent = result as DomEventsClicked
+        val domEvent = result as ClickedDomEvent
         assertThat(domEvent.name).isEqualTo("clicked")
         assertThat(domEvent.timestamp).isEqualTo("2023-12-20T16:39:23+0000")
         assertThat(domEvent.id).isEqualTo("sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B")
@@ -267,9 +267,9 @@ class PixelEventDecoderTest {
 
         val result = decoder.decode(event)
 
-        assertThat(result).isInstanceOf(PageViewed::class.java)
+        assertThat(result).isInstanceOf(PageViewedEvent::class.java)
 
-        val pageViewedEvent = result as PageViewed
+        val pageViewedEvent = result as PageViewedEvent
         assertThat(pageViewedEvent.name).isEqualTo("page_viewed")
         assertThat(pageViewedEvent.timestamp).isEqualTo("2023-12-20T16:39:23+0000")
         assertThat(pageViewedEvent.id).isEqualTo("sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B")
