@@ -25,7 +25,7 @@ package com.shopify.checkoutsheetkit
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
-import com.shopify.checkoutkit.pixelevents.PixelEvent
+import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 
 /**
  * Event processor that can handle events internally, delegate to the CheckoutEventProcessor
