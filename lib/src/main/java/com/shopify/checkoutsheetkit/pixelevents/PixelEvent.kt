@@ -41,6 +41,7 @@ internal class PixelEventWrapper(
 @Serializable
 public enum class EventType(public val typeName: String) {
     @SerialName("standard") STANDARD("standard"),
+    @SerialName("dom") DOM("dom"),
     @SerialName("custom") CUSTOM("custom");
 
     public companion object {
@@ -73,7 +74,7 @@ public sealed interface PixelEvent {
     public val timestamp: String?
 
     /**
-     * The type of event, standard or custom.
+     * The type of event, standard, custom or dom.
      * See https://shopify.dev/docs/api/web-pixels-api#customer-events-reference
      */
     public val type: EventType?
@@ -97,6 +98,20 @@ public enum class StandardPixelsEventType(public val eventName: String) {
     public companion object {
         public fun fromEventName(eventName: String): StandardPixelsEventType? =
             StandardPixelsEventType.values().firstOrNull {
+                it.eventName == eventName
+            }
+    }
+}
+
+public enum class DomPixelsEventType(public val eventName: String) {
+    DOM_EVENT_CLICKED("clicked"),
+    DOM_EVENT_FORM_SUBMITTED("form_submitted"),
+    DOM_EVENT_INPUT_BLURRED("input_blurred"),
+    DOM_EVENT_INPUT_CHANGED("input_changed"),
+    DOM_EVENT_INPUT_FOCUSED("input_focused");
+    public companion object {
+        public fun fromEventName(eventName: String): DomPixelsEventType? =
+            DomPixelsEventType.values().firstOrNull {
                 it.eventName == eventName
             }
     }
@@ -1320,4 +1335,96 @@ public data class PricingPercentageValue(
      * The percentage value of the object.
      */
     public val percentage: Double? = null
+)
+
+@Serializable
+public data class ClickedDomEvent(
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val type: EventType? = null,
+    public val data: DomEventsClickedData? = null
+): PixelEvent
+
+@Serializable
+public data class DomEventsClickedData(
+    public val element: GenericElement? = null,
+)
+
+@Serializable
+public data class FormSubmittedDomEvent(
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val type: EventType? = null,
+    public val data: DomEventsFormSubmittedData? = null
+): PixelEvent
+
+@Serializable
+public data class DomEventsFormSubmittedData(
+    public val element: FormElement? = null,
+)
+
+@Serializable
+public data class InputBlurredDomEvent(
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val type: EventType? = null,
+    public val data: DomEventsInputBlurredData? = null
+): PixelEvent
+
+@Serializable
+public data class DomEventsInputBlurredData(
+    public val element: InputElement? = null
+)
+
+public data class InputChangedDomEvent(
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val type: EventType? = null,
+    public val data: DomEventsInputChangedData? = null
+): PixelEvent
+
+public data class DomEventsInputChangedData(
+    public val element: InputElement? = null,
+)
+
+public data class InputFocusedDomEvent(
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val type: EventType? = null,
+    public val data: DomEventsInputFocusedData? = null
+): PixelEvent
+
+public data class DomEventsInputFocusedData(
+    public val element: InputElement? = null,
+)
+
+@Serializable
+public data class GenericElement(
+    public val href: String? = null,
+    public val id: String? = null,
+    public val name: String? = null,
+    public val tagName: String? = null,
+    public val type: String? = null,
+    public val value: String? = null
+)
+
+@Serializable
+public data class FormElement(
+    public val action: String? = null,
+    public val elements: List<InputElement>? = null,
+    public val id: String? = null,
+)
+
+@Serializable
+public data class InputElement(
+    public val id: String? = null,
+    public val name: String? = null,
+    public val tagName: String? = null,
+    public val type: String? = null,
+    public val value: String? = null,
 )

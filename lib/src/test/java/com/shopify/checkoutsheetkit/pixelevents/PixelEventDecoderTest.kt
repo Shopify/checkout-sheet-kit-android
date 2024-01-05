@@ -154,6 +154,44 @@ class PixelEventDecoderTest {
     }
 
     @Test
+    fun `should deserialize a dom event`() {
+        val event = """|
+        |{
+        |    "name": "clicked",
+        |    "event": {
+        |        "type": "dom",
+        |        "id": "sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B",
+        |        "name": "clicked",
+        |        "timestamp": "2023-12-20T16:39:23+0000",
+        |        "data": {
+        |           "element": {
+        |               "id": "my-element",
+        |               "name": "",
+        |               "tagName": "input",
+        |               "value": "value"
+        |            }
+        |        }
+        |    }
+        |}
+    |""".trimMargin()
+            .toWebToSdkEvent()
+
+        val result = decoder.decode(event)
+
+        assertThat(result).isInstanceOf(ClickedDomEvent::class.java)
+
+        val domEvent = result as ClickedDomEvent
+        assertThat(domEvent.name).isEqualTo("clicked")
+        assertThat(domEvent.timestamp).isEqualTo("2023-12-20T16:39:23+0000")
+        assertThat(domEvent.id).isEqualTo("sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B")
+        assertThat(domEvent.data?.element?.id).isEqualTo("my-element")
+        assertThat(domEvent.data?.element?.tagName).isEqualTo("input")
+        assertThat(domEvent.data?.element?.value).isEqualTo("value")
+
+        verifyNoInteractions(logWrapper)
+    }
+
+    @Test
     @Suppress("LongMethod")
     fun `should deserialize a page viewed event`() {
         val event = """|
@@ -269,6 +307,37 @@ class PixelEventDecoderTest {
         verify(logWrapper).w(
             "CheckoutBridge",
             "Unrecognized standard pixel event received 'new_standard_event'"
+        )
+    }
+
+    @Test
+    fun `should return null for a dom event we don't know about`() {
+        val event = """|
+        |{
+        |    "name": "new_dom_event",
+        |    "event": {
+        |        "type": "dom",
+        |        "id": "sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B",
+        |        "name": "new_dom_event",
+        |        "timestamp": "2023-12-20T16:39:23+0000",
+        |        "data": {
+        |            "a": {
+        |                "b": {
+        |                    "c": "d"
+        |                }
+        |            }
+        |        }
+        |    }
+        |}
+    |""".trimMargin()
+            .toWebToSdkEvent()
+
+        val result = decoder.decode(event)
+
+        assertThat(result).isNull()
+        verify(logWrapper).w(
+            "CheckoutBridge",
+            "Unrecognized dom pixel event received 'new_dom_event'"
         )
     }
 

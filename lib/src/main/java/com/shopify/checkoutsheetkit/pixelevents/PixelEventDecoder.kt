@@ -39,6 +39,7 @@ internal class PixelEventDecoder @JvmOverloads constructor(
             when (EventType.fromTypeName(eventWrapper.event["type"]?.jsonPrimitive?.content)) {
                 EventType.STANDARD -> decodeStandardEvent(eventWrapper.name, eventWrapper.event)
                 EventType.CUSTOM -> decodeCustomEvent(eventWrapper.event)
+                EventType.DOM -> decodeDomEvent(eventWrapper.name, eventWrapper.event)
                 else -> return null
             }
         } catch (e: Exception) {
@@ -78,6 +79,25 @@ internal class PixelEventDecoder @JvmOverloads constructor(
                 decoder.decodeFromJsonElement<SearchSubmittedEvent>(jsonElement)
             null -> {
                 log.w("CheckoutBridge", "Unrecognized standard pixel event received '$name'")
+                return null
+            }
+        }
+    }
+
+    private fun decodeDomEvent(name: String, jsonElement: JsonElement): PixelEvent? {
+        return when (DomPixelsEventType.fromEventName(name)) {
+            DomPixelsEventType.DOM_EVENT_CLICKED ->
+                decoder.decodeFromJsonElement<ClickedDomEvent>(jsonElement)
+            DomPixelsEventType.DOM_EVENT_FORM_SUBMITTED ->
+                decoder.decodeFromJsonElement<FormSubmittedDomEvent>(jsonElement)
+            DomPixelsEventType.DOM_EVENT_INPUT_BLURRED ->
+                decoder.decodeFromJsonElement<InputBlurredDomEvent>(jsonElement)
+            DomPixelsEventType.DOM_EVENT_INPUT_CHANGED ->
+                decoder.decodeFromJsonElement<InputChangedDomEvent>(jsonElement)
+            DomPixelsEventType.DOM_EVENT_INPUT_FOCUSED ->
+                decoder.decodeFromJsonElement<InputFocusedDomEvent>(jsonElement)
+            null -> {
+                log.w("CheckoutBridge", "Unrecognized dom pixel event received '$name'")
                 return null
             }
         }
