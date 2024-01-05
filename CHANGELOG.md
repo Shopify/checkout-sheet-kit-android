@@ -38,6 +38,7 @@ after release for General Availability.
 
 - Inform checkout when the sheet has been presented to help distinguish between preloads and presents. Groundwork for analytics.
 - Emit instrumentation payloads to improve observability.
+- Defaults preloading enabled to true
 - **Breaking:** Adds `fun onWebPixelEvent(event: PixelEvent)` to `CheckoutEventProcessor` to allow listening for Web Pixel events emitted from checkout.
 - **Breaking:** Renames library from checkout kit to checkout sheet kit. Apologies for the inconvenience, steps to upgrade:
 
