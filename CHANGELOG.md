@@ -34,10 +34,11 @@ after release for General Availability.
 
 - Exposes the `errorDescription` internal variable on the `CheckoutException` class.
 
-## 0.4.0 January 04, 2024
+## 0.4.0 January 05, 2024
 
 - Inform checkout when the sheet has been presented to help distinguish between preloads and presents. Groundwork for analytics.
 - Emit instrumentation payloads to improve observability.
+- **Breaking:** Adds `fun onWebPixelEvent(event: PixelEvent)` to `CheckoutEventProcessor` to allow listening for Web Pixel events emitted from checkout.
 - **Breaking:** Renames library from checkout kit to checkout sheet kit. Apologies for the inconvenience, steps to upgrade:
 
 1. Update gradle/maven import from `implementation 'com.shopify:checkout-kit:0.3.3'` to `implementation 'com.shopify:checkout-sheet-kit:0.4.0'`
