@@ -50,9 +50,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.shopify.checkoutsheetkit.CheckoutEventProcessor
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.AppBarState
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.toDisplayText
+import com.shopify.checkoutsheetkit.CheckoutEventProcessor
 
 @Composable
 fun CartView(

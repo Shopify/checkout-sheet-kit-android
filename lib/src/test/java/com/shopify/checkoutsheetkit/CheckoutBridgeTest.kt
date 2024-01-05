@@ -25,8 +25,8 @@ package com.shopify.checkoutsheetkit
 import android.webkit.WebView
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.MODAL
-import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.CheckoutStartedEvent
+import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.assertj.core.api.Assertions.assertThat
@@ -43,7 +43,6 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.robolectric.RobolectricTestRunner
-import java.lang.RuntimeException
 
 @RunWith(RobolectricTestRunner::class)
 class CheckoutBridgeTest {

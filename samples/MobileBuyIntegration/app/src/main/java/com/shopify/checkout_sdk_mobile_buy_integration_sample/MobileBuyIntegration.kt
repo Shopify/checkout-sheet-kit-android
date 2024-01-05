@@ -23,9 +23,9 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample
 
 import android.app.Application
-import com.shopify.checkoutsheetkit.ShopifyCheckoutSheet
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.di.setupDI
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
+import com.shopify.checkoutsheetkit.ShopifyCheckoutSheet
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel

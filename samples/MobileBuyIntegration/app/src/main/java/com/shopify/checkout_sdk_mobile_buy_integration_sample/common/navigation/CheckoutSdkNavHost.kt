@@ -29,9 +29,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.shopify.checkoutsheetkit.CheckoutException
-import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
-import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.AppBarState
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartView
@@ -39,6 +36,9 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.product.ProductView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsViewModel
+import com.shopify.checkoutsheetkit.CheckoutException
+import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
+import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

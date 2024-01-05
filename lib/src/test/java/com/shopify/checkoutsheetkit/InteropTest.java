@@ -3,11 +3,13 @@ package com.shopify.checkoutsheetkit;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import android.app.Activity;
+
 import androidx.activity.ComponentActivity;
 import androidx.annotation.NonNull;
-import com.shopify.checkoutsheetkit.pixelevents.PixelEvent;
-import com.shopify.checkoutsheetkit.pixelevents.CheckoutStartedEvent;
+
 import com.shopify.checkoutsheetkit.pixelevents.CheckoutStartedData;
+import com.shopify.checkoutsheetkit.pixelevents.CheckoutStartedEvent;
+import com.shopify.checkoutsheetkit.pixelevents.PixelEvent;
 import com.shopify.checkoutsheetkit.pixelevents.PixelEventDecoder;
 
 import org.junit.Before;
