@@ -252,11 +252,6 @@ val processor = object : WebEventProcessor {
         // - web (http:)
         // and is being directed outside the application.
     }
-
-     override fun onWebPixelEvent(event: PixelEvent) {
-        // Called when a web pixel event is emitted in checkout.
-        // Use this to submit events to your analytics system, see below.
-    }
 }
 
 ```
@@ -265,38 +260,6 @@ val processor = object : WebEventProcessor {
 
 App developers can use [lifecycle events](#monitoring-the-lifecycle-of-a-checkout-session) to
 monitor and log the status of a checkout session.
-
-From version 0.4.0, checkout Web Pixel events are emitted to client applications via the event processor method `fun onWebPixelEvent(event: PixelEvent)`.
-
-Implement this function to process the events you're interested in, augment them with customer and session identity, transform them into an appropriate schema and submit them to your preferred analytics system. For example:
-
-```kotlin
-fun onWebPixelEvent(event: PixelEvent) {
-    when (event) {
-        is CheckoutStartedEvent -> processCheckoutStarted(event)
-        is CheckoutContactInfoSubmittedEvent -> processCheckoutContactInfoSubmitted(event)
-        is CheckoutAddressInfoSubmittedEvent -> processCheckoutAddressInfoSubmitted(event)
-        is CheckoutCompletedEvent -> processCheckoutCompleted(event)
-    }
-}
-
-fun processCheckoutStarted(event: CheckoutStartedEvent) {
-    const endpoint = "https://example.com/pixel?id=${accountID}&uid=${userId}";
-
-    val payload = AnalyticsPayload(
-        eventTime: event.timestamp,
-        action: event.name,
-        details: event.data.checkout
-    )
-
-    // Send events to third-party servers
-    httpClient.post(endpoint, payload)
-}
-
-// ... remaining functions
-```
-
-_Note: The `customData` attribute of CustomEvents can take on any shape. As such, the data attribute will be returned as a String. Client applications should define a custom data type for this data and deserialize the `customData` string into that type._
 
 ### Integrating identity & customer accounts
 
