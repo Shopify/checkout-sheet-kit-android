@@ -1,8 +1,8 @@
 # Shopify Checkout Sheet Kit - Android (Developer Preview)
 
 [![GitHub license](https://img.shields.io/badge/license-MIT-lightgrey.svg?style=flat)](/LICENSE)
-![Tests](https://github.com/Shopify/checkout-sheet-kit-android/actions/workflows/test.yml/badge.svg?branch=main)
-[![GitHub release](https://img.shields.io/github/release/shopify/checkout-sheet-kit-android.svg)](https://github.com/Shopify/checkout-sheet-kit-android/releases)
+![Tests](https://github.com/Shopify/checkout-kit-android/actions/workflows/test.yml/badge.svg?branch=main)
+[![GitHub release](https://img.shields.io/github/release/shopify/checkout-kit-android.svg)](https://github.com/Shopify/checkout-sheet-kit-android/releases)
 
 ![image](checkout-sheet-kit.png)
 
