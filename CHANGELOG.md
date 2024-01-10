@@ -4,9 +4,24 @@
 
 - **Breaking Changes:** The library has been rebranded from Shopify Checkout Kit to Shopify Checkout Sheet Kit. Apologies for any inconvenience caused. Here are the steps to upgrade:
 
-1. Update your gradle/maven import from `implementation 'com.shopify:checkout-kit:0.3.3'` to `implementation 'com.shopify:checkout-sheet-kit:0.4.0'`
-2. Change imports from `com.shopify.checkoutkit.*` to `com.shopify.checkoutsheetkit.*`
-3. Call `ShopifyCheckoutSheetKit.present|preload|configure()` instead of `ShopifyCheckoutKit.present|preload|configure()`
+1. Update your gradle/maven import:
+
+```diff
+- implementation 'com.shopify:checkout-kit:0.3.3'
++ implementation 'com.shopify:checkout-sheet-kit:0.4.0'
+```
+
+2. Update the imports throughout your codebase:
+```diff
+- com.shopify.checkoutkit.*
++ com.shopify.checkoutsheetkit.*
+```
+
+3. Update the `present|preload|configure()` calls throughout your codebase:
+```diff
+- ShopifyCheckoutKit.present|preload|configure()
++ ShopifyCheckoutSheetKit.present|preload|configure()
+```
 
 Also included:
 
