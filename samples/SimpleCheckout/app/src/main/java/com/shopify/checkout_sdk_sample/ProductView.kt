@@ -41,7 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.shopify.checkoutsheetkit.ShopifyCheckoutSheet
+import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 
 @Composable
 fun ProductView(
@@ -106,7 +106,7 @@ fun ProductView(
                         ) {
                             productViewModel.createCart(selectedVariant.id) {
                                 Handler(Looper.getMainLooper()).post {
-                                    ShopifyCheckoutSheet.present(
+                                    ShopifyCheckoutSheetKit.present(
                                         it.cartCreate.cart.checkoutUrl,
                                         activity,
                                         productViewModel

@@ -27,7 +27,7 @@ import androidx.lifecycle.viewModelScope
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.BuildConfig
 import com.shopify.checkoutsheetkit.ColorScheme
 import com.shopify.checkoutsheetkit.Preloading
-import com.shopify.checkoutsheetkit.ShopifyCheckoutSheet
+import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -47,14 +47,14 @@ class SettingsViewModel(private val preferencesManager: PreferencesManager) : Vi
     }
 
     fun setColorScheme(colorScheme: ColorScheme) = viewModelScope.launch {
-        ShopifyCheckoutSheet.configure {
+        ShopifyCheckoutSheetKit.configure {
             it.colorScheme = colorScheme
         }
         preferencesManager.setColorScheme(colorScheme)
     }
 
     fun setPreloadingEnabled(enabled: Boolean) = viewModelScope.launch {
-        ShopifyCheckoutSheet.configure {
+        ShopifyCheckoutSheetKit.configure {
             it.preloading = Preloading(enabled = enabled)
         }
         preferencesManager.setPreloadingEnabled(enabled)
@@ -70,7 +70,7 @@ class SettingsViewModel(private val preferencesManager: PreferencesManager) : Vi
             preloading = preloading,
             buyerIdentityDemoEnabled = buyerIdentityDemoEnabled,
         ),
-        sdkVersion = ShopifyCheckoutSheet.version,
+        sdkVersion = ShopifyCheckoutSheetKit.version,
         sampleAppVersion = BuildConfig.VERSION_NAME,
     )
 }

@@ -295,7 +295,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             url: String,
             activity: ComponentActivity,
         ): CheckoutWebView {
-            val preloadingEnabled = ShopifyCheckoutSheet.configuration.preloading.enabled
+            val preloadingEnabled = ShopifyCheckoutSheetKit.configuration.preloading.enabled
             if (!preloadingEnabled || cacheEntry?.isValid(url) != true) {
                 val view = CheckoutWebView(activity as Context).apply {
                     loadCheckout(url)

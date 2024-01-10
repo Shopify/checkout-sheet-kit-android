@@ -29,7 +29,7 @@ import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 
 /**
  * Event processor that can handle events internally, delegate to the CheckoutEventProcessor
- * passed into ShopifyCheckoutSheet.present(), or preprocess arguments and then delegate
+ * passed into ShopifyCheckoutSheetKit.present(), or preprocess arguments and then delegate
  */
 internal class CheckoutWebViewEventProcessor(
     private val eventProcessor: CheckoutEventProcessor,

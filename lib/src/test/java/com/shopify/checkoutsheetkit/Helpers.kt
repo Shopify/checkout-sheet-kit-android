@@ -24,9 +24,9 @@ package com.shopify.checkoutsheetkit
 
 fun withPreloadingEnabled(block: () -> Unit) {
     try {
-        ShopifyCheckoutSheet.configure { it.preloading = Preloading(enabled = true) }
+        ShopifyCheckoutSheetKit.configure { it.preloading = Preloading(enabled = true) }
         block()
     } finally {
-        ShopifyCheckoutSheet.configure { it.preloading = Preloading(enabled = false) }
+        ShopifyCheckoutSheetKit.configure { it.preloading = Preloading(enabled = false) }
     }
 }

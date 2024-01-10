@@ -118,7 +118,7 @@ internal class CheckoutBridge(
         |""".trimMargin()
 
         fun userAgentSuffix(): String {
-            val theme = ShopifyCheckoutSheet.configuration.colorScheme.id
+            val theme = ShopifyCheckoutSheetKit.configuration.colorScheme.id
             return "ShopifyCheckoutSDK/$SDK_VERSION_NUMBER ($SCHEMA_VERSION_NUMBER;$theme;standard)"
         }
     }

@@ -37,11 +37,11 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import com.shopify.checkoutsheetkit.ColorScheme
 import com.shopify.checkoutsheetkit.Preloading
-import com.shopify.checkoutsheetkit.ShopifyCheckoutSheet
+import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 
 @Composable
 fun CheckoutSdkApp() {
-    ShopifyCheckoutSheet.configure {
+    ShopifyCheckoutSheetKit.configure {
         it.colorScheme = ColorScheme.Light()
         it.preloading = Preloading(enabled = false)
     }

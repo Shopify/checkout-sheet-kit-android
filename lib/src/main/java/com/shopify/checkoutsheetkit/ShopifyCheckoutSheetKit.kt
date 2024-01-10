@@ -29,23 +29,23 @@ import androidx.lifecycle.LifecycleOwner
 /**
  * Entrypoint to the library, allows configuring, preloading, and presenting Shopify checkouts.
  */
-public object ShopifyCheckoutSheet {
+public object ShopifyCheckoutSheetKit {
 
     internal val configuration = Configuration()
 
     /**
-     * Returns the current version of ShopifyCheckoutSheet.
+     * Returns the current version of ShopifyCheckoutSheetKit.
 
      * @return the current version
      */
     public const val version: String = BuildConfig.SDK_VERSION
 
     /**
-     * Returns the currently applied ShopifyCheckoutSheet configuration.
+     * Returns the currently applied ShopifyCheckoutSheetKit configuration.
      * Note: configuration changes should be made through the configure function.
      *
      * @return the currently applied configuration
-     * @see ShopifyCheckoutSheet.configure(ConfigurationUpdater)
+     * @see ShopifyCheckoutSheetKit.configure(ConfigurationUpdater)
      */
     @JvmStatic
     public fun getConfiguration(): Configuration {
@@ -53,11 +53,11 @@ public object ShopifyCheckoutSheet {
     }
 
     /**
-     * Allows configuring ShopifyCheckoutSheet.
+     * Allows configuring ShopifyCheckoutSheetKit.
      *
      * Current configuration options are for enabling and disabling preloading, and for setting the checkout color scheme.
      * Kotlin example:
-     * {@code ShopifyCheckoutSheet.configure { it.preloading = Preloading(enabled = enabled) }}
+     * {@code ShopifyCheckoutSheetKit.configure { it.preloading = Preloading(enabled = enabled) }}
      *
      * @param setter a function that modifies the configuration object
      * @see Configuration
@@ -72,7 +72,7 @@ public object ShopifyCheckoutSheet {
      * Preloads a Shopify checkout in the background.
      *
      * Preloading checkout is fully optional, but allows reducing the time taken between calling
-     * {@link ShopifyCheckoutSheet#present(String, ComponentActivity, CheckoutEventProcessor)} and having a fully interactive checkout.
+     * {@link ShopifyCheckoutSheetKit#present(String, ComponentActivity, CheckoutEventProcessor)} and having a fully interactive checkout.
      * Note: Preload must be called on all cart changes to avoid stale checkouts being presented.
      * Preloaded checkouts also have a TTL of 5 minutes, after checkout will be re-loaded on calling present.
      *

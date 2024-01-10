@@ -48,7 +48,7 @@ implementation "com.shopify:checkout-sheet-kit:$checkoutSdkVersion"
 Once the SDK has been added as a dependency, you can import the library:
 
 ```kotlin
-import com.shopify.checkoutsheetkit.ShopifyCheckoutSheet
+import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 ```
 
 To present a checkout to the buyer, your application must first obtain a checkout URL.
@@ -88,7 +88,7 @@ function provided by the SDK:
 ```kotlin
 fun presentCheckout() {
     val checkoutUrl = cart.checkoutUrl
-    ShopifyCheckoutSheet.present(checkoutUrl, context, checkoutEventProcessor)
+    ShopifyCheckoutSheetKit.present(checkoutUrl, context, checkoutEventProcessor)
 }
 ```
 
@@ -99,7 +99,7 @@ and ahead of time.
 ### Configuration
 
 The SDK provides a way to customize the presented checkout experience via
-the `ShopifyCheckoutSheet.configure` function.
+the `ShopifyCheckoutSheetKit.configure` function.
 
 #### `colorScheme`
 
@@ -107,7 +107,7 @@ By default, the SDK will match the user's device color appearance. This behavior
 via the `colorScheme` property:
 
 ```kotlin
-ShopifyCheckoutSheet.configure {
+ShopifyCheckoutSheetKit.configure {
     // [Default] Automatically toggle idiomatic light and dark themes based on device preference.
     it.colorScheme = ColorScheme.Automatic()
 
@@ -153,7 +153,7 @@ val automatic = ColorScheme.Automatic(
 )
 ```
 
-The current configuration can be obtained by calling `ShopifyCheckoutSheet.getConfiguration()`.
+The current configuration can be obtained by calling `ShopifyCheckoutSheetKit.getConfiguration()`.
 
 ### Preloading
 
@@ -166,7 +166,7 @@ the background and ahead of time.
 Preloading is an advanced feature that can be disabled via a runtime flag:
 
 ```kotlin
-ShopifyCheckoutSheet.configure {
+ShopifyCheckoutSheetKit.configure {
     it.preloading = Preloading(enabled = false)
 }
 ```
@@ -174,7 +174,7 @@ ShopifyCheckoutSheet.configure {
 Once enabled, preloading a checkout is as simple as:
 
 ```kotlin
-ShopifyCheckoutSheet.preload(checkoutUrl)
+ShopifyCheckoutSheetKit.preload(checkoutUrl)
 ```
 
 **Important considerations:**
@@ -299,7 +299,7 @@ and initialize a buyer-aware checkout session.
 1. Follow the [Multipass documentation](https://shopify.dev/docs/api/multipass) to create a
    multipass
    URL and set the `'return_to'` to be the obtained `checkoutUrl`
-2. Provide the Multipass URL to `ShopifyCheckoutSheet.present()`.
+2. Provide the Multipass URL to `ShopifyCheckoutSheetKit.present()`.
 
 _Note: the above JSON omits useful customer attributes that should be provided where possible and
 encryption and signing should be done server-side to ensure Multipass keys are kept secret._

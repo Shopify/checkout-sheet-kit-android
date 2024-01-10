@@ -29,55 +29,55 @@ class ConfigurationTest {
 
     @Test
     fun `can set colorScheme via configure function - light`() {
-        ShopifyCheckoutSheet.configure {
+        ShopifyCheckoutSheetKit.configure {
             it.colorScheme = ColorScheme.Light()
         }
 
-        assertThat(ShopifyCheckoutSheet.getConfiguration().colorScheme).isEqualTo(ColorScheme.Light())
+        assertThat(ShopifyCheckoutSheetKit.getConfiguration().colorScheme).isEqualTo(ColorScheme.Light())
     }
 
     @Test
     fun `can set colorScheme via configure function - dark`() {
-        ShopifyCheckoutSheet.configure {
+        ShopifyCheckoutSheetKit.configure {
             it.colorScheme = ColorScheme.Dark()
         }
 
-        assertThat(ShopifyCheckoutSheet.getConfiguration().colorScheme).isEqualTo(ColorScheme.Dark())
+        assertThat(ShopifyCheckoutSheetKit.getConfiguration().colorScheme).isEqualTo(ColorScheme.Dark())
     }
 
     @Test
     fun `can set colorScheme via configure function - web`() {
-        ShopifyCheckoutSheet.configure {
+        ShopifyCheckoutSheetKit.configure {
             it.colorScheme = ColorScheme.Web()
         }
 
-        assertThat(ShopifyCheckoutSheet.getConfiguration().colorScheme).isEqualTo(ColorScheme.Web())
+        assertThat(ShopifyCheckoutSheetKit.getConfiguration().colorScheme).isEqualTo(ColorScheme.Web())
     }
 
     @Test
     fun `can set colorScheme via configure function - automatic`() {
-        ShopifyCheckoutSheet.configure {
+        ShopifyCheckoutSheetKit.configure {
             it.colorScheme = ColorScheme.Automatic()
         }
 
-        assertThat(ShopifyCheckoutSheet.getConfiguration().colorScheme).isEqualTo(ColorScheme.Automatic())
+        assertThat(ShopifyCheckoutSheetKit.getConfiguration().colorScheme).isEqualTo(ColorScheme.Automatic())
     }
 
     @Test
     fun `can set preloading via configure function - enabled`() {
-        ShopifyCheckoutSheet.configure {
+        ShopifyCheckoutSheetKit.configure {
             it.preloading = Preloading(enabled = true)
         }
 
-        assertThat(ShopifyCheckoutSheet.getConfiguration().preloading.enabled).isTrue
+        assertThat(ShopifyCheckoutSheetKit.getConfiguration().preloading.enabled).isTrue
     }
 
     @Test
     fun `can set preloading via configure function - disabled`() {
-        ShopifyCheckoutSheet.configure {
+        ShopifyCheckoutSheetKit.configure {
             it.preloading = Preloading(enabled = false)
         }
 
-        assertThat(ShopifyCheckoutSheet.getConfiguration().preloading.enabled).isFalse
+        assertThat(ShopifyCheckoutSheetKit.getConfiguration().preloading.enabled).isFalse
     }
 }

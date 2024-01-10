@@ -77,7 +77,7 @@ internal class CheckoutDialog(
             )
         )
 
-        val colorScheme = ShopifyCheckoutSheet.configuration.colorScheme
+        val colorScheme = ShopifyCheckoutSheetKit.configuration.colorScheme
         val header = findViewById<Toolbar>(R.id.checkoutSdkHeader)
 
         header.apply {
