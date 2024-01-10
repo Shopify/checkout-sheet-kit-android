@@ -28,10 +28,10 @@ import androidx.lifecycle.viewModelScope
 import com.shopify.buy3.Storefront
 import com.shopify.buy3.Storefront.Cart
 import com.shopify.buy3.Storefront.CartLineInput
-import com.shopify.checkoutkit.CheckoutEventProcessor
-import com.shopify.checkoutkit.ShopifyCheckoutKit
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
+import com.shopify.checkoutsheetkit.CheckoutEventProcessor
+import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 import com.shopify.graphql.support.ID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -77,7 +77,7 @@ class CartViewModel(
         activity: ComponentActivity,
         eventProcessor: CheckoutEventProcessor
     ) {
-        ShopifyCheckoutKit.present(url, activity, eventProcessor)
+        ShopifyCheckoutSheetKit.present(url, activity, eventProcessor)
     }
 
     private fun performCartLinesAdd(cartID: ID, variant: ID, onComplete: OnComplete) {

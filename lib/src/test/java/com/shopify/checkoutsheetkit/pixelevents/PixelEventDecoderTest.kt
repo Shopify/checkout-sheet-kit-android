@@ -20,10 +20,10 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutkit.pixelevents
+package com.shopify.checkoutsheetkit.pixelevents
 
-import com.shopify.checkoutkit.LogWrapper
-import com.shopify.checkoutkit.WebToSdkEvent
+import com.shopify.checkoutsheetkit.LogWrapper
+import com.shopify.checkoutsheetkit.WebToSdkEvent
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.assertj.core.api.Assertions.assertThat

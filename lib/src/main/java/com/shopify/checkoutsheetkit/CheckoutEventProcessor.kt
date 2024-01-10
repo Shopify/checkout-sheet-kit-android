@@ -20,30 +20,30 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutkit
+package com.shopify.checkoutsheetkit
 
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import com.shopify.checkoutkit.pixelevents.PixelEvent
+import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 import kotlinx.serialization.Serializable
 
 /**
- * Superclass for the Shopify Checkout Kit exceptions
+ * Superclass for the Shopify Checkout Sheet Kit exceptions
  */
 @Serializable
 public abstract class CheckoutException(public val errorDescription: String) : Exception(errorDescription)
 
 /**
- * Issued when an internal error occurs within Shopify Checkout Kit.
+ * Issued when an internal error occurs within Shopify Checkout Sheet Kit.
  * In event of an error you could use the stacktrace to inform you of how to proceed,
- * if the issue persists, it is recommended to open a bug report in https://github.com/Shopify/checkout-kit-android
+ * if the issue persists, it is recommended to open a bug report in https://github.com/Shopify/checkout-sheet-kit-android
  */
 public class CheckoutSdkError(errorMsg: String) : CheckoutException(errorMsg)
 
 /**
  * Issued when checkout has encountered a unrecoverable error (for example server side error).
- * if the issue persists, it is recommended to open a bug report in https://github.com/Shopify/checkout-kit-android
+ * if the issue persists, it is recommended to open a bug report in https://github.com/Shopify/checkout-sheet-kit-android
  */
 public class CheckoutUnavailableException : CheckoutException("Checkout is currently unavailable due to an internal error")
 

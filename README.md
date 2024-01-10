@@ -1,18 +1,18 @@
-# Shopify Checkout Kit - Android (Developer Preview)
+# Shopify Checkout Sheet Kit - Android (Developer Preview)
 
 [![GitHub license](https://img.shields.io/badge/license-MIT-lightgrey.svg?style=flat)](/LICENSE)
-![Tests](https://github.com/Shopify/checkout-kit-android/actions/workflows/test.yml/badge.svg?branch=main)
-[![GitHub release](https://img.shields.io/github/release/shopify/checkout-kit-android.svg)](https://github.com/Shopify/checkout-kit-android/releases)
+![Tests](https://github.com/Shopify/checkout-sheet-kit-android/actions/workflows/test.yml/badge.svg?branch=main)
+[![GitHub release](https://img.shields.io/github/release/shopify/checkout-sheet-kit-android.svg)](https://github.com/Shopify/checkout-sheet-kit-android/releases)
 
-![image](checkout-kit.png)
+![image](checkout-sheet-kit.png)
 
-**Checkout Kit for Android** is a library (currently in [Developer Preview](https://shopify.dev/docs/api/release-notes/developer-previews))
+**Checkout Sheet Kit for Android** is a library (currently in [Developer Preview](https://shopify.dev/docs/api/release-notes/developer-previews))
 that enables Android apps to provide the world's highest converting, customizable, one-page checkout
 within the mobile app. The presented experience is a fully-featured checkout that preserves all of the store
 customizations: Checkout UI extensions, Scripts, Functions, Web Pixels, and more. It also provides idiomatic
 defaults such as support for light and dark mode, and convenient developer APIs to embed, customize
 and follow the lifecycle of the checkout experience. Check out our developer blog to
-[learn how Checkout Kit is built](https://www.shopify.com/partners/blog/mobile-checkout-sdks-for-ios-and-android).
+[learn how Checkout Sheet Kit is built](https://www.shopify.com/partners/blog/mobile-checkout-sdks-for-ios-and-android).
 
 ### Requirements
 
@@ -29,7 +29,7 @@ your project:
 #### Gradle
 
 ```groovy
-implementation "com.shopify:checkout-kit:$checkoutSdkVersion"
+implementation "com.shopify:checkout-sheet-kit:$checkoutSdkVersion"
 ```
 
 #### Maven
@@ -38,7 +38,7 @@ implementation "com.shopify:checkout-kit:$checkoutSdkVersion"
 
 <dependency>
    <groupId>com.shopify</groupId>
-   <artifactId>checkout-kit</artifactId>
+   <artifactId>checkout-sheet-kit</artifactId>
    <version>${checkoutSdkVersion}</version>
 </dependency>
 ```
@@ -48,7 +48,7 @@ implementation "com.shopify:checkout-kit:$checkoutSdkVersion"
 Once the SDK has been added as a dependency, you can import the library:
 
 ```kotlin
-import com.shopify.checkoutkit.ShopifyCheckoutKit
+import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 ```
 
 To present a checkout to the buyer, your application must first obtain a checkout URL.
@@ -88,7 +88,7 @@ function provided by the SDK:
 ```kotlin
 fun presentCheckout() {
     val checkoutUrl = cart.checkoutUrl
-    ShopifyCheckoutKit.present(checkoutUrl, context, checkoutEventProcessor)
+    ShopifyCheckoutSheetKit.present(checkoutUrl, context, checkoutEventProcessor)
 }
 ```
 
@@ -99,7 +99,7 @@ and ahead of time.
 ### Configuration
 
 The SDK provides a way to customize the presented checkout experience via
-the `ShopifyCheckoutKit.configure` function.
+the `ShopifyCheckoutSheetKit.configure` function.
 
 #### `colorScheme`
 
@@ -107,7 +107,7 @@ By default, the SDK will match the user's device color appearance. This behavior
 via the `colorScheme` property:
 
 ```kotlin
-ShopifyCheckoutKit.configure {
+ShopifyCheckoutSheetKit.configure {
     // [Default] Automatically toggle idiomatic light and dark themes based on device preference.
     it.colorScheme = ColorScheme.Automatic()
 
@@ -153,7 +153,7 @@ val automatic = ColorScheme.Automatic(
 )
 ```
 
-The current configuration can be obtained by calling `ShopifyCheckoutKit.getConfiguration()`.
+The current configuration can be obtained by calling `ShopifyCheckoutSheetKit.getConfiguration()`.
 
 ### Preloading
 
@@ -166,7 +166,7 @@ the background and ahead of time.
 Preloading is an advanced feature that can be disabled via a runtime flag:
 
 ```kotlin
-ShopifyCheckoutKit.configure {
+ShopifyCheckoutSheetKit.configure {
     it.preloading = Preloading(enabled = false)
 }
 ```
@@ -174,7 +174,7 @@ ShopifyCheckoutKit.configure {
 Once enabled, preloading a checkout is as simple as:
 
 ```kotlin
-ShopifyCheckoutKit.preload(checkoutUrl)
+ShopifyCheckoutSheetKit.preload(checkoutUrl)
 ```
 
 **Important considerations:**
@@ -216,13 +216,13 @@ val processor = object : WebEventProcessor {
         /**
          * Issued when an internal error within Shopify Checkout SDK.
          * In event of an sdkError you could use the stacktrace to inform you of how to proceed,
-         * if the issue persists, it is recommended to open a bug report in https://github.com/Shopify/checkout-kit-android
+         * if the issue persists, it is recommended to open a bug report in https://github.com/Shopify/checkout-sheet-kit-android
          */
         class CheckoutSdkError(errorMsg: String) : CheckoutException(errorMsg)
 
         /**
          * Issued when checkout has encountered a unrecoverable error (for example server side error).
-         * if the issue persists, it is recommended to open a bug report in https://github.com/Shopify/checkout-kit-android
+         * if the issue persists, it is recommended to open a bug report in https://github.com/Shopify/checkout-sheet-kit-android
          */
         class CheckoutUnavailableException : CheckoutException("Checkout is currently unavailable due to an internal error.")
 
@@ -240,7 +240,7 @@ val processor = object : WebEventProcessor {
          * The SDK only supports stores migrated for extensibility.
          */
         class CheckoutLiquidNotMigratedException :
-            CheckoutException("The checkout URL provided has resulted in an error because the store is still using checkout.liquid. Checkout Kit only supports checkout with extensibility.")
+            CheckoutException("The checkout URL provided has resulted in an error because the store is still using checkout.liquid. Checkout Sheet Kit only supports checkout with extensibility.")
 
 
     }
@@ -299,7 +299,7 @@ and initialize a buyer-aware checkout session.
 1. Follow the [Multipass documentation](https://shopify.dev/docs/api/multipass) to create a
    multipass
    URL and set the `'return_to'` to be the obtained `checkoutUrl`
-2. Provide the Multipass URL to `ShopifyCheckoutKit.present()`.
+2. Provide the Multipass URL to `ShopifyCheckoutSheetKit.present()`.
 
 _Note: the above JSON omits useful customer attributes that should be provided where possible and
 encryption and signing should be done server-side to ensure Multipass keys are kept secret._
@@ -327,4 +327,4 @@ see [guidelines and instructions](.github/CONTRIBUTING.md).
 
 ### License
 
-Checkout Kit is provided under an [MIT License](LICENSE).
+Shopify's Checkout Sheet Kit is provided under an [MIT License](LICENSE).

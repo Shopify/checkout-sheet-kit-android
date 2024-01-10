@@ -23,8 +23,6 @@
 package com.shopify.checkout_sdk_sample
 
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.decodeFromString
-import java.lang.RuntimeException
 import java.nio.charset.Charset
 
 class StorefrontClient(

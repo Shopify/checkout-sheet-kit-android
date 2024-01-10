@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutkit
+package com.shopify.checkoutsheetkit
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -42,8 +42,8 @@ import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.ComponentActivity
-import com.shopify.checkoutkit.CheckoutBridge.Companion.userAgentSuffix
-import com.shopify.checkoutkit.InstrumentationType.histogram
+import com.shopify.checkoutsheetkit.CheckoutBridge.Companion.userAgentSuffix
+import com.shopify.checkoutsheetkit.InstrumentationType.histogram
 import java.net.HttpURLConnection.HTTP_GONE
 import java.net.HttpURLConnection.HTTP_INTERNAL_ERROR
 import java.net.HttpURLConnection.HTTP_NOT_FOUND
@@ -295,7 +295,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             url: String,
             activity: ComponentActivity,
         ): CheckoutWebView {
-            val preloadingEnabled = ShopifyCheckoutKit.configuration.preloading.enabled
+            val preloadingEnabled = ShopifyCheckoutSheetKit.configuration.preloading.enabled
             if (!preloadingEnabled || cacheEntry?.isValid(url) != true) {
                 val view = CheckoutWebView(activity as Context).apply {
                     loadCheckout(url)

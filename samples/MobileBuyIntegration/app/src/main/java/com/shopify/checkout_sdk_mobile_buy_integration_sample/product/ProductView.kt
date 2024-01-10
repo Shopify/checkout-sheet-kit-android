@@ -41,9 +41,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.shopify.checkoutkit.ShopifyCheckoutKit
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.AppBarState
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
+import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -125,7 +125,7 @@ fun ProductView(
                             cartViewModel.addToCart(selectedVariant.id) {
                                 productViewModel.setIsAddingToCart(false)
                                 if (it?.checkoutUrl != null) {
-                                    ShopifyCheckoutKit.preload(it.checkoutUrl, activity)
+                                    ShopifyCheckoutSheetKit.preload(it.checkoutUrl, activity)
                                 }
                             }
                         }
