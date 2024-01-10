@@ -49,7 +49,7 @@ class CheckoutDialogTest {
 
     @Before
     fun setUp() {
-        ShopifyCheckoutKit.configure {
+        ShopifyCheckoutSheet.configure {
             it.preloading = Preloading(enabled = false)
         }
         activity = Robolectric.buildActivity(ComponentActivity::class.java).get()
@@ -57,7 +57,7 @@ class CheckoutDialogTest {
 
     @After
     fun tearDown() {
-        ShopifyCheckoutKit.configure {
+        ShopifyCheckoutSheet.configure {
             it.preloading = Preloading(enabled = true)
         }
     }
