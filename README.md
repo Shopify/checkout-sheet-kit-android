@@ -4,7 +4,8 @@
 ![Tests](https://github.com/Shopify/checkout-sheet-kit-android/actions/workflows/test.yml/badge.svg?branch=main)
 [![GitHub release](https://img.shields.io/github/release/shopify/checkout-sheet-kit-android.svg)](https://github.com/Shopify/checkout-sheet-kit-android/releases)
 
-![image](checkout-sheet-kit.png)
+![image](https://github.com/Shopify/checkout-sheet-kit-android/assets/2034704/c6c726dc-a211-406b-b848-53ade91a164d)
+
 
 **Checkout Sheet Kit for Android** is a library (currently in [Developer Preview](https://shopify.dev/docs/api/release-notes/developer-previews))
 that enables Android apps to provide the world's highest converting, customizable, one-page checkout
