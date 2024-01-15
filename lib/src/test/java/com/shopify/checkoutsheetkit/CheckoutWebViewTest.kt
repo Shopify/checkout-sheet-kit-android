@@ -31,6 +31,12 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentMatchers.contains
+import org.mockito.ArgumentMatchers.eq
+import org.mockito.Mockito.spy
+import org.mockito.Mockito.timeout
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
@@ -86,6 +92,21 @@ class CheckoutWebViewTest {
         assertThat(shadow.getJavascriptInterface("android")).isNull()
     }
 
+    @Test
+    fun `sends presented message each time when view is loaded if it has been presented`() {
+        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
+
+        val shadow = shadowOf(view)
+        shadow.webViewClient.onPageFinished(view, "https://anything")
+
+        val spy = spy(view)
+        spy.notifyPresented()
+
+        verify(spy).evaluateJavascript(
+            contains("window.MobileCheckoutSdk.dispatchMessage('presented');"),
+            eq(null)
+        )
+    }
 
     companion object {
         private const val URL = "https://a.checkout.testurl"
