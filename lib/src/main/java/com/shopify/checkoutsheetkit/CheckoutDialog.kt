@@ -43,7 +43,6 @@ import android.widget.ProgressBar
 import androidx.activity.ComponentActivity
 import androidx.annotation.ColorInt
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.ContextCompat.getColor
 import androidx.core.view.children
 
 internal class CheckoutDialog(
@@ -88,9 +87,6 @@ internal class CheckoutDialog(
 
         findViewById<FrameLayout>(R.id.checkoutSdkLoadingSpinner).apply {
             setBackgroundColor(colorScheme.webViewBackgroundColor())
-            if (checkoutWebView.hasFinishedLoading()) {
-                this.visibility = GONE
-            }
         }
 
         findViewById<ProgressBar>(R.id.checkoutSdkLoadingSpinnerProgressBar).apply {
@@ -121,6 +117,10 @@ internal class CheckoutDialog(
 
         setOnShowListener {
             checkoutWebView.notifyPresented()
+            scrollTop()
+            if (checkoutWebView.hasFinishedLoading()) {
+                hideProgressBar()
+            }
         }
 
         show()
@@ -133,12 +133,16 @@ internal class CheckoutDialog(
         }
     }
 
-    private fun hideProgressBar() {
-        findViewById<FrameLayout>(R.id.checkoutSdkLoadingSpinner).visibility = GONE
+    private fun scrollTop() {
         findViewById<CheckoutWebViewContainer>(R.id.checkoutSdkContainer).apply {
             children.firstOrNull()?.scrollY = 0
-            visibility = VISIBLE
         }
+    }
+
+    private fun hideProgressBar() {
+        findViewById<FrameLayout>(R.id.checkoutSdkLoadingSpinner).visibility = GONE
+        findViewById<CheckoutWebViewContainer>(R.id.checkoutSdkContainer).visibility = VISIBLE
+        scrollTop()
     }
 
     @ColorInt

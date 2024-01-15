@@ -19,7 +19,7 @@
         android:layout_height="match_parent"
         android:background="@android:color/transparent"
         android:layout_below="@id/checkoutSdkHeader"
-        android:visibility="gone" />
+        android:visibility="invisible" />
 
     <FrameLayout
         android:id="@+id/checkoutSdkLoadingSpinner"
