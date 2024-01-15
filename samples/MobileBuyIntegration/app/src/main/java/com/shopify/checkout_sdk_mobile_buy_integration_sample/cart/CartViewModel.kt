@@ -89,7 +89,12 @@ class CartViewModel(
     }
 
     private fun performCartCreate(variant: ID, onComplete: OnComplete) {
-        val buyerIdentity = if (demoBuyerIdentityEnabled) DemoBuyerIdentity.value else null
+        val buyerIdentity = if (demoBuyerIdentityEnabled) {
+            DemoBuyerIdentity.value
+        } else {
+            Storefront.CartBuyerIdentityInput().setCountryCode(Storefront.CountryCode.CA)
+        }
+
         client.createCart(
             variant = Storefront.ProductVariant(variant),
             buyerIdentity = buyerIdentity,
