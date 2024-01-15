@@ -56,7 +56,6 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
     WebView(context, attributeSet) {
 
     private val checkoutBridge = CheckoutBridge(CheckoutWebViewEventProcessor(NoopEventProcessor()))
-    private var dispatchedPresented = false
     private var loadComplete = false
         set(value) {
             field = value
@@ -69,9 +68,8 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         }
 
     private fun dispatchWhenPresentedAndLoaded(loadComplete: Boolean, hasBeenPresented: Boolean) {
-        if (!dispatchedPresented && (loadComplete && hasBeenPresented)) {
+        if (loadComplete && hasBeenPresented) {
             checkoutBridge.sendMessage(this, CheckoutBridge.SDKOperation.Presented)
-            dispatchedPresented = true
         }
     }
 
