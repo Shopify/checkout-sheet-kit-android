@@ -33,6 +33,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.argThat
+import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.spy
@@ -140,10 +141,22 @@ class CheckoutWebViewClientTest {
     }
 
     @Test
-    fun `onPageFinished calls delegate to remove loading spinner`() {
-        val view = viewWithProcessor(activity)
-        val webViewClient = view.CheckoutWebViewClient()
+    fun `onPageFinished does not call delegate if view content is empty (for example, a redirect)`() {
+        val view = spy(viewWithProcessor(activity))
+        doReturn(0).whenever(view).contentHeight
 
+        val webViewClient = view.CheckoutWebViewClient()
+        webViewClient.onPageFinished(view, "https://anything")
+
+        verify(checkoutWebViewEventProcessor, never()).onCheckoutViewLoadComplete()
+    }
+
+    @Test
+    fun `onPageFinished calls delegate to remove loading spinner if view content not empty`() {
+        val view = spy(viewWithProcessor(activity))
+        doReturn(1).whenever(view).contentHeight
+
+        val webViewClient = view.CheckoutWebViewClient()
         webViewClient.onPageFinished(view, "https://anything")
 
         verify(checkoutWebViewEventProcessor).onCheckoutViewLoadComplete()

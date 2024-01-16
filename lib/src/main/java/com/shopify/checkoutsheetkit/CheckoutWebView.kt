@@ -138,6 +138,8 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
 
         override fun onPageFinished(view: WebView, url: String) {
             super.onPageFinished(view, url)
+            if (view.contentHeight == 0) return
+
             loadComplete = true
             val timeToLoad = System.currentTimeMillis() - initLoadTime
             checkoutBridge.sendMessage(view, CheckoutBridge.SDKOperation.Instrumentation(
