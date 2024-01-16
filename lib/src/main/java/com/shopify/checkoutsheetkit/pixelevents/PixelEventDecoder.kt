@@ -47,11 +47,8 @@ internal class PixelEventDecoder @JvmOverloads constructor(
         }
     }
 
-    @Suppress("CyclomaticComplexMethod")
     private fun decodeStandardEvent(name: String, jsonElement: JsonElement): PixelEvent? {
         return when (StandardPixelsEventType.fromEventName(name)) {
-            StandardPixelsEventType.CART_VIEWED ->
-                decoder.decodeFromJsonElement<CartViewedEvent>(jsonElement)
             StandardPixelsEventType.CHECKOUT_ADDRESS_INFO_SUBMITTED ->
                 decoder.decodeFromJsonElement<CheckoutAddressInfoSubmittedEvent>(jsonElement)
             StandardPixelsEventType.CHECKOUT_COMPLETED ->
@@ -62,20 +59,10 @@ internal class PixelEventDecoder @JvmOverloads constructor(
                 decoder.decodeFromJsonElement<CheckoutShippingInfoSubmittedEvent>(jsonElement)
             StandardPixelsEventType.CHECKOUT_STARTED ->
                 decoder.decodeFromJsonElement<CheckoutStartedEvent>(jsonElement)
-            StandardPixelsEventType.COLLECTION_VIEWED ->
-                decoder.decodeFromJsonElement<CollectionViewedEvent>(jsonElement)
             StandardPixelsEventType.PAGE_VIEWED ->
                 decoder.decodeFromJsonElement<PageViewedEvent>(jsonElement)
             StandardPixelsEventType.PAYMENT_INFO_SUBMITTED ->
                 decoder.decodeFromJsonElement<PaymentInfoSubmittedEvent>(jsonElement)
-            StandardPixelsEventType.PRODUCT_ADDED_TO_CART ->
-                decoder.decodeFromJsonElement<ProductAddedToCartEvent>(jsonElement)
-            StandardPixelsEventType.PRODUCT_REMOVED_FROM_CART ->
-                decoder.decodeFromJsonElement<ProductRemovedFromCartEvent>(jsonElement)
-            StandardPixelsEventType.PRODUCT_VIEWED ->
-                decoder.decodeFromJsonElement<ProductViewedEvent>(jsonElement)
-            StandardPixelsEventType.SEARCH_SUBMITTED ->
-                decoder.decodeFromJsonElement<SearchSubmittedEvent>(jsonElement)
             null -> {
                 log.w("CheckoutBridge", "Unrecognized standard pixel event received '$name'")
                 return null
