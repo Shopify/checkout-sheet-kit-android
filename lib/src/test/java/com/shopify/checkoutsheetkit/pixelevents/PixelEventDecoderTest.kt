@@ -297,7 +297,7 @@ class PixelEventDecoderTest {
 
 private fun String.toWebToSdkEvent(): WebToSdkEvent {
     return WebToSdkEvent(
-        name = "analytics",
+        name = "webPixels",
         body = this,
     )
 }

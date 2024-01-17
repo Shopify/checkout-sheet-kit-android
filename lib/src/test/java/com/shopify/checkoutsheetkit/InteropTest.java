@@ -79,7 +79,7 @@ public class InteropTest {
             "}" +
         "}";
 
-        WebToSdkEvent webEvent = new WebToSdkEvent("analytics", eventString);
+        WebToSdkEvent webEvent = new WebToSdkEvent("webPixels", eventString);
         Json json = Json.Default;
 
         PixelEventDecoder decoder = new PixelEventDecoder(
