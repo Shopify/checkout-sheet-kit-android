@@ -141,23 +141,23 @@ class CheckoutWebViewClientTest {
     }
 
     @Test
-    fun `onPageFinished does not call delegate if view content is empty (for example, a redirect)`() {
+    fun `onPageFinished does not call delegate if the page that has finished loading is the intial cart URL`() {
         val view = spy(viewWithProcessor(activity))
-        doReturn(0).whenever(view).contentHeight
+        view.loadCheckout("https://cart")
 
         val webViewClient = view.CheckoutWebViewClient()
-        webViewClient.onPageFinished(view, "https://anything")
+        webViewClient.onPageFinished(view, "https://cart")
 
         verify(checkoutWebViewEventProcessor, never()).onCheckoutViewLoadComplete()
     }
 
     @Test
-    fun `onPageFinished calls delegate to remove loading spinner if view content not empty`() {
+    fun `onPageFinished calls delegate to remove loading spinner if the page that has finished loading is any other page`() {
         val view = spy(viewWithProcessor(activity))
-        doReturn(1).whenever(view).contentHeight
+        view.loadCheckout("https://cart")
 
         val webViewClient = view.CheckoutWebViewClient()
-        webViewClient.onPageFinished(view, "https://anything")
+        webViewClient.onPageFinished(view, "https://checkout")
 
         verify(checkoutWebViewEventProcessor).onCheckoutViewLoadComplete()
     }

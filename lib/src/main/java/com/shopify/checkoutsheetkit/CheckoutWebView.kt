@@ -74,6 +74,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
     }
 
     private var initLoadTime: Long = -1
+    private var cartUrl: String = ""
 
     init {
         configureWebView()
@@ -124,6 +125,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
 
     fun loadCheckout(url: String) {
         initLoadTime = System.currentTimeMillis()
+        cartUrl = url
         Handler(Looper.getMainLooper()).post {
             loadUrl(url)
         }
@@ -138,7 +140,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
 
         override fun onPageFinished(view: WebView, url: String) {
             super.onPageFinished(view, url)
-            if (view.contentHeight == 0) return
+            if (url == cartUrl) return
 
             loadComplete = true
             val timeToLoad = System.currentTimeMillis() - initLoadTime

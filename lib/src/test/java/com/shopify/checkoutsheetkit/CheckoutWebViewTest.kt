@@ -33,10 +33,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.contains
 import org.mockito.ArgumentMatchers.eq
-import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.spy
 import org.mockito.Mockito.verify
-import org.mockito.kotlin.whenever
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
@@ -97,12 +95,9 @@ class CheckoutWebViewTest {
         val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
 
         val shadow = shadowOf(view)
-        var spy = spy(view)
-        doReturn(1).whenever(spy).contentHeight
+        shadow.webViewClient.onPageFinished(view, "https://anything")
 
-        shadow.webViewClient.onPageFinished(spy, "https://anything")
-
-        spy = spy(view)
+        val spy = spy(view)
         spy.notifyPresented()
 
         verify(spy).evaluateJavascript(
