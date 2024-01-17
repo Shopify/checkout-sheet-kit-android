@@ -80,19 +80,13 @@ public sealed interface PixelEvent {
 }
 
 public enum class StandardPixelsEventType(public val eventName: String) {
-    CART_VIEWED("cart_viewed"),
     CHECKOUT_ADDRESS_INFO_SUBMITTED("checkout_address_info_submitted"),
     CHECKOUT_COMPLETED("checkout_completed"),
     CHECKOUT_CONTACT_INFO_SUBMITTED("checkout_contact_info_submitted"),
     CHECKOUT_SHIPPING_INFO_SUBMITTED("checkout_shipping_info_submitted"),
     CHECKOUT_STARTED("checkout_started"),
-    COLLECTION_VIEWED("collection_viewed"),
     PAGE_VIEWED("page_viewed"),
-    PAYMENT_INFO_SUBMITTED("payment_info_submitted"),
-    PRODUCT_ADDED_TO_CART("product_added_to_cart"),
-    PRODUCT_REMOVED_FROM_CART("product_removed_from_cart"),
-    PRODUCT_VIEWED("product_viewed"),
-    SEARCH_SUBMITTED("search_submitted");
+    PAYMENT_INFO_SUBMITTED("payment_info_submitted");
 
     public companion object {
         public fun fromEventName(eventName: String): StandardPixelsEventType? =
@@ -101,20 +95,6 @@ public enum class StandardPixelsEventType(public val eventName: String) {
             }
     }
 }
-
-/**
- * The `cart_viewed` event logs an instance where a customer visited the cart
- * page
- */
-@Serializable
-public data class CartViewedEvent(
-    public override val id: String? = null,
-    public override val name: String? = null,
-    public override val timestamp: String? = null,
-    public override val type: EventType? = null,
-    public val context: Context? = null,
-    public val data: CartViewedData? = null,
-): PixelEvent
 
 /**
  * A snapshot of various read-only properties of the browser at the time of
@@ -398,51 +378,6 @@ public data class Screen(
     public val width: Double? = null
 )
 
-@Serializable
-public data class CartViewedData(
-    public val cart: Cart? = null
-)
-
-/**
- * A cart represents the merchandise that a customer intends to purchase, and
- * the estimated cost associated with the cart.
- */
-@Serializable
-public data class Cart(
-    /**
-     * The estimated costs that the customer will pay at checkout.
-     */
-    public val cost: CartCost? = null,
-
-    /**
-     * A globally unique identifier.
-     */
-    public val id: String? = null,
-
-    public val lines: List<CartLine>? = null,
-
-    /**
-     * The total number of items in the cart.
-     */
-    public val totalQuantity: Double? = null
-)
-
-/**
- * The estimated costs that the customer will pay at checkout.
- *
- * The costs that the customer will pay at checkout. It uses
- * [`CartBuyerIdentity`](https://shopify.dev/api/storefront/reference/cart/cartb
- * uyeridentity) to determine [international pricing](https://shopify.dev/custom-
- * storefronts/internationalization/international-pricing#create-a-cart).
- */
-@Serializable
-public data class CartCost(
-    /**
-     * The total amount for the customer to pay.
-     */
-    public val totalAmount: MoneyV2? = null
-)
-
 /**
  * A monetary value with currency.
  */
@@ -459,42 +394,6 @@ public data class MoneyV2(
      * standard codes.
      */
     public val currencyCode: String? = null
-)
-
-/**
- * Information about the merchandise in the cart.
- */
-@Serializable
-public data class CartLine(
-    /**
-     * The cost of the merchandise that the customer will pay for at checkout. The
-     * costs are subject to change and changes will be reflected at checkout.
-     */
-    public val cost: CartLineCost? = null,
-
-    /**
-     * The merchandise that the buyer intends to purchase.
-     */
-    public val merchandise: ProductVariant? = null,
-
-    /**
-     * The quantity of the merchandise that the customer intends to purchase.
-     */
-    public val quantity: Double? = null
-)
-
-/**
- * The cost of the merchandise that the customer will pay for at checkout. The
- * costs are subject to change and changes will be reflected at checkout.
- *
- * The cost of the merchandise line that the customer will pay at checkout.
- */
-@Serializable
-public data class CartLineCost(
-    /**
-     * The total cost of the merchandise line.
-     */
-    public val totalAmount: MoneyV2? = null
 )
 
 /**
@@ -1050,45 +949,6 @@ public data class CheckoutStartedData(
 )
 
 /**
- * The `collection_viewed` event logs an instance where a customer visited a
- * product collection index page. This event is available on the online store
- * page
- */
-@Serializable
-public data class CollectionViewedEvent(
-    public override val id: String? = null,
-    public override val name: String? = null,
-    public override val timestamp: String? = null,
-    public override val type: EventType? = null,
-    public val context: Context? = null,
-    public val data: CollectionViewedData? = null,
-): PixelEvent
-
-@Serializable
-public data class CollectionViewedData(
-    public val collection: Collection? = null
-)
-
-/**
- * A collection is a group of products that a shop owner can create to organize
- * them or make their shops easier to browse.
- */
-@Serializable
-public data class Collection(
-    /**
-     * A globally unique identifier.
-     */
-    public val id: String? = null,
-
-    public val productVariants: List<ProductVariant>? = null,
-
-    /**
-     * The collection’s name. Maximum length: 255 characters.
-     */
-    public val title: String? = null
-)
-
-/**
  * The `page_viewed` event logs an instance where a customer visited a page.
  * This event is available on the online store, checkout, and order status pages
  *
@@ -1130,117 +990,6 @@ public data class PaymentInfoSubmittedEvent(
 @Serializable
 public data class PaymentInfoSubmittedData(
     public val checkout: Checkout? = null
-)
-
-/**
- * The `product_added_to_cart` event logs an instance where a customer adds a
- * product to their cart. This event is available on the online store page
- */
-@Serializable
-public data class ProductAddedToCartEvent(
-    public override val id: String? = null,
-    public override val name: String? = null,
-    public override val timestamp: String? = null,
-    public override val type: EventType? = null,
-    public val context: Context? = null,
-    public val data: ProductAddedToCartData? = null,
-): PixelEvent
-
-@Serializable
-public data class ProductAddedToCartData(
-    public val cartLine: CartLine? = null
-)
-
-/**
- * The `product_removed_from_cart` event logs an instance where a customer
- * removes a product from their cart. This event is available on the online
- * store page
- */
-@Serializable
-public data class ProductRemovedFromCartEvent(
-    public override val id: String? = null,
-    public override val name: String? = null,
-    public override val timestamp: String? = null,
-    public override val type: EventType? = null,
-    public val context: Context? = null,
-    public val data: ProductRemovedFromCartData? = null,
-): PixelEvent
-
-@Serializable
-public data class ProductRemovedFromCartData(
-    public val cartLine: CartLine? = null
-)
-
-/**
- * The `product_variant_viewed` event logs an instance where a customer
- * interacts with the product page and views a different variant than the
- * initial `product_viewed` impression. This event is available on the Product
- * page
- */
-@Serializable
-public data class ProductVariantViewed(
-    public override val id: String? = null,
-    public override val name: String? = null,
-    public override val timestamp: String? = null,
-    public override val type: EventType? = null,
-    public val context: Context? = null,
-    public val data: ProductVariantViewedData? = null,
-): PixelEvent
-
-@Serializable
-public data class ProductVariantViewedData(
-    public val productVariant: ProductVariant? = null
-)
-
-/**
- * The `product_viewed` event logs an instance where a customer visited a
- * product details page. This event is available on the product page
- */
-@Serializable
-public data class ProductViewedEvent(
-    public override val id: String? = null,
-    public override val name: String? = null,
-    public override val timestamp: String? = null,
-    public override val type: EventType? = null,
-    public val context: Context? = null,
-    public val data: ProductViewedData? = null,
-): PixelEvent
-
-@Serializable
-public data class ProductViewedData(
-    public val productVariant: ProductVariant? = null
-)
-
-/**
- * The `search_submitted` event logs an instance where a customer performed a
- * search on the storefront. This event is available on the online store page
- */
-@Serializable
-public data class SearchSubmittedEvent(
-    public override val id: String? = null,
-    public override val name: String? = null,
-    public override val timestamp: String? = null,
-    public override val type: EventType? = null,
-    public val context: Context? = null,
-    public val data: SearchSubmittedData? = null,
-): PixelEvent
-
-@Serializable
-public data class SearchSubmittedData(
-    public val searchResult: SearchResult? = null
-)
-
-/**
- * An object that contains the metadata of when a search has been performed.
- */
-@Serializable
-public data class SearchResult(
-    public val productVariants: List<ProductVariant>? = null,
-
-    /**
-     * The search query that was executed
-     */
-    public val query: String? = null
 )
 
 /**
