@@ -25,9 +25,9 @@ package com.shopify.checkoutsheetkit
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 
-import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.ANALYTICS
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.MODAL
+import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.WEB_PIXELS
 import com.shopify.checkoutsheetkit.pixelevents.PixelEventDecoder
 
 import kotlinx.serialization.Serializable
@@ -49,7 +49,7 @@ internal class CheckoutBridge(
     enum class CheckoutWebOperation(val key: String) {
         COMPLETED("completed"),
         MODAL("checkoutBlockingEvent"),
-        ANALYTICS("analytics");
+        WEB_PIXELS("webPixels");
 
         companion object {
             fun fromKey(key: String): CheckoutWebOperation? {
@@ -76,7 +76,7 @@ internal class CheckoutBridge(
                     eventProcessor.onCheckoutViewModalToggled(modalVisible)
                 }
             }
-            ANALYTICS -> {
+            WEB_PIXELS -> {
                 pixelEventDecoder.decode(decodedMsg)?.let { event ->
                     eventProcessor.onWebPixelEvent(event)
                 }
