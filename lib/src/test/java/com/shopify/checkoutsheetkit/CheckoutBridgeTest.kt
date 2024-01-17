@@ -179,10 +179,10 @@ class CheckoutBridgeTest {
     }
 
     @Test
-    fun `calls onPixelEvent when valid analytics event received`() {
+    fun `calls onPixelEvent when valid webPixels event received`() {
         val eventString = """|
             |{
-            |   "name":"analytics",
+            |   "name":"webPixels",
             |   "body": "{
             |       \"name\": \"checkout_started\",
             |       \"event\": {
