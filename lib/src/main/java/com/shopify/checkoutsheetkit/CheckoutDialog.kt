@@ -135,10 +135,7 @@ internal class CheckoutDialog(
 
     private fun hideProgressBar() {
         findViewById<FrameLayout>(R.id.checkoutSdkLoadingSpinner).visibility = GONE
-        findViewById<CheckoutWebViewContainer>(R.id.checkoutSdkContainer).apply {
-            children.firstOrNull()?.scrollY = 0
-            visibility = VISIBLE
-        }
+        findViewById<CheckoutWebViewContainer>(R.id.checkoutSdkContainer).visibility = VISIBLE
     }
 
     @ColorInt
