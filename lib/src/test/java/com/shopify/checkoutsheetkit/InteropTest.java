@@ -7,10 +7,10 @@ import android.app.Activity;
 import androidx.activity.ComponentActivity;
 import androidx.annotation.NonNull;
 
-import com.shopify.checkoutsheetkit.pixelevents.CheckoutStartedData;
 import com.shopify.checkoutsheetkit.pixelevents.CheckoutStartedEvent;
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent;
 import com.shopify.checkoutsheetkit.pixelevents.PixelEventDecoder;
+import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEventData;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -90,7 +90,7 @@ public class InteropTest {
 
         assertThat(event).isInstanceOf(CheckoutStartedEvent.class);
         CheckoutStartedEvent checkoutStartedEvent = (CheckoutStartedEvent) event;
-        CheckoutStartedData checkoutStartedData = checkoutStartedEvent.getData();
+        StandardPixelEventData checkoutStartedData = checkoutStartedEvent.getData();
         String checkoutStartedOrderId = checkoutStartedData.getCheckout().getOrder().getId();
 
         assertThat(checkoutStartedOrderId).isEqualTo(orderId);

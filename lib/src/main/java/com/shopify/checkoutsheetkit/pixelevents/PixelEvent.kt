@@ -79,6 +79,15 @@ public sealed interface PixelEvent {
     public val type: EventType?
 }
 
+public interface StandardPixelEvent: PixelEvent {
+    public val data: StandardPixelEventData?
+}
+
+@Serializable
+public class StandardPixelEventData {
+    public val checkout: Checkout? = null
+}
+
 public enum class StandardPixelsEventType(public val eventName: String) {
     CHECKOUT_ADDRESS_INFO_SUBMITTED("checkout_address_info_submitted"),
     CHECKOUT_COMPLETED("checkout_completed"),
@@ -503,14 +512,9 @@ public data class CheckoutAddressInfoSubmittedEvent(
     public override val name: String? = null,
     public override val timestamp: String? = null,
     public override val type: EventType? = null,
+    public override val data: StandardPixelEventData? = null,
     public val context: Context? = null,
-    public val data: CheckoutAddressInfoSubmittedData? = null,
-): PixelEvent
-
-@Serializable
-public data class CheckoutAddressInfoSubmittedData(
-    public val checkout: Checkout? = null
-)
+): StandardPixelEvent
 
 /**
  * A container for all the information required to add items to checkout and
@@ -867,14 +871,9 @@ public data class CheckoutCompletedEvent(
     public override val name: String? = null,
     public override val timestamp: String? = null,
     public override val type: EventType? = null,
+    public override val data: StandardPixelEventData? = null,
     public val context: Context? = null,
-    public val data: CheckoutCompletedData? = null,
-): PixelEvent
-
-@Serializable
-public data class CheckoutCompletedData(
-    public val checkout: Checkout? = null
-)
+): StandardPixelEvent
 
 /**
  * The `checkout_contact_info_submitted` event logs an instance where a customer
@@ -891,14 +890,9 @@ public data class CheckoutContactInfoSubmittedEvent(
     public override val name: String? = null,
     public override val timestamp: String? = null,
     public override val type: EventType? = null,
+    public override val data: StandardPixelEventData? = null,
     public val context: Context? = null,
-    public val data: CheckoutContactInfoSubmittedData? = null,
-): PixelEvent
-
-@Serializable
-public data class CheckoutContactInfoSubmittedData(
-    public val checkout: Checkout? = null
-)
+): StandardPixelEvent
 
 /**
  * The `checkout_shipping_info_submitted` event logs an instance where the
@@ -912,13 +906,8 @@ public data class CheckoutShippingInfoSubmittedEvent(
     public override val timestamp: String? = null,
     public override val type: EventType? = null,
     public val context: Context? = null,
-    public val data: CheckoutShippingInfoSubmittedData? = null,
-): PixelEvent
-
-@Serializable
-public data class CheckoutShippingInfoSubmittedData(
-    public val checkout: Checkout? = null
-)
+    public override val data: StandardPixelEventData? = null,
+): StandardPixelEvent
 
 /**
  * The `checkout_started` event logs an instance of a customer starting the
@@ -939,14 +928,9 @@ public data class CheckoutStartedEvent(
     public override val name: String? = null,
     public override val timestamp: String? = null,
     public override val type: EventType? = null,
+    public override val data: StandardPixelEventData? = null,
     public val context: Context? = null,
-    public val data: CheckoutStartedData? = null,
-): PixelEvent
-
-@Serializable
-public data class CheckoutStartedData(
-    public val checkout: Checkout? = null
-)
+): StandardPixelEvent
 
 /**
  * The `page_viewed` event logs an instance where a customer visited a page.
@@ -962,12 +946,10 @@ public data class PageViewedEvent(
     public override val name: String? = null,
     public override val timestamp: String? = null,
     public override val type: EventType? = null,
+    // Data will be null for this event, page viewed can be obtained via the context attribute
+    public override val data: StandardPixelEventData? = null,
     public val context: Context? = null,
-    public val data: PageViewedData? = null,
-): PixelEvent
-
-// The page viewed can be obtained via the context attribute
-public typealias PageViewedData = Unit
+): StandardPixelEvent
 
 /**
  * The `payment_info_submitted` event logs an instance of a customer submitting
@@ -983,21 +965,16 @@ public data class PaymentInfoSubmittedEvent(
     public override val name: String? = null,
     public override val timestamp: String? = null,
     public override val type: EventType? = null,
+    public override val data: StandardPixelEventData? = null,
     public val context: Context? = null,
-    public val data: PaymentInfoSubmittedData? = null,
-): PixelEvent
-
-@Serializable
-public data class PaymentInfoSubmittedData(
-    public val checkout: Checkout? = null
-)
+): StandardPixelEvent
 
 /**
  * This event represents any custom events emitted by partners or merchants via
  * the `publish` method
  */
 @Serializable
-public data class CustomEvent(
+public data class CustomPixelEvent(
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,

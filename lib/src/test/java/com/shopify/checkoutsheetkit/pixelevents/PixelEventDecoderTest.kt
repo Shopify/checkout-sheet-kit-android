@@ -141,13 +141,13 @@ class PixelEventDecoderTest {
 
         val result = decoder.decode(event)
 
-        assertThat(result).isInstanceOf(CustomEvent::class.java)
+        assertThat(result).isInstanceOf(CustomPixelEvent::class.java)
 
-        val customEvent = result as CustomEvent
-        assertThat(customEvent.name).isEqualTo("my_custom_event")
-        assertThat(customEvent.timestamp).isEqualTo("2023-12-20T16:39:23+0000")
-        assertThat(customEvent.id).isEqualTo("sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B")
-        val customData = Json.decodeFromString<ExampleClientDefinedType>(customEvent.customData!!)
+        val customPixelEvent = result as CustomPixelEvent
+        assertThat(customPixelEvent.name).isEqualTo("my_custom_event")
+        assertThat(customPixelEvent.timestamp).isEqualTo("2023-12-20T16:39:23+0000")
+        assertThat(customPixelEvent.id).isEqualTo("sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B")
+        val customData = Json.decodeFromString<ExampleClientDefinedType>(customPixelEvent.customData!!)
         assertThat(customData.a.b.c).isEqualTo("d")
 
         verifyNoInteractions(logWrapper)

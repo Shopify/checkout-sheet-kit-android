@@ -70,7 +70,7 @@ internal class PixelEventDecoder @JvmOverloads constructor(
         }
     }
 
-    private fun decodeCustomEvent(jsonElement: JsonElement): CustomEvent {
-        return decoder.decodeFromJsonElement<CustomEvent>(jsonElement)
+    private fun decodeCustomEvent(jsonElement: JsonElement): CustomPixelEvent {
+        return decoder.decodeFromJsonElement<CustomPixelEvent>(jsonElement)
     }
 }
