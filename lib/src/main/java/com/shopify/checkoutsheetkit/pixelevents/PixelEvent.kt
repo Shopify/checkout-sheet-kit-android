@@ -84,9 +84,9 @@ public interface StandardPixelEvent: PixelEvent {
 }
 
 @Serializable
-public class StandardPixelEventData {
+public data class StandardPixelEventData(
     public val checkout: Checkout? = null
-}
+)
 
 public enum class StandardPixelsEventType(public val eventName: String) {
     CHECKOUT_ADDRESS_INFO_SUBMITTED("checkout_address_info_submitted"),
