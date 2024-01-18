@@ -34,8 +34,6 @@ import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.contains
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito.spy
-import org.mockito.Mockito.timeout
-import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner

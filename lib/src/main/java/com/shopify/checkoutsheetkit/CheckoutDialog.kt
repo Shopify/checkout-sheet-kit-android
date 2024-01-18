@@ -43,8 +43,6 @@ import android.widget.ProgressBar
 import androidx.activity.ComponentActivity
 import androidx.annotation.ColorInt
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.ContextCompat.getColor
-import androidx.core.view.children
 
 internal class CheckoutDialog(
     private val checkoutUrl: String,
