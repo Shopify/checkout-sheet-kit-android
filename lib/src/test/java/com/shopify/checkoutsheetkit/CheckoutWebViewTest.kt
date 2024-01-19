@@ -38,6 +38,7 @@ import org.mockito.Mockito.verify
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
+import org.robolectric.shadows.ShadowLooper
 
 @RunWith(RobolectricTestRunner::class)
 class CheckoutWebViewTest {
@@ -67,6 +68,30 @@ class CheckoutWebViewTest {
         assertThat(shadowOf(view).backgroundColor).isEqualTo(Color.TRANSPARENT)
         assertThat(shadowOf(view).getJavascriptInterface("android").javaClass)
             .isEqualTo(CheckoutBridge::class.java)
+    }
+
+    @Test
+    fun `sends prefetch header for preloads`() {
+        withPreloadingEnabled {
+            val isPreload = true
+            val view = CheckoutWebView.cacheableCheckoutView(URL, activity, isPreload)
+
+            val shadow = shadowOf(view)
+            ShadowLooper.shadowMainLooper().runToEndOfTasks()
+
+            assertThat(shadow.lastAdditionalHttpHeaders.getOrDefault("Sec-Purpose", "")).isEqualTo("prefetch")
+        }
+    }
+
+    @Test
+    fun `does not send prefetch header for preloads`() {
+        val isPreload = false
+        val view = CheckoutWebView.cacheableCheckoutView(URL, activity, isPreload)
+
+        val shadow = shadowOf(view)
+        ShadowLooper.shadowMainLooper().runToEndOfTasks()
+
+        assertThat(shadow.lastAdditionalHttpHeaders.getOrDefault("Sec-Purpose", "")).isEqualTo("")
     }
 
     @Test

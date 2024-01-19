@@ -41,6 +41,8 @@ import org.mockito.kotlin.whenever
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.shadows.ShadowLooper
+import kotlin.time.Duration.Companion.minutes
 
 @RunWith(RobolectricTestRunner::class)
 class CheckoutWebViewClientTest {
@@ -98,31 +100,37 @@ class CheckoutWebViewClientTest {
     }
 
     @Test
-    fun `should call event processor on web resource load error for main frame`() {
+    fun `should call event processor and clear cache on web resource load error for main frame`() {
         val loadedUri = Uri.parse("https://checkout-sdk.myshopify.com")
         val mockRequest = mockWebRequest(loadedUri, true)
         val mockError = mockWebResourceError()
 
         val view = viewWithProcessor(activity)
+        CheckoutWebView.cacheEntry = view.toCacheEntry(loadedUri.toString())
         val webViewClient = view.CheckoutWebViewClient()
 
         webViewClient.onReceivedError(view, mockRequest, mockError)
+        ShadowLooper.shadowMainLooper().runToEndOfTasks()
 
         verify(mockEventProcessor).onCheckoutFailed(argThat { this is CheckoutExpiredException })
+        assertThat(CheckoutWebView.cacheEntry).isNull()
     }
 
     @Test
-    fun `should call event processor on web resource load http error for main frame`() {
+    fun `should call event processor and clear cache on web resource load http error for main frame`() {
         val loadedUri = Uri.parse("https://checkout-sdk.myshopify.com")
         val mockRequest = mockWebRequest(loadedUri, true)
         val mockResponse = mockWebResourceResponse()
 
         val view = viewWithProcessor(activity)
+        CheckoutWebView.cacheEntry = view.toCacheEntry(loadedUri.toString())
         val webViewClient = view.CheckoutWebViewClient()
 
         webViewClient.onReceivedHttpError(view, mockRequest, mockResponse)
+        ShadowLooper.shadowMainLooper().runToEndOfTasks()
 
         verify(mockEventProcessor).onCheckoutFailed(argThat { this is CheckoutExpiredException })
+        assertThat(CheckoutWebView.cacheEntry).isNull()
     }
 
     @Test
@@ -229,5 +237,14 @@ class CheckoutWebViewClientTest {
         val container = CheckoutWebViewContainer(activity)
         container.addView(this)
         return this
+    }
+
+    private fun CheckoutWebView.toCacheEntry(key: String): CheckoutWebView.CheckoutWebViewCacheEntry {
+        return CheckoutWebView.CheckoutWebViewCacheEntry(
+            key = key,
+            view = this,
+            clock = CheckoutWebView.CheckoutWebViewCacheClock(),
+            timeout = 5.minutes.inWholeMilliseconds,
+        )
     }
 }
