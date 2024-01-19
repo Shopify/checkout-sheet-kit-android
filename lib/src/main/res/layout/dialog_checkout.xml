@@ -8,6 +8,8 @@
         android:id="@+id/checkoutSdkHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:contentInsetStart="22dp"
+        android:paddingEnd="4dp"
         android:minHeight="?attr/actionBarSize"
         app:title="@string/checkout_web_view_title"
         android:theme="@style/Theme.AppCompat.DayNight"
