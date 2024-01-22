@@ -83,7 +83,11 @@ public object ShopifyCheckoutSheetKit {
     public fun preload(checkoutUrl: String, context: ComponentActivity) {
         if (!configuration.preloading.enabled) return
         CheckoutWebView.clearCache()
-        CheckoutWebView.cacheableCheckoutView(checkoutUrl, context)
+        CheckoutWebView.cacheableCheckoutView(
+            url = checkoutUrl,
+            activity = context,
+            isPreload = true,
+        )
     }
 
     /**
