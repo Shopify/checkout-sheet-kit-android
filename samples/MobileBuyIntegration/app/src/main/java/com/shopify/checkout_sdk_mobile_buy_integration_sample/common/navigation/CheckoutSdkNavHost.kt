@@ -34,9 +34,6 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.analytics.Analytics
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.analytics.AnalyticsEvent
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.analytics.FirstCustomEventData
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.analytics.SecondCustomEventData
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.analytics.toAnalyticsEvent
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.product.ProductView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsView
@@ -49,7 +46,6 @@ import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
 
 sealed class Screen(val route: String) {
     object Product : Screen("product")
