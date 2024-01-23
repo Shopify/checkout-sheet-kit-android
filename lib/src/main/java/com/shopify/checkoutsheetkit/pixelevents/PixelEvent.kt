@@ -79,31 +79,20 @@ public sealed interface PixelEvent {
     public val type: EventType?
 }
 
-public interface StandardPixelEvent: PixelEvent {
-    public val data: StandardPixelEventData?
-}
+@Serializable
+public data class StandardPixelEvent(
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val type: EventType? = null,
+    public val context: Context? = null,
+    public val data: StandardPixelEventData? = null,
+): PixelEvent
 
 @Serializable
 public data class StandardPixelEventData(
     public val checkout: Checkout? = null
 )
-
-public enum class StandardPixelsEventType(public val eventName: String) {
-    CHECKOUT_ADDRESS_INFO_SUBMITTED("checkout_address_info_submitted"),
-    CHECKOUT_COMPLETED("checkout_completed"),
-    CHECKOUT_CONTACT_INFO_SUBMITTED("checkout_contact_info_submitted"),
-    CHECKOUT_SHIPPING_INFO_SUBMITTED("checkout_shipping_info_submitted"),
-    CHECKOUT_STARTED("checkout_started"),
-    PAGE_VIEWED("page_viewed"),
-    PAYMENT_INFO_SUBMITTED("payment_info_submitted");
-
-    public companion object {
-        public fun fromEventName(eventName: String): StandardPixelsEventType? =
-            StandardPixelsEventType.values().firstOrNull {
-                it.eventName == eventName
-            }
-    }
-}
 
 /**
  * A snapshot of various read-only properties of the browser at the time of
@@ -502,21 +491,6 @@ public data class Product(
 )
 
 /**
- * The `checkout_address_info_submitted` event logs an instance of a customer
- * submitting their mailing address. This event is only available in checkouts
- * where checkout extensibility for customizations is enabled
- */
-@Serializable
-public data class CheckoutAddressInfoSubmittedEvent(
-    public override val id: String? = null,
-    public override val name: String? = null,
-    public override val timestamp: String? = null,
-    public override val type: EventType? = null,
-    public override val data: StandardPixelEventData? = null,
-    public val context: Context? = null,
-): StandardPixelEvent
-
-/**
  * A container for all the information required to add items to checkout and
  * pay.
  */
@@ -857,117 +831,6 @@ public data class Transaction(
      */
     public val gateway: String? = null
 )
-
-/**
- * The `checkout_completed` event logs when a visitor completes a purchase. This
- * event is available on the order status and checkout pages
- *
- * The `checkout_completed` event logs when a visitor completes a purchase.
- * This event is available on the order status and checkout pages
- */
-@Serializable
-public data class CheckoutCompletedEvent(
-    public override val id: String? = null,
-    public override val name: String? = null,
-    public override val timestamp: String? = null,
-    public override val type: EventType? = null,
-    public override val data: StandardPixelEventData? = null,
-    public val context: Context? = null,
-): StandardPixelEvent
-
-/**
- * The `checkout_contact_info_submitted` event logs an instance where a customer
- * submits a checkout form. This event is only available in checkouts where
- * checkout extensibility for customizations is enabled
- *
- * The `checkout_contact_info_submitted` event logs an instance where a
- * customer submits a checkout form. This event is only available in checkouts
- * where checkout extensibility for customizations is enabled
- */
-@Serializable
-public data class CheckoutContactInfoSubmittedEvent(
-    public override val id: String? = null,
-    public override val name: String? = null,
-    public override val timestamp: String? = null,
-    public override val type: EventType? = null,
-    public override val data: StandardPixelEventData? = null,
-    public val context: Context? = null,
-): StandardPixelEvent
-
-/**
- * The `checkout_shipping_info_submitted` event logs an instance where the
- * customer chooses a shipping rate. This event is only available in checkouts
- * where checkout extensibility for customizations is enabled
- */
-@Serializable
-public data class CheckoutShippingInfoSubmittedEvent(
-    public override val id: String? = null,
-    public override val name: String? = null,
-    public override val timestamp: String? = null,
-    public override val type: EventType? = null,
-    public val context: Context? = null,
-    public override val data: StandardPixelEventData? = null,
-): StandardPixelEvent
-
-/**
- * The `checkout_started` event logs an instance of a customer starting the
- * checkout process. This event is available on the checkout page. For checkout
- * extensibility, this event is triggered every time a customer enters checkout.
- * For non-checkout extensible shops, this event is only triggered the first
- * time a customer enters checkout.
- *
- * The `checkout_started` event logs an instance of a customer starting
- * the checkout process. This event is available on the checkout page. For
- * checkout extensibility, this event is triggered every time a customer
- * enters checkout. For non-checkout extensible shops, this event is only
- * triggered the first time a customer enters checkout.
- */
-@Serializable
-public data class CheckoutStartedEvent(
-    public override val id: String? = null,
-    public override val name: String? = null,
-    public override val timestamp: String? = null,
-    public override val type: EventType? = null,
-    public override val data: StandardPixelEventData? = null,
-    public val context: Context? = null,
-): StandardPixelEvent
-
-/**
- * The `page_viewed` event logs an instance where a customer visited a page.
- * This event is available on the online store, checkout, and order status pages
- *
- * The `page_viewed` event logs an instance where a customer visited a page.
- * This event is available on the online store, checkout, and order status
- * pages
- */
-@Serializable
-public data class PageViewedEvent(
-    public override val id: String? = null,
-    public override val name: String? = null,
-    public override val timestamp: String? = null,
-    public override val type: EventType? = null,
-    // Data will be null for this event, page viewed can be obtained via the context attribute
-    public override val data: StandardPixelEventData? = null,
-    public val context: Context? = null,
-): StandardPixelEvent
-
-/**
- * The `payment_info_submitted` event logs an instance of a customer submitting
- * their payment information. This event is available on the checkout page
- *
- * The `payment_info_submitted` event logs an instance of a customer
- * submitting their payment information. This event is available on the
- * checkout page
- */
-@Serializable
-public data class PaymentInfoSubmittedEvent(
-    public override val id: String? = null,
-    public override val name: String? = null,
-    public override val timestamp: String? = null,
-    public override val type: EventType? = null,
-    public override val data: StandardPixelEventData? = null,
-    public val context: Context? = null,
-): StandardPixelEvent
 
 /**
  * This event represents any custom events emitted by partners or merchants via
