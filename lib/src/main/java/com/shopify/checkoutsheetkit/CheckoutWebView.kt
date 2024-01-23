@@ -122,10 +122,11 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         removeJavascriptInterface(JAVASCRIPT_INTERFACE_NAME)
     }
 
-    fun loadCheckout(url: String) {
+    fun loadCheckout(url: String, isPreload: Boolean) {
         initLoadTime = System.currentTimeMillis()
         Handler(Looper.getMainLooper()).post {
-            loadUrl(url)
+            val headers = if (isPreload) mapOf("Sec-Purpose" to "prefetch") else emptyMap()
+            loadUrl(url, headers)
         }
     }
 
@@ -235,6 +236,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             errorDescription: String
         ) {
             if (request?.isForMainFrame == true) {
+                clearCache()
                 val exception = when (errorCode) {
                     HTTP_NOT_FOUND -> CheckoutLiquidNotMigratedException()
                     HTTP_GONE -> CheckoutExpiredException()
@@ -262,7 +264,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         private const val OPEN_EXTERNALLY_PARAM = "open_externally"
         private const val JAVASCRIPT_INTERFACE_NAME = "android"
 
-        private var cacheEntry: CheckoutWebViewCacheEntry? = null
+        internal var cacheEntry: CheckoutWebViewCacheEntry? = null
         internal var cacheClock = CheckoutWebViewCacheClock()
 
         fun clearCache(newEntry: CheckoutWebViewCacheEntry? = null) = cacheEntry?.let {
@@ -275,12 +277,13 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         fun cacheableCheckoutView(
             url: String,
             activity: ComponentActivity,
+            isPreload: Boolean = false,
         ): CheckoutWebView {
             var view: CheckoutWebView? = null
             val countDownLatch = CountDownLatch(1)
 
             activity.runOnUiThread {
-                view = fetchView(url, activity)
+                view = fetchView(url, activity, isPreload)
                 countDownLatch.countDown()
             }
 
@@ -292,11 +295,12 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         private fun fetchView(
             url: String,
             activity: ComponentActivity,
+            isPreload: Boolean,
         ): CheckoutWebView {
             val preloadingEnabled = ShopifyCheckoutSheetKit.configuration.preloading.enabled
             if (!preloadingEnabled || cacheEntry?.isValid(url) != true) {
                 val view = CheckoutWebView(activity as Context).apply {
-                    loadCheckout(url)
+                    loadCheckout(url, isPreload)
                 }
 
                 setCacheEntry(
