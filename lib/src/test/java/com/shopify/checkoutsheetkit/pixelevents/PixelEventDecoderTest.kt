@@ -64,9 +64,9 @@ class PixelEventDecoderTest {
 
         val result = decoder.decode(event)
 
-        assertThat(result).isInstanceOf(CheckoutStartedEvent::class.java)
+        assertThat(result).isInstanceOf(StandardPixelEvent::class.java)
 
-        val checkoutStartedEvent = result as CheckoutStartedEvent
+        val checkoutStartedEvent = result as StandardPixelEvent
         assertThat(checkoutStartedEvent.name).isEqualTo("checkout_started")
         assertThat(checkoutStartedEvent.timestamp).isEqualTo("2023-12-20T16:39:23+0000")
         assertThat(checkoutStartedEvent.id).isEqualTo("sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B")
@@ -104,9 +104,9 @@ class PixelEventDecoderTest {
 
         val result = decoder.decode(event)
 
-        assertThat(result).isInstanceOf(CheckoutCompletedEvent::class.java)
+        assertThat(result).isInstanceOf(StandardPixelEvent::class.java)
 
-        val checkoutStarted = result as CheckoutCompletedEvent
+        val checkoutStarted = result as StandardPixelEvent
         assertThat(checkoutStarted.name).isEqualTo("checkout_completed")
         assertThat(checkoutStarted.timestamp).isEqualTo("2023-12-20T16:39:23+0000")
         assertThat(checkoutStarted.id).isEqualTo("sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B")
@@ -141,13 +141,13 @@ class PixelEventDecoderTest {
 
         val result = decoder.decode(event)
 
-        assertThat(result).isInstanceOf(CustomEvent::class.java)
+        assertThat(result).isInstanceOf(CustomPixelEvent::class.java)
 
-        val customEvent = result as CustomEvent
-        assertThat(customEvent.name).isEqualTo("my_custom_event")
-        assertThat(customEvent.timestamp).isEqualTo("2023-12-20T16:39:23+0000")
-        assertThat(customEvent.id).isEqualTo("sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B")
-        val customData = Json.decodeFromString<ExampleClientDefinedType>(customEvent.customData!!)
+        val customPixelEvent = result as CustomPixelEvent
+        assertThat(customPixelEvent.name).isEqualTo("my_custom_event")
+        assertThat(customPixelEvent.timestamp).isEqualTo("2023-12-20T16:39:23+0000")
+        assertThat(customPixelEvent.id).isEqualTo("sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B")
+        val customData = Json.decodeFromString<ExampleClientDefinedType>(customPixelEvent.customData!!)
         assertThat(customData.a.b.c).isEqualTo("d")
 
         verifyNoInteractions(logWrapper)
@@ -228,9 +228,9 @@ class PixelEventDecoderTest {
 
         val result = decoder.decode(event)
 
-        assertThat(result).isInstanceOf(PageViewedEvent::class.java)
+        assertThat(result).isInstanceOf(StandardPixelEvent::class.java)
 
-        val pageViewedEvent = result as PageViewedEvent
+        val pageViewedEvent = result as StandardPixelEvent
         assertThat(pageViewedEvent.name).isEqualTo("page_viewed")
         assertThat(pageViewedEvent.timestamp).isEqualTo("2023-12-20T16:39:23+0000")
         assertThat(pageViewedEvent.id).isEqualTo("sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B")
@@ -239,37 +239,6 @@ class PixelEventDecoderTest {
             .isEqualTo("https://test-store.myshopify.com/checkouts/cn/Z2NwLXVzLWNlbnRyYWwxOjAxSEs0U1BUSlozNDhFME5KTlM2MVhaOVE3?ew_m=f")
 
         verifyNoInteractions(logWrapper)
-    }
-
-    @Test
-    fun `should return null for a standard event we don't know about`() {
-        val event = """|
-            |{
-            |    "name": "new_standard_event",
-            |    "event": {
-            |        "type": "standard",
-            |        "id": "sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B",
-            |        "name": "new_standard_event",
-            |        "timestamp": "2023-12-20T16:39:23+0000",
-            |        "data": {
-            |            "a": {
-            |                "b": {
-            |                    "c": "d"
-            |                }
-            |            }
-            |        }
-            |    }
-            |}
-        |""".trimMargin()
-            .toWebToSdkEvent()
-
-        val result = decoder.decode(event)
-
-        assertThat(result).isNull()
-        verify(logWrapper).w(
-            "CheckoutBridge",
-            "Unrecognized standard pixel event received 'new_standard_event'"
-        )
     }
 
     @Test

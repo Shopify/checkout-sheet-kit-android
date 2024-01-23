@@ -33,12 +33,16 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.AppBarState
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.analytics.Analytics
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.analytics.toAnalyticsEvent
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.product.ProductView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsViewModel
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
+import com.shopify.checkoutsheetkit.pixelevents.CustomPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
+import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -105,7 +109,15 @@ fun CheckoutSdkNavHost(
                     }
 
                     override fun onWebPixelEvent(event: PixelEvent) {
-                        // handle pixel events (e.g. transform, augment, and process)
+                        // handle pixel events (e.g. transform, augment, and process), e.g.
+                        val analyticsEvent = when (event) {
+                            is StandardPixelEvent -> event.toAnalyticsEvent()
+                            is CustomPixelEvent -> event.toAnalyticsEvent()
+                        }
+
+                        analyticsEvent?.let {
+                            Analytics.record(analyticsEvent)
+                        }
                     }
                 }
             )

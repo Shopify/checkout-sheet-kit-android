@@ -25,7 +25,6 @@ package com.shopify.checkoutsheetkit.pixelevents
 import com.shopify.checkoutsheetkit.LogWrapper
 import com.shopify.checkoutsheetkit.WebToSdkEvent
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonPrimitive
 
@@ -37,40 +36,13 @@ internal class PixelEventDecoder @JvmOverloads constructor(
         return try {
             val eventWrapper = decoder.decodeFromString<PixelEventWrapper>(decodedMsg.body)
             when (EventType.fromTypeName(eventWrapper.event["type"]?.jsonPrimitive?.content)) {
-                EventType.STANDARD -> decodeStandardEvent(eventWrapper.name, eventWrapper.event)
-                EventType.CUSTOM -> decodeCustomEvent(eventWrapper.event)
+                EventType.STANDARD -> decoder.decodeFromJsonElement<StandardPixelEvent>(eventWrapper.event)
+                EventType.CUSTOM -> decoder.decodeFromJsonElement<CustomPixelEvent>(eventWrapper.event)
                 else -> return null
             }
         } catch (e: Exception) {
             log.e("CheckoutBridge", "Failed to decode pixel event", e)
             null
         }
-    }
-
-    private fun decodeStandardEvent(name: String, jsonElement: JsonElement): PixelEvent? {
-        return when (StandardPixelsEventType.fromEventName(name)) {
-            StandardPixelsEventType.CHECKOUT_ADDRESS_INFO_SUBMITTED ->
-                decoder.decodeFromJsonElement<CheckoutAddressInfoSubmittedEvent>(jsonElement)
-            StandardPixelsEventType.CHECKOUT_COMPLETED ->
-                decoder.decodeFromJsonElement<CheckoutCompletedEvent>(jsonElement)
-            StandardPixelsEventType.CHECKOUT_CONTACT_INFO_SUBMITTED ->
-                decoder.decodeFromJsonElement<CheckoutContactInfoSubmittedEvent>(jsonElement)
-            StandardPixelsEventType.CHECKOUT_SHIPPING_INFO_SUBMITTED ->
-                decoder.decodeFromJsonElement<CheckoutShippingInfoSubmittedEvent>(jsonElement)
-            StandardPixelsEventType.CHECKOUT_STARTED ->
-                decoder.decodeFromJsonElement<CheckoutStartedEvent>(jsonElement)
-            StandardPixelsEventType.PAGE_VIEWED ->
-                decoder.decodeFromJsonElement<PageViewedEvent>(jsonElement)
-            StandardPixelsEventType.PAYMENT_INFO_SUBMITTED ->
-                decoder.decodeFromJsonElement<PaymentInfoSubmittedEvent>(jsonElement)
-            null -> {
-                log.w("CheckoutBridge", "Unrecognized standard pixel event received '$name'")
-                return null
-            }
-        }
-    }
-
-    private fun decodeCustomEvent(jsonElement: JsonElement): CustomEvent {
-        return decoder.decodeFromJsonElement<CustomEvent>(jsonElement)
     }
 }
