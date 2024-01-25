@@ -121,7 +121,7 @@ class CheckoutDialogTest {
     }
 
     @Test
-    fun `cancel calls onCheckoutCanceled if no error is present`() {
+    fun `cancel calls onCheckoutCanceled if cancel is called`() {
         val mockEventProcessor = mock<NoopEventProcessor>()
         ShopifyCheckoutSheetKit.present("https://shopify.com", activity, mockEventProcessor)
 
@@ -134,7 +134,7 @@ class CheckoutDialogTest {
     }
 
     @Test
-    fun `cancel calls onCheckoutFailed if error is present`() {
+    fun `cancel calls onCheckoutFailed if closeCheckoutDialogWithError is called`() {
         val mockEventProcessor = mock<NoopEventProcessor>()
         ShopifyCheckoutSheetKit.present("https://shopify.com", activity, mockEventProcessor)
 
@@ -150,7 +150,7 @@ class CheckoutDialogTest {
     }
 
     @Test
-    fun `cancel menu option calls onCheckoutCanceled if no error is present`() {
+    fun `cancel menu option calls onCheckoutCanceled if close menu item is clicked`() {
         val mockEventProcessor = mock<NoopEventProcessor>()
         ShopifyCheckoutSheetKit.present("https://shopify.com", activity, mockEventProcessor)
 
