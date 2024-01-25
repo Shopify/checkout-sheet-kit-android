@@ -33,6 +33,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.argThat
+import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.spy
@@ -112,25 +113,27 @@ class CheckoutWebViewClientTest {
         webViewClient.onReceivedError(view, mockRequest, mockError)
         ShadowLooper.shadowMainLooper().runToEndOfTasks()
 
-        verify(mockEventProcessor).onCheckoutFailed(argThat { this is CheckoutExpiredException })
-        assertThat(CheckoutWebView.cacheEntry).isNull()
+        val captor = argumentCaptor<CheckoutException>()
+        verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
+        assertThat(captor.firstValue).isInstanceOf(CheckoutExpiredException::class.java)
     }
 
     @Test
-    fun `should call event processor and clear cache on web resource load http error for main frame`() {
+    fun `should call event processor calls onCheckoutViewFailedWithError on http error for main frame`() {
         val loadedUri = Uri.parse("https://checkout-sdk.myshopify.com")
         val mockRequest = mockWebRequest(loadedUri, true)
-        val mockResponse = mockWebResourceResponse()
+        val checkoutExpiredResponse = mockWebResourceResponse()
 
         val view = viewWithProcessor(activity)
         CheckoutWebView.cacheEntry = view.toCacheEntry(loadedUri.toString())
         val webViewClient = view.CheckoutWebViewClient()
 
-        webViewClient.onReceivedHttpError(view, mockRequest, mockResponse)
+        webViewClient.onReceivedHttpError(view, mockRequest, checkoutExpiredResponse)
         ShadowLooper.shadowMainLooper().runToEndOfTasks()
 
-        verify(mockEventProcessor).onCheckoutFailed(argThat { this is CheckoutExpiredException })
-        assertThat(CheckoutWebView.cacheEntry).isNull()
+        val captor = argumentCaptor<CheckoutException>()
+        verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
+        assertThat(captor.firstValue).isInstanceOf(CheckoutExpiredException::class.java)
     }
 
     @Test

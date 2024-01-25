@@ -236,7 +236,6 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             errorDescription: String
         ) {
             if (request?.isForMainFrame == true) {
-                clearCache()
                 val exception = when (errorCode) {
                     HTTP_NOT_FOUND -> CheckoutLiquidNotMigratedException()
                     HTTP_GONE -> CheckoutExpiredException()
