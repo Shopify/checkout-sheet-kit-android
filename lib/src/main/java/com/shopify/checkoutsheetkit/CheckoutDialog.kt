@@ -50,8 +50,6 @@ internal class CheckoutDialog(
     context: Context,
 ) : Dialog(context) {
 
-    private var error: CheckoutException? = null
-
     fun start(context: ComponentActivity) {
         setContentView(R.layout.dialog_checkout)
         window?.setLayout(MATCH_PARENT, WRAP_CONTENT)
@@ -107,10 +105,9 @@ internal class CheckoutDialog(
             }
         }.addView(checkoutWebView)
 
-        setOnCancelListener {
-            if (error != null) { checkoutEventProcessor.onCheckoutFailed(error!!) }
-            else { checkoutEventProcessor.onCheckoutCanceled() }
+        setOnCancelListener { checkoutEventProcessor.onCheckoutCanceled() }
 
+        setOnDismissListener {
             checkoutWebView.parent?.let {
                 (checkoutWebView.parent as ViewGroup).removeView(checkoutWebView)
             }
@@ -141,8 +138,8 @@ internal class CheckoutDialog(
     }
 
     internal fun closeCheckoutDialogWithError(error: CheckoutException) {
-        this.error = error
-        cancel()
+        checkoutEventProcessor.onCheckoutFailed(error)
+        dismiss()
     }
 
     @ColorInt
