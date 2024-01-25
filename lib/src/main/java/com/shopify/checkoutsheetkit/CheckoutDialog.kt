@@ -108,8 +108,8 @@ internal class CheckoutDialog(
         }.addView(checkoutWebView)
 
         setOnCancelListener {
-            error?.let { checkoutEventProcessor.onCheckoutFailed(it) }
-                ?: run { checkoutEventProcessor.onCheckoutCanceled() }
+            if (error != null) { checkoutEventProcessor.onCheckoutFailed(error!!) }
+            else { checkoutEventProcessor.onCheckoutCanceled() }
 
             checkoutWebView.parent?.let {
                 (checkoutWebView.parent as ViewGroup).removeView(checkoutWebView)
