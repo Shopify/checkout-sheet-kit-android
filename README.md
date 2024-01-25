@@ -205,6 +205,7 @@ val processor = object : WebEventProcessor {
 
     override fun onCheckoutCanceled() {
         // Called when the checkout was canceled by the buyer.
+        // Note: this is also called when checkout is closed after a successful purchase
     }
 
     override fun onCheckoutFailed(error: CheckoutException) {

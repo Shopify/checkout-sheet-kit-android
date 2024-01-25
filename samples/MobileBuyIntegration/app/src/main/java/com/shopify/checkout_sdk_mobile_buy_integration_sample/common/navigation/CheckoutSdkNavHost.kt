@@ -22,6 +22,7 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
@@ -30,7 +31,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.AppBarState
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.analytics.Analytics
@@ -72,6 +72,17 @@ fun CheckoutSdkNavHost(
     settingsViewModel: SettingsViewModel,
     setAppBarState: (AppBarState) -> Unit,
 ) {
+
+    fun showToast(context: Context, text: String) {
+        GlobalScope.launch(Dispatchers.Main) {
+            Toast.makeText(
+                context,
+                text,
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -88,6 +99,7 @@ fun CheckoutSdkNavHost(
                 setAppBarState = setAppBarState,
                 checkoutEventProcessor = object : DefaultCheckoutEventProcessor(activity) {
                     override fun onCheckoutCompleted() {
+                        showToast(activity, "Checkout completed")
                         cartViewModel.clearCart()
                         GlobalScope.launch(Dispatchers.Main) {
                             navController.popBackStack(Screen.Product.route, false)
@@ -95,17 +107,12 @@ fun CheckoutSdkNavHost(
                     }
 
                     override fun onCheckoutFailed(error: CheckoutException) {
-                        GlobalScope.launch(Dispatchers.Main) {
-                            Toast.makeText(
-                                activity,
-                                activity.getText(R.string.checkout_error),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
+                        showToast(activity, "Checkout failed with error ${error.message}")
                     }
 
                     override fun onCheckoutCanceled() {
                         // optionally respond to checkout being canceled/closed
+                        showToast(activity, "Checkout canceled")
                     }
 
                     override fun onWebPixelEvent(event: PixelEvent) {
