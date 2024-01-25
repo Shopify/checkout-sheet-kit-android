@@ -35,6 +35,11 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
+import org.mockito.kotlin.timeout
+import org.mockito.kotlin.verify
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows
@@ -113,6 +118,51 @@ class CheckoutDialogTest {
             val postCancelView = CheckoutWebView.cacheableCheckoutView(url, activity)
             assertThat(preCancelView).isNotEqualTo(postCancelView)
         }
+    }
+
+    @Test
+    fun `cancel calls onCheckoutCanceled if cancel is called`() {
+        val mockEventProcessor = mock<NoopEventProcessor>()
+        ShopifyCheckoutSheetKit.present("https://shopify.com", activity, mockEventProcessor)
+
+        val dialog = ShadowDialog.getLatestDialog()
+        dialog.cancel()
+        Shadows.shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+
+        verify(mockEventProcessor).onCheckoutCanceled()
+        verify(mockEventProcessor, never()).onCheckoutFailed(any())
+    }
+
+    @Test
+    fun `cancel calls onCheckoutFailed if closeCheckoutDialogWithError is called`() {
+        val mockEventProcessor = mock<NoopEventProcessor>()
+        ShopifyCheckoutSheetKit.present("https://shopify.com", activity, mockEventProcessor)
+
+        val dialog = ShadowDialog.getLatestDialog()
+        val checkoutDialog = dialog as CheckoutDialog
+        val error = CheckoutSdkError("Error occurred")
+
+        checkoutDialog.closeCheckoutDialogWithError(error)
+        Shadows.shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+
+        verify(mockEventProcessor, never()).onCheckoutCanceled()
+        verify(mockEventProcessor).onCheckoutFailed(error)
+    }
+
+    @Test
+    fun `cancel menu option calls onCheckoutCanceled if close menu item is clicked`() {
+        val mockEventProcessor = mock<NoopEventProcessor>()
+        ShopifyCheckoutSheetKit.present("https://shopify.com", activity, mockEventProcessor)
+
+        val dialog = ShadowDialog.getLatestDialog()
+        assertThat(containerChildCount(dialog)).isEqualTo(1)
+
+        // click cancel button
+        val header = dialog.findViewById<Toolbar>(R.id.checkoutSdkHeader)
+        header.menu.performIdentifierAction(R.id.checkoutSdkCloseBtn, 0)
+        ShadowLooper.runUiThreadTasks()
+
+        verify(mockEventProcessor, timeout(2000)).onCheckoutCanceled()
     }
 
     @Test

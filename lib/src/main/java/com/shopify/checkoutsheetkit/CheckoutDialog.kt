@@ -70,7 +70,7 @@ internal class CheckoutDialog(
             CheckoutWebViewEventProcessor(
                 eventProcessor = checkoutEventProcessor,
                 toggleHeader = ::toggleHeader,
-                closeCheckoutDialog = ::cancel,
+                closeCheckoutDialogWithError = ::closeCheckoutDialogWithError,
                 hideProgressBar = ::hideProgressBar,
             )
         )
@@ -105,8 +105,9 @@ internal class CheckoutDialog(
             }
         }.addView(checkoutWebView)
 
-        setOnCancelListener {
-            checkoutEventProcessor.onCheckoutCanceled()
+        setOnCancelListener { checkoutEventProcessor.onCheckoutCanceled() }
+
+        setOnDismissListener {
             checkoutWebView.parent?.let {
                 (checkoutWebView.parent as ViewGroup).removeView(checkoutWebView)
             }
@@ -134,6 +135,11 @@ internal class CheckoutDialog(
     private fun hideProgressBar() {
         findViewById<FrameLayout>(R.id.checkoutSdkLoadingSpinner).visibility = GONE
         findViewById<CheckoutWebViewContainer>(R.id.checkoutSdkContainer).visibility = VISIBLE
+    }
+
+    internal fun closeCheckoutDialogWithError(error: CheckoutException) {
+        checkoutEventProcessor.onCheckoutFailed(error)
+        dismiss()
     }
 
     @ColorInt
