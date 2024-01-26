@@ -23,10 +23,14 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.di
 
 import android.app.Application
+import androidx.room.Room
 import com.shopify.buy3.GraphClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.BuildConfig
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontClient
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.LogDatabase
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.LogsViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.product.ProductViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsViewModel
@@ -57,8 +61,21 @@ val appModules = module {
         )
     }
 
+    single {
+        Room.databaseBuilder(
+            get(),
+            LogDatabase::class.java,
+            "log-db"
+        ).build()
+    }
+
+    single {
+        Logger(get())
+    }
+
     // Compose view models
     viewModelOf(::CartViewModel)
     viewModelOf(::SettingsViewModel)
     viewModelOf(::ProductViewModel)
+    viewModelOf(::LogsViewModel)
 }
