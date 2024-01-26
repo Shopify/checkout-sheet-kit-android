@@ -298,7 +298,7 @@ fun processStandardEvent(event: StandardPixelEvent) {
 // ... other functions, incl. processCustomEvent(event)
 ```
 
-_Note_: You will likely need to augment these events with customer/session information derived from app state.
+_Note: You will likely need to augment these events with customer/session information derived from app state._
 
 _Note: The `customData` attribute of CustomPixelEvent can take on any shape. As such, this attribute will be returned as a String. Client applications should define a custom data type and deserialize the `customData` string into that type._
 
