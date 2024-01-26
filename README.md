@@ -252,6 +252,11 @@ val processor = object : WebEventProcessor {
         // - web (http:)
         // and is being directed outside the application.
     }
+
+    override fun onWebPixelEvent(event: PixelEvent) {
+        // Called when a web pixel event is emitted in checkout.
+        // Use this to submit events to your analytics system, see below.
+    }
 }
 
 ```
@@ -260,6 +265,42 @@ val processor = object : WebEventProcessor {
 
 App developers can use [lifecycle events](#monitoring-the-lifecycle-of-a-checkout-session) to
 monitor and log the status of a checkout session.
+
+To safeguard user privacy, [Web Pixel](https://shopify.dev/docs/apps/marketing/pixels) events will not be dispatched from within the checkout webview. Instead, the events will be relayed back to your application through the `onWebPixelEvent` checkout event processor function.
+
+Implement this function to process the events you're interested in, augment them with customer and session identity, transform them into an appropriate schema and submit them to your preferred analytics system. For example:
+
+```kotlin
+fun onWebPixelEvent(event: PixelEvent) {
+    if (!hasPermissionToCaptureEvents()) {
+        return
+    }
+
+    when (event) {
+        is StandardPixelEvent -> processStandardEvent(event)
+        is CustomPixelEvent -> processCustomEvent(event)
+    }
+}
+
+fun processStandardEvent(event: StandardPixelEvent) {
+    const endpoint = "https://example.com/pixel?id=${accountID}&uid=${userId}";
+
+    val payload = AnalyticsPayload(
+        eventTime: event.timestamp,
+        action: event.name,
+        details: event.data.checkout
+    )
+
+    // Send events to third-party servers
+    httpClient.post(endpoint, payload)
+}
+
+// ... other functions, incl. processCustomEvent(event)
+```
+
+_Note: You will likely need to augment these events with customer/session information derived from app state._
+
+_Note: The `customData` attribute of CustomPixelEvent can take on any shape. As such, this attribute will be returned as a String. Client applications should define a custom data type and deserialize the `customData` string into that type._
 
 ### Integrating identity & customer accounts
 
