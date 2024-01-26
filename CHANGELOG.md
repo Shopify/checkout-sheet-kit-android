@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.0 - January 26, 2024
+
+- **Breaking Changes** A new `onWebPixelEvent(PixelEvent)` function has been added to the `CheckoutEventProcessor` interface. This allows listening for [Web Pixel](https://shopify.dev/docs/apps/marketing/pixels) events that take place in checkout, so they can be emitted to your preferred analytics system. See `README.md` for more details.
+
+_Note_: If your processor extends `DefaultCheckoutEventProcessor`, a no-op implementation has been added, so no changes are required unless you'd like to respond to pixel events. If your processor does not extend `DefaultCheckoutEventProcessor`, you will need to implement this function.
+
+- Fix: Prevent loading checkout twice during preloads.
+- Fix: Match `CheckoutDialog`'s header padding with checkout's padding.
+- Fix: Ensure the WebView cache is cleared on error responses for preloaded requests.
+
 ## 0.4.0 - January 10, 2024
 
 - **Breaking Changes:** The library has been rebranded from Shopify Checkout Kit to Shopify Checkout Sheet Kit. Apologies for any inconvenience caused. Here are the steps to upgrade:
