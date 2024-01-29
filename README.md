@@ -1,18 +1,11 @@
-# Shopify Checkout Sheet Kit - Android (Developer Preview)
+# Shopify Checkout Sheet Kit - Android
 
 [![GitHub license](https://img.shields.io/badge/license-MIT-lightgrey.svg?style=flat)](/LICENSE)
 ![Tests](https://github.com/Shopify/checkout-sheet-kit-android/actions/workflows/test.yml/badge.svg?branch=main)
 
 ![image](https://github.com/Shopify/checkout-sheet-kit-android/assets/2034704/c6c726dc-a211-406b-b848-53ade91a164d)
 
-
-**Checkout Sheet Kit for Android** is a library (currently in [Developer Preview](https://shopify.dev/docs/api/release-notes/developer-previews))
-that enables Android apps to provide the world's highest converting, customizable, one-page checkout
-within the mobile app. The presented experience is a fully-featured checkout that preserves all of the store
-customizations: Checkout UI extensions, Scripts, Functions, Web Pixels, and more. It also provides idiomatic
-defaults such as support for light and dark mode, and convenient developer APIs to embed, customize
-and follow the lifecycle of the checkout experience. Check out our developer blog to
-[learn how Checkout Sheet Kit is built](https://www.shopify.com/partners/blog/mobile-checkout-sdks-for-ios-and-android).
+**Checkout Sheet Kit for Android** is a library that enables Android apps to provide the world's highest converting, customizable, one-page checkout within the mobile app. The presented experience is a fully-featured checkout that preserves all of the store customizations: Checkout UI extensions, Scripts, Functions, Web Pixels, and more. It also provides idiomatic defaults such as support for light and dark mode, and convenient developer APIs to embed, customize and follow the lifecycle of the checkout experience. Check out our developer blog to [learn how Checkout Sheet Kit is built](https://www.shopify.com/partners/blog/mobile-checkout-sdks-for-ios-and-android).
 
 ### Requirements
 
