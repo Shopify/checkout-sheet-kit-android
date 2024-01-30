@@ -70,7 +70,7 @@ fun LogsView(
                 }
             )
         )
-        logsViewModel.readLogs(last = 50)
+        logsViewModel.readLogs(last = 100)
     }
 
     if (logDetailsDialogOpen.value) {
