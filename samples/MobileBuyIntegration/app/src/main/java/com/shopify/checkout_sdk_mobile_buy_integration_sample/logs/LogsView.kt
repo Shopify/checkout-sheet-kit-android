@@ -121,5 +121,5 @@ object Logs {
     const val DATE_COLUMN_WEIGHT = 0.25f
     const val MESSAGE_COLUMN_WEIGHT = 0.75f
     val OVERVIEW_FONT_SIZE = 12.sp
-    val ROW_COLOR = Color.hsl(322f, 0.6f, 0.94f)
+    val ROW_COLOR = Color.hsl(185f, 0.43f, 0.95f)
 }

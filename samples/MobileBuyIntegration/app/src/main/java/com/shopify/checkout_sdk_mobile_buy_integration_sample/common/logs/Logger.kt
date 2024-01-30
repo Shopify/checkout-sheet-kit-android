@@ -42,7 +42,7 @@ class Logger(private val logDb: LogDatabase) {
                         id = UUID.randomUUID(),
                         type = LogType.STANDARD_PIXEL,
                         createdAt = Date().time,
-                        message = "Pixel event - ${pixelEvent.name}",
+                        message = pixelEvent.name ?: "",
                         standardPixelEvent = pixelEvent,
                     )
                 )
@@ -53,7 +53,7 @@ class Logger(private val logDb: LogDatabase) {
                         id = UUID.randomUUID(),
                         type = LogType.CUSTOM_PIXEL,
                         createdAt = Date().time,
-                        message = "Pixel event - ${pixelEvent.name}",
+                        message = pixelEvent.name ?: "",
                         customPixelEvent = pixelEvent,
                     )
                 )
