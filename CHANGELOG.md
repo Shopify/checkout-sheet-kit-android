@@ -68,8 +68,3 @@ Also included:
 - Implemented `onRenderProcessGone` to prevent app crashes when the render process is killed to reclaim memory
 - JavaDoc improvements
 - Added function to retrieve the currently applied `ShopifyCheckoutKit` configuration
-
----
-
-**Note: breaking changes may be made during Dev Preview with minor version increments, but will receive a major version increments
-after release for General Availability.**
