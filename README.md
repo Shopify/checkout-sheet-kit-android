@@ -259,9 +259,9 @@ val processor = object : WebEventProcessor {
 App developers can use [lifecycle events](#monitoring-the-lifecycle-of-a-checkout-session) to
 monitor and log the status of a checkout session.
 
-To safeguard user privacy, [Web Pixel](https://shopify.dev/docs/apps/marketing/pixels) events will not be dispatched from within the checkout webview. Instead, the events will be relayed back to your application through the `onWebPixelEvent` checkout event processor function.
+For behavioural monitoring, [standard](https://shopify.dev/docs/api/web-pixels-api/standard-events) and [custom](https://shopify.dev/docs/api/web-pixels-api/emitting-data) Web Pixel events will be relayed back to your application through the `onWebPixelEvent` checkout event processor function. The responsibility then falls on the application developer to ensure adherence to local regulations like GDPR and ePrivacy directive before disseminating these events to first-party and third-party systems.
 
-Implement this function to process the events you're interested in, augment them with customer and session identity, transform them into an appropriate schema and submit them to your preferred analytics system. For example:
+Here's how you might intercept these events:
 
 ```kotlin
 fun onWebPixelEvent(event: PixelEvent) {
@@ -291,7 +291,7 @@ fun processStandardEvent(event: StandardPixelEvent) {
 // ... other functions, incl. processCustomEvent(event)
 ```
 
-_Note: You will likely need to augment these events with customer/session information derived from app state._
+_Note: You may need to augment these events with customer/session information derived from app state._
 
 _Note: The `customData` attribute of CustomPixelEvent can take on any shape. As such, this attribute will be returned as a String. Client applications should define a custom data type and deserialize the `customData` string into that type._
 
