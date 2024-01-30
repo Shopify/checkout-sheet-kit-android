@@ -41,6 +41,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.LogsViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.product.ProductView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsViewModel
+import com.shopify.checkoutsheetkit.CheckoutCompletedEvent
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.pixelevents.CustomPixelEvent
@@ -97,8 +98,8 @@ fun CheckoutSdkNavHost(
                 cartViewModel = cartViewModel,
                 setAppBarState = setAppBarState,
                 checkoutEventProcessor = object : DefaultCheckoutEventProcessor(activity) {
-                    override fun onCheckoutCompleted() {
-                        logger.log("Checkout completed")
+                    override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {
+                        logger.log(checkoutCompletedEvent)
 
                         cartViewModel.clearCart()
                         GlobalScope.launch(Dispatchers.Main) {

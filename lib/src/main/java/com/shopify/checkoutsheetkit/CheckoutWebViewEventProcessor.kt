@@ -37,8 +37,8 @@ internal class CheckoutWebViewEventProcessor(
     private val closeCheckoutDialogWithError: (CheckoutException) -> Unit = { CheckoutWebView.clearCache() },
     private val hideProgressBar: () -> Unit = {},
 ) {
-    fun onCheckoutViewComplete() {
-        eventProcessor.onCheckoutCompleted()
+    fun onCheckoutViewComplete(checkoutCompletedEvent: CheckoutCompletedEvent) {
+        eventProcessor.onCheckoutCompleted(checkoutCompletedEvent)
     }
 
     fun onCheckoutViewModalToggled(modalVisible: Boolean) {

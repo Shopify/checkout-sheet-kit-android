@@ -58,7 +58,7 @@ class CheckoutBridgeTest {
     @Test
     fun `postMessage calls web event processor onCheckoutViewComplete when completed message received`() {
         checkoutBridge.postMessage(Json.encodeToString(WebToSdkEvent(COMPLETED.key)))
-        verify(mockEventProcessor).onCheckoutViewComplete()
+        verify(mockEventProcessor).onCheckoutViewComplete(any())
     }
 
     @Test

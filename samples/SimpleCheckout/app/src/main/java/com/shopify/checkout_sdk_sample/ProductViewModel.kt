@@ -22,25 +22,39 @@
  */
 package com.shopify.checkout_sdk_sample
 
-import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.shopify.checkoutsheetkit.CheckoutEventProcessor
 import com.shopify.checkoutsheetkit.CheckoutException
-import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class ProductViewModel : ViewModel(), CheckoutEventProcessor {
+class ProductViewModel : ViewModel() {
     private val _uiState = MutableStateFlow<ProductUIState>(ProductUIState.Loading)
     val uiState: StateFlow<ProductUIState> = _uiState.asStateFlow()
 
     private val _checkoutState = MutableStateFlow<CurrentCheckoutState?>(null)
     val checkoutState = _checkoutState.asStateFlow()
+
+    fun clearCheckoutState() {
+        _checkoutState.value = null
+    }
+
+    fun checkoutCompleted() {
+        _checkoutState.value = CurrentCheckoutState.COMPLETE
+    }
+
+    fun checkoutFailed(error: CheckoutException) {
+        Log.e("ProductViewModel", "Error occurred during checkout", error)
+        _checkoutState.value = CurrentCheckoutState.ERROR
+    }
+
+    fun checkoutCanceled() {
+        _checkoutState.value = CurrentCheckoutState.CANCELLED
+    }
 
     fun createCart(variantId: String, callback: (MutationRoot) -> Unit) {
         val currentState = _uiState.value
@@ -104,27 +118,6 @@ class ProductViewModel : ViewModel(), CheckoutEventProcessor {
                 _uiState.value = ProductUIState.Error(it.message ?: "Unknown error")
             }
         )
-    }
-
-    override fun onCheckoutCompleted() {
-        _checkoutState.value = CurrentCheckoutState.COMPLETE
-    }
-
-    override fun onCheckoutFailed(error: CheckoutException) {
-        Log.e("ProductViewModel", "Error occurred during checkout", error)
-        _checkoutState.value = CurrentCheckoutState.ERROR
-    }
-
-    override fun onCheckoutCanceled() {
-        _checkoutState.value = CurrentCheckoutState.CANCELLED
-    }
-
-    override fun onCheckoutLinkClicked(uri: Uri) {
-        // handle links being clicked (mailto:, tel:, and web links that should be opened outside of checkout)
-    }
-
-    override fun onWebPixelEvent(event: PixelEvent) {
-        // handle web pixel events (e.g. transform, augment, and process)
     }
 }
 

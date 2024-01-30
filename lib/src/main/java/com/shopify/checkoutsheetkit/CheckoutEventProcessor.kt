@@ -68,11 +68,15 @@ public class CheckoutLiquidNotMigratedException : CheckoutException(
 
 /**
  * Interface to implement to allow responding to lifecycle events in checkout.
+ * We'd strongly recommend extending DefaultCheckoutEventProcessor where possible
  */
 public interface CheckoutEventProcessor {
     /**
      * Event representing the successful completion of a checkout.
      */
+    public fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent)
+
+    @Deprecated("Replace with the onCheckoutCompleted(checkoutCompletedEvent) callback")
     public fun onCheckoutCompleted()
 
     /**
@@ -103,6 +107,10 @@ public interface CheckoutEventProcessor {
 }
 
 internal class NoopEventProcessor : CheckoutEventProcessor {
+    override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {/* noop */
+    }
+
+    @Deprecated("Replace with the onCheckoutCompleted(checkoutCompletedEvent) callback")
     override fun onCheckoutCompleted() {/* noop */
     }
 
@@ -139,6 +147,15 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
     }
 
     override fun onWebPixelEvent(event: PixelEvent) {
+        // no-op, override to implement
+    }
+
+    @Deprecated("Replace with the onCheckoutCompleted(checkoutCompletedEvent) callback")
+    override fun onCheckoutCompleted() {
+        // no-op, override to implement
+    }
+
+    override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {
         // no-op, override to implement
     }
 

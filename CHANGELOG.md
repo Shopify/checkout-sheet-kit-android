@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.0 February 1, 2024
+
+- A new `onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent)` overload has been added to the `CheckoutEventProcessor`, providing clients with more information about the checkout that just completed.
+The no-arg `onCheckoutCompleted()` callback is now deprecated. Default implementations have been provided for clients extending `DefaultCheckoutEventProcessor` to avoid breaking changes where possible.
+
 ## 1.0.0 January 31, 2024
 
 - Checkout Sheet Kit is now generally available

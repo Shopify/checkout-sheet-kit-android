@@ -22,6 +22,7 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs
 
+import com.shopify.checkoutsheetkit.CheckoutCompletedEvent
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.pixelevents.CustomPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
@@ -40,9 +41,7 @@ class Logger(
             is StandardPixelEvent -> {
                 insert(
                     LogLine(
-                        id = UUID.randomUUID(),
                         type = LogType.STANDARD_PIXEL,
-                        createdAt = Date().time,
                         message = pixelEvent.name ?: "",
                         standardPixelEvent = pixelEvent,
                     )
@@ -51,9 +50,7 @@ class Logger(
             is CustomPixelEvent -> {
                 insert(
                     LogLine(
-                        id = UUID.randomUUID(),
                         type = LogType.CUSTOM_PIXEL,
-                        createdAt = Date().time,
                         message = pixelEvent.name ?: "",
                         customPixelEvent = pixelEvent,
                     )
@@ -65,10 +62,18 @@ class Logger(
     fun log(message: String) {
         insert(
             LogLine(
-                id = UUID.randomUUID(),
                 type = LogType.STANDARD,
-                createdAt = Date().time,
                 message = message,
+            )
+        )
+    }
+
+    fun log(checkoutCompletedEvent: CheckoutCompletedEvent) {
+        insert(
+            LogLine(
+                type = LogType.CHECKOUT_COMPLETED,
+                message = "Checkout completed",
+                checkoutCompleted = checkoutCompletedEvent,
             )
         )
     }
