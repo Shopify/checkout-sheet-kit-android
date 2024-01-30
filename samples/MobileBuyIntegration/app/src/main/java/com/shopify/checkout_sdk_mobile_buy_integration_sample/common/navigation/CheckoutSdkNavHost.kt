@@ -35,6 +35,9 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.analytics.Analytics
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.analytics.toAnalyticsEvent
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.LogsView
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.LogsViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.product.ProductView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsViewModel
@@ -43,14 +46,17 @@ import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.pixelevents.CustomPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 
 sealed class Screen(val route: String) {
     object Product : Screen("product")
     object Cart : Screen("cart")
     object Settings : Screen("settings")
+    object Logs : Screen("logs")
 
     companion object {
         fun fromRoute(route: String): Screen {
@@ -58,19 +64,23 @@ sealed class Screen(val route: String) {
                 Product.route -> Product
                 Cart.route -> Cart
                 Settings.route -> Settings
+                Logs.route -> Logs
                 else -> throw RuntimeException("Unknown route")
             }
         }
     }
 }
 
+@OptIn(DelicateCoroutinesApi::class)
 @Composable
 fun CheckoutSdkNavHost(
     navController: NavHostController = rememberNavController(),
     startDestination: String,
     cartViewModel: CartViewModel,
     settingsViewModel: SettingsViewModel,
+    logsViewModel: LogsViewModel,
     setAppBarState: (AppBarState) -> Unit,
+    logger: Logger = koinInject<Logger>()
 ) {
     NavHost(
         navController = navController,
@@ -88,6 +98,8 @@ fun CheckoutSdkNavHost(
                 setAppBarState = setAppBarState,
                 checkoutEventProcessor = object : DefaultCheckoutEventProcessor(activity) {
                     override fun onCheckoutCompleted() {
+                        logger.log("Checkout completed")
+
                         cartViewModel.clearCart()
                         GlobalScope.launch(Dispatchers.Main) {
                             navController.popBackStack(Screen.Product.route, false)
@@ -95,6 +107,8 @@ fun CheckoutSdkNavHost(
                     }
 
                     override fun onCheckoutFailed(error: CheckoutException) {
+                        logger.log("Checkout failed", error)
+
                         GlobalScope.launch(Dispatchers.Main) {
                             Toast.makeText(
                                 activity,
@@ -106,9 +120,12 @@ fun CheckoutSdkNavHost(
 
                     override fun onCheckoutCanceled() {
                         // optionally respond to checkout being canceled/closed
+                        logger.log("Checkout canceled")
                     }
 
                     override fun onWebPixelEvent(event: PixelEvent) {
+                        logger.log(event)
+
                         // handle pixel events (e.g. transform, augment, and process), e.g.
                         val analyticsEvent = when (event) {
                             is StandardPixelEvent -> event.toAnalyticsEvent()
@@ -126,6 +143,14 @@ fun CheckoutSdkNavHost(
         composable(Screen.Settings.route) {
             SettingsView(
                 settingsViewModel = settingsViewModel,
+                setAppBarState = setAppBarState,
+                navController = navController
+            )
+        }
+
+        composable(Screen.Logs.route) {
+            LogsView(
+                logsViewModel = logsViewModel,
                 setAppBarState = setAppBarState,
             )
         }

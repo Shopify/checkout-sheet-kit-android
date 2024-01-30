@@ -47,6 +47,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.CheckoutSdkNavHost
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.CheckoutSdkSampleTheme
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.LogsViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsUiState
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsViewModel
 import com.shopify.checkoutsheetkit.ColorScheme
@@ -58,15 +59,17 @@ fun CheckoutSdkApp() {
     KoinAndroidContext {
         val settingsViewModel = koinViewModel<SettingsViewModel>()
         val cartViewModel = koinViewModel<CartViewModel>()
+        val logsViewModel = koinViewModel<LogsViewModel>()
 
-        CheckoutSdkAppRoot(settingsViewModel, cartViewModel)
+        CheckoutSdkAppRoot(settingsViewModel, cartViewModel, logsViewModel)
     }
 }
 
 @Composable
 fun CheckoutSdkAppRoot(
     settingsViewModel: SettingsViewModel,
-    cartViewModel: CartViewModel
+    cartViewModel: CartViewModel,
+    logsViewModel: LogsViewModel,
 ) {
     val useDarkTheme = settingsViewModel.uiState.collectAsState().value
         .isDarkTheme(isSystemInDarkTheme())
@@ -114,6 +117,7 @@ fun CheckoutSdkAppRoot(
                         cartViewModel = cartViewModel,
                         settingsViewModel = settingsViewModel,
                         setAppBarState = { state -> appBarState = state },
+                        logsViewModel = logsViewModel,
                     )
                 }
             }
