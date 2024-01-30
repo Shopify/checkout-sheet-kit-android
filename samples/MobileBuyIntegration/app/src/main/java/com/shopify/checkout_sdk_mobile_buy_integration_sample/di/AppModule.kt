@@ -34,6 +34,8 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.LogsViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.product.ProductViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.viewmodel.dsl.viewModelOf
@@ -70,7 +72,10 @@ val appModules = module {
     }
 
     single {
-        Logger(get())
+        Logger(
+            logDb = get(),
+            coroutineScope = CoroutineScope(Dispatchers.IO),
+        )
     }
 
     // Compose view models

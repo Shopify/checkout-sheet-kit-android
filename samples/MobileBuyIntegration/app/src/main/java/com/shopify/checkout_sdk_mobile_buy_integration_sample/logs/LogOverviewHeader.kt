@@ -32,19 +32,13 @@ import androidx.compose.ui.unit.dp
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.Logs.ROW_COLOR
 
 @Composable
-fun LogOverviewHeader(vararg header: Header) {
+fun LogOverviewHeader() {
     Row(
         Modifier
             .background(ROW_COLOR)
             .padding(horizontal = 0.dp, vertical = 8.dp)
     ) {
-        header.map {
-            Text(text = it.text, modifier = Modifier.weight(it.weight))
-        }
+        Text(text = "Date", modifier = Modifier.weight(Logs.DATE_COLUMN_WEIGHT))
+        Text(text = "Type", modifier = Modifier.weight(Logs.MESSAGE_COLUMN_WEIGHT))
     }
 }
-
-data class Header(
-    val text: String,
-    val weight: Float,
-)
