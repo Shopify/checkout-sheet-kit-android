@@ -22,6 +22,7 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.logs
 
+import android.text.format.DateFormat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.LogDatabase
@@ -31,6 +32,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.Date
 
 class LogsViewModel(private val logDb: LogDatabase): ViewModel() {
 
@@ -40,7 +42,7 @@ class LogsViewModel(private val logDb: LogDatabase): ViewModel() {
     fun readLogs(last: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             _logState.value = LogState.Populated(
-                logDb.logDao().getLast(last)
+                logs = logDb.logDao().getLast(last).map { it.toPrettyLog() }
             )
         }
     }
@@ -51,11 +53,24 @@ class LogsViewModel(private val logDb: LogDatabase): ViewModel() {
             _logState.value = LogState.Populated(emptyList())
         }
     }
+
+    private fun LogLine.toPrettyLog() = PrettyLog(
+        formattedDate = DateFormat.format(Logs.DATE_FORMAT, Date(createdAt)).toString(),
+        message = message,
+        data = this,
+    )
+
 }
 
 sealed class LogState {
     object Loading: LogState()
     data class Populated(
-        val logs: List<LogLine>
+        val logs: List<PrettyLog>
     ): LogState()
 }
+
+data class PrettyLog(
+    val formattedDate: String,
+    val message: String,
+    val data: LogLine,
+)
