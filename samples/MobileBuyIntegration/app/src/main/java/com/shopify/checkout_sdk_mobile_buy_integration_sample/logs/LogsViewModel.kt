@@ -32,15 +32,15 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class LogsViewModel(private val logDb: LogDatabase, ): ViewModel() {
+class LogsViewModel(private val logDb: LogDatabase): ViewModel() {
 
     private val _logState = MutableStateFlow<LogState>(LogState.Loading)
     val logState: StateFlow<LogState> = _logState.asStateFlow()
 
-    fun checkLogs() {
+    fun readLogs(last: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             _logState.value = LogState.Populated(
-                logDb.logDao().getLast(10)
+                logDb.logDao().getLast(last)
             )
         }
     }
