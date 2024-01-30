@@ -38,6 +38,7 @@ internal class CheckoutBridge(
     private var eventProcessor: CheckoutWebViewEventProcessor,
     private val decoder: Json = Json { ignoreUnknownKeys = true },
     private val pixelEventDecoder: PixelEventDecoder = PixelEventDecoder(decoder),
+    private val checkoutCompletedEventDecoder: CheckoutCompletedEventDecoder = CheckoutCompletedEventDecoder(decoder)
 ) {
 
     fun setEventProcessor(eventProcessor: CheckoutWebViewEventProcessor) {
@@ -69,7 +70,11 @@ internal class CheckoutBridge(
         val decodedMsg = decoder.decodeFromString<WebToSdkEvent>(message)
 
         when (CheckoutWebOperation.fromKey(decodedMsg.name)) {
-            COMPLETED -> eventProcessor.onCheckoutViewComplete()
+            COMPLETED -> {
+                checkoutCompletedEventDecoder.decode(decodedMsg).let { event ->
+                    eventProcessor.onCheckoutViewComplete(event)
+                }
+            }
             MODAL -> {
                 val modalVisible = decodedMsg.body.toBooleanStrictOrNull()
                 modalVisible?.let {
