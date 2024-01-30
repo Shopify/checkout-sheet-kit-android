@@ -28,18 +28,25 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.List
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.AppBarState
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
 
 @Composable
 fun SettingsView(
     settingsViewModel: SettingsViewModel,
+    navController: NavHostController,
     setAppBarState: (AppBarState) -> Unit,
 ) {
 
@@ -49,7 +56,14 @@ fun SettingsView(
         setAppBarState(
             AppBarState(
                 title = "Settings",
-                actions = {}
+                actions = {
+                    IconButton(onClick = { navController.navigate(Screen.Logs.route) }) {
+                        Icon(
+                            imageVector = Icons.Default.List,
+                            contentDescription = "View Logs",
+                        )
+                    }
+                }
             )
         )
     }
