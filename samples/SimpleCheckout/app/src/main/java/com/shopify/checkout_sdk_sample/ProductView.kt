@@ -44,7 +44,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
-import com.shopify.checkoutsheetkit.completedevent.CheckoutCompletedEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
 
 @Composable
 fun ProductView(

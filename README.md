@@ -255,7 +255,7 @@ val processor = object : DefaultCheckoutEventProcessor(activity) {
 
 ```
 
-_Note_: The `DefaultCheckoutEventProcessor` provides default implementations for current and future callback functions (such as `onLinkClicked()`), which can be overridden by clients wanting to change default behavior.
+_Note_: The `DefaultCheckoutEventProcessor` provides default implementations for current and future callback functions (such as `onLinkClicked()`), which can be overridden by clients wanting to change default behavior. Our semantic versioning will assume extension of this class.
 
 #### Integrating with Web Pixels, monitoring behavioral data
 
