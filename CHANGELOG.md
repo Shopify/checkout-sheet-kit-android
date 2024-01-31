@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.0 January 31, 2024
+
+- Checkout Sheet Kit is now generally available
+
 ## 0.5.0 - January 26, 2024
 
 - **Breaking Changes** A new `onWebPixelEvent(PixelEvent)` function has been added to the `CheckoutEventProcessor` interface. This allows listening for [Web Pixel](https://shopify.dev/docs/apps/marketing/pixels) events that take place in checkout, so they can be emitted to your preferred analytics system. See `README.md` for more details.
