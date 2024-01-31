@@ -22,8 +22,11 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.logs
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -42,19 +45,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.AppBarState
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.LogLine
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.Logs.DATE_COLUMN_WEIGHT
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.Logs.MESSAGE_COLUMN_WEIGHT
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.details.LogDetailModal
-import java.util.Date
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LogsView(
     logsViewModel: LogsViewModel,
     setAppBarState: (AppBarState) -> Unit,
 ) {
     val logDetailsDialogOpen = remember { mutableStateOf(false) }
-    val logDetails = remember { mutableStateOf<LogLine?>(null) }
+    val logDetails = remember { mutableStateOf<PrettyLog?>(null) }
 
     LaunchedEffect(key1 = true) {
         setAppBarState(
@@ -74,7 +74,7 @@ fun LogsView(
     }
 
     if (logDetailsDialogOpen.value) {
-        LogDetailModal(logLine = logDetails.value, {
+        LogDetailModal(logLine = logDetails.value?.data, onDismissRequest = {
             logDetails.value = null
             logDetailsDialogOpen.value = false
         })
@@ -90,21 +90,18 @@ fun LogsView(
                     .fillMaxSize()
                     .padding(PaddingValues(top = 0.dp, end = 8.dp, bottom = 12.dp, start = 8.dp))
             ) {
-                item {
-                    LogOverviewHeader(
-                        Header("Date", DATE_COLUMN_WEIGHT),
-                        Header("Type", MESSAGE_COLUMN_WEIGHT)
-                    )
+                stickyHeader {
+                    LogOverviewHeader()
                 }
                 itemsIndexed(logState.logs) {  index, line ->
                     LogOverviewRow(
-                        logDate = LogDate(date = Date(line.createdAt), weight = DATE_COLUMN_WEIGHT),
-                        logMessage = LogMessage(message = line.message, weight = MESSAGE_COLUMN_WEIGHT),
-                        color = index.rowColor()
-                    ) {
-                        logDetails.value = line
-                        logDetailsDialogOpen.value = true
-                    }
+                        log = line,
+                        modifier = Modifier.fillMaxWidth().background(index.rowColor()),
+                        onClick = {
+                            logDetails.value = line
+                            logDetailsDialogOpen.value = true
+                        }
+                    )
                 }
             }
         }

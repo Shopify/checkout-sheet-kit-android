@@ -26,14 +26,15 @@ import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.pixelevents.CustomPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.Date
 import java.util.UUID
 
-class Logger(private val logDb: LogDatabase) {
+class Logger(
+    private val logDb: LogDatabase,
+    private val coroutineScope: CoroutineScope,
+) {
     fun log(pixelEvent: PixelEvent) {
         when (pixelEvent) {
             is StandardPixelEvent -> {
@@ -87,8 +88,7 @@ class Logger(private val logDb: LogDatabase) {
         )
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
-    private fun insert(logLine: LogLine) = GlobalScope.launch(Dispatchers.IO) {
+    private fun insert(logLine: LogLine) = coroutineScope.launch {
         logDb.logDao().insert(logLine)
     }
 }
