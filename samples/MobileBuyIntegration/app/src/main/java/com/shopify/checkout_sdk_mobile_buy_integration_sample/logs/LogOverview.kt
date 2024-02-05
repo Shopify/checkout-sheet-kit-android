@@ -26,22 +26,24 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.Logs.OVERVIEW_FONT_SIZE
 
 @Composable
-fun LogOverviewRow(log: PrettyLog, onClick: () -> Unit, modifier: Modifier) {
+fun LogOverview(log: PrettyLog, onClick: () -> Unit, modifier: Modifier) {
     Row(modifier) {
-
         Text(
             text = log.formattedDate,
             fontSize = OVERVIEW_FONT_SIZE,
+            color = MaterialTheme.colors.onSurface,
             modifier = Modifier.weight(Logs.DATE_COLUMN_WEIGHT).fillMaxHeight().align(Alignment.CenterVertically)
         )
 

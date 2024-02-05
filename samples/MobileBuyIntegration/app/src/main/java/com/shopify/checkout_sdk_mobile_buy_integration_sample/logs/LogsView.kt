@@ -32,6 +32,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -88,15 +89,23 @@ fun LogsView(
             LazyColumn(
                 Modifier
                     .fillMaxSize()
-                    .padding(PaddingValues(top = 0.dp, end = 8.dp, bottom = 12.dp, start = 8.dp))
+                    .padding(PaddingValues(top = 0.dp, end = 0.dp, bottom = 12.dp, start = 0.dp))
             ) {
                 stickyHeader {
-                    LogOverviewHeader()
+                    LogOverviewHeader(Modifier
+                        .background(MaterialTheme.colors.background)
+                        .padding(horizontal = 8.dp, vertical = 8.dp)
+                    )
                 }
                 itemsIndexed(logState.logs) {  index, line ->
-                    LogOverviewRow(
+                    LogOverview(
                         log = line,
-                        modifier = Modifier.fillMaxWidth().background(index.rowColor()),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                if (index % 2 == 0) MaterialTheme.colors.surface else MaterialTheme.colors.background
+                            )
+                            .padding(horizontal = 8.dp),
                         onClick = {
                             logDetails.value = line
                             logDetailsDialogOpen.value = true
@@ -108,15 +117,9 @@ fun LogsView(
     }
 }
 
-private fun Int.rowColor(): Color {
-    return if (this % 2 == 0) Color.White
-    else Logs.ROW_COLOR
-}
-
 object Logs {
     const val DATE_FORMAT = "dd/MM/yy HH:mm:ss"
     const val DATE_COLUMN_WEIGHT = 0.25f
     const val MESSAGE_COLUMN_WEIGHT = 0.75f
     val OVERVIEW_FONT_SIZE = 12.sp
-    val ROW_COLOR = Color.hsl(185f, 0.43f, 0.95f)
 }

@@ -22,12 +22,14 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.details
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -47,11 +49,13 @@ fun LogDetailModal(
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(modifier = Modifier
             .wrapContentHeight()
-            .fillMaxWidth()) {
+            .fillMaxWidth()
+            .background(MaterialTheme.colors.surface)
+        ) {
             Column(Modifier.verticalScroll(rememberScrollState())) {
                 when (logLine?.type) {
-                    LogType.STANDARD -> LogDetails("Checkout Lifecycle Event", logLine.message)
-                    LogType.ERROR -> LogDetails("Checkout Error", "${logLine.errorDetails}")
+                    LogType.STANDARD -> LogDetails("Checkout Lifecycle Event", logLine.message, Modifier.fillMaxWidth())
+                    LogType.ERROR -> LogDetails("Checkout Error", "${logLine.errorDetails}", Modifier.fillMaxWidth())
                     LogType.STANDARD_PIXEL -> PixelEventDetails(logLine.standardPixelEvent, prettyJson)
                     LogType.CUSTOM_PIXEL -> PixelEventDetails(logLine.customPixelEvent, prettyJson)
                     else -> Text("Unknown log type ${logLine?.type}")
