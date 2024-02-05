@@ -38,8 +38,8 @@ import androidx.compose.ui.unit.sp
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.Logs.OVERVIEW_FONT_SIZE
 
 @Composable
-fun LogDetails(header: String, message: String, color: Color = Color.White) {
-    Row(Modifier.fillMaxWidth().background(color = color)) {
+fun LogDetails(header: String, message: String, modifier: Modifier) {
+    Row(modifier) {
         Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
             Text(header, fontWeight = FontWeight.Medium, fontSize = OVERVIEW_FONT_SIZE)
             Text(message, fontSize = 10.sp, fontFamily = FontFamily.Monospace)

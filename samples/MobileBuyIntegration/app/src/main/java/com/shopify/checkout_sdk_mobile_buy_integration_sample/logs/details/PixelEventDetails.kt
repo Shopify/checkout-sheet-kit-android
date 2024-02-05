@@ -22,9 +22,12 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.details
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.Logs.ROW_COLOR
 import com.shopify.checkoutsheetkit.pixelevents.Context
 import com.shopify.checkoutsheetkit.pixelevents.CustomPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
@@ -37,29 +40,31 @@ import kotlinx.serialization.json.Json
 fun PixelEventDetails(
     event: PixelEvent?,
     prettyJson: Json,
-    color: Color = ROW_COLOR,
 ) {
-    LogDetails(header = "Event Name", message = event?.name ?: "", color = color)
-    LogDetails(header = "Timestamp", message = event?.timestamp ?: "")
-    LogDetails(header = "ID", message = event?.id ?: "", color = color)
-    LogDetails(header = "Type", message = event?.type?.name?.lowercase() ?: "")
+    val evenModifier = Modifier.fillMaxWidth().background(color = MaterialTheme.colors.surface)
+    val oddModifier = Modifier.fillMaxWidth().background(color = MaterialTheme.colors.background)
+
+    LogDetails(header = "Event Name", message = event?.name ?: "", evenModifier)
+    LogDetails(header = "Timestamp", message = event?.timestamp ?: "", oddModifier)
+    LogDetails(header = "ID", message = event?.id ?: "", evenModifier)
+    LogDetails(header = "Type", message = event?.type?.name?.lowercase() ?: "", oddModifier)
 
     when (event) {
         is StandardPixelEvent -> {
             LogDetails(
                 header = "Data",
                 message = prettyJson.encodeDataToString<StandardPixelEventData>(event.data),
-                color = color,
+                evenModifier,
             )
-            LogDetails(header = "Context", message = prettyJson.encodeDataToString<Context>(event.context))
+            LogDetails(header = "Context", message = prettyJson.encodeDataToString<Context>(event.context), oddModifier)
         }
         is CustomPixelEvent -> {
             LogDetails(
                 header = "Custom Data",
                 message = event.customData ?: "",
-                color = color,
+                evenModifier,
             )
-            LogDetails(header = "Context", message = prettyJson.encodeDataToString<Context>(event.context))
+            LogDetails(header = "Context", message = prettyJson.encodeDataToString<Context>(event.context), oddModifier)
         }
         else -> {}
     }
