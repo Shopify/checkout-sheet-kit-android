@@ -187,11 +187,11 @@ ShopifyCheckoutSheetKit.preload(checkoutUrl)
 
 ### Monitoring the lifecycle of a checkout session
 
-You can use the `WebEventProcessor` interface to register callbacks for key lifecycle events
+You can extend the `DefaultCheckoutEventProcessor` interface to register callbacks for key lifecycle events
 during the checkout session:
 
 ```kotlin
-val processor = object : WebEventProcessor {
+val processor = object : DefaultCheckoutEventProcessor(activity) {
     override fun onCheckoutCompleted() {
         // Called when the checkout was completed successfully by the buyer.
         // Use this to update UI, reset cart state, etc.
@@ -236,7 +236,6 @@ val processor = object : WebEventProcessor {
         class CheckoutLiquidNotMigratedException :
             CheckoutException("The checkout URL provided has resulted in an error because the store is still using checkout.liquid. Checkout Sheet Kit only supports checkout with extensibility.")
 
-
     }
 
     override fun onCheckoutLinkClicked(uri: Uri) {
@@ -254,6 +253,8 @@ val processor = object : WebEventProcessor {
 }
 
 ```
+
+_Note_: The `DefaultCheckoutEventProcessor` provides default implementations for current and future callback functions (such as `onLinkClicked()`), which can be overridden by clients wanting to change default behavior.
 
 #### Integrating with Web Pixels, monitoring behavioral data
 
