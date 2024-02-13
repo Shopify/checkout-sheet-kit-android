@@ -236,7 +236,6 @@ val processor = object : DefaultCheckoutEventProcessor(activity) {
         class CheckoutLiquidNotMigratedException :
             CheckoutException("The checkout URL provided has resulted in an error because the store is still using checkout.liquid. Checkout Sheet Kit only supports checkout with extensibility.")
 
-
     }
 
     override fun onCheckoutLinkClicked(uri: Uri) {
@@ -255,7 +254,7 @@ val processor = object : DefaultCheckoutEventProcessor(activity) {
 
 ```
 
-_Note_: The `DefaultCheckoutEventProcessor` provides default implementations for current and future callback functions, such as `onLinkClicked()`.
+_Note_: The `DefaultCheckoutEventProcessor` provides default implementations for current and future callback functions (such as `onLinkClicked()`), which can be overridden by clients wanting to change default behavior.
 
 #### Integrating with Web Pixels, monitoring behavioral data
 
