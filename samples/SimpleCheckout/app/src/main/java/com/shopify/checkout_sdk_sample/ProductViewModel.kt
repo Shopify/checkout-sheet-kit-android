@@ -39,23 +39,6 @@ class ProductViewModel : ViewModel() {
     private val _checkoutState = MutableStateFlow<CurrentCheckoutState?>(null)
     val checkoutState = _checkoutState.asStateFlow()
 
-    fun clearCheckoutState() {
-        _checkoutState.value = null
-    }
-
-    fun checkoutCompleted() {
-        _checkoutState.value = CurrentCheckoutState.COMPLETE
-    }
-
-    fun checkoutFailed(error: CheckoutException) {
-        Log.e("ProductViewModel", "Error occurred during checkout", error)
-        _checkoutState.value = CurrentCheckoutState.ERROR
-    }
-
-    fun checkoutCanceled() {
-        _checkoutState.value = CurrentCheckoutState.CANCELLED
-    }
-
     fun createCart(variantId: String, callback: (MutationRoot) -> Unit) {
         val currentState = _uiState.value
         if (currentState is ProductUIState.Product) {
@@ -118,6 +101,23 @@ class ProductViewModel : ViewModel() {
                 _uiState.value = ProductUIState.Error(it.message ?: "Unknown error")
             }
         )
+    }
+
+    fun clearCheckoutState() {
+        _checkoutState.value = null
+    }
+
+    fun checkoutCompleted() {
+        _checkoutState.value = CurrentCheckoutState.COMPLETE
+    }
+
+    fun checkoutFailed(error: CheckoutException) {
+        Log.e("ProductViewModel", "Error occurred during checkout", error)
+        _checkoutState.value = CurrentCheckoutState.ERROR
+    }
+
+    fun checkoutCanceled() {
+        _checkoutState.value = CurrentCheckoutState.CANCELLED
     }
 }
 
