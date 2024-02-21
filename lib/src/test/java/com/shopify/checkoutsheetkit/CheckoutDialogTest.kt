@@ -51,6 +51,7 @@ import java.util.concurrent.TimeUnit
 class CheckoutDialogTest {
 
     private lateinit var activity: ComponentActivity
+    private lateinit var processor: DefaultCheckoutEventProcessor
 
     @Before
     fun setUp() {
@@ -58,6 +59,7 @@ class CheckoutDialogTest {
             it.preloading = Preloading(enabled = false)
         }
         activity = Robolectric.buildActivity(ComponentActivity::class.java).get()
+        processor = defaultCheckoutEventProcessor()
     }
 
     @After
@@ -69,7 +71,7 @@ class CheckoutDialogTest {
 
     @Test
     fun `shows dialog when present is called`() {
-        ShopifyCheckoutSheetKit.present("https://shopify.com", activity, NoopEventProcessor())
+        ShopifyCheckoutSheetKit.present("https://shopify.com", activity, processor)
 
         val dialog = ShadowDialog.getLatestDialog()
 
@@ -78,7 +80,7 @@ class CheckoutDialogTest {
 
     @Test
     fun `when dialog is presented checkoutView is added to the container`() {
-        ShopifyCheckoutSheetKit.present("https://shopify.com", activity, NoopEventProcessor())
+        ShopifyCheckoutSheetKit.present("https://shopify.com", activity, processor)
 
         val dialog = ShadowDialog.getLatestDialog()
 
@@ -91,7 +93,7 @@ class CheckoutDialogTest {
 
     @Test
     fun `cancel() removes checkoutView from the container`() {
-        ShopifyCheckoutSheetKit.present("https://shopify.com", activity, NoopEventProcessor())
+        ShopifyCheckoutSheetKit.present("https://shopify.com", activity, processor)
 
         val dialog = ShadowDialog.getLatestDialog()
         assertThat(containerChildCount(dialog)).isEqualTo(1)
@@ -108,7 +110,7 @@ class CheckoutDialogTest {
     fun `cancel() removes checkoutView from the container and invalidates the cache`() {
         withPreloadingEnabled {
             val url = "https://shopify.com"
-            ShopifyCheckoutSheetKit.present(url, activity, NoopEventProcessor())
+            ShopifyCheckoutSheetKit.present(url, activity, processor)
             val dialog = ShadowDialog.getLatestDialog()
             val preCancelView = CheckoutWebView.cacheableCheckoutView(url, activity)
 
@@ -122,7 +124,7 @@ class CheckoutDialogTest {
 
     @Test
     fun `cancel calls onCheckoutCanceled if cancel is called`() {
-        val mockEventProcessor = mock<NoopEventProcessor>()
+        val mockEventProcessor = mock<DefaultCheckoutEventProcessor>()
         ShopifyCheckoutSheetKit.present("https://shopify.com", activity, mockEventProcessor)
 
         val dialog = ShadowDialog.getLatestDialog()
@@ -135,7 +137,7 @@ class CheckoutDialogTest {
 
     @Test
     fun `cancel calls onCheckoutFailed if closeCheckoutDialogWithError is called`() {
-        val mockEventProcessor = mock<NoopEventProcessor>()
+        val mockEventProcessor = mock<DefaultCheckoutEventProcessor>()
         ShopifyCheckoutSheetKit.present("https://shopify.com", activity, mockEventProcessor)
 
         val dialog = ShadowDialog.getLatestDialog()
@@ -151,7 +153,7 @@ class CheckoutDialogTest {
 
     @Test
     fun `cancel menu option calls onCheckoutCanceled if close menu item is clicked`() {
-        val mockEventProcessor = mock<NoopEventProcessor>()
+        val mockEventProcessor = mock<DefaultCheckoutEventProcessor>()
         ShopifyCheckoutSheetKit.present("https://shopify.com", activity, mockEventProcessor)
 
         val dialog = ShadowDialog.getLatestDialog()
@@ -167,7 +169,7 @@ class CheckoutDialogTest {
 
     @Test
     fun `clicking close invokes cancel(), removing checkoutView from the container`() {
-        ShopifyCheckoutSheetKit.present("https://shopify.com", activity, NoopEventProcessor())
+        ShopifyCheckoutSheetKit.present("https://shopify.com", activity, processor)
 
         val dialog = ShadowDialog.getLatestDialog()
         assertThat(containerChildCount(dialog)).isEqualTo(1)
@@ -187,7 +189,7 @@ class CheckoutDialogTest {
         val customColors = customColors()
         ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Web(customColors)
 
-        ShopifyCheckoutSheetKit.present("https://shopify.com", activity, NoopEventProcessor())
+        ShopifyCheckoutSheetKit.present("https://shopify.com", activity, processor)
 
         val dialog = ShadowDialog.getLatestDialog()
         val header = dialog.findViewById<Toolbar>(R.id.checkoutSdkHeader)
@@ -202,7 +204,7 @@ class CheckoutDialogTest {
         val customColors = customColors()
         ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Web(customColors)
 
-        ShopifyCheckoutSheetKit.present("https://shopify.com", activity, NoopEventProcessor())
+        ShopifyCheckoutSheetKit.present("https://shopify.com", activity, processor)
 
         val dialog = ShadowDialog.getLatestDialog()
         val webViewContainer = dialog.findViewById<FrameLayout>(R.id.checkoutSdkContainer)
@@ -228,5 +230,19 @@ class CheckoutDialogTest {
     private fun containerChildCount(dialog: Dialog): Int {
         val frameLayout = dialog.findViewById<FrameLayout>(R.id.checkoutSdkContainer)
         return frameLayout.childCount
+    }
+
+    private fun defaultCheckoutEventProcessor(): DefaultCheckoutEventProcessor {
+        return object : DefaultCheckoutEventProcessor(activity) {
+            override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {
+                // no-op
+            }
+            override fun onCheckoutFailed(error: CheckoutException) {
+                // no-op
+            }
+            override fun onCheckoutCanceled() {
+                // no-op
+            }
+        }
     }
 }
