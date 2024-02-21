@@ -23,6 +23,14 @@
 
 package com.shopify.checkoutsheetkit
 
+import com.shopify.checkoutsheetkit.completedevent.Address
+import com.shopify.checkoutsheetkit.completedevent.CartLine
+import com.shopify.checkoutsheetkit.completedevent.CartLineImage
+import com.shopify.checkoutsheetkit.completedevent.CheckoutCompletedEventDecoder
+import com.shopify.checkoutsheetkit.completedevent.DeliveryDetails
+import com.shopify.checkoutsheetkit.completedevent.DeliveryInfo
+import com.shopify.checkoutsheetkit.completedevent.PaymentMethod
+import com.shopify.checkoutsheetkit.completedevent.Price
 import com.shopify.checkoutsheetkit.pixelevents.MoneyV2
 import kotlinx.serialization.json.Json
 import org.assertj.core.api.Assertions.assertThat
@@ -82,7 +90,7 @@ class CheckoutCompletedEventDecoderTest {
         val orderDetails = result.orderDetails
 
         assertThat(orderDetails?.cart?.price).isEqualTo(
-            PriceSet(
+            Price(
                 total = MoneyV2(
                     amount = 13.99,
                     currencyCode = "GBP",
@@ -138,7 +146,7 @@ class CheckoutCompletedEventDecoderTest {
 
         assertThat(orderDetails?.paymentMethods).isEqualTo(
             listOf(
-                OrderPaymentMethod(
+                PaymentMethod(
                     type = "wallet",
                     details = mapOf(
                         "amount" to "13.99",

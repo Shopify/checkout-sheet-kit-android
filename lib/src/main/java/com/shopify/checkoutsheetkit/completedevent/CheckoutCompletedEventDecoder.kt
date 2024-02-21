@@ -20,32 +20,29 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.details
+package com.shopify.checkoutsheetkit.completedevent
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import com.shopify.checkoutsheetkit.completedevent.CheckoutCompletedEvent
-import kotlinx.serialization.encodeToString
+import com.shopify.checkoutsheetkit.LogWrapper
+import com.shopify.checkoutsheetkit.WebToSdkEvent
+import com.shopify.checkoutsheetkit.pixelevents.MoneyV2
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
-@Composable
-fun CheckoutCompletedDetails(
-    event: CheckoutCompletedEvent?,
-    prettyJson: Json,
-) {
-    LogDetails(
-        header = "Details",
-        message = prettyJson.encodeDataToString(event),
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(color = MaterialTheme.colors.surface)
-    )
-}
+@Serializable
+public data class CheckoutCompletedEvent(
+    public val orderDetails: OrderDetails? = null
+)
 
-private inline fun <reified T> Json.encodeDataToString(el: T?, default: String = "n/a"): String {
-    if (el == null) return default
-    return encodeToString(el)
+internal class CheckoutCompletedEventDecoder @JvmOverloads constructor(
+    private val decoder: Json,
+    private val log: LogWrapper = LogWrapper()
+) {
+    fun decode(decodedMsg: WebToSdkEvent): CheckoutCompletedEvent {
+        return try {
+            decoder.decodeFromString<CheckoutCompletedEvent>(decodedMsg.body)
+        } catch (e: Exception) {
+            log.e("CheckoutBridge", "Failed to decode CheckoutCompleted event", e)
+            CheckoutCompletedEvent()
+        }
+    }
 }

@@ -25,6 +25,7 @@ package com.shopify.checkoutsheetkit
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.ComponentActivity
+import com.shopify.checkoutsheetkit.completedevent.CheckoutCompletedEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before

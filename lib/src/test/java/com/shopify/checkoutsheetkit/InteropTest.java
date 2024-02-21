@@ -7,6 +7,8 @@ import android.app.Activity;
 import androidx.activity.ComponentActivity;
 import androidx.annotation.NonNull;
 
+import com.shopify.checkoutsheetkit.completedevent.CheckoutCompletedEvent;
+import com.shopify.checkoutsheetkit.completedevent.CheckoutCompletedEventDecoder;
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent;
 import com.shopify.checkoutsheetkit.pixelevents.PixelEventDecoder;
 import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent;
