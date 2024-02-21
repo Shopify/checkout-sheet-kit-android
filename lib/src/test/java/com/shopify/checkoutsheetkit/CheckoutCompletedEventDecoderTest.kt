@@ -107,7 +107,7 @@ class CheckoutCompletedEventDecoderTest {
                     amount = 5.99,
                     currencyCode = "GBP",
                 ),
-                discounts = null,
+                discounts = emptyList(),
             )
         )
     }
@@ -199,6 +199,7 @@ class CheckoutCompletedEventDecoderTest {
               "orderDetails": {
                 "id": "gid://shopify/OrderIdentity/9697125302294",
                 "cart": {
+                  "token": "123",
                   "lines": [
                     {
                       "image": {

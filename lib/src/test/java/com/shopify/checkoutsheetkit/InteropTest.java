@@ -121,6 +121,7 @@ public class InteropTest {
      "      \"orderDetails\": {\n" +
      "        \"id\": \"gid://shopify/OrderIdentity/9697125302294\",\n" +
      "        \"cart\": {\n" +
+     "          \"token\": \"123abc\",\n" +
      "          \"lines\": [\n" +
      "            {\n" +
      "              \"image\": {\n" +
