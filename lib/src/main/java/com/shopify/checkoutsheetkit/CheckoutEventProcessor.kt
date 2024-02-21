@@ -144,15 +144,6 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
         // no-op, override to implement
     }
 
-    @Deprecated("Replace with the onCheckoutCompleted(checkoutCompletedEvent) callback")
-    override fun onCheckoutCompleted() {
-        // no-op, override to implement
-    }
-
-    override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {
-        // no-op, override to implement
-    }
-
     private fun Context.launchEmailApp(to: String) {
         val intent = Intent(Intent.ACTION_SEND)
         intent.type = "vnd.android.cursor.item/email"
