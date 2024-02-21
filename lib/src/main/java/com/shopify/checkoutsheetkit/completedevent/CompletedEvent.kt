@@ -20,42 +20,36 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutsheetkit
+package com.shopify.checkoutsheetkit.completedevent
 
 import com.shopify.checkoutsheetkit.pixelevents.MoneyV2
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-
-@Serializable
-public data class CheckoutCompletedEvent(
-    public val orderDetails: OrderDetails? = null
-)
 
 @Serializable
 public data class OrderDetails(
-    public val id: String? = null,
+    public val id: String,
     public val email: String? = null,
     public val phone: String? = null,
-    public val cart: CartInfo? = null,
-    public val paymentMethods: List<OrderPaymentMethod> = emptyList(),
+    public val cart: CartInfo,
     public val billingAddress: Address? = null,
+    public val paymentMethods: List<PaymentMethod> = emptyList(),
     public val deliveries: List<DeliveryInfo> = emptyList(),
 )
 
 @Serializable
 public data class CartInfo(
-    public val token: String? = null,
-    public val lines: List<CartLine> = emptyList(),
-    public val price: PriceSet? = null,
+    public val token: String,
+    public val lines: List<CartLine>,
+    public val price: Price,
 )
 
 @Serializable
-public data class PriceSet(
-    public val subtotal: MoneyV2? = null,
+public data class Price(
     public val total: MoneyV2? = null,
+    public val subtotal: MoneyV2? = null,
     public val taxes: MoneyV2? = null,
-    public val discounts: List<Discount>? = null,
     public val shipping: MoneyV2? = null,
+    public val discounts: List<Discount>? = emptyList(),
 )
 
 @Serializable
@@ -74,9 +68,9 @@ public data class Address(
 )
 
 @Serializable
-public data class OrderPaymentMethod(
-    public val type: String? = null,
-    public val details: Map<String, String?>? = emptyMap(),
+public data class PaymentMethod(
+    public val type: String,
+    public val details: Map<String, String>? = emptyMap(),
 )
 
 /**
@@ -85,8 +79,8 @@ public data class OrderPaymentMethod(
  */
 @Serializable
 public data class DeliveryInfo(
-    public val method: String? = null,
-    public val details: DeliveryDetails? = null,
+    public val method: String,
+    public val details: DeliveryDetails,
 )
 
 @Serializable
@@ -98,13 +92,13 @@ public data class DeliveryDetails(
 
 @Serializable
 public data class CartLine(
-    public val title: String? = null,
-    public val quantity: Int? = null,
-    public val price: MoneyV2? = null,
-    public val image: CartLineImage? = null,
     public val merchandiseId: String? = null,
     public val productId: String? = null,
-    public val discounts: List<Discount>? = null,
+    public val image: CartLineImage? = null,
+    public val quantity: Int,
+    public val title: String,
+    public val price: MoneyV2,
+    public val discounts: List<Discount>? = emptyList(),
 )
 
 @Serializable
@@ -118,22 +112,8 @@ public data class Discount(
 
 @Serializable
 public data class CartLineImage(
-    public val sm: String? = null,
-    public val md: String? = null,
-    public val lg: String? = null,
+    public val sm: String,
+    public val md: String,
+    public val lg: String,
     public val altText: String? = null,
 )
-
-internal class CheckoutCompletedEventDecoder @JvmOverloads constructor(
-    private val decoder: Json,
-    private val log: LogWrapper = LogWrapper()
-) {
-    fun decode(decodedMsg: WebToSdkEvent): CheckoutCompletedEvent {
-        return try {
-            decoder.decodeFromString<CheckoutCompletedEvent>(decodedMsg.body)
-        } catch (e: Exception) {
-            log.e("CheckoutBridge", "Failed to decode CheckoutCompleted event", e)
-            CheckoutCompletedEvent()
-        }
-    }
-}
