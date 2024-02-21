@@ -1,9 +1,9 @@
 # Changelog
 
-## 1.1.0 February 1, 2024
+## 2.0.0 February 21, 2024
 
-- A new `onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent)` overload has been added to the `CheckoutEventProcessor`, providing clients with more information about the checkout that just completed.
-The no-arg `onCheckoutCompleted()` callback is now deprecated. Default implementations have been provided for clients extending `DefaultCheckoutEventProcessor` to avoid breaking changes where possible.
+- **Breaking Changes** present() now takes a class that extends `DefaultCheckoutEventProcessor`, instead of any implementation of the `CheckoutEventProcessor` interface. This will allow us to make non-breaking changes more easily going forward.
+- **Breaking Changes** The signature of `onCheckoutCompleted()` on  CheckoutEventProcessor has been updated to `onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent)`. The completed event parameter provides clients with information about the checkout that just completed.
 
 ## 1.0.0 January 31, 2024
 

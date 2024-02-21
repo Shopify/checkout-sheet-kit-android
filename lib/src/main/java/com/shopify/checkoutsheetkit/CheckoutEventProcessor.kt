@@ -76,9 +76,6 @@ public interface CheckoutEventProcessor {
      */
     public fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent)
 
-    @Deprecated("Replace with the onCheckoutCompleted(checkoutCompletedEvent) callback")
-    public fun onCheckoutCompleted()
-
     /**
      * Event representing an error that occurred during checkout. This can be used to display
      * error messages for example.
@@ -108,10 +105,6 @@ public interface CheckoutEventProcessor {
 
 internal class NoopEventProcessor : CheckoutEventProcessor {
     override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {/* noop */
-    }
-
-    @Deprecated("Replace with the onCheckoutCompleted(checkoutCompletedEvent) callback")
-    override fun onCheckoutCompleted() {/* noop */
     }
 
     override fun onCheckoutFailed(error: CheckoutException) {/* noop */
@@ -147,15 +140,6 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
     }
 
     override fun onWebPixelEvent(event: PixelEvent) {
-        // no-op, override to implement
-    }
-
-    @Deprecated("Replace with the onCheckoutCompleted(checkoutCompletedEvent) callback")
-    override fun onCheckoutCompleted() {
-        // no-op, override to implement
-    }
-
-    override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {
         // no-op, override to implement
     }
 

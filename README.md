@@ -187,7 +187,7 @@ ShopifyCheckoutSheetKit.preload(checkoutUrl)
 
 ### Monitoring the lifecycle of a checkout session
 
-You can extend the `DefaultCheckoutEventProcessor` interface to register callbacks for key lifecycle events
+Extend the `DefaultCheckoutEventProcessor` abstract class to register callbacks for key lifecycle events
 during the checkout session:
 
 ```kotlin
@@ -255,7 +255,7 @@ val processor = object : DefaultCheckoutEventProcessor(activity) {
 
 ```
 
-_Note_: The `DefaultCheckoutEventProcessor` provides default implementations for current and future callback functions (such as `onLinkClicked()`), which can be overridden by clients wanting to change default behavior. Our semantic versioning will assume extension of this class.
+_Note_: The `DefaultCheckoutEventProcessor` provides default implementations for current and future callback functions (such as `onLinkClicked()`), which can be overridden by clients wanting to change default behavior.
 
 #### Integrating with Web Pixels, monitoring behavioral data
 

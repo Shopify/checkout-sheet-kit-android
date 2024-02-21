@@ -99,10 +99,10 @@ public object ShopifyCheckoutSheetKit {
      * (failure, completion, cancellation, external link clicks).
      */
     @JvmStatic
-    public fun present(
+    public fun <T: DefaultCheckoutEventProcessor> present(
         checkoutUrl: String,
         context: ComponentActivity,
-        checkoutEventProcessor: CheckoutEventProcessor
+        checkoutEventProcessor: T
     ) {
         if (context.isDestroyed || context.isFinishing) {
             return
