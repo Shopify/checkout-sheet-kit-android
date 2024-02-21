@@ -102,25 +102,25 @@ class CheckoutBridgeTest {
     @Test
     fun `user agent suffix includes metadata for the schema version, theme, and variant - dark`() {
         ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Dark()
-        assertThat(CheckoutBridge.userAgentSuffix()).endsWith("(7.0;dark;standard)")
+        assertThat(CheckoutBridge.userAgentSuffix()).endsWith("(8.0;dark;standard)")
     }
 
     @Test
     fun `user agent suffix includes metadata for the schema version, theme, and variant - light`() {
         ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Light()
-        assertThat(CheckoutBridge.userAgentSuffix()).endsWith("(7.0;light;standard)")
+        assertThat(CheckoutBridge.userAgentSuffix()).endsWith("(8.0;light;standard)")
     }
 
     @Test
     fun `user agent suffix includes metadata for the schema version, theme, and variant - web`() {
         ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Web()
-        assertThat(CheckoutBridge.userAgentSuffix()).endsWith("(7.0;web_default;standard)")
+        assertThat(CheckoutBridge.userAgentSuffix()).endsWith("(8.0;web_default;standard)")
     }
 
     @Test
     fun `user agent suffix includes metadata for the schema version, theme, and variant - automatic`() {
         ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Automatic()
-        assertThat(CheckoutBridge.userAgentSuffix()).endsWith("(7.0;automatic;standard)")
+        assertThat(CheckoutBridge.userAgentSuffix()).endsWith("(8.0;automatic;standard)")
     }
 
     @Test
