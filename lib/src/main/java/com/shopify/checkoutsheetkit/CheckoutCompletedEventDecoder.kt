@@ -54,7 +54,7 @@ public data class PriceSet(
     public val subtotal: MoneyV2? = null,
     public val total: MoneyV2? = null,
     public val taxes: MoneyV2? = null,
-    public val discounts: MoneyV2? = null,
+    public val discounts: List<Discount>? = null,
     public val shipping: MoneyV2? = null,
 )
 
@@ -104,6 +104,16 @@ public data class CartLine(
     public val image: CartLineImage? = null,
     public val merchandiseId: String? = null,
     public val productId: String? = null,
+    public val discounts: List<Discount>? = null,
+)
+
+@Serializable
+public data class Discount(
+    public val title: String? = null,
+    public val amount: MoneyV2? = null,
+    public val applicationType: String? = null,
+    public val valueType: String? = null,
+    public val value: Double? = null,
 )
 
 @Serializable

@@ -111,7 +111,7 @@ internal class CheckoutBridge(
 
     companion object {
         private const val SDK_VERSION_NUMBER: String = BuildConfig.SDK_VERSION
-        private const val SCHEMA_VERSION_NUMBER: String = "7.0"
+        private const val SCHEMA_VERSION_NUMBER: String = "8.0"
         private fun dispatchMessageTemplate(body: String) = """|
         |if (window.MobileCheckoutSdk && window.MobileCheckoutSdk.dispatchMessage) {
         |    window.MobileCheckoutSdk.dispatchMessage($body);
