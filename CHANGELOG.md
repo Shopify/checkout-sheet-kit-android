@@ -1,10 +1,5 @@
 # Changelog
 
-## 2.0.0 February 21, 2024
-
-- **Breaking Changes** present() now takes a class that extends `DefaultCheckoutEventProcessor`, instead of any implementation of the `CheckoutEventProcessor` interface. This will allow us to make non-breaking changes more easily going forward.
-- **Breaking Changes** The signature of `onCheckoutCompleted()` on  CheckoutEventProcessor has been updated to `onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent)`. The completed event parameter provides clients with information about the checkout that just completed.
-
 ## 1.0.0 January 31, 2024
 
 - Checkout Sheet Kit is now generally available
