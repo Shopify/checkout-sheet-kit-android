@@ -24,6 +24,7 @@ package com.shopify.checkoutsheetkit
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Color.TRANSPARENT
 import android.net.Uri
 import android.os.Build
@@ -96,6 +97,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             javaScriptEnabled = true
             domStorageEnabled = true
         }
+        isHorizontalScrollBarEnabled = false
         webViewClient = CheckoutWebViewClient()
         requestDisallowInterceptTouchEvent(true)
         setBackgroundColor(TRANSPARENT)
@@ -135,6 +137,11 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             if (BuildConfig.DEBUG) {
                 setWebContentsDebuggingEnabled(true)
             }
+        }
+
+        override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+            super.onPageStarted(view, url, favicon)
+            checkoutBridge.getEventProcessor().onCheckoutViewLoadStarted()
         }
 
         override fun onPageFinished(view: WebView, url: String) {

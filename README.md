@@ -120,7 +120,7 @@ ShopifyCheckoutSheetKit.configure {
             webViewBackground = Color.ResourceId(R.color.web_view_background),
             headerFont = Color.ResourceId(R.color.header_font),
             headerBackground = Color.ResourceId(R.color.header_background),
-            spinnerColor = Color.ResourceId(R.color.loading_spinner),
+            progressIndicator = Color.ResourceId(R.color.progress_indicator),
         )
     )
 }
@@ -136,13 +136,13 @@ val automatic = ColorScheme.Automatic(
         headerBackground = Color.ResourceId(R.color.headerLight),
         headerFont = Color.ResourceId(R.color.headerFontLight),
         webViewBackground = Color.ResourceId(R.color.webViewBgLight),
-        spinnerColor = Color.ResourceId(R.color.spinnerLight),
+        progressIndicator = Color.ResourceId(R.color.indicatorLight),
     ),
     darkColors = Colors(
         headerBackground = Color.ResourceId(R.color.headerDark),
         headerFont = Color.ResourceId(R.color.headerFontDark,
         webViewBackground = Color.ResourceId(R.color.webViewBgDark),
-        spinnerColor = Color.ResourceId(R.color.spinnerDark),
+        progressIndicator = Color.ResourceId(R.color.indicatorDark),
     )
 )
 ```
@@ -182,8 +182,7 @@ ShopifyCheckoutSheetKit.preload(checkoutUrl)
    reflect the updated checkout session.
 3. Calling `preload(checkoutUrl)` is a hint, not a guarantee. The library may debounce or ignore
    calls to this API depending on various conditions; the preload may not complete before
-   `present(checkoutUrl)` is called, in which case the buyer may still see a spinner while the
-   checkout session is finalized.
+   `present(checkoutUrl)` is called, in which case the buyer may still see a progress/loading indicator while the checkout session is finalized.
 
 ### Monitoring the lifecycle of a checkout session
 

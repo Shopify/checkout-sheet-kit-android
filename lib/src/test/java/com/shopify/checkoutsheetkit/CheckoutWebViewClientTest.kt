@@ -151,7 +151,7 @@ class CheckoutWebViewClientTest {
     }
 
     @Test
-    fun `onPageFinished calls delegate to remove loading spinner`() {
+    fun `onPageFinished calls delegate to remove progress indicator`() {
         val view = viewWithProcessor(activity)
         val webViewClient = view.CheckoutWebViewClient()
 

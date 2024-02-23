@@ -26,7 +26,7 @@ import android.app.Dialog
 import android.graphics.drawable.ColorDrawable
 import android.os.Looper
 import android.view.View
-import android.widget.FrameLayout
+import android.widget.RelativeLayout
 import androidx.activity.ComponentActivity
 import androidx.appcompat.widget.Toolbar
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
@@ -88,22 +88,22 @@ class CheckoutDialogTest {
         ShadowLooper.runUiThreadTasks()
 
         await().atMost(2, TimeUnit.SECONDS).until {
-            containerChildCount(dialog) == 1
+            containerChildCount(dialog) == 2
         }
     }
 
     @Test
-    fun `cancel() removes checkoutView from the container`() {
+    fun `cancel() removes checkoutView from the container so that it can be destroyed`() {
         ShopifyCheckoutSheetKit.present("https://shopify.com", activity, processor)
 
         val dialog = ShadowDialog.getLatestDialog()
-        assertThat(containerChildCount(dialog)).isEqualTo(1)
+        assertThat(containerChildCount(dialog)).isEqualTo(2)
 
         dialog.cancel()
         ShadowLooper.runUiThreadTasks()
 
         await().atMost(2, TimeUnit.SECONDS).until {
-            containerChildCount(dialog) == 0
+            containerChildCount(dialog) == 1
         }
     }
 
@@ -158,7 +158,7 @@ class CheckoutDialogTest {
         ShopifyCheckoutSheetKit.present("https://shopify.com", activity, mockEventProcessor)
 
         val dialog = ShadowDialog.getLatestDialog()
-        assertThat(containerChildCount(dialog)).isEqualTo(1)
+        assertThat(containerChildCount(dialog)).isEqualTo(2)
 
         // click cancel button
         val header = dialog.findViewById<Toolbar>(R.id.checkoutSdkHeader)
@@ -173,7 +173,7 @@ class CheckoutDialogTest {
         ShopifyCheckoutSheetKit.present("https://shopify.com", activity, processor)
 
         val dialog = ShadowDialog.getLatestDialog()
-        assertThat(containerChildCount(dialog)).isEqualTo(1)
+        assertThat(containerChildCount(dialog)).isEqualTo(2)
 
         // click cancel button
         val header = dialog.findViewById<Toolbar>(R.id.checkoutSdkHeader)
@@ -181,7 +181,7 @@ class CheckoutDialogTest {
         ShadowLooper.runUiThreadTasks()
 
         await().atMost(2, TimeUnit.SECONDS).until {
-            containerChildCount(dialog) == 0
+            containerChildCount(dialog) == 1
         }
     }
 
@@ -208,7 +208,7 @@ class CheckoutDialogTest {
         ShopifyCheckoutSheetKit.present("https://shopify.com", activity, processor)
 
         val dialog = ShadowDialog.getLatestDialog()
-        val webViewContainer = dialog.findViewById<FrameLayout>(R.id.checkoutSdkContainer)
+        val webViewContainer = dialog.findViewById<RelativeLayout>(R.id.checkoutSdkContainer)
         val webViewContainerBackgroundColor = backgroundColor(webViewContainer)
         val configuredColor = customColors.webViewBackground.getValue(activity)
 
@@ -224,13 +224,13 @@ class CheckoutDialogTest {
             headerFont = Color.ResourceId(androidx.appcompat.R.color.material_grey_850),
             headerBackground = Color.ResourceId(androidx.appcompat.R.color.material_blue_grey_900),
             webViewBackground = Color.ResourceId(androidx.appcompat.R.color.material_deep_teal_200),
-            spinnerColor = Color.ResourceId(androidx.appcompat.R.color.background_material_dark),
+            progressIndicator = Color.ResourceId(androidx.appcompat.R.color.background_material_dark),
         )
     }
 
     private fun containerChildCount(dialog: Dialog): Int {
-        val frameLayout = dialog.findViewById<FrameLayout>(R.id.checkoutSdkContainer)
-        return frameLayout.childCount
+        val layout = dialog.findViewById<RelativeLayout>(R.id.checkoutSdkContainer)
+        return layout.childCount
     }
 
     private fun defaultCheckoutEventProcessor(): DefaultCheckoutEventProcessor {

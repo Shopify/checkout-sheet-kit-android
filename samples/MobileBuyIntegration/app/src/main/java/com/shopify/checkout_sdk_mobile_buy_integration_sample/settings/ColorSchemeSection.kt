@@ -113,7 +113,7 @@ fun ColorSchemeSection(
                     headerBackground = Color.ResourceId(R.color.header_bg),
                     webViewBackground = Color.ResourceId(R.color.web_view_bg),
                     headerFont = Color.ResourceId(R.color.header_font),
-                    spinnerColor = Color.ResourceId(R.color.bright_spinner),
+                    progressIndicator = Color.ResourceId(R.color.bright_progress_indicator),
                 )
             ),
             description = "Applies a color scheme in checkout based on the current checkout web configuration",

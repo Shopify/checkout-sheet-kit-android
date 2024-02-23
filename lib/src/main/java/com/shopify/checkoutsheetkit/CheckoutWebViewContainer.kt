@@ -25,14 +25,14 @@ package com.shopify.checkoutsheetkit
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
-import android.widget.FrameLayout
+import android.widget.RelativeLayout
 
 internal class CheckoutWebViewContainer @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
     defStyleRes: Int = 0
-) : FrameLayout(context, attrs, defStyleAttr, defStyleRes) {
+) : RelativeLayout(context, attrs, defStyleAttr, defStyleRes) {
 
     // Clear the cache whenever the WebView is removed from it's container
     override fun onViewRemoved(child: View?) {

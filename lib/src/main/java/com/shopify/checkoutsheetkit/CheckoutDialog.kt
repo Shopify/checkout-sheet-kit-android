@@ -24,22 +24,22 @@ package com.shopify.checkoutsheetkit
 
 import android.app.Dialog
 import android.content.Context
+import android.content.res.ColorStateList
 import android.content.res.Configuration.UI_MODE_NIGHT_MASK
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.graphics.Color
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.ColorDrawable
 import android.os.Handler
 import android.os.Looper
 import android.view.View.GONE
+import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.WindowManager
-import android.widget.FrameLayout
 import android.widget.ProgressBar
+import android.widget.RelativeLayout
 import androidx.activity.ComponentActivity
 import androidx.annotation.ColorInt
 import androidx.appcompat.widget.Toolbar
@@ -71,7 +71,7 @@ internal class CheckoutDialog(
                 eventProcessor = checkoutEventProcessor,
                 toggleHeader = ::toggleHeader,
                 closeCheckoutDialogWithError = ::closeCheckoutDialogWithError,
-                hideProgressBar = ::hideProgressBar,
+                toggleProgressBar = ::toggleProgressBar,
             )
         )
 
@@ -84,27 +84,14 @@ internal class CheckoutDialog(
             inflateMenu(R.menu.checkout_menu)
         }
 
-        findViewById<FrameLayout>(R.id.checkoutSdkLoadingSpinner).apply {
-            setBackgroundColor(colorScheme.webViewBackgroundColor())
+        findViewById<ProgressBar>(R.id.progressBar).apply {
+            indeterminateTintList = ColorStateList.valueOf(colorScheme.progressIndicatorColor())
             if (checkoutWebView.hasFinishedLoading()) {
-                this.visibility = GONE
+                this.visibility = INVISIBLE
             }
         }
 
-        findViewById<ProgressBar>(R.id.checkoutSdkLoadingSpinnerProgressBar).apply {
-            indeterminateDrawable.setTint(colorScheme.loadingSpinnerColor())
-            indeterminateDrawable.colorFilter = PorterDuffColorFilter(
-                colorScheme.loadingSpinnerColor(), PorterDuff.Mode.SRC_ATOP
-            )
-        }
-
-        findViewById<FrameLayout>(R.id.checkoutSdkContainer).apply {
-            setBackgroundColor(colorScheme.webViewBackgroundColor())
-            if (checkoutWebView.hasFinishedLoading()) {
-                this.visibility = VISIBLE
-            }
-        }.addView(checkoutWebView)
-
+        addCheckoutWebViewToContainer(colorScheme, checkoutWebView)
         setOnCancelListener { checkoutEventProcessor.onCheckoutCanceled() }
 
         setOnDismissListener {
@@ -125,6 +112,18 @@ internal class CheckoutDialog(
         show()
     }
 
+    private fun addCheckoutWebViewToContainer(
+        colorScheme: ColorScheme,
+        checkoutWebView: CheckoutWebView
+    ) {
+        findViewById<RelativeLayout>(R.id.checkoutSdkContainer).apply {
+            setBackgroundColor(colorScheme.webViewBackgroundColor())
+            val layoutParams = RelativeLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
+            layoutParams.addRule(RelativeLayout.BELOW, R.id.progressBar)
+            addView(checkoutWebView, layoutParams)
+        }
+    }
+
     private fun toggleHeader(modalVisible: Boolean) {
         Handler(Looper.getMainLooper()).post {
             val visibility = if (modalVisible) GONE else VISIBLE
@@ -132,9 +131,8 @@ internal class CheckoutDialog(
         }
     }
 
-    private fun hideProgressBar() {
-        findViewById<FrameLayout>(R.id.checkoutSdkLoadingSpinner).visibility = GONE
-        findViewById<CheckoutWebViewContainer>(R.id.checkoutSdkContainer).visibility = VISIBLE
+    private fun toggleProgressBar(visibility: Int) {
+        findViewById<ProgressBar>(R.id.progressBar).visibility = visibility
     }
 
     internal fun closeCheckoutDialogWithError(error: CheckoutException) {
@@ -155,8 +153,8 @@ internal class CheckoutDialog(
         this.headerFontColor(context.isDarkTheme()).getValue(context)
 
     @ColorInt
-    private fun ColorScheme.loadingSpinnerColor() =
-        this.loadingSpinnerColor(context.isDarkTheme()).getValue(context)
+    private fun ColorScheme.progressIndicatorColor() =
+        this.progressIndicatorColor(context.isDarkTheme()).getValue(context)
 
     private fun Context.isDarkTheme() =
         resources.configuration.uiMode and UI_MODE_NIGHT_MASK == UI_MODE_NIGHT_YES

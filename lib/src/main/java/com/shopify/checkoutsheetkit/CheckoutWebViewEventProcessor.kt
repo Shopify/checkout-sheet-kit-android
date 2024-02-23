@@ -26,6 +26,8 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
+import android.view.View.INVISIBLE
+import android.view.View.VISIBLE
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 
 /**
@@ -36,7 +38,7 @@ internal class CheckoutWebViewEventProcessor(
     private val eventProcessor: CheckoutEventProcessor,
     private val toggleHeader: (Boolean) -> Unit = {},
     private val closeCheckoutDialogWithError: (CheckoutException) -> Unit = { CheckoutWebView.clearCache() },
-    private val hideProgressBar: () -> Unit = {},
+    private val toggleProgressBar: (Int) -> Unit = {},
 ) {
     fun onCheckoutViewComplete(checkoutCompletedEvent: CheckoutCompletedEvent) {
         eventProcessor.onCheckoutCompleted(checkoutCompletedEvent)
@@ -60,7 +62,13 @@ internal class CheckoutWebViewEventProcessor(
 
     fun onCheckoutViewLoadComplete() {
         onMainThread {
-            hideProgressBar()
+            toggleProgressBar(INVISIBLE)
+        }
+    }
+
+    fun onCheckoutViewLoadStarted() {
+        onMainThread {
+            toggleProgressBar(VISIBLE)
         }
     }
 
