@@ -25,7 +25,7 @@ package com.shopify.checkoutsheetkit
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
-import com.shopify.checkoutsheetkit.completedevent.CheckoutCompletedEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 
 /**

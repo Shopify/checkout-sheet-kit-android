@@ -23,14 +23,14 @@
 
 package com.shopify.checkoutsheetkit
 
-import com.shopify.checkoutsheetkit.completedevent.Address
-import com.shopify.checkoutsheetkit.completedevent.CartLine
-import com.shopify.checkoutsheetkit.completedevent.CartLineImage
-import com.shopify.checkoutsheetkit.completedevent.CheckoutCompletedEventDecoder
-import com.shopify.checkoutsheetkit.completedevent.DeliveryDetails
-import com.shopify.checkoutsheetkit.completedevent.DeliveryInfo
-import com.shopify.checkoutsheetkit.completedevent.PaymentMethod
-import com.shopify.checkoutsheetkit.completedevent.Price
+import com.shopify.checkoutsheetkit.lifecycleevents.Address
+import com.shopify.checkoutsheetkit.lifecycleevents.CartLine
+import com.shopify.checkoutsheetkit.lifecycleevents.CartLineImage
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEventDecoder
+import com.shopify.checkoutsheetkit.lifecycleevents.DeliveryDetails
+import com.shopify.checkoutsheetkit.lifecycleevents.DeliveryInfo
+import com.shopify.checkoutsheetkit.lifecycleevents.PaymentMethod
+import com.shopify.checkoutsheetkit.lifecycleevents.Price
 import com.shopify.checkoutsheetkit.pixelevents.MoneyV2
 import kotlinx.serialization.json.Json
 import org.assertj.core.api.Assertions.assertThat
