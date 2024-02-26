@@ -187,18 +187,19 @@ ShopifyCheckoutSheetKit.preload(checkoutUrl)
 
 ### Monitoring the lifecycle of a checkout session
 
-You can extend the `DefaultCheckoutEventProcessor` interface to register callbacks for key lifecycle events
+Extend the `DefaultCheckoutEventProcessor` abstract class to register callbacks for key lifecycle events
 during the checkout session:
 
 ```kotlin
 val processor = object : DefaultCheckoutEventProcessor(activity) {
-    override fun onCheckoutCompleted() {
+    override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {
         // Called when the checkout was completed successfully by the buyer.
         // Use this to update UI, reset cart state, etc.
     }
 
     override fun onCheckoutCanceled() {
         // Called when the checkout was canceled by the buyer.
+        // Note: This will also be received after closing a completed checkout
     }
 
     override fun onCheckoutFailed(error: CheckoutException) {

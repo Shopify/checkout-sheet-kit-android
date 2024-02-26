@@ -53,12 +53,13 @@ import androidx.compose.ui.unit.sp
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.AppBarState
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.toDisplayText
 import com.shopify.checkoutsheetkit.CheckoutEventProcessor
+import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 
 @Composable
-fun CartView(
+fun <T: DefaultCheckoutEventProcessor> CartView(
     cartViewModel: CartViewModel,
     setAppBarState: (AppBarState) -> Unit,
-    checkoutEventProcessor: CheckoutEventProcessor,
+    checkoutEventProcessor: T,
 ) {
     val state = cartViewModel.cartState.collectAsState().value
 

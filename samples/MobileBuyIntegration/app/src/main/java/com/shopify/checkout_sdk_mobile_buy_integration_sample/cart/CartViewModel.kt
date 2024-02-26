@@ -30,7 +30,7 @@ import com.shopify.buy3.Storefront.Cart
 import com.shopify.buy3.Storefront.CartLineInput
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
-import com.shopify.checkoutsheetkit.CheckoutEventProcessor
+import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 import com.shopify.graphql.support.ID
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -72,10 +72,10 @@ class CartViewModel(
         _cartState.value = CartState.Empty
     }
 
-    fun presentCheckout(
+    fun <T: DefaultCheckoutEventProcessor> presentCheckout(
         url: String,
         activity: ComponentActivity,
-        eventProcessor: CheckoutEventProcessor
+        eventProcessor: T
     ) {
         ShopifyCheckoutSheetKit.present(url, activity, eventProcessor)
     }

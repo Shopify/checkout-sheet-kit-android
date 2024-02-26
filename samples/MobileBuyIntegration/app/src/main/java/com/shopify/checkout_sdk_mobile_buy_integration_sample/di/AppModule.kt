@@ -30,6 +30,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.LogDatabase
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.MIGRATION_1_2
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.LogsViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.product.ProductViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
@@ -68,7 +69,9 @@ val appModules = module {
             get(),
             LogDatabase::class.java,
             "log-db"
-        ).build()
+        )
+            .addMigrations(MIGRATION_1_2)
+            .build()
     }
 
     single {

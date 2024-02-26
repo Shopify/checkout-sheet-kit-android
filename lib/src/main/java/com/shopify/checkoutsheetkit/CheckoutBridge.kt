@@ -28,6 +28,7 @@ import android.webkit.WebView
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.MODAL
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.WEB_PIXELS
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEventDecoder
 import com.shopify.checkoutsheetkit.pixelevents.PixelEventDecoder
 
 import kotlinx.serialization.Serializable
@@ -38,6 +39,7 @@ internal class CheckoutBridge(
     private var eventProcessor: CheckoutWebViewEventProcessor,
     private val decoder: Json = Json { ignoreUnknownKeys = true },
     private val pixelEventDecoder: PixelEventDecoder = PixelEventDecoder(decoder),
+    private val checkoutCompletedEventDecoder: CheckoutCompletedEventDecoder = CheckoutCompletedEventDecoder(decoder)
 ) {
 
     fun setEventProcessor(eventProcessor: CheckoutWebViewEventProcessor) {
@@ -69,7 +71,11 @@ internal class CheckoutBridge(
         val decodedMsg = decoder.decodeFromString<WebToSdkEvent>(message)
 
         when (CheckoutWebOperation.fromKey(decodedMsg.name)) {
-            COMPLETED -> eventProcessor.onCheckoutViewComplete()
+            COMPLETED -> {
+                checkoutCompletedEventDecoder.decode(decodedMsg).let { event ->
+                    eventProcessor.onCheckoutViewComplete(event)
+                }
+            }
             MODAL -> {
                 val modalVisible = decodedMsg.body.toBooleanStrictOrNull()
                 modalVisible?.let {
@@ -106,7 +112,7 @@ internal class CheckoutBridge(
 
     companion object {
         private const val SDK_VERSION_NUMBER: String = BuildConfig.SDK_VERSION
-        private const val SCHEMA_VERSION_NUMBER: String = "7.0"
+        private const val SCHEMA_VERSION_NUMBER: String = "8.0"
         private fun dispatchMessageTemplate(body: String) = """|
         |if (window.MobileCheckoutSdk && window.MobileCheckoutSdk.dispatchMessage) {
         |    window.MobileCheckoutSdk.dispatchMessage($body);
