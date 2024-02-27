@@ -352,7 +352,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             return key == cacheEntry!!.key && !cacheEntry!!.isStale
         }
 
-        internal val isStale: Boolean
+        private val isStale: Boolean
             get() = abs(timestamp - clock.currentTimeMillis()) >= timeout
     }
 
