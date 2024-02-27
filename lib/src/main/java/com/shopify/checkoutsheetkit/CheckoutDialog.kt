@@ -29,6 +29,7 @@ import android.content.res.Configuration.UI_MODE_NIGHT_MASK
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.view.View.GONE
@@ -72,6 +73,7 @@ internal class CheckoutDialog(
                 toggleHeader = ::toggleHeader,
                 closeCheckoutDialogWithError = ::closeCheckoutDialogWithError,
                 toggleProgressBar = ::toggleProgressBar,
+                updateProgressBarPercentage = ::updateProgressBarPercentage,
             )
         )
 
@@ -85,7 +87,7 @@ internal class CheckoutDialog(
         }
 
         findViewById<ProgressBar>(R.id.progressBar).apply {
-            indeterminateTintList = ColorStateList.valueOf(colorScheme.progressIndicatorColor())
+            progressTintList = ColorStateList.valueOf(colorScheme.progressIndicatorColor())
             if (checkoutWebView.hasFinishedLoading()) {
                 this.visibility = INVISIBLE
             }
@@ -128,6 +130,14 @@ internal class CheckoutDialog(
         Handler(Looper.getMainLooper()).post {
             val visibility = if (modalVisible) GONE else VISIBLE
             findViewById<Toolbar>(R.id.checkoutSdkHeader).visibility = visibility
+        }
+    }
+
+    private fun updateProgressBarPercentage(percentage: Int) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            findViewById<ProgressBar>(R.id.progressBar).setProgress(percentage, true)
+        } else {
+            findViewById<ProgressBar>(R.id.progressBar).progress = percentage
         }
     }
 

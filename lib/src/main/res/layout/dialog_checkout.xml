@@ -28,8 +28,8 @@
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
             android:layout_height="4dp"
-            android:scaleY="4"
-            android:indeterminate="true" />
+            android:max="100"
+            android:indeterminate="false" />
 
     </com.shopify.checkoutsheetkit.CheckoutWebViewContainer>
 </RelativeLayout>

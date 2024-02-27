@@ -37,6 +37,7 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.webkit.RenderProcessGoneDetail
+import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -96,6 +97,12 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             userAgentString = "${settings.userAgentString} ${userAgentSuffix()}"
             javaScriptEnabled = true
             domStorageEnabled = true
+        }
+        webChromeClient = object: WebChromeClient() {
+            override fun onProgressChanged(view: WebView?, newProgress: Int) {
+                super.onProgressChanged(view, newProgress)
+                checkoutBridge.getEventProcessor().updateProgressBar(newProgress)
+            }
         }
         isHorizontalScrollBarEnabled = false
         webViewClient = CheckoutWebViewClient()
