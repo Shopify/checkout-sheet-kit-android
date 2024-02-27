@@ -27,6 +27,7 @@ import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
+import android.widget.RelativeLayout
 import androidx.activity.ComponentActivity
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
@@ -237,7 +238,7 @@ class CheckoutWebViewClientTest {
     }
 
     private fun CheckoutWebView.withParent(): CheckoutWebView {
-        val container = CheckoutWebViewContainer(activity)
+        val container = RelativeLayout(activity)
         container.addView(this)
         return this
     }

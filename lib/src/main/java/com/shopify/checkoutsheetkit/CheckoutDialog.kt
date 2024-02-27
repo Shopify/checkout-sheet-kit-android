@@ -147,6 +147,7 @@ internal class CheckoutDialog(
 
     internal fun closeCheckoutDialogWithError(error: CheckoutException) {
         checkoutEventProcessor.onCheckoutFailed(error)
+        CheckoutWebView.clearCache()
         dismiss()
     }
 

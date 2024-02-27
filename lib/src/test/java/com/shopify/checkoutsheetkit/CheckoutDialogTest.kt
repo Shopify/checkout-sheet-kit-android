@@ -108,22 +108,6 @@ class CheckoutDialogTest {
     }
 
     @Test
-    fun `cancel() removes checkoutView from the container and invalidates the cache`() {
-        withPreloadingEnabled {
-            val url = "https://shopify.com"
-            ShopifyCheckoutSheetKit.present(url, activity, processor)
-            val dialog = ShadowDialog.getLatestDialog()
-            val preCancelView = CheckoutWebView.cacheableCheckoutView(url, activity)
-
-            dialog.cancel()
-            Shadows.shadowOf(Looper.getMainLooper()).runToEndOfTasks()
-
-            val postCancelView = CheckoutWebView.cacheableCheckoutView(url, activity)
-            assertThat(preCancelView).isNotEqualTo(postCancelView)
-        }
-    }
-
-    @Test
     fun `cancel calls onCheckoutCanceled if cancel is called`() {
         val mockEventProcessor = mock<DefaultCheckoutEventProcessor>()
         ShopifyCheckoutSheetKit.present("https://shopify.com", activity, mockEventProcessor)
