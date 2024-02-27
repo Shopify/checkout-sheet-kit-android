@@ -149,6 +149,14 @@ val automatic = ColorScheme.Automatic(
 
 The current configuration can be obtained by calling `ShopifyCheckoutSheetKit.getConfiguration()`.
 
+### Checkout Dialog Title
+
+To customize the title of the Dialog that the checkout WebView is displayed within, or to provide different values for the various locales your app supports, override the `checkout_web_view_title` String resource in your application, e.g:
+
+```xml
+    <string name="checkout_web_view_title">Buy Now!</string>
+```
+
 ### Preloading
 
 Initializing a checkout session requires communicating with Shopify servers and, depending

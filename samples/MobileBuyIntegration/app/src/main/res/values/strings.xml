@@ -5,4 +5,5 @@
     <string name="color_scheme_web">Web</string>
     <string name="color_scheme_automatic">Automatic</string>
     <string name="checkout_error">Checkout failed, please try again</string>
+    <string name="checkout_web_view_title">Buy Now!</string>
 </resources>
