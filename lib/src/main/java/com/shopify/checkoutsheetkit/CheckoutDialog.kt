@@ -94,7 +94,10 @@ internal class CheckoutDialog(
         }
 
         addCheckoutWebViewToContainer(colorScheme, checkoutWebView)
-        setOnCancelListener { checkoutEventProcessor.onCheckoutCanceled() }
+        setOnCancelListener {
+            CheckoutWebViewContainer.retainCache = true
+            checkoutEventProcessor.onCheckoutCanceled()
+        }
 
         setOnDismissListener {
             checkoutWebView.parent?.let {
@@ -120,7 +123,7 @@ internal class CheckoutDialog(
     ) {
         findViewById<RelativeLayout>(R.id.checkoutSdkContainer).apply {
             setBackgroundColor(colorScheme.webViewBackgroundColor())
-            val layoutParams = RelativeLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
+            val layoutParams = RelativeLayout.LayoutParams(WRAP_CONTENT, MATCH_PARENT)
             layoutParams.addRule(RelativeLayout.BELOW, R.id.progressBar)
             addView(checkoutWebView, layoutParams)
         }

@@ -321,7 +321,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
                         key = url,
                         view = view,
                         clock = cacheClock,
-                        timeout = if (preloadingEnabled) 5.minutes.inWholeMilliseconds else 0,
+                        timeout = if (isPreload && preloadingEnabled) 5.minutes.inWholeMilliseconds else 0,
                     )
                 )
 
@@ -352,7 +352,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             return key == cacheEntry!!.key && !cacheEntry!!.isStale
         }
 
-        private val isStale: Boolean
+        internal val isStale: Boolean
             get() = abs(timestamp - clock.currentTimeMillis()) >= timeout
     }
 
