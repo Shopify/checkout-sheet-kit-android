@@ -72,7 +72,7 @@ internal class CheckoutDialog(
                 eventProcessor = checkoutEventProcessor,
                 toggleHeader = ::toggleHeader,
                 closeCheckoutDialogWithError = ::closeCheckoutDialogWithError,
-                toggleProgressBar = ::toggleProgressBar,
+                setProgressBarVisibility = ::setProgressBarVisibility,
                 updateProgressBarPercentage = ::updateProgressBarPercentage,
             )
         )
@@ -141,7 +141,7 @@ internal class CheckoutDialog(
         }
     }
 
-    private fun toggleProgressBar(visibility: Int) {
+    private fun setProgressBarVisibility(visibility: Int) {
         findViewById<ProgressBar>(R.id.progressBar).visibility = visibility
     }
 

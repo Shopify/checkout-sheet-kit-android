@@ -38,7 +38,7 @@ internal class CheckoutWebViewEventProcessor(
     private val eventProcessor: CheckoutEventProcessor,
     private val toggleHeader: (Boolean) -> Unit = {},
     private val closeCheckoutDialogWithError: (CheckoutException) -> Unit = { CheckoutWebView.clearCache() },
-    private val toggleProgressBar: (Int) -> Unit = {},
+    private val setProgressBarVisibility: (Int) -> Unit = {},
     private val updateProgressBarPercentage: (Int) -> Unit = {},
 ) {
     fun onCheckoutViewComplete(checkoutCompletedEvent: CheckoutCompletedEvent) {
@@ -63,7 +63,7 @@ internal class CheckoutWebViewEventProcessor(
 
     fun onCheckoutViewLoadComplete() {
         onMainThread {
-            toggleProgressBar(INVISIBLE)
+            setProgressBarVisibility(INVISIBLE)
         }
     }
 
@@ -75,7 +75,7 @@ internal class CheckoutWebViewEventProcessor(
 
     fun onCheckoutViewLoadStarted() {
         onMainThread {
-            toggleProgressBar(VISIBLE)
+            setProgressBarVisibility(VISIBLE)
         }
     }
 
