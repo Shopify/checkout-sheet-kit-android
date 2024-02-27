@@ -3,5 +3,5 @@
     <color name="web_view_bg">#f0f0e8</color>
     <color name="header_bg">#f0f0e8</color>
     <color name="header_font">#000</color>
-    <color name="bright_spinner">#ffff00</color>
+    <color name="bright_progress_indicator">#ffff00</color>
 </resources>

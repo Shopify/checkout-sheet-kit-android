@@ -87,11 +87,11 @@ public sealed class ColorScheme(public val id: String) {
         is Web -> this.colors.headerFont
     }
 
-    internal fun loadingSpinnerColor(isDark: Boolean) = when (this) {
-        is Automatic -> if (isDark) this.darkColors.spinnerColor else this.lightColors.spinnerColor
-        is Dark -> this.colors.spinnerColor
-        is Light -> this.colors.spinnerColor
-        is Web -> this.colors.spinnerColor
+    internal fun progressIndicatorColor(isDark: Boolean) = when (this) {
+        is Automatic -> if (isDark) this.darkColors.progressIndicator else this.lightColors.progressIndicator
+        is Dark -> this.colors.progressIndicator
+        is Light -> this.colors.progressIndicator
+        is Web -> this.colors.progressIndicator
     }
 }
 
@@ -102,7 +102,7 @@ public sealed class ColorScheme(public val id: String) {
  * that can be overridden are:
  * - The WebView background color,
  * - The native header background and font color,
- * - The loading spinner.
+ * - The progress/loading indicator.
  *
  * @see ColorScheme
  */
@@ -111,7 +111,7 @@ public data class Colors(
     val webViewBackground: Color,
     val headerBackground: Color,
     val headerFont: Color,
-    val spinnerColor: Color,
+    val progressIndicator: Color,
 )
 
 /**
@@ -149,12 +149,12 @@ private val defaultLightColors = Colors(
     webViewBackground = Color.ResourceId(R.color.checkoutLightBg),
     headerBackground = Color.ResourceId(R.color.checkoutLightBg),
     headerFont = Color.ResourceId(R.color.checkoutLightFont),
-    spinnerColor = Color.ResourceId(R.color.checkoutLightLoadingSpinner),
+    progressIndicator = Color.ResourceId(R.color.checkoutLightProgressIndicator),
 )
 
 private val defaultDarkColors = Colors(
     webViewBackground = Color.ResourceId(R.color.checkoutDarkBg),
     headerBackground = Color.ResourceId(R.color.checkoutDarkBg),
     headerFont = Color.ResourceId(R.color.checkoutDarkFont),
-    spinnerColor = Color.ResourceId(R.color.checkoutDarkLoadingSpinner),
+    progressIndicator = Color.ResourceId(R.color.checkoutDarkProgressIndicator),
 )

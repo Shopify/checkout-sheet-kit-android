@@ -24,6 +24,7 @@ package com.shopify.checkoutsheetkit
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Color.TRANSPARENT
 import android.net.Uri
 import android.os.Build
@@ -36,6 +37,7 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.webkit.RenderProcessGoneDetail
+import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -96,6 +98,13 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             javaScriptEnabled = true
             domStorageEnabled = true
         }
+        webChromeClient = object: WebChromeClient() {
+            override fun onProgressChanged(view: WebView?, newProgress: Int) {
+                super.onProgressChanged(view, newProgress)
+                checkoutBridge.getEventProcessor().updateProgressBar(newProgress)
+            }
+        }
+        isHorizontalScrollBarEnabled = false
         webViewClient = CheckoutWebViewClient()
         requestDisallowInterceptTouchEvent(true)
         setBackgroundColor(TRANSPARENT)
@@ -135,6 +144,11 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             if (BuildConfig.DEBUG) {
                 setWebContentsDebuggingEnabled(true)
             }
+        }
+
+        override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+            super.onPageStarted(view, url, favicon)
+            checkoutBridge.getEventProcessor().onCheckoutViewLoadStarted()
         }
 
         override fun onPageFinished(view: WebView, url: String) {

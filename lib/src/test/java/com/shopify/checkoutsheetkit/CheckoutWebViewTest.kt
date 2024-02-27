@@ -33,6 +33,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.contains
 import org.mockito.ArgumentMatchers.eq
+import org.mockito.Mockito.mock
 import org.mockito.Mockito.spy
 import org.mockito.Mockito.verify
 import org.robolectric.Robolectric
@@ -129,6 +130,21 @@ class CheckoutWebViewTest {
             contains("window.MobileCheckoutSdk.dispatchMessage('presented');"),
             eq(null)
         )
+    }
+
+    @Test
+    fun `calls update progress when new progress is reported by WebChromeClient`() {
+        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
+        val webViewEventProcessor = mock<CheckoutWebViewEventProcessor>()
+        view.setEventProcessor(webViewEventProcessor)
+
+        val shadow = shadowOf(view)
+
+        shadow.webChromeClient?.onProgressChanged(view, 20)
+        verify(webViewEventProcessor).updateProgressBar(20)
+
+        shadow.webChromeClient?.onProgressChanged(view, 50)
+        verify(webViewEventProcessor).updateProgressBar(50)
     }
 
     companion object {
