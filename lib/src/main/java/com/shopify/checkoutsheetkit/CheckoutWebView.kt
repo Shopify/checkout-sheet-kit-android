@@ -177,14 +177,29 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         }
 
         override fun shouldOverrideUrlLoading(
-            view: WebView?,
-            request: WebResourceRequest?
+            view: WebView,
+            request: WebResourceRequest
         ): Boolean {
-            if (request?.hasExternalAnnotation() == true || request?.url?.isContactLink() == true) {
-                checkoutBridge.getEventProcessor().onCheckoutViewLinkClicked(request.trimmedUri())
+            val processor = checkoutBridge.getEventProcessor()
+            if (shouldOpenExternally(request, processor)) {
+                processor.onCheckoutViewLinkClicked(request.trimmedUri())
                 return true
             }
             return false
+        }
+
+        private fun shouldOpenExternally(
+            request: WebResourceRequest,
+            checkoutWebViewEventProcessor: CheckoutWebViewEventProcessor
+        ): Boolean {
+            val processor = checkoutWebViewEventProcessor.getClientProcessor()
+            if (processor is DefaultCheckoutEventProcessor) {
+                if (processor.urlPatternsThatTriggerOnCheckoutLinkClicked().any { request.url.toString().matches(it.toRegex()) }) {
+                    return true
+                }
+            }
+
+            return request.hasExternalAnnotation() || request.url?.isContactLink() == true
         }
 
         private fun WebResourceRequest.hasExternalAnnotation(): Boolean {

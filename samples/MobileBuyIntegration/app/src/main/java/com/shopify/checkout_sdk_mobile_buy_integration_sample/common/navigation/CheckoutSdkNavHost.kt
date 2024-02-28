@@ -98,6 +98,13 @@ fun CheckoutSdkNavHost(
                 cartViewModel = cartViewModel,
                 setAppBarState = setAppBarState,
                 checkoutEventProcessor = object : DefaultCheckoutEventProcessor(activity) {
+
+                    override fun urlPatternsThatTriggerOnCheckoutLinkClicked(): List<String> {
+                        return listOf(
+                            "https://checkout-sdk.myshopify.com/policies/.*"
+                        )
+                    }
+
                     override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {
                         logger.log(checkoutCompletedEvent)
 

@@ -144,6 +144,17 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
         // no-op, override to implement
     }
 
+    /**
+     * Override this function to provide any URLs that should result in a call to onCheckoutLinkClicked when
+     * being loaded.
+     *
+     * Useful if you have a checkout extension or a store policy with a link that should open outside of checkout
+     * e.g. return listOf("https://my-store.myshopify.com/policies/.*")
+     */
+    public open fun urlPatternsThatTriggerOnCheckoutLinkClicked(): List<String> {
+        return emptyList()
+    }
+
     private fun Context.launchEmailApp(to: String) {
         val intent = Intent(Intent.ACTION_SEND)
         intent.type = "vnd.android.cursor.item/email"
