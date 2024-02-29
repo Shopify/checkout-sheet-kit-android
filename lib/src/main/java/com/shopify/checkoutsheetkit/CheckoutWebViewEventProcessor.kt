@@ -83,10 +83,6 @@ internal class CheckoutWebViewEventProcessor(
         eventProcessor.onWebPixelEvent(event)
     }
 
-    fun getClientProcessor(): CheckoutEventProcessor {
-        return eventProcessor
-    }
-
     private fun onMainThread(block: () -> Unit) {
         Handler(Looper.getMainLooper()).post {
             block()

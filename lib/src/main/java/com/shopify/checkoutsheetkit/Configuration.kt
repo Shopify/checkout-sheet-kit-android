@@ -32,6 +32,15 @@ package com.shopify.checkoutsheetkit
 public data class Configuration internal constructor(
     var colorScheme: ColorScheme = ColorScheme.Automatic(),
     var preloading: Preloading = Preloading(),
+
+    /**
+     * Provide any URLs that should result in a call to onCheckoutLinkClicked when
+     * being loaded.
+     *
+     * Useful if you have a checkout extension or a store policy with a link that should open outside of checkout
+     * e.g. return listOf("https://my-store.myshopify.com/policies/.*")
+     */
+    var urlPatternsThatTriggerOnCheckoutLinkClicked: List<String>  = emptyList(),
 )
 
 /**

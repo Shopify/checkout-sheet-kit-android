@@ -180,23 +180,17 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             view: WebView,
             request: WebResourceRequest
         ): Boolean {
-            val processor = checkoutBridge.getEventProcessor()
-            if (shouldOpenExternally(request, processor)) {
-                processor.onCheckoutViewLinkClicked(request.trimmedUri())
+            if (shouldOpenExternally(request)) {
+                checkoutBridge.getEventProcessor().onCheckoutViewLinkClicked(request.trimmedUri())
                 return true
             }
             return false
         }
 
-        private fun shouldOpenExternally(
-            request: WebResourceRequest,
-            checkoutWebViewEventProcessor: CheckoutWebViewEventProcessor
-        ): Boolean {
-            val processor = checkoutWebViewEventProcessor.getClientProcessor()
-            if (processor is DefaultCheckoutEventProcessor) {
-                if (processor.urlPatternsThatTriggerOnCheckoutLinkClicked().any { request.url.toString().matches(it.toRegex()) }) {
-                    return true
-                }
+        private fun shouldOpenExternally(request: WebResourceRequest): Boolean {
+            val patterns = ShopifyCheckoutSheetKit.configuration.urlPatternsThatTriggerOnCheckoutLinkClicked
+            if (patterns.any { request.url.toString().matches(it.toRegex()) }) {
+                return true
             }
 
             return request.hasExternalAnnotation() || request.url?.isContactLink() == true

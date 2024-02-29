@@ -52,6 +52,7 @@ class MobileBuyIntegration : Application() {
             ShopifyCheckoutSheetKit.configure {
                 it.colorScheme = settings.colorScheme
                 it.preloading = settings.preloading
+                it.urlPatternsThatTriggerOnCheckoutLinkClicked = listOf("https://checkout-sdk.myshopify.com/policies/.*")
             }
         }
     }
