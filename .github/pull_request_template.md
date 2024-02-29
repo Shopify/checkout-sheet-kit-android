@@ -2,12 +2,6 @@
 
 <!-- Please describe why you are making these changes -->
 
-### How to test
-
-<!-- Please outline the steps to test your changes -->
-
----
-
 ### Before you deploy
 
 - [ ] I have added tests to support my implementation
