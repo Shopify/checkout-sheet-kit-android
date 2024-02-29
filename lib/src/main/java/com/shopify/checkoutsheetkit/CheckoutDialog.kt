@@ -95,7 +95,7 @@ internal class CheckoutDialog(
 
         addCheckoutWebViewToContainer(colorScheme, checkoutWebView)
         setOnCancelListener {
-            CheckoutWebViewContainer.retainCache = true
+            CheckoutWebViewContainer.retainCache = ShopifyCheckoutSheetKit.configuration.preloading.enabled
             checkoutEventProcessor.onCheckoutCanceled()
         }
 
