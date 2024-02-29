@@ -35,10 +35,16 @@ internal class CheckoutWebViewContainer @JvmOverloads constructor(
 ) : RelativeLayout(context, attrs, defStyleAttr, defStyleRes) {
 
     // Clear the cache whenever the WebView is removed from it's container
+    // We should only clear the cache and destroy the WebView after it's been removed from it's parent
     override fun onViewRemoved(child: View?) {
         super.onViewRemoved(child)
-        if (child is CheckoutWebView) {
+        if (child is CheckoutWebView && !retainCache) {
             CheckoutWebView.clearCache()
         }
+        retainCache = false
+    }
+
+    companion object {
+        internal var retainCache = false
     }
 }
