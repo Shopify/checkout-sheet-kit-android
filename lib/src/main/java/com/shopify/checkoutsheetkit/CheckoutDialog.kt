@@ -151,7 +151,7 @@ internal class CheckoutDialog(
         findViewById<ProgressBar>(R.id.progressBar).visibility = visibility
     }
 
-    private fun setCheckoutComplete() {
+    internal fun setCheckoutComplete() {
         isCheckoutComplete = true
     }
 

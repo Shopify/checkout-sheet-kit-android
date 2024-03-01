@@ -108,7 +108,7 @@ class CheckoutDialogTest {
     }
 
     @Test
-    fun `cancel calls onCheckoutCanceled if cancel is called`() {
+    fun `cancel calls onCheckoutCanceled() processor callback`() {
         val mockEventProcessor = mock<DefaultCheckoutEventProcessor>()
         ShopifyCheckoutSheetKit.present("https://shopify.com", activity, mockEventProcessor)
 
@@ -121,7 +121,7 @@ class CheckoutDialogTest {
     }
 
     @Test
-    fun `cancel calls onCheckoutFailed if closeCheckoutDialogWithError is called`() {
+    fun `closeCheckoutDialogWithError calls onCheckoutFailed() processor callback`() {
         val mockEventProcessor = mock<DefaultCheckoutEventProcessor>()
         ShopifyCheckoutSheetKit.present("https://shopify.com", activity, mockEventProcessor)
 
@@ -166,6 +166,55 @@ class CheckoutDialogTest {
 
         await().atMost(2, TimeUnit.SECONDS).until {
             containerChildCount(dialog) == 1
+        }
+        // no cache entry when not preloading
+        assertThat(CheckoutWebView.cacheEntry).isNull()
+    }
+
+    @Test
+    fun `clicking close does not clear the WebView cache if the checkout is not complete`() {
+        withPreloadingEnabled {
+            val url = "https://shopify.com"
+            ShopifyCheckoutSheetKit.preload(url, activity)
+
+            ShopifyCheckoutSheetKit.present(url, activity, processor)
+
+            val dialog = ShadowDialog.getLatestDialog()
+            assertThat(containerChildCount(dialog)).isEqualTo(2)
+
+            // click cancel button
+            val header = dialog.findViewById<Toolbar>(R.id.checkoutSdkHeader)
+            header.menu.performIdentifierAction(R.id.checkoutSdkCloseBtn, 0)
+            ShadowLooper.runUiThreadTasks()
+
+            await().atMost(2, TimeUnit.SECONDS).until {
+                containerChildCount(dialog) == 1
+            }
+            assertThat(CheckoutWebView.cacheEntry).isNotNull()
+        }
+    }
+
+    @Test
+    fun `clicking close does clear the WebView cache if the checkout is complete`() {
+        withPreloadingEnabled {
+            val url = "https://shopify.com"
+            ShopifyCheckoutSheetKit.preload(url, activity)
+
+            ShopifyCheckoutSheetKit.present(url, activity, processor)
+
+            val dialog = ShadowDialog.getLatestDialog()
+            (dialog as CheckoutDialog).setCheckoutComplete()
+            assertThat(containerChildCount(dialog)).isEqualTo(2)
+
+            // click cancel button
+            val header = dialog.findViewById<Toolbar>(R.id.checkoutSdkHeader)
+            header.menu.performIdentifierAction(R.id.checkoutSdkCloseBtn, 0)
+            ShadowLooper.runUiThreadTasks()
+
+            await().atMost(2, TimeUnit.SECONDS).until {
+                containerChildCount(dialog) == 1
+            }
+            assertThat(CheckoutWebView.cacheEntry).isNull()
         }
     }
 
