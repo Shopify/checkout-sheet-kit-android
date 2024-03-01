@@ -51,6 +51,8 @@ internal class CheckoutDialog(
     context: Context,
 ) : Dialog(context) {
 
+    private var isCheckoutComplete = false
+
     fun start(context: ComponentActivity) {
         setContentView(R.layout.dialog_checkout)
         window?.setLayout(MATCH_PARENT, WRAP_CONTENT)
@@ -74,6 +76,7 @@ internal class CheckoutDialog(
                 closeCheckoutDialogWithError = ::closeCheckoutDialogWithError,
                 setProgressBarVisibility = ::setProgressBarVisibility,
                 updateProgressBarPercentage = ::updateProgressBarPercentage,
+                setCheckoutComplete = ::setCheckoutComplete,
             )
         )
 
@@ -95,7 +98,7 @@ internal class CheckoutDialog(
 
         addCheckoutWebViewToContainer(colorScheme, checkoutWebView)
         setOnCancelListener {
-            CheckoutWebViewContainer.retainCache = ShopifyCheckoutSheetKit.configuration.preloading.enabled
+            CheckoutWebViewContainer.retainCache = ShopifyCheckoutSheetKit.configuration.preloading.enabled && !isCheckoutComplete
             checkoutEventProcessor.onCheckoutCanceled()
         }
 
@@ -146,6 +149,10 @@ internal class CheckoutDialog(
 
     private fun setProgressBarVisibility(visibility: Int) {
         findViewById<ProgressBar>(R.id.progressBar).visibility = visibility
+    }
+
+    private fun setCheckoutComplete() {
+        isCheckoutComplete = true
     }
 
     internal fun closeCheckoutDialogWithError(error: CheckoutException) {

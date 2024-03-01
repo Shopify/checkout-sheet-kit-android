@@ -40,8 +40,10 @@ internal class CheckoutWebViewEventProcessor(
     private val closeCheckoutDialogWithError: (CheckoutException) -> Unit = { CheckoutWebView.clearCache() },
     private val setProgressBarVisibility: (Int) -> Unit = {},
     private val updateProgressBarPercentage: (Int) -> Unit = {},
+    private val setCheckoutComplete: () -> Unit = {}
 ) {
     fun onCheckoutViewComplete(checkoutCompletedEvent: CheckoutCompletedEvent) {
+        setCheckoutComplete()
         eventProcessor.onCheckoutCompleted(checkoutCompletedEvent)
     }
 
