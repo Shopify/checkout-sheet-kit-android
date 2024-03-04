@@ -134,7 +134,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
     fun loadCheckout(url: String, isPreload: Boolean) {
         initLoadTime = System.currentTimeMillis()
         Handler(Looper.getMainLooper()).post {
-            val headers = if (isPreload) mapOf("Sec-Purpose" to "prefetch") else emptyMap()
+            val headers = if (isPreload) mutableMapOf("Sec-Purpose" to "prefetch") else mutableMapOf()
             loadUrl(url, headers)
         }
     }
