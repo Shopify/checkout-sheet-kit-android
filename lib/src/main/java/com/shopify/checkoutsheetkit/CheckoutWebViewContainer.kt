@@ -38,7 +38,7 @@ internal class CheckoutWebViewContainer @JvmOverloads constructor(
     // We should only clear the cache and destroy the WebView after it's been removed from it's parent
     override fun onViewRemoved(child: View?) {
         super.onViewRemoved(child)
-        if (child is CheckoutWebView && !retainCache) {
+        if (child is CheckoutWebView && (!retainCache || CheckoutWebView.cacheEntry?.isStale == true)) {
             CheckoutWebView.clearCache()
         }
         retainCache = false

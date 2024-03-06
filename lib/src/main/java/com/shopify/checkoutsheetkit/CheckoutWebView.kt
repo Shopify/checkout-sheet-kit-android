@@ -280,6 +280,10 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         internal var cacheEntry: CheckoutWebViewCacheEntry? = null
         internal var cacheClock = CheckoutWebViewCacheClock()
 
+        fun markCacheEntryStale() {
+            cacheEntry = cacheEntry?.copy(timeout = -1)
+        }
+
         fun clearCache(newEntry: CheckoutWebViewCacheEntry? = null) = cacheEntry?.let {
             Handler(Looper.getMainLooper()).post {
                 it.view.destroy()
@@ -352,7 +356,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             return key == cacheEntry!!.key && !cacheEntry!!.isStale
         }
 
-        private val isStale: Boolean
+        internal val isStale: Boolean
             get() = abs(timestamp - clock.currentTimeMillis()) >= timeout
     }
 

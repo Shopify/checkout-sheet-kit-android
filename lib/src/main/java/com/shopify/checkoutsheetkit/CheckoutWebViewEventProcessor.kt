@@ -42,6 +42,7 @@ internal class CheckoutWebViewEventProcessor(
     private val updateProgressBarPercentage: (Int) -> Unit = {},
 ) {
     fun onCheckoutViewComplete(checkoutCompletedEvent: CheckoutCompletedEvent) {
+        CheckoutWebView.markCacheEntryStale()
         eventProcessor.onCheckoutCompleted(checkoutCompletedEvent)
     }
 

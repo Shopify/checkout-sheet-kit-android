@@ -129,6 +129,24 @@ class CheckoutWebViewCacheTest {
     }
 
     @Test
+    fun `markCacheEntryStale makes the cache entry stale but does not clear the cache or destroy the view`() {
+        withPreloadingEnabled {
+            val viewOne = CheckoutWebView.cacheableCheckoutView(URL, activity, true)
+            CheckoutWebView.markCacheEntryStale()
+
+            assertThat(CheckoutWebView).isNotNull()
+            assertThat(CheckoutWebView.cacheEntry!!.isValid(URL)).isFalse()
+
+            val viewTwo = CheckoutWebView.cacheableCheckoutView(URL, activity, true)
+            shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+
+            assertThat(viewOne).isNotEqualTo(viewTwo)
+            assertThat(shadowOf(viewOne).lastLoadedUrl).isEqualTo(URL)
+            assertThat(shadowOf(viewTwo).lastLoadedUrl).isEqualTo(URL)
+        }
+    }
+
+    @Test
     fun `web view cache should have a ttl of 5 minutes`() {
         withPreloadingEnabled {
             val now = System.currentTimeMillis()
