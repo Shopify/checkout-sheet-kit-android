@@ -32,7 +32,6 @@ import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.Logs.OVERVIEW_FONT_SIZE

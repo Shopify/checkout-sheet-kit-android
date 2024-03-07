@@ -26,33 +26,6 @@ import com.shopify.checkoutsheetkit.pixelevents.MoneyV2
 import kotlinx.serialization.Serializable
 
 @Serializable
-public data class OrderDetails(
-    public val billingAddress: Address? = null,
-    public val cart: CartInfo,
-    public val deliveries: List<DeliveryInfo> = emptyList(),
-    public val email: String? = null,
-    public val id: String,
-    public val paymentMethods: List<PaymentMethod> = emptyList(),
-    public val phone: String? = null,
-)
-
-@Serializable
-public data class CartInfo(
-    public val lines: List<CartLine>,
-    public val price: Price,
-    public val token: String,
-)
-
-@Serializable
-public data class Price(
-    public val discounts: List<Discount>? = emptyList(),
-    public val shipping: MoneyV2? = null,
-    public val subtotal: MoneyV2? = null,
-    public val taxes: MoneyV2? = null,
-    public val total: MoneyV2? = null,
-)
-
-@Serializable
 public data class Address(
     public val address1: String? = null,
     public val address2: String? = null,
@@ -68,26 +41,18 @@ public data class Address(
 )
 
 @Serializable
-public data class PaymentMethod(
-    public val details: Map<String, String>? = emptyMap(),
-    public val type: String,
-)
-
-/**
- * Current possible methods:
- *  SHIPPING, PICK_UP, RETAIL, LOCAL, PICKUP_POINT, NONE
- */
-@Serializable
-public data class DeliveryInfo(
-    public val details: DeliveryDetails,
-    public val method: String,
+public data class CartInfo(
+    public val lines: List<CartLine>,
+    public val price: Price,
+    public val token: String,
 )
 
 @Serializable
-public data class DeliveryDetails(
-    public val additionalInfo: String? = null,
-    public val location: Address? = null,
-    public val name: String? = null,
+public data class CartLineImage(
+    public val altText: String? = null,
+    public val lg: String,
+    public val md: String,
+    public val sm: String,
 )
 
 @Serializable
@@ -102,6 +67,23 @@ public data class CartLine(
 )
 
 @Serializable
+public data class DeliveryDetails(
+    public val additionalInfo: String? = null,
+    public val location: Address? = null,
+    public val name: String? = null,
+)
+
+/**
+ * Current possible methods:
+ *  SHIPPING, PICK_UP, RETAIL, LOCAL, PICKUP_POINT, NONE
+ */
+@Serializable
+public data class DeliveryInfo(
+    public val details: DeliveryDetails,
+    public val method: String,
+)
+
+@Serializable
 public data class Discount(
     public val amount: MoneyV2? = null,
     public val applicationType: String? = null,
@@ -111,9 +93,27 @@ public data class Discount(
 )
 
 @Serializable
-public data class CartLineImage(
-    public val altText: String? = null,
-    public val lg: String,
-    public val md: String,
-    public val sm: String,
+public data class OrderDetails(
+    public val billingAddress: Address? = null,
+    public val cart: CartInfo,
+    public val deliveries: List<DeliveryInfo> = emptyList(),
+    public val email: String? = null,
+    public val id: String,
+    public val paymentMethods: List<PaymentMethod> = emptyList(),
+    public val phone: String? = null,
+)
+
+@Serializable
+public data class PaymentMethod(
+    public val details: Map<String, String>? = emptyMap(),
+    public val type: String,
+)
+
+@Serializable
+public data class Price(
+    public val discounts: List<Discount>? = emptyList(),
+    public val shipping: MoneyV2? = null,
+    public val subtotal: MoneyV2? = null,
+    public val taxes: MoneyV2? = null,
+    public val total: MoneyV2? = null,
 )
