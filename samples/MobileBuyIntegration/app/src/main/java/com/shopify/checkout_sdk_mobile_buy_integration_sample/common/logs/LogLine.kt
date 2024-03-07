@@ -34,8 +34,8 @@ import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEventData
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import java.util.UUID
 import java.util.Date
+import java.util.UUID
 
 @Entity
 data class LogLine(
