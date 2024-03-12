@@ -131,8 +131,8 @@ internal class CheckoutDialog(
 
     private fun toggleHeader(modalVisible: Boolean) {
         Handler(Looper.getMainLooper()).post {
-            val visibility = if (modalVisible) GONE else VISIBLE
-            findViewById<Toolbar>(R.id.checkoutSdkHeader).visibility = visibility
+            findViewById<Toolbar>(R.id.checkoutSdkHeader).visibility = if (modalVisible) GONE else VISIBLE
+            findViewById<ProgressBar>(R.id.progressBar).visibility = if (modalVisible) GONE else INVISIBLE
         }
     }
 
