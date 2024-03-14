@@ -27,6 +27,8 @@ override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent)
 
 4. The webview cache is no longer cleared on closing the dialog if checkout has not yet completed. This allows quickly reopening the dialog, and matches the behaviour in the swift library. As in swift, if preloading is enabled, it's important to call preload each tim the cart changes to avoid stale checkouts.
 
+5. Upgrade `org.jetbrains.kotlinx:kotlinx-serialization-json` dependency from 1.5.1 to 1.6.3
+
 ## 1.0.0 January 31, 2024
 
 - Checkout Sheet Kit is now generally available
