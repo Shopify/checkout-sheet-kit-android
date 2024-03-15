@@ -54,7 +54,7 @@ class CheckoutCompletedEventDecoderTest {
         val result = decoder.decode(EXAMPLE_EVENT.toWebToSdkEvent())
         val orderDetails = result.orderDetails
 
-        assertThat(orderDetails?.id).isEqualTo("gid://shopify/OrderIdentity/9697125302294")
+        assertThat(orderDetails.id).isEqualTo("gid://shopify/OrderIdentity/9697125302294")
     }
 
     @Test
@@ -62,7 +62,7 @@ class CheckoutCompletedEventDecoderTest {
         val result = decoder.decode(EXAMPLE_EVENT.toWebToSdkEvent())
         val orderDetails = result.orderDetails
 
-        assertThat(orderDetails?.cart?.lines).isEqualTo(
+        assertThat(orderDetails.cart.lines).isEqualTo(
             listOf(
                 CartLine(
                     image = CartLineImage(
@@ -89,7 +89,7 @@ class CheckoutCompletedEventDecoderTest {
         val result = decoder.decode(EXAMPLE_EVENT.toWebToSdkEvent())
         val orderDetails = result.orderDetails
 
-        assertThat(orderDetails?.cart?.price).isEqualTo(
+        assertThat(orderDetails.cart.price).isEqualTo(
             Price(
                 total = MoneyV2(
                     amount = 13.99,
@@ -117,7 +117,7 @@ class CheckoutCompletedEventDecoderTest {
         val result = decoder.decode(EXAMPLE_EVENT.toWebToSdkEvent())
         val orderDetails = result.orderDetails
 
-        assertThat(orderDetails?.email).isEqualTo("a.user@shopify.com")
+        assertThat(orderDetails.email).isEqualTo("a.user@shopify.com")
     }
 
     @Test
@@ -125,7 +125,7 @@ class CheckoutCompletedEventDecoderTest {
         val result = decoder.decode(EXAMPLE_EVENT.toWebToSdkEvent())
         val orderDetails = result.orderDetails
 
-        assertThat(orderDetails?.billingAddress).isEqualTo(
+        assertThat(orderDetails.billingAddress).isEqualTo(
             Address(
                 city = "Swansea",
                 countryCode = "GB",
@@ -144,7 +144,7 @@ class CheckoutCompletedEventDecoderTest {
         val result = decoder.decode(EXAMPLE_EVENT.toWebToSdkEvent())
         val orderDetails = result.orderDetails
 
-        assertThat(orderDetails?.paymentMethods).isEqualTo(
+        assertThat(orderDetails.paymentMethods).isEqualTo(
             listOf(
                 PaymentMethod(
                     type = "wallet",
@@ -163,7 +163,7 @@ class CheckoutCompletedEventDecoderTest {
         val result = decoder.decode(EXAMPLE_EVENT.toWebToSdkEvent())
         val orderDetails = result.orderDetails
 
-        assertThat(orderDetails?.deliveries).isEqualTo(
+        assertThat(orderDetails.deliveries).isEqualTo(
             listOf(
                 DeliveryInfo(
                     method = "SHIPPING",

@@ -29,7 +29,7 @@ import kotlinx.serialization.json.Json
 
 @Serializable
 public data class CheckoutCompletedEvent(
-    public val orderDetails: OrderDetails? = null
+    public val orderDetails: OrderDetails
 )
 
 internal class CheckoutCompletedEventDecoder @JvmOverloads constructor(
@@ -41,7 +41,16 @@ internal class CheckoutCompletedEventDecoder @JvmOverloads constructor(
             decoder.decodeFromString<CheckoutCompletedEvent>(decodedMsg.body)
         } catch (e: Exception) {
             log.e("CheckoutBridge", "Failed to decode CheckoutCompleted event", e)
-            CheckoutCompletedEvent()
+            CheckoutCompletedEvent(
+                orderDetails = OrderDetails(
+                    id = "",
+                    cart = CartInfo(
+                        price = Price(),
+                        token = "",
+                        lines = emptyList()
+                    )
+                )
+            )
         }
     }
 }

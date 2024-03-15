@@ -1,5 +1,34 @@
 # Changelog
 
+## 2.0.0 March 14, 2024
+
+### New Features
+
+1. **Breaking Changes** The loading spinner has been replaced by a progress bar on the webview. This will result in a faster perceived load time for checkout because the SDK will no longer wait for a full page load to show the DOM content.
+
+If you were previously setting the loading spinner color, the field has been renamed from `spinnerColor` to `progressIndicator e.g:
+
+```diff
+Colors(
+	- spinnerColor = Color.ResourceId(R.color.a_color),
+	+ progressIndicator = Color.ResourceId(R.color.a_color),
+)
+```
+
+2. **Breaking Changes** The `onCheckoutCompleted` callback now returns a completed event object, containing details about the order:
+
+```kotlin
+override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {
+	println(checkoutCompletedEvent.orderDetails.id)
+}
+```
+
+3. **Breaking Changes** The `CheckoutEventProcessor` passed to `present()` must now be a subclass of `DefaultCheckoutEventProcessor`.
+
+4. The webview cache is no longer cleared on closing the dialog if checkout has not yet completed. This allows quickly reopening the dialog, and matches the behaviour in the swift library. As in swift, if preloading is enabled, it's important to call preload each tim the cart changes to avoid stale checkouts.
+
+5. Upgrade `org.jetbrains.kotlinx:kotlinx-serialization-json` dependency from 1.5.1 to 1.6.3
+
 ## 1.0.0 January 31, 2024
 
 - Checkout Sheet Kit is now generally available
