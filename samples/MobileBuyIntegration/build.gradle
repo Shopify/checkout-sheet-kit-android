@@ -2,22 +2,22 @@ buildscript {
     ext {
         app_compat_version = '1.6.1'
         core_version = '1.12.0'
-        activity_version = '1.7.2'
-        lifecycle_version = '2.6.2'
+        activity_version = '1.8.2'
+        lifecycle_version = '2.7.0'
         datastore_version = '1.0.0'
-        nav_version = '2.7.4'
-        compose_ui_version = '1.5.2'
-        mobile_buy_version = '16.0.0'
-        coil_version = '2.4.0'
-        kotlin_serialization_version = '1.5.0'
-        koin_android_compose_version = '3.5.0'
-        room_version = "2.5.2"
+        nav_version = '2.7.7'
+        compose_ui_version = '1.6.3'
+        mobile_buy_version = '16.3.0'
+        coil_version = '2.6.0'
+        kotlin_serialization_version = '1.6.3'
+        koin_android_compose_version = '3.5.3'
+        room_version = "2.6.1"
     }
 }
 plugins {
     id 'com.android.application' version '8.1.2' apply false
-    id 'org.jetbrains.kotlin.android' version '1.8.22' apply false
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.22' apply false
+    id 'org.jetbrains.kotlin.android' version '1.9.22' apply false
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.22' apply false
     id 'io.gitlab.arturbosch.detekt' version '1.23.0' apply false
-    id 'com.google.devtools.ksp' version "1.8.22-1.0.11" apply false
+    id 'com.google.devtools.ksp' version "1.9.22-1.0.17" apply false
 }
