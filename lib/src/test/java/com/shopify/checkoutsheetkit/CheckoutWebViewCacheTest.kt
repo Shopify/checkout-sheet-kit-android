@@ -64,8 +64,8 @@ class CheckoutWebViewCacheTest {
     @Test
     fun `cacheableCheckoutView returns the same view if preloading enabled and cache is populated`() {
         withPreloadingEnabled {
-            val viewOne = CheckoutWebView.cacheableCheckoutView(URL, activity)
-            val viewTwo = CheckoutWebView.cacheableCheckoutView(URL, activity)
+            val viewOne = CheckoutWebView.cacheableCheckoutView(URL, activity, true)
+            val viewTwo = CheckoutWebView.cacheableCheckoutView(URL, activity, true)
             shadowOf(Looper.getMainLooper()).runToEndOfTasks()
 
             assertThat(viewOne).isEqualTo(viewTwo)
@@ -78,8 +78,8 @@ class CheckoutWebViewCacheTest {
     fun `cacheableCheckoutView returns the new view if URL has changed`() {
         withPreloadingEnabled {
             val newUrl = "https://another.checkout.url"
-            val viewOne = CheckoutWebView.cacheableCheckoutView(URL, activity)
-            val viewTwo = CheckoutWebView.cacheableCheckoutView(newUrl, activity)
+            val viewOne = CheckoutWebView.cacheableCheckoutView(URL, activity, true)
+            val viewTwo = CheckoutWebView.cacheableCheckoutView(newUrl, activity, true)
             shadowOf(Looper.getMainLooper()).runToEndOfTasks()
 
             assertThat(viewOne).isNotEqualTo(viewTwo)
@@ -92,8 +92,8 @@ class CheckoutWebViewCacheTest {
 
     @Test
     fun `cacheableCheckoutView returns the a new view for each call if preloading disabled`() {
-        val viewOne = CheckoutWebView.cacheableCheckoutView(URL, activity)
-        val viewTwo = CheckoutWebView.cacheableCheckoutView(URL, activity)
+        val viewOne = CheckoutWebView.cacheableCheckoutView(URL, activity, true)
+        val viewTwo = CheckoutWebView.cacheableCheckoutView(URL, activity, true)
         shadowOf(Looper.getMainLooper()).runToEndOfTasks()
 
         assertThat(viewOne).isNotEqualTo(viewTwo)
@@ -107,10 +107,10 @@ class CheckoutWebViewCacheTest {
     @Test
     fun `clear cache removes the view from the cache and destroys it`() {
         withPreloadingEnabled {
-            val viewOne = CheckoutWebView.cacheableCheckoutView(URL, activity)
+            val viewOne = CheckoutWebView.cacheableCheckoutView(URL, activity, true)
             CheckoutWebView.clearCache()
             shadowOf(Looper.getMainLooper()).runToEndOfTasks()
-            val viewTwo = CheckoutWebView.cacheableCheckoutView(URL, activity)
+            val viewTwo = CheckoutWebView.cacheableCheckoutView(URL, activity, true)
 
             assertThat(viewOne).isNotEqualTo(viewTwo)
             assertThat(shadowOf(viewOne).wasDestroyCalled()).isTrue
@@ -129,6 +129,24 @@ class CheckoutWebViewCacheTest {
     }
 
     @Test
+    fun `markCacheEntryStale makes the cache entry stale but does not clear the cache or destroy the view`() {
+        withPreloadingEnabled {
+            val viewOne = CheckoutWebView.cacheableCheckoutView(URL, activity, true)
+            CheckoutWebView.markCacheEntryStale()
+
+            assertThat(CheckoutWebView).isNotNull()
+            assertThat(CheckoutWebView.cacheEntry!!.isValid(URL)).isFalse()
+
+            val viewTwo = CheckoutWebView.cacheableCheckoutView(URL, activity, true)
+            shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+
+            assertThat(viewOne).isNotEqualTo(viewTwo)
+            assertThat(shadowOf(viewOne).lastLoadedUrl).isEqualTo(URL)
+            assertThat(shadowOf(viewTwo).lastLoadedUrl).isEqualTo(URL)
+        }
+    }
+
+    @Test
     fun `web view cache should have a ttl of 5 minutes`() {
         withPreloadingEnabled {
             val now = System.currentTimeMillis()
@@ -140,9 +158,9 @@ class CheckoutWebViewCacheTest {
 
             CheckoutWebView.cacheClock = mockCacheClock
 
-            val viewOne = CheckoutWebView.cacheableCheckoutView(URL, activity)
-            val viewTwo = CheckoutWebView.cacheableCheckoutView(URL, activity)
-            val viewThree = CheckoutWebView.cacheableCheckoutView(URL, activity)
+            val viewOne = CheckoutWebView.cacheableCheckoutView(URL, activity, true)
+            val viewTwo = CheckoutWebView.cacheableCheckoutView(URL, activity, true)
+            val viewThree = CheckoutWebView.cacheableCheckoutView(URL, activity, true)
 
             // only 2 mins have passed, cache entry still valid
             assertThat(viewOne).isEqualTo(viewTwo)

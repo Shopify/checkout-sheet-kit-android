@@ -21,21 +21,15 @@
         android:layout_height="match_parent"
         android:background="@android:color/transparent"
         android:layout_below="@id/checkoutSdkHeader"
-        android:visibility="gone" />
-
-    <FrameLayout
-        android:id="@+id/checkoutSdkLoadingSpinner"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
         android:visibility="visible">
 
         <ProgressBar
-            android:id="@+id/checkoutSdkLoadingSpinnerProgressBar"
-            android:indeterminateDrawable="@drawable/progress_bar"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:indeterminate="true"
-            android:layout_gravity="center" />
-    </FrameLayout>
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:max="100"
+            android:indeterminate="false" />
 
+    </com.shopify.checkoutsheetkit.CheckoutWebViewContainer>
 </RelativeLayout>

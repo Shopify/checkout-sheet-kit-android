@@ -25,6 +25,7 @@ package com.shopify.checkoutsheetkit
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 import kotlinx.serialization.Serializable
 
@@ -68,12 +69,13 @@ public class CheckoutLiquidNotMigratedException : CheckoutException(
 
 /**
  * Interface to implement to allow responding to lifecycle events in checkout.
+ * We'd strongly recommend extending DefaultCheckoutEventProcessor where possible
  */
 public interface CheckoutEventProcessor {
     /**
      * Event representing the successful completion of a checkout.
      */
-    public fun onCheckoutCompleted()
+    public fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent)
 
     /**
      * Event representing an error that occurred during checkout. This can be used to display
@@ -103,7 +105,7 @@ public interface CheckoutEventProcessor {
 }
 
 internal class NoopEventProcessor : CheckoutEventProcessor {
-    override fun onCheckoutCompleted() {/* noop */
+    override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {/* noop */
     }
 
     override fun onCheckoutFailed(error: CheckoutException) {/* noop */

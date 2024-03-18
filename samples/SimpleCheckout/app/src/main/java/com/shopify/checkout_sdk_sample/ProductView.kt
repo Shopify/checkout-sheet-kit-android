@@ -41,7 +41,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.shopify.checkoutsheetkit.CheckoutException
+import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
 
 @Composable
 fun ProductView(
@@ -53,6 +56,20 @@ fun ProductView(
     val activity = LocalContext.current as ComponentActivity
 
     fun showToast(stringResourceId: Int) = Toast.makeText(activity, activity.getString(stringResourceId), Toast.LENGTH_SHORT).show()
+
+    val processor = object : DefaultCheckoutEventProcessor(activity) {
+        override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {
+            productViewModel.checkoutCompleted()
+        }
+
+        override fun onCheckoutFailed(error: CheckoutException) {
+            productViewModel.checkoutFailed(error)
+        }
+
+        override fun onCheckoutCanceled() {
+            productViewModel.checkoutCanceled()
+        }
+    }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -104,12 +121,13 @@ fun ProductView(
                                 .height(120.dp)
                                 .padding(20.dp)
                         ) {
+                            productViewModel.clearCheckoutState()
                             productViewModel.createCart(selectedVariant.id) {
                                 Handler(Looper.getMainLooper()).post {
                                     ShopifyCheckoutSheetKit.present(
                                         it.cartCreate.cart.checkoutUrl,
                                         activity,
-                                        productViewModel
+                                        processor
                                     )
                                 }
                             }

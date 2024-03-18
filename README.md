@@ -6,7 +6,7 @@
 
 ![image](https://github.com/Shopify/checkout-sheet-kit-android/assets/2034704/c6c726dc-a211-406b-b848-53ade91a164d)
 
-**Checkout Sheet Kit for Android** is a library that enables Android apps to provide the world's highest converting, customizable, one-page checkout within the mobile app. The presented experience is a fully-featured checkout that preserves all of the store customizations: Checkout UI extensions, Scripts, Functions, Web Pixels, and more. It also provides idiomatic defaults such as support for light and dark mode, and convenient developer APIs to embed, customize and follow the lifecycle of the checkout experience. Check out our developer blog to [learn how Checkout Sheet Kit is built](https://www.shopify.com/partners/blog/mobile-checkout-sdks-for-ios-and-android).
+**Shopify's Checkout Sheet Kit for Android** is a library that enables Android apps to provide the world's highest converting, customizable, one-page checkout within an app. The presented experience is a fully-featured checkout that preserves all of the store customizations: Checkout UI extensions, Functions, Web Pixels, and more. It also provides idiomatic defaults such as support for light and dark mode, and convenient developer APIs to embed, customize and follow the lifecycle of the checkout experience. Check out our developer blog to [learn how Checkout Sheet Kit is built](https://www.shopify.com/partners/blog/mobile-checkout-sdks-for-ios-and-android).
 
 ### Requirements
 
@@ -16,14 +16,14 @@
 
 ### Getting Started
 
-The SDK is an open source Android library. As a quick start, see
+The SDK is an [open source Android library](https://central.sonatype.com/artifact/com.shopify/checkout-sheet-kit). As a quick start, see
 [sample projects](samples/README.md) or use one of the following ways to integrate the SDK into
 your project:
 
 #### Gradle
 
 ```groovy
-implementation "com.shopify:checkout-sheet-kit:$checkoutSdkVersion"
+implementation "com.shopify:checkout-sheet-kit:2.0.0"
 ```
 
 #### Maven
@@ -33,7 +33,7 @@ implementation "com.shopify:checkout-sheet-kit:$checkoutSdkVersion"
 <dependency>
    <groupId>com.shopify</groupId>
    <artifactId>checkout-sheet-kit</artifactId>
-   <version>${checkoutSdkVersion}</version>
+   <version>2.0.0</version>
 </dependency>
 ```
 
@@ -75,7 +75,7 @@ client.queryGraph(cartQuery).enqueue {
 ```
 
 The `checkoutUrl` object is a standard web checkout URL that can be opened in any browser.
-To present a native checkout modal in your Android application, provide
+To present a native checkout dialog in your Android application, provide
 the `checkoutUrl` alongside optional runtime configuration settings to the `present(checkoutUrl)`
 function provided by the SDK:
 
@@ -86,9 +86,9 @@ fun presentCheckout() {
 }
 ```
 
-To help optimize and deliver the best experience the SDK also provides a
-[preloading API](#preloading) that can be used to initialize the checkout session in the background
-and ahead of time.
+> [!TIP]
+> To help optimize and deliver the best experience the SDK also provides a
+[preloading API](#preloading) that can be used to initialize the checkout session ahead of time.
 
 ### Configuration
 
@@ -120,15 +120,14 @@ ShopifyCheckoutSheetKit.configure {
             webViewBackground = Color.ResourceId(R.color.web_view_background),
             headerFont = Color.ResourceId(R.color.header_font),
             headerBackground = Color.ResourceId(R.color.header_background),
-            spinnerColor = Color.ResourceId(R.color.loading_spinner),
+            progressIndicator = Color.ResourceId(R.color.progress_indicator),
         )
     )
 }
 ```
 
-- _Note: use preloading to optimize and deliver an instant buyer experience._
-- _Note: Colors can also be specified in sRGB format (e.g. `Color.SRGB(-0xff0001)`)_
-- _Note: Colors can also be overridden for Light/Dark/Automatic themes, e.g:_
+> [!Tip]
+> Colors can also be specified in sRGB format (e.g. `Color.SRGB(-0xff0001)`) and can also be overridden for Light/Dark/Automatic themes, (see example below)
 
 ```kotlin
 val automatic = ColorScheme.Automatic(
@@ -136,18 +135,33 @@ val automatic = ColorScheme.Automatic(
         headerBackground = Color.ResourceId(R.color.headerLight),
         headerFont = Color.ResourceId(R.color.headerFontLight),
         webViewBackground = Color.ResourceId(R.color.webViewBgLight),
-        spinnerColor = Color.ResourceId(R.color.spinnerLight),
+        progressIndicator = Color.ResourceId(R.color.indicatorLight),
     ),
     darkColors = Colors(
         headerBackground = Color.ResourceId(R.color.headerDark),
         headerFont = Color.ResourceId(R.color.headerFontDark,
         webViewBackground = Color.ResourceId(R.color.webViewBgDark),
-        spinnerColor = Color.ResourceId(R.color.spinnerDark),
+        progressIndicator = Color.ResourceId(R.color.indicatorDark),
     )
 )
 ```
 
+The colors that can be modified are:
+
+- headerBackground - Used to customize the background of the app bar on the dialog,
+- headerFont - Used to customize the font color of the header text within in the app bar,
+- webViewBackground - Used to customize the background color of the WebView,
+- progressIndicator - Used to customize the color of the progress indicator shown when checkout is loading.
+
 The current configuration can be obtained by calling `ShopifyCheckoutSheetKit.getConfiguration()`.
+
+### Checkout Dialog Title
+
+To customize the title of the Dialog that the checkout WebView is displayed within, or to provide different values for the various locales your app supports, override the `checkout_web_view_title` String resource in your application, e.g:
+
+```xml
+<string name="checkout_web_view_title">Buy Now!</string>
+```
 
 ### Preloading
 
@@ -161,7 +175,7 @@ Preloading is an advanced feature that can be disabled via a runtime flag:
 
 ```kotlin
 ShopifyCheckoutSheetKit.configure {
-    it.preloading = Preloading(enabled = false)
+    it.preloading = Preloading(enabled = false) // defaults to true
 }
 ```
 
@@ -171,34 +185,53 @@ Once enabled, preloading a checkout is as simple as:
 ShopifyCheckoutSheetKit.preload(checkoutUrl)
 ```
 
-**Important considerations:**
+Setting enabled to `false` will cause all calls to the `preload` function to be ignored. This allows the application to selectively toggle preloading behavior as a remote feature flag or dynamically in response to client conditions - e.g. when data saver functionality is enabled by the user.
 
-1. Initializing preload results in background network requests and additional CPU/memory utilization
-   for the client, and should be used when there is a high likelihood that the buyer will soon
-   request to checkout-e.g. when the buyer navigates to the cart overview or similar app-specific
-   experience.
-2. A preloaded checkout session reflects the cart contents at the time when `preload` is called. If
-   the cart is updated after `preload` is called, the application needs to call `preload` again to
-   reflect the updated checkout session.
-3. Calling `preload(checkoutUrl)` is a hint, not a guarantee. The library may debounce or ignore
-   calls to this API depending on various conditions; the preload may not complete before
-   `present(checkoutUrl)` is called, in which case the buyer may still see a spinner while the
-   checkout session is finalized.
+```kotlin
+ShopifyCheckoutSheetKit.configure {
+    it.preloading = Preloading(enabled = false)
+}
+ShopifyCheckoutSheetKit.preload(checkoutUrl) // no-op
+```
 
+#### Lifecycle management for preloaded checkout
+
+Preloading renders a checkout in a background webview, which is brought to foreground when `ShopifyCheckoutSheetKit.present()` is called. The content of preloaded checkout reflects the state of the cart when `preload()` was initially called. If the cart is mutated after `preload()` is called, the application is responsible for invalidating the preloaded checkout to ensure that up-to-date checkout content is displayed to the buyer:
+
+1. To update preloaded contents: call `preload()` once again
+2. To disable preloaded content: toggle the preload configuration setting
+
+The library will automatically invalidate/abort preload under the following conditions:
+
+- Request results in network error or non 2XX server response code
+- The checkout has successfully completed, as indicated by the server response
+- When `ShopifyCheckoutSheet.configure` is called (e.g. with theming changes).
+
+A preloaded checkout _is not_ automatically invalidated when checkout is closed. For example, if a buyer loads the checkout then exists, the preloaded checkout is retained and should be updated when cart contents change.
+
+#### Additional considerations for preloaded checkout
+
+1. Preloading is a hint, not a guarantee. The library may debounce or ignore
+   calls depending on various conditions; the preload may not complete before
+   `present(checkoutUrl)` is called, in which case the buyer may still see a progress/loading indicator while the checkout session is finalized.
+2. Preloading results in background network requests and additional CPU/memory utilization
+   for the client, and should be used responsibly. For example, conditionally based on the state of the client and when there is a high likelihood that the buyer will soon
+   request to checkout.
+ 
 ### Monitoring the lifecycle of a checkout session
 
-You can extend the `DefaultCheckoutEventProcessor` interface to register callbacks for key lifecycle events
-during the checkout session:
+Extend the `DefaultCheckoutEventProcessor` abstract class to register callbacks for key lifecycle events during the checkout session:
 
 ```kotlin
 val processor = object : DefaultCheckoutEventProcessor(activity) {
-    override fun onCheckoutCompleted() {
+    override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {
         // Called when the checkout was completed successfully by the buyer.
         // Use this to update UI, reset cart state, etc.
     }
 
     override fun onCheckoutCanceled() {
         // Called when the checkout was canceled by the buyer.
+        // Note: This will also be received after closing a completed checkout
     }
 
     override fun onCheckoutFailed(error: CheckoutException) {
@@ -254,14 +287,15 @@ val processor = object : DefaultCheckoutEventProcessor(activity) {
 
 ```
 
-_Note_: The `DefaultCheckoutEventProcessor` provides default implementations for current and future callback functions (such as `onLinkClicked()`), which can be overridden by clients wanting to change default behavior.
+> [!Note]
+> The `DefaultCheckoutEventProcessor` provides default implementations for current and future callback functions (such as `onLinkClicked()`), which can be overridden by clients wanting to change default behavior.
 
 #### Integrating with Web Pixels, monitoring behavioral data
 
 App developers can use [lifecycle events](#monitoring-the-lifecycle-of-a-checkout-session) to
 monitor and log the status of a checkout session.
 
-For behavioural monitoring, [standard](https://shopify.dev/docs/api/web-pixels-api/standard-events) and [custom](https://shopify.dev/docs/api/web-pixels-api/emitting-data) Web Pixel events will be relayed back to your application through the `onWebPixelEvent` checkout event processor function. The responsibility then falls on the application developer to ensure adherence to local regulations like GDPR and ePrivacy directive before disseminating these events to first-party and third-party systems.
+For behavioral monitoring, [standard](https://shopify.dev/docs/api/web-pixels-api/standard-events) and [custom](https://shopify.dev/docs/api/web-pixels-api/emitting-data) Web Pixel events will be relayed back to your application through the `onWebPixelEvent` checkout event processor function. The responsibility then falls on the application developer to ensure adherence to local regulations like GDPR and ePrivacy directive before disseminating these events to first-party and third-party systems.
 
 Here's how you might intercept these events:
 
@@ -293,9 +327,11 @@ fun processStandardEvent(event: StandardPixelEvent) {
 // ... other functions, incl. processCustomEvent(event)
 ```
 
-_Note: You may need to augment these events with customer/session information derived from app state._
+> [!Note]
+> You may need to augment these events with customer/session information derived from app state.
 
-_Note: The `customData` attribute of CustomPixelEvent can take on any shape. As such, this attribute will be returned as a String. Client applications should define a custom data type and deserialize the `customData` string into that type._
+> [!Note]
+> The `customData` attribute of CustomPixelEvent can take on any shape. As such, this attribute will be returned as a String. Client applications should define a custom data type and deserialize the `customData` string into that type.
 
 ### Integrating identity & customer accounts
 
@@ -337,8 +373,9 @@ and initialize a buyer-aware checkout session.
    URL and set the `'return_to'` to be the obtained `checkoutUrl`
 2. Provide the Multipass URL to `ShopifyCheckoutSheetKit.present()`.
 
-_Note: the above JSON omits useful customer attributes that should be provided where possible and
-encryption and signing should be done server-side to ensure Multipass keys are kept secret._
+> [!Important]
+> the above JSON omits useful customer attributes that should be provided where possible and
+encryption and signing should be done server-side to ensure Multipass keys are kept secret.
 
 #### Shop Pay
 

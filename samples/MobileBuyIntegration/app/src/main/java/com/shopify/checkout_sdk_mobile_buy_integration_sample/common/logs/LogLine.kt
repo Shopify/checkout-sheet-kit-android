@@ -26,27 +26,31 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.OrderDetails
 import com.shopify.checkoutsheetkit.pixelevents.Context
 import com.shopify.checkoutsheetkit.pixelevents.CustomPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEventData
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import java.util.Date
 import java.util.UUID
 
 @Entity
 data class LogLine(
-    @PrimaryKey val id: UUID,
-    val createdAt: Long,
+    @PrimaryKey val id: UUID = UUID.randomUUID(),
+    val createdAt: Long = Date().time,
     val message: String,
     val type: LogType,
     @Embedded(prefix = "standard_pixel") val standardPixelEvent: StandardPixelEvent? = null,
     @Embedded(prefix = "custom_pixel") val customPixelEvent: CustomPixelEvent? = null,
     @Embedded(prefix = "error_details") val errorDetails: ErrorDetails? = null,
+    @Embedded(prefix = "checkout_completed") val checkoutCompleted: CheckoutCompletedEvent? = null,
 )
 
 enum class LogType {
-    STANDARD, ERROR, CUSTOM_PIXEL, STANDARD_PIXEL
+    STANDARD, ERROR, CUSTOM_PIXEL, STANDARD_PIXEL, CHECKOUT_COMPLETED
 }
 
 data class ErrorDetails(
@@ -73,5 +77,15 @@ class Converters {
     @TypeConverter
     fun stringToContext(value: String): Context {
         return Json.decodeFromString<Context>(value)
+    }
+
+    @TypeConverter
+    fun orderDetailsToString(value: OrderDetails): String {
+        return Json.encodeToString<OrderDetails>(value)
+    }
+
+    @TypeConverter
+    fun stringToOrderDetails(value: String): OrderDetails {
+        return Json.decodeFromString<OrderDetails>(value)
     }
 }

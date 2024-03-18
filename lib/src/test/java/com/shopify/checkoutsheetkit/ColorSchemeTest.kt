@@ -35,7 +35,7 @@ class ColorSchemeTest {
         assertThat(dark.colors.headerBackground).isEqualTo(Color.ResourceId(R.color.checkoutDarkBg))
         assertThat(dark.colors.headerFont).isEqualTo(Color.ResourceId(R.color.checkoutDarkFont))
         assertThat(dark.colors.webViewBackground).isEqualTo(Color.ResourceId(R.color.checkoutDarkBg))
-        assertThat(dark.colors.spinnerColor).isEqualTo(Color.ResourceId(R.color.checkoutDarkLoadingSpinner))
+        assertThat(dark.colors.progressIndicator).isEqualTo(Color.ResourceId(R.color.checkoutDarkProgressIndicator))
     }
 
     @Test
@@ -45,7 +45,7 @@ class ColorSchemeTest {
         assertThat(light.colors.headerBackground).isEqualTo(Color.ResourceId(R.color.checkoutLightBg))
         assertThat(light.colors.headerFont).isEqualTo(Color.ResourceId(R.color.checkoutLightFont))
         assertThat(light.colors.webViewBackground).isEqualTo(Color.ResourceId(R.color.checkoutLightBg))
-        assertThat(light.colors.spinnerColor).isEqualTo(Color.ResourceId(R.color.checkoutLightLoadingSpinner))
+        assertThat(light.colors.progressIndicator).isEqualTo(Color.ResourceId(R.color.checkoutLightProgressIndicator))
     }
 
     @Test
@@ -55,12 +55,12 @@ class ColorSchemeTest {
         assertThat(automatic.darkColors.headerBackground).isEqualTo(Color.ResourceId(R.color.checkoutDarkBg))
         assertThat(automatic.darkColors.headerFont).isEqualTo(Color.ResourceId(R.color.checkoutDarkFont))
         assertThat(automatic.darkColors.webViewBackground).isEqualTo(Color.ResourceId(R.color.checkoutDarkBg))
-        assertThat(automatic.darkColors.spinnerColor).isEqualTo(Color.ResourceId(R.color.checkoutDarkLoadingSpinner))
+        assertThat(automatic.darkColors.progressIndicator).isEqualTo(Color.ResourceId(R.color.checkoutDarkProgressIndicator))
 
         assertThat(automatic.lightColors.headerBackground).isEqualTo(Color.ResourceId(R.color.checkoutLightBg))
         assertThat(automatic.lightColors.headerFont).isEqualTo(Color.ResourceId(R.color.checkoutLightFont))
         assertThat(automatic.lightColors.webViewBackground).isEqualTo(Color.ResourceId(R.color.checkoutLightBg))
-        assertThat(automatic.lightColors.spinnerColor).isEqualTo(Color.ResourceId(R.color.checkoutLightLoadingSpinner))
+        assertThat(automatic.lightColors.progressIndicator).isEqualTo(Color.ResourceId(R.color.checkoutLightProgressIndicator))
     }
 
     @Test
@@ -70,7 +70,7 @@ class ColorSchemeTest {
         assertThat(web.colors.headerBackground).isEqualTo(Color.ResourceId(R.color.checkoutLightBg))
         assertThat(web.colors.headerFont).isEqualTo(Color.ResourceId(R.color.checkoutLightFont))
         assertThat(web.colors.webViewBackground).isEqualTo(Color.ResourceId(R.color.checkoutLightBg))
-        assertThat(web.colors.spinnerColor).isEqualTo(Color.ResourceId(R.color.checkoutLightLoadingSpinner))
+        assertThat(web.colors.progressIndicator).isEqualTo(Color.ResourceId(R.color.checkoutLightProgressIndicator))
     }
 
     @Test
@@ -80,14 +80,14 @@ class ColorSchemeTest {
                 headerBackground = Color.ResourceId(1),
                 headerFont = Color.ResourceId(2),
                 webViewBackground = Color.ResourceId(3),
-                spinnerColor = Color.ResourceId(4),
+                progressIndicator = Color.ResourceId(4),
             )
         )
 
         assertThat(web.colors.headerBackground).isEqualTo(Color.ResourceId(1))
         assertThat(web.colors.headerFont).isEqualTo(Color.ResourceId(2))
         assertThat(web.colors.webViewBackground).isEqualTo(Color.ResourceId(3))
-        assertThat(web.colors.spinnerColor).isEqualTo(Color.ResourceId(4))
+        assertThat(web.colors.progressIndicator).isEqualTo(Color.ResourceId(4))
     }
 
     @Test
@@ -97,13 +97,13 @@ class ColorSchemeTest {
                 headerBackground = Color.ResourceId(1),
                 headerFont = Color.ResourceId(2),
                 webViewBackground = Color.ResourceId(3),
-                spinnerColor = Color.ResourceId(4),
+                progressIndicator = Color.ResourceId(4),
             ),
             darkColors = Colors(
                 headerBackground = Color.ResourceId(5),
                 headerFont = Color.ResourceId(6),
                 webViewBackground = Color.ResourceId(7),
-                spinnerColor = Color.ResourceId(8),
+                progressIndicator = Color.ResourceId(8),
             )
         )
 
@@ -123,13 +123,13 @@ class ColorSchemeTest {
                 headerBackground = Color.ResourceId(1),
                 headerFont = Color.ResourceId(2),
                 webViewBackground = Color.ResourceId(3),
-                spinnerColor = Color.ResourceId(4),
+                progressIndicator = Color.ResourceId(4),
             ),
             darkColors = Colors(
                 headerBackground = Color.ResourceId(5),
                 headerFont = Color.ResourceId(6),
                 webViewBackground = Color.ResourceId(7),
-                spinnerColor = Color.ResourceId(8),
+                progressIndicator = Color.ResourceId(8),
             )
         )
 
@@ -149,13 +149,13 @@ class ColorSchemeTest {
                 headerBackground = Color.ResourceId(1),
                 headerFont = Color.ResourceId(2),
                 webViewBackground = Color.ResourceId(3),
-                spinnerColor = Color.ResourceId(4),
+                progressIndicator = Color.ResourceId(4),
             ),
             darkColors = Colors(
                 headerBackground = Color.ResourceId(5),
                 headerFont = Color.ResourceId(6),
                 webViewBackground = Color.ResourceId(7),
-                spinnerColor = Color.ResourceId(8),
+                progressIndicator = Color.ResourceId(8),
             )
         )
 
@@ -175,13 +175,13 @@ class ColorSchemeTest {
                 headerBackground = Color.ResourceId(1),
                 headerFont = Color.ResourceId(2),
                 webViewBackground = Color.ResourceId(3),
-                spinnerColor = Color.ResourceId(4),
+                progressIndicator = Color.ResourceId(4),
             ),
             darkColors = Colors(
                 headerBackground = Color.ResourceId(5),
                 headerFont = Color.ResourceId(6),
                 webViewBackground = Color.ResourceId(8),
-                spinnerColor = Color.ResourceId(9),
+                progressIndicator = Color.ResourceId(9),
             )
         )
 

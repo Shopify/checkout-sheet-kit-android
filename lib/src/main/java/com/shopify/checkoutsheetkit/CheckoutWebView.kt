@@ -24,6 +24,7 @@ package com.shopify.checkoutsheetkit
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Color.TRANSPARENT
 import android.net.Uri
 import android.os.Build
@@ -36,6 +37,7 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.webkit.RenderProcessGoneDetail
+import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -96,6 +98,13 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             javaScriptEnabled = true
             domStorageEnabled = true
         }
+        webChromeClient = object: WebChromeClient() {
+            override fun onProgressChanged(view: WebView?, newProgress: Int) {
+                super.onProgressChanged(view, newProgress)
+                checkoutBridge.getEventProcessor().updateProgressBar(newProgress)
+            }
+        }
+        isHorizontalScrollBarEnabled = false
         webViewClient = CheckoutWebViewClient()
         requestDisallowInterceptTouchEvent(true)
         setBackgroundColor(TRANSPARENT)
@@ -125,7 +134,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
     fun loadCheckout(url: String, isPreload: Boolean) {
         initLoadTime = System.currentTimeMillis()
         Handler(Looper.getMainLooper()).post {
-            val headers = if (isPreload) mapOf("Sec-Purpose" to "prefetch") else emptyMap()
+            val headers = if (isPreload) mutableMapOf("Sec-Purpose" to "prefetch") else mutableMapOf()
             loadUrl(url, headers)
         }
     }
@@ -135,6 +144,11 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             if (BuildConfig.DEBUG) {
                 setWebContentsDebuggingEnabled(true)
             }
+        }
+
+        override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+            super.onPageStarted(view, url, favicon)
+            checkoutBridge.getEventProcessor().onCheckoutViewLoadStarted()
         }
 
         override fun onPageFinished(view: WebView, url: String) {
@@ -266,6 +280,10 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         internal var cacheEntry: CheckoutWebViewCacheEntry? = null
         internal var cacheClock = CheckoutWebViewCacheClock()
 
+        fun markCacheEntryStale() {
+            cacheEntry = cacheEntry?.copy(timeout = -1)
+        }
+
         fun clearCache(newEntry: CheckoutWebViewCacheEntry? = null) = cacheEntry?.let {
             Handler(Looper.getMainLooper()).post {
                 it.view.destroy()
@@ -307,7 +325,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
                         key = url,
                         view = view,
                         clock = cacheClock,
-                        timeout = if (preloadingEnabled) 5.minutes.inWholeMilliseconds else 0,
+                        timeout = if (isPreload && preloadingEnabled) 5.minutes.inWholeMilliseconds else 0,
                     )
                 )
 
@@ -338,7 +356,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             return key == cacheEntry!!.key && !cacheEntry!!.isStale
         }
 
-        private val isStale: Boolean
+        internal val isStale: Boolean
             get() = abs(timestamp - clock.currentTimeMillis()) >= timeout
     }
 

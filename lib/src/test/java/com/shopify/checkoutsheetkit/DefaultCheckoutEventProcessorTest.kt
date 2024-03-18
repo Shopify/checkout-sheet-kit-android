@@ -25,6 +25,7 @@ package com.shopify.checkoutsheetkit
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.ComponentActivity
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
@@ -89,7 +90,7 @@ class DefaultCheckoutEventProcessorTest {
     fun `onCheckoutLinkedClick with unhandled scheme logs warning`() {
         val log = mock<LogWrapper>()
         val processor = object: DefaultCheckoutEventProcessor(activity, log) {
-            override fun onCheckoutCompleted() {/* not implemented */}
+            override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {/* not implemented */}
             override fun onCheckoutFailed(error: CheckoutException) {/* not implemented */}
             override fun onCheckoutCanceled() {/* not implemented */}
             override fun onWebPixelEvent(event: PixelEvent) {/* not implemented */}
@@ -109,7 +110,7 @@ class DefaultCheckoutEventProcessorTest {
         var description = ""
         val processor =
                 object : DefaultCheckoutEventProcessor(activity, log) {
-                    override fun onCheckoutCompleted() {
+                    override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {
                         /* not implemented */
                     }
                     override fun onCheckoutFailed(error: CheckoutException) {
@@ -133,7 +134,7 @@ class DefaultCheckoutEventProcessorTest {
 
     private fun processor(activity: ComponentActivity): DefaultCheckoutEventProcessor {
         return object: DefaultCheckoutEventProcessor(activity) {
-            override fun onCheckoutCompleted() {/* not implemented */}
+            override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {/* not implemented */}
             override fun onCheckoutFailed(error: CheckoutException) {/* not implemented */}
             override fun onCheckoutCanceled() {/* not implemented */}
             override fun onWebPixelEvent(event: PixelEvent) {/* not implemented */}
