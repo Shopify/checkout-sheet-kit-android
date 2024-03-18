@@ -91,6 +91,8 @@ dependencies {
     implementation "androidx.datastore:datastore-preferences:$datastore_version"
     implementation "io.insert-koin:koin-androidx-compose:$koin_android_compose_version"
     implementation "androidx.room:room-runtime:$room_version"
+    implementation 'com.google.android.gms:play-services-wallet:19.3.0'
+    implementation "com.google.pay.button:compose-pay-button:1.0.0"
     annotationProcessor "androidx.room:room-compiler:$room_version"
     ksp "androidx.room:room-compiler:$room_version"
 

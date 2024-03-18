@@ -25,18 +25,30 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.cart
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.tasks.Tasks
+import com.google.android.gms.wallet.IsReadyToPayRequest
+import com.google.android.gms.wallet.PaymentData
+import com.google.android.gms.wallet.PaymentDataRequest
+import com.google.android.gms.wallet.PaymentsClient
 import com.shopify.buy3.Storefront
 import com.shopify.buy3.Storefront.Cart
 import com.shopify.buy3.Storefront.CartLineInput
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontClient
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.pay.PaymentUtils
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
 import com.shopify.checkoutsheetkit.CheckoutEventProcessor
+import com.shopify.checkoutsheetkit.LogWrapper
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 import com.shopify.graphql.support.ID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.google.android.gms.wallet.contract.TaskResultContracts.GetPaymentDataResult
+import androidx.activity.result.registerForActivityResult
+import com.google.android.gms.common.api.CommonStatusCodes
 
 typealias OnComplete = (Cart?) -> Unit
 
@@ -48,6 +60,8 @@ class CartViewModel(
     val cartState: StateFlow<CartState> = _cartState.asStateFlow()
 
     private var demoBuyerIdentityEnabled = false
+    var paymentsClient: PaymentsClient? = null
+    private val log: LogWrapper = LogWrapper()
 
     init {
         // clear cart when buyer identity demo setting toggled
@@ -115,7 +129,7 @@ class CartViewModel(
                 CartLine(
                     title = it.product.title,
                     vendor = it.product.vendor,
-                    quantity = cartLine.quantity
+                    quantity = cartLine.quantity,
                 )
             }
         }
@@ -136,5 +150,46 @@ class CartViewModel(
             ),
             checkoutUrl = checkoutUrl,
         )
+    }
+
+    suspend fun isGooglePayAvailable(activity: ComponentActivity): Boolean {
+        val isReadyToPayJson = PaymentUtils.isReadyToPayRequest() ?: return false
+        val request = IsReadyToPayRequest.fromJson(isReadyToPayJson.toString())
+        paymentsClient = PaymentUtils.createPaymentsClient(activity)
+
+        return try {
+            val task = paymentsClient!!.isReadyToPay(request)
+            Tasks.await(task)
+        } catch (exception: Exception) {
+            log.w("isReadyToPay failed", exception.toString())
+            false
+        }
+    }
+
+    /**
+     * Creates a [Task] that starts the payment process with the transaction details included.
+     *
+     * @return a [Task] with the payment information.
+     * @see [PaymentDataRequest](https://developers.google.com/android/reference/com/google/android/gms/wallet/PaymentsClient#loadPaymentData(com.google.android.gms.wallet.PaymentDataRequest)
+    ) */
+    fun getLoadPaymentDataTask(priceCents: Long): Task<PaymentData> {
+        val paymentDataRequestJson = PaymentUtils.getPaymentDataRequest(priceCents)
+        val request = PaymentDataRequest.fromJson(paymentDataRequestJson.toString())
+        return paymentsClient!!.loadPaymentData(request)
+    }
+
+    val paymentDataLauncher = registerForActivityResult(GetPaymentDataResult()) { taskResult ->
+        when (taskResult.status.statusCode) {
+            CommonStatusCodes.SUCCESS -> {
+                taskResult.result!!.let {
+                    log.w("Google Pay result:", it.toJson())
+                    model.setPaymentData(it)
+                }
+            }
+            //CommonStatusCodes.CANCELED -> The user canceled
+            //AutoResolveHelper.RESULT_ERROR -> The API returned an error (it.status: Status)
+            //CommonStatusCodes.INTERNAL_ERROR -> Handle other unexpected errors
+            else -> {}
+        }
     }
 }

@@ -22,6 +22,7 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.cart
 
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -43,16 +44,31 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.wallet.IsReadyToPayRequest
+import com.google.pay.button.PayButton
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.AppBarState
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.toDisplayText
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.pay.PaymentUtils
 import com.shopify.checkoutsheetkit.CheckoutEventProcessor
+import com.shopify.checkoutsheetkit.LogWrapper
+import com.google.android.gms.wallet.contract.TaskResultContracts.GetPaymentDataResult
+import androidx.activity.result.registerForActivityResult
+import com.google.android.gms.common.api.CommonStatusCodes
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.wallet.AutoResolveHelper
+import com.google.android.gms.wallet.PaymentData
+import kotlin.coroutines.jvm.internal.CompletedContinuation.context
 
 @Composable
 fun CartView(
@@ -61,32 +77,34 @@ fun CartView(
     checkoutEventProcessor: CheckoutEventProcessor,
 ) {
     val state = cartViewModel.cartState.collectAsState().value
+    val activity = LocalContext.current as ComponentActivity
 
-    LaunchedEffect(state) {
-        setAppBarState(
-            AppBarState(
-                title = "Cart",
-                actions = {
-                    if (state.totalQuantity > 0) {
-                        IconButton(onClick = { cartViewModel.clearCart() }) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = "Empty cart",
-                            )
-                        }
-                    }
+    // Mutable state to hold the result of isGooglePayAvailable
+    val googlePayAvailable = remember { mutableStateOf(true) }
+
+    LaunchedEffect(state, googlePayAvailable.value) {
+        setAppBarState(AppBarState(title = "Cart", actions = {
+            if (state.totalQuantity > 0) {
+                IconButton(onClick = { cartViewModel.clearCart() }) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Empty cart",
+                    )
                 }
-            )
-        )
+            }
+        }))
+
+        // Call isGooglePayAvailable and update googlePayAvailable state
+        googlePayAvailable.value = cartViewModel.isGooglePayAvailable(activity)
     }
 
     Column(
         Modifier
             .fillMaxSize()
             .padding(20.dp),
-        verticalArrangement = Arrangement.SpaceBetween
+        verticalArrangement = Arrangement.SpaceBetween,
     ) {
-        val activity = LocalContext.current as ComponentActivity
+
         when (state) {
             is CartState.Empty -> {
                 EmptyCartMessage(Modifier.fillMaxSize())
@@ -94,20 +112,42 @@ fun CartView(
 
             is CartState.Populated -> {
                 CartLines(
-                    lines = state.cartLines,
-                    modifier = Modifier.weight(1f, false)
+                    lines = state.cartLines, modifier = Modifier.weight(1f, false)
                 )
-                CheckoutButton(
-                    totalAmount = state.cartTotals.totalAmount,
-                    onClick = {
-                        cartViewModel.presentCheckout(
-                            state.checkoutUrl,
-                            activity,
-                            checkoutEventProcessor
-                        )
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                )
+
+                if (true) {
+                    PayButton(
+                        modifier = Modifier
+                            .testTag("payButton")
+                            .fillMaxWidth(),
+                        onClick = {
+                            // Use the contract to create an activity result launcher
+                            val paymentDataLauncher = registerForActivityResult(GetPaymentDataResult()) {
+                                when (it.status.statusCode) {
+                                    CommonStatusCodes.SUCCESS -> // Do something with the result (it.result: PaymentData?)
+                                        CommonStatusCodes.CANCELED -> // The user canceled
+                                    AutoResolveHelper.RESULT_ERROR -> // The API returned an error (it.status: Status)
+                                    CommonStatusCodes.INTERNAL_ERROR -> // Handle other unexpected errors
+                                }
+                            }
+
+                            // Start the task operation and associate it with the activity launcher
+                            val paymentDataTask: Task<PaymentData> = cartViewModel.paymentsClient.loadPaymentData(request)
+                            paymentDataTask.addOnCompleteListener(context, paymentDataLauncher::launch)
+                        },
+                        allowedPaymentMethods = PaymentUtils.allowedPaymentMethods
+                    )
+                } else {
+                    CheckoutButton(
+                        totalAmount = state.cartTotals.totalAmount,
+                        onClick = {
+                            cartViewModel.presentCheckout(
+                                state.checkoutUrl, activity, checkoutEventProcessor
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             }
         }
     }
@@ -138,13 +178,10 @@ private fun CartLines(lines: List<CartLine>, modifier: Modifier = Modifier) {
 
 @Composable
 private fun CheckoutButton(
-    totalAmount: Amount,
-    onClick: () -> Unit,
-    modifier: Modifier
+    totalAmount: Amount, onClick: () -> Unit, modifier: Modifier
 ) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
+        horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier
     ) {
         Button(
             modifier = Modifier.fillMaxWidth(.7f),
@@ -152,17 +189,14 @@ private fun CheckoutButton(
         ) {
             Column {
                 Text(
-                    "Checkout",
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
+                    "Checkout", textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()
                 )
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     fontSize = 12.sp,
                     textAlign = TextAlign.Center,
                     text = toDisplayText(
-                        totalAmount.currency,
-                        totalAmount.price
+                        totalAmount.currency, totalAmount.price
                     )
                 )
             }

@@ -23,12 +23,16 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample
 
 import android.os.Bundle
+import android.util.Log
 import android.webkit.WebView.setWebContentsDebuggingEnabled
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.wallet.IsReadyToPayRequest
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.pay.PaymentUtils
+import com.shopify.checkoutsheetkit.LogWrapper
 
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setWebContentsDebuggingEnabled(true)
