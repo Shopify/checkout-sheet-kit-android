@@ -55,13 +55,13 @@ internal class CheckoutBridge(
 
         companion object {
             fun fromKey(key: String): CheckoutWebOperation? {
-                return values().find { it.key == key }
+                return entries.find { it.key == key }
             }
         }
     }
 
     sealed class SDKOperation(val key: String) {
-        object Presented : SDKOperation("presented")
+        data object Presented : SDKOperation("presented")
         class Instrumentation(val payload: InstrumentationPayload): SDKOperation("instrumentation")
     }
 

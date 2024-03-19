@@ -76,7 +76,7 @@ class SettingsViewModel(private val preferencesManager: PreferencesManager) : Vi
 }
 
 sealed class SettingsUiState {
-    object Loading : SettingsUiState()
+    data object Loading : SettingsUiState()
     data class Populated(
         val settings: Settings,
         val sdkVersion: String,

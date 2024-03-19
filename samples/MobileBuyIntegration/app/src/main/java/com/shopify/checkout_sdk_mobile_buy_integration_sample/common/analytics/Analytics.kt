@@ -34,6 +34,7 @@ object Analytics {
 
     fun record(analyticsEvent: AnalyticsEvent) {
         // implement record, e.g. via calling analytics sdk function
+        println(analyticsEvent)
     }
 }
 

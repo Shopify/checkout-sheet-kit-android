@@ -26,7 +26,7 @@ import androidx.compose.runtime.Stable
 import com.shopify.graphql.support.ID
 
 sealed class CartState {
-    object Empty : CartState()
+    data object Empty : CartState()
 
     @Stable
     data class Populated(

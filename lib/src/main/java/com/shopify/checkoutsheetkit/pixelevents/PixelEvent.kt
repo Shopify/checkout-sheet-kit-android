@@ -48,7 +48,7 @@ public enum class EventType(public val typeName: String) {
             if (typeName == null) {
                 return null
             }
-            return EventType.values().firstOrNull {
+            return entries.firstOrNull {
                 it.typeName == typeName
             }
         }
