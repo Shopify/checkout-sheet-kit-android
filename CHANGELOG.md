@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.1 March 19, 2024
+
+- Update compileSDK to 34
+- Upgrade gradle and plugins (android gradle plugin, kotlin serialization, android kotlin)
+- Upgrade dependencies (robolectric)
+
 ## 2.0.0 March 14, 2024
 
 ### New Features
