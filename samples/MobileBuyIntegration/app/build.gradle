@@ -1,3 +1,5 @@
+import com.android.build.api.variant.BuildConfigField
+
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
@@ -36,19 +38,17 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+        buildConfigField "String", "storefrontDomain", "\"$storefrontDomain\""
+        buildConfigField "String", "storefrontAccessToken", "\"$accessToken\""
     }
 
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField('String', 'storefrontDomain', '"' + storefrontDomain + '"')
-            buildConfigField('String', 'storefrontAccessToken', '"' + accessToken + '"')
         }
         debug {
             debuggable true
-            buildConfigField('String', 'storefrontDomain', '"' + storefrontDomain + '"')
-            buildConfigField('String', 'storefrontAccessToken', '"' + accessToken + '"')
         }
     }
     compileOptions {
@@ -60,6 +60,7 @@ android {
     }
     buildFeatures {
         compose true
+        buildConfig true
     }
     composeOptions {
         kotlinCompilerExtensionVersion '1.5.8'

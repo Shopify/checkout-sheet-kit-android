@@ -24,7 +24,7 @@ ext {
     androidx_junit_ext_version = '1.1.5'
 
     junit_version = '4.13.2'
-    robolectric_version = '4.9'
+    robolectric_version = '4.11.1'
     mockito_core_version = '4.11.0'
     mockito_kotlin_version = '4.1.0'
     assertj_version = '3.24.2'
@@ -33,7 +33,7 @@ ext {
 
 android {
     namespace 'com.shopify.checkoutsheetkit'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         minSdk 23
@@ -80,6 +80,9 @@ android {
             withSourcesJar()
             withJavadocJar()
         }
+    }
+    buildFeatures {
+        buildConfig true
     }
 }
 
