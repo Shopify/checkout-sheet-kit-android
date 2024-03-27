@@ -41,7 +41,7 @@ object DemoBuyerIdentity {
                     Storefront.MailingAddressInput()
                         .setAddress1("The Cloak & Dagger")
                         .setAddress2("1st Street Southeast")
-                        .setCity("Cagalry")
+                        .setCity("Calgary")
                         .setCountry("CA")
                         .setFirstName("Ada")
                         .setLastName("Lovelace")
