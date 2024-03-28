@@ -48,6 +48,18 @@ object DemoBuyerIdentity {
                         .setProvince("AB")
                         .setPhone("+441792123456")
                         .setZip("T1X 0L3")
+                ),
+                Storefront.DeliveryAddressInput().setDeliveryAddress(
+                    Storefront.MailingAddressInput()
+                        .setAddress1("8 Lon Heddwch")
+                        .setAddress2("Llansamlet")
+                        .setCity("Swansea")
+                        .setCountry("GB")
+                        .setFirstName("Ada")
+                        .setLastName("Lovelace")
+                        .setProvince("")
+                        .setPhone("+441792123456")
+                        .setZip("SA7 9UY")
                 )
             )
         )
