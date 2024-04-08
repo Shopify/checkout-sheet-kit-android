@@ -28,6 +28,10 @@ import android.webkit.WebView
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.MODAL
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.WEB_PIXELS
+import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.ERROR
+import com.shopify.checkoutsheetkit.errors.CheckoutErrorDecoder
+import com.shopify.checkoutsheetkit.errors.CheckoutErrorGroup
+import com.shopify.checkoutsheetkit.errors.CheckoutErrorPayload
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEventDecoder
 import com.shopify.checkoutsheetkit.pixelevents.PixelEventDecoder
 
@@ -39,7 +43,8 @@ internal class CheckoutBridge(
     private var eventProcessor: CheckoutWebViewEventProcessor,
     private val decoder: Json = Json { ignoreUnknownKeys = true },
     private val pixelEventDecoder: PixelEventDecoder = PixelEventDecoder(decoder),
-    private val checkoutCompletedEventDecoder: CheckoutCompletedEventDecoder = CheckoutCompletedEventDecoder(decoder)
+    private val checkoutCompletedEventDecoder: CheckoutCompletedEventDecoder = CheckoutCompletedEventDecoder(decoder),
+    private val checkoutErrorDecoder: CheckoutErrorDecoder = CheckoutErrorDecoder(decoder),
 ) {
 
     fun setEventProcessor(eventProcessor: CheckoutWebViewEventProcessor) {
@@ -51,7 +56,8 @@ internal class CheckoutBridge(
     enum class CheckoutWebOperation(val key: String) {
         COMPLETED("completed"),
         MODAL("checkoutBlockingEvent"),
-        WEB_PIXELS("webPixels");
+        WEB_PIXELS("webPixels"),
+        ERROR("error");
 
         companion object {
             fun fromKey(key: String): CheckoutWebOperation? {
@@ -87,6 +93,11 @@ internal class CheckoutBridge(
                     eventProcessor.onWebPixelEvent(event)
                 }
             }
+            ERROR -> {
+                checkoutErrorDecoder.decode(decodedMsg)?.let { decodedError ->
+                   handleDecodedError(decodedError)
+                }
+            }
             else -> {}
         }
     }
@@ -110,9 +121,27 @@ internal class CheckoutBridge(
         }
     }
 
+    private fun handleDecodedError(decodedError: CheckoutErrorPayload) {
+        val sheetKitError = when (decodedError.group) {
+            CheckoutErrorGroup.CONFIGURATION -> CheckoutUnavailableException(
+                decodedError.reason ?: "Storefront was not configured properly."
+            )
+            CheckoutErrorGroup.UNRECOVERABLE -> CheckoutUnavailableException(
+                decodedError.reason ?: "Checkout unavailable."
+            )
+            CheckoutErrorGroup.EXPIRED -> CheckoutExpiredException(
+                decodedError.reason ?: "Checkout has expired."
+            )
+            else -> null
+        }
+        sheetKitError?.let {
+            eventProcessor.onCheckoutViewFailedWithError(sheetKitError)
+        }
+    }
+
     companion object {
         private const val SDK_VERSION_NUMBER: String = BuildConfig.SDK_VERSION
-        private const val SCHEMA_VERSION_NUMBER: String = "8.0"
+        private const val SCHEMA_VERSION_NUMBER: String = "8.1"
         private fun dispatchMessageTemplate(body: String) = """|
         |if (window.MobileCheckoutSdk && window.MobileCheckoutSdk.dispatchMessage) {
         |    window.MobileCheckoutSdk.dispatchMessage($body);

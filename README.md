@@ -290,6 +290,17 @@ val processor = object : DefaultCheckoutEventProcessor(activity) {
 > [!Note]
 > The `DefaultCheckoutEventProcessor` provides default implementations for current and future callback functions (such as `onLinkClicked()`), which can be overridden by clients wanting to change default behavior.
 
+#### Error handling guidance
+
+| `CheckoutError` | Description | Recommendation |
+| -- | -- | -- |
+| `CheckoutLiquidNotMigratedException()`                                                       | `checkout.liquid` is not supported.                                     | Please upgrade to Extensibility. |
+| `CheckoutUnavailableException("Forbidden")`                                                  | Access to checkout is forbidden.                                        | This error is unrecoverable. |
+| `CheckoutUnavailableException("Customer account required")`                                  | A Customer account is required to proceed                               | Request customer login before proceeding to checkout. See [Customer Accounts API](https://github.com/Shopify/checkout-sheet-kit-android#customer-account-api) for more information. |
+| `CheckoutUnavailableException("Storefront password required")`                               | Access to checkout is password protected                                | We are working on ways to enable the Checkout Sheet Kit for usage with password protected stores |
+| `CheckoutExpiredException("Checkout already completed")`                                     | The checkout has already been completed                                 | If this is incorrect, create a new cart and open a new checkout URL. |
+| `CheckoutExpiredException("Cart is empty")`                                                  | The cart session has expired.                                           | Create a new cart and open a new checkout URL. |
+
 #### Integrating with Web Pixels, monitoring behavioral data
 
 App developers can use [lifecycle events](#monitoring-the-lifecycle-of-a-checkout-session) to

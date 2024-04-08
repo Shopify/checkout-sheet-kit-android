@@ -46,7 +46,8 @@ public class CheckoutSdkError(errorMsg: String) : CheckoutException(errorMsg)
  * Issued when checkout has encountered a unrecoverable error (for example server side error).
  * if the issue persists, it is recommended to open a bug report in https://github.com/Shopify/checkout-sheet-kit-android
  */
-public class CheckoutUnavailableException : CheckoutException("Checkout is currently unavailable due to an internal error")
+public class CheckoutUnavailableException @JvmOverloads constructor(errorDescription: String? = null)
+    : CheckoutException(errorDescription ?: "Checkout is currently unavailable due to an internal error")
 
 /**
  * Issued when checkout is no longer available and will no longer be available with the checkout URL supplied.
@@ -54,9 +55,8 @@ public class CheckoutUnavailableException : CheckoutException("Checkout is curre
  * then attempted to proceed again with the same checkout URL.
  * In event of checkoutExpired, a new checkout URL will need to be generated.
  */
-public class CheckoutExpiredException : CheckoutException(
-    "Checkout is no longer available with the provided token. Please generate a new checkout URL"
-)
+public class CheckoutExpiredException @JvmOverloads constructor(errorDescription: String? = null)
+    : CheckoutException(errorDescription ?: "Checkout is no longer available with the provided token. Please generate a new checkout URL")
 
 /**
  * Issued when the provided checkout URL results in an error related to shop being on checkout.liquid.

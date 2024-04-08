@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.0 April 11, 2024
+
+- Improves error handling. See [Error Handling Guidance](https://github.com/Shopify/checkout-sheet-kit-android#error-handling-guidance) for more information.
+
 ## 2.0.1 March 19, 2024
 
 - Update compileSDK to 34

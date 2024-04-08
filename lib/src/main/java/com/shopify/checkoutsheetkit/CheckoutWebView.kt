@@ -46,6 +46,8 @@ import android.webkit.WebViewClient
 import androidx.activity.ComponentActivity
 import com.shopify.checkoutsheetkit.CheckoutBridge.Companion.userAgentSuffix
 import com.shopify.checkoutsheetkit.InstrumentationType.histogram
+import java.net.HttpURLConnection.HTTP_BAD_GATEWAY
+import java.net.HttpURLConnection.HTTP_GATEWAY_TIMEOUT
 import java.net.HttpURLConnection.HTTP_GONE
 import java.net.HttpURLConnection.HTTP_INTERNAL_ERROR
 import java.net.HttpURLConnection.HTTP_NOT_FOUND
@@ -253,7 +255,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
                 val exception = when (errorCode) {
                     HTTP_NOT_FOUND -> CheckoutLiquidNotMigratedException()
                     HTTP_GONE -> CheckoutExpiredException()
-                    HTTP_INTERNAL_ERROR -> CheckoutUnavailableException()
+                    HTTP_INTERNAL_ERROR, HTTP_GATEWAY_TIMEOUT, HTTP_BAD_GATEWAY -> CheckoutUnavailableException()
                     else -> CheckoutSdkError(errorDescription)
                 }
                 checkoutBridge.getEventProcessor().onCheckoutViewFailedWithError(exception)
