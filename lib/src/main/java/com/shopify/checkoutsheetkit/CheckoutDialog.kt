@@ -29,6 +29,7 @@ import android.content.res.Configuration.UI_MODE_NIGHT_MASK
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -44,6 +45,7 @@ import android.widget.RelativeLayout
 import androidx.activity.ComponentActivity
 import androidx.annotation.ColorInt
 import androidx.appcompat.widget.Toolbar
+import androidx.browser.customtabs.CustomTabsIntent
 
 internal class CheckoutDialog(
     private val checkoutUrl: String,
@@ -151,6 +153,7 @@ internal class CheckoutDialog(
     internal fun closeCheckoutDialogWithError(error: CheckoutException) {
         checkoutEventProcessor.onCheckoutFailed(error)
         dismiss()
+        CustomTabsIntent.Builder().build().launchUrl(context, Uri.parse(checkoutUrl))
     }
 
     @ColorInt

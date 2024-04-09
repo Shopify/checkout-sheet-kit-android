@@ -19,6 +19,7 @@ def versionName = resolveEnvVarValue("CHECKOUT_SHEET_KIT_VERSION", "2.0.1")
 ext {
     app_compat_version = '1.6.1'
     kotlin_serialization_version = '1.6.3'
+    browser_version = '1.8.0'
 
     androidx_test_version = '1.5.0'
     androidx_junit_ext_version = '1.1.5'
@@ -104,6 +105,7 @@ dependencies {
     //Implementation
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlin_serialization_version"
     implementation "androidx.appcompat:appcompat:$app_compat_version"
+    implementation "androidx.browser:browser:$browser_version"
 }
 
 signing {

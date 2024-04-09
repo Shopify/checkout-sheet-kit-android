@@ -15,6 +15,7 @@
         android:theme="@style/Theme.Androidsample"
         android:networkSecurityConfig="@xml/network_security_config"
         tools:targetApi="31">
+        <profileable android:shell="true"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

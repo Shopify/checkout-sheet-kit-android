@@ -167,9 +167,8 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !detail.didCrash()) {
                 // Renderer was killed because system ran out of memory.
 
-                // Removing the view from `CheckoutWebViewContainer will trigger a cache clear
-                // and call webView.destroy()
-                (view.parent as ViewGroup).removeView(view)
+                val eventProcessor = checkoutBridge.getEventProcessor()
+                eventProcessor.onCheckoutViewFailedWithError(CheckoutSdkError("Renderer process crashed"))
                 true
             } else {
                 false
