@@ -95,7 +95,7 @@ fun presentCheckout() {
 The SDK provides a way to customize the presented checkout experience via
 the `ShopifyCheckoutSheetKit.configure` function.
 
-#### `colorScheme`
+#### Color Scheme
 
 By default, the SDK will match the user's device color appearance. This behavior can be customized
 via the `colorScheme` property:
@@ -217,7 +217,7 @@ A preloaded checkout _is not_ automatically invalidated when checkout is closed.
 2. Preloading results in background network requests and additional CPU/memory utilization
    for the client, and should be used responsibly. For example, conditionally based on the state of the client and when there is a high likelihood that the buyer will soon
    request to checkout.
- 
+
 ### Monitoring the lifecycle of a checkout session
 
 Extend the `DefaultCheckoutEventProcessor` abstract class to register callbacks for key lifecycle events during the checkout session:
@@ -308,20 +308,52 @@ classDiagram
 | `ConfigurationException`       | 'checkout_liquid_not_migrated' | `checkout.liquid` is not supported.                                           | Upgrade to Extensibility.                              |
 | `ConfigurationException`       | 'storefront_password_required' | Access to checkout is password protected.                                     | We are working on ways to enable the Checkout Sheet Kit for usage with password protected stores. |
 | `ConfigurationException`       | 'unknown'                      | Other configuration issue, see error details for more info.                   | Resolve the configuration issue in the error message.  |
-| `CheckoutExpiredException`     | 'checkout_expired'             | The cart or checkout is no longer available or empty.                         | Create a new cart and open a new checkout URL.         |
-| `CheckoutExpiredException`     | 'invalid_cart'                 | The cart associated with the checkout is invalid (e.g. empty).                | Update / create new cart and re-open the checkout URL. |
+| `CheckoutExpiredException`     | 'cart_expired'                 | The cart or checkout is no longer available.                                  | Create a new cart and open a new checkout URL.         |
+| `CheckoutExpiredException`     | 'cart_completed'               | The cart associated with the checkout has completed checkout.                 | Create new cart and open a new checkout URL. |
+| `CheckoutExpiredException`     | 'invalid_cart'                 | The cart associated with the checkout is invalid (e.g. empty).                | Create a new cart and open a new checkout URL. |
 | `AuthenticationException`      | 'customer_account_required     | A Customer account is required to proceed.                                    | Request customer login before proceeding to checkout. See [Customer Accounts API](https://github.com/Shopify/checkout-sheet-kit-android#customer-account-api) for more information. |
 | `CheckoutSheetKitException`    | 'error_receiving_message'      | Checkout Sheet Kit failed to receive a message from checkout.                 | Fallback to checkout outside of Sheet Kit.             |
 | `CheckoutSheetKitException`    | 'error_sending_message'        | Checkout Sheet Kit failed to send a message to checkout.                      | Fallback to checkout outside of Sheet Kit.             |
+| `CheckoutSheetKitException`    | 'render_process_gone'          | The render process for the checkout WebView is gone.                          | Fallback to checkout outside of Sheet Kit.             |
 | `CheckoutSheetKitException`    | 'unknown'                      | An error in Checkout Sheet Kit has occurred, see error details for more info. | Fallback to checkout outside of Sheet Kit.             |
 | `HttpException`                | 'http_error'                   | An unexpected server error has been encountered.                              | Fallback to checkout outside of Sheet Kit.             |
 | `ClientException`              | 'client_error'                 | An unhandled client error was encountered.                                    | Fallback to checkout outside of Sheet Kit.             |
 | `CheckoutUnavailableException` | 'unknown'                      | Checkout is unavailable for another reason, see error details for more info.  | Fallback to checkout outside of Sheet Kit.             |
 
-See [Graceful degradation](todo) for fallback functionality provided by Checkout Sheet Kit. If you provide your own fallback, `error.isRecoverable` provides a more general way of deciding whether to fallback.
+See [Error recovery](#error-recovery) for fallback functionality provided by Checkout Sheet Kit. If you provide your own fallback, `error.isRecoverable` provides a more general way of deciding whether to fallback.
 
 > [!Note]
 > Additional error codes may be added in the future.
+
+### Error Recovery
+
+In order to offer increased resiliency, when certain errors (`isRecoverable == true`) are encountered Checkout Sheet Kit will attempt to gracefully degrade to show web checkout within a fallback WebView.
+
+The fallback WebView has some limitations:
+
+- The look and feel of checkout will differ in some ways, for example `web` branding settings will be seen regardless of dark/light/automatic [color scheme selection](#color-scheme),
+- [Web Pixels](#integrating-with-web-pixels-monitoring-behavioral-data) will be fired in web, and pixel events will not be redirected back to the app via `onPixelEvent()`,
+- Checkout Completed events will have minimal information (orderId only).
+
+The fallback behavior can be disabled via configuration (e.g. if you'd like to implement custom fallback behavior), we also provide a callback where you can execute code before a fallback takes place, allowing for logging, or clearing up any potentially problematic state.
+
+```kotlin
+ShopifyCheckoutSheetKit.configure {
+    it.errorRecovery = object: ErrorRecovery {
+        override fun shouldRecoverFromError(checkoutException: CheckoutException): Boolean {
+            // To disable recovery (default = checkoutException.isRecoverable)
+            return false
+        }
+        
+        override fun preRecoveryActions(exception: CheckoutException, checkoutUrl: String) {
+            // Perform actions prior to recovery, e.g. logging, clearing up cookies:
+            if (exception is HttpException) {
+                CookiePurger.purge(checkoutUrl)
+            }
+        }
+    }
+}
+```
 
 #### Integrating with Web Pixels, monitoring behavioral data
 
@@ -388,8 +420,6 @@ merchants
 using [Classic Customer Accounts](https://help.shopify.com/en/manual/customers/customer-accounts/classic-customer-accounts)
 can use [Multipass](https://shopify.dev/docs/api/multipass) to integrate an external identity system
 and initialize a buyer-aware checkout session.
-
-#### Multipass
 
 ```json
 {

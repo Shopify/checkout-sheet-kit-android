@@ -23,8 +23,13 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample
 
 import android.app.Application
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.CookiePurger
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.di.setupDI
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
+import com.shopify.checkoutsheetkit.CheckoutException
+import com.shopify.checkoutsheetkit.ErrorRecovery
+import com.shopify.checkoutsheetkit.HttpException
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -32,6 +37,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
+import org.koin.android.ext.android.inject
 
 class MobileBuyIntegration : Application() {
 
@@ -52,6 +58,16 @@ class MobileBuyIntegration : Application() {
             ShopifyCheckoutSheetKit.configure {
                 it.colorScheme = settings.colorScheme
                 it.preloading = settings.preloading
+                it.errorRecovery = object: ErrorRecovery {
+                    val logger: Logger by inject()
+
+                    override fun preRecoveryActions(exception: CheckoutException, checkoutUrl: String) {
+                        logger.log("Falling back")
+                        if (exception is HttpException) {
+                            CookiePurger.purge(checkoutUrl)
+                        }
+                    }
+                }
             }
         }
     }

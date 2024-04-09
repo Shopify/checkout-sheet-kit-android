@@ -35,15 +35,16 @@ import android.os.Looper
 import android.view.View.GONE
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
-import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.WindowManager
+import android.webkit.WebView
 import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import androidx.activity.ComponentActivity
 import androidx.annotation.ColorInt
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.children
 
 internal class CheckoutDialog(
     private val checkoutUrl: String,
@@ -67,15 +68,7 @@ internal class CheckoutDialog(
             context,
         )
 
-        checkoutWebView.setEventProcessor(
-            CheckoutWebViewEventProcessor(
-                eventProcessor = checkoutEventProcessor,
-                toggleHeader = ::toggleHeader,
-                closeCheckoutDialogWithError = ::closeCheckoutDialogWithError,
-                setProgressBarVisibility = ::setProgressBarVisibility,
-                updateProgressBarPercentage = ::updateProgressBarPercentage,
-            )
-        )
+        checkoutWebView.setEventProcessor(eventProcessor())
 
         val colorScheme = ShopifyCheckoutSheetKit.configuration.colorScheme
         val header = findViewById<Toolbar>(R.id.checkoutSdkHeader)
@@ -93,16 +86,14 @@ internal class CheckoutDialog(
             }
         }
 
-        addCheckoutWebViewToContainer(colorScheme, checkoutWebView)
+        addWebViewToContainer(colorScheme, checkoutWebView)
         setOnCancelListener {
             CheckoutWebViewContainer.retainCache = ShopifyCheckoutSheetKit.configuration.preloading.enabled
             checkoutEventProcessor.onCheckoutCanceled()
         }
 
         setOnDismissListener {
-            checkoutWebView.parent?.let {
-                (checkoutWebView.parent as ViewGroup).removeView(checkoutWebView)
-            }
+            removeWebViewFromContainer()
         }
 
         header.setOnMenuItemClickListener {
@@ -117,9 +108,17 @@ internal class CheckoutDialog(
         show()
     }
 
-    private fun addCheckoutWebViewToContainer(
+    private fun removeWebViewFromContainer() {
+        findViewById<RelativeLayout>(R.id.checkoutSdkContainer).apply {
+            this.children.firstOrNull { it is WebView }?.let { webView ->
+                this.removeView(webView)
+            }
+        }
+    }
+
+    private fun addWebViewToContainer(
         colorScheme: ColorScheme,
-        checkoutWebView: CheckoutWebView
+        checkoutWebView: WebView
     ) {
         findViewById<RelativeLayout>(R.id.checkoutSdkContainer).apply {
             setBackgroundColor(colorScheme.webViewBackgroundColor())
@@ -148,9 +147,38 @@ internal class CheckoutDialog(
         findViewById<ProgressBar>(R.id.progressBar).visibility = visibility
     }
 
-    internal fun closeCheckoutDialogWithError(error: CheckoutException) {
-        checkoutEventProcessor.onCheckoutFailed(error)
-        dismiss()
+    internal fun closeCheckoutDialogWithError(exception: CheckoutException) {
+        if (ShopifyCheckoutSheetKit.configuration.errorRecovery.shouldRecoverFromError(exception)) {
+            attemptToRecoverFromError(exception)
+        } else {
+            checkoutEventProcessor.onCheckoutFailed(exception)
+            dismiss()
+        }
+    }
+
+    internal fun attemptToRecoverFromError(exception: CheckoutException): Boolean {
+        removeWebViewFromContainer()
+
+        ShopifyCheckoutSheetKit.configuration.errorRecovery.preRecoveryActions(exception, checkoutUrl)
+
+        addWebViewToContainer(
+            ShopifyCheckoutSheetKit.configuration.colorScheme,
+            FallbackWebView(context).apply {
+                setEventProcessor(eventProcessor())
+                loadUrl(checkoutUrl)
+            }
+        )
+        return true
+    }
+
+    private fun eventProcessor(): CheckoutWebViewEventProcessor {
+        return CheckoutWebViewEventProcessor(
+            eventProcessor = checkoutEventProcessor,
+            toggleHeader = ::toggleHeader,
+            closeCheckoutDialogWithError = ::closeCheckoutDialogWithError,
+            setProgressBarVisibility = ::setProgressBarVisibility,
+            updateProgressBarPercentage = ::updateProgressBarPercentage,
+        )
     }
 
     @ColorInt
