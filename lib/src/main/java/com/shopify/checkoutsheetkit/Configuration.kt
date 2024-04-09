@@ -32,6 +32,7 @@ package com.shopify.checkoutsheetkit
 public data class Configuration internal constructor(
     var colorScheme: ColorScheme = ColorScheme.Automatic(),
     var preloading: Preloading = Preloading(),
+    var gracefulDegradation: GracefulDegradation = GracefulDegradation(),
 )
 
 /**
@@ -40,5 +41,9 @@ public data class Configuration internal constructor(
  * Initially allows toggling the preloading feature.
  */
 public data class Preloading(
+    val enabled: Boolean = true
+)
+
+public data class GracefulDegradation(
     val enabled: Boolean = true
 )

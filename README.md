@@ -95,7 +95,7 @@ fun presentCheckout() {
 The SDK provides a way to customize the presented checkout experience via
 the `ShopifyCheckoutSheetKit.configure` function.
 
-#### `colorScheme`
+#### Color Scheme
 
 By default, the SDK will match the user's device color appearance. This behavior can be customized
 via the `colorScheme` property:
@@ -217,7 +217,7 @@ A preloaded checkout _is not_ automatically invalidated when checkout is closed.
 2. Preloading results in background network requests and additional CPU/memory utilization
    for the client, and should be used responsibly. For example, conditionally based on the state of the client and when there is a high likelihood that the buyer will soon
    request to checkout.
- 
+
 ### Monitoring the lifecycle of a checkout session
 
 Extend the `DefaultCheckoutEventProcessor` abstract class to register callbacks for key lifecycle events during the checkout session:
@@ -332,6 +332,20 @@ fun processStandardEvent(event: StandardPixelEvent) {
 
 > [!Note]
 > The `customData` attribute of CustomPixelEvent can take on any shape. As such, this attribute will be returned as a String. Client applications should define a custom data type and deserialize the `customData` string into that type.
+
+### Graceful Degradation
+
+In order to offer increased resiliency, when certain errors are encountered Checkout Sheet Kit will gracefully degrade to show web checkout within a [Custom Tab](https://developer.chrome.com/docs/android/custom-tabs).
+
+A normal web checkout will be rendered. [Checkout lifecycle events](#monitoring-the-lifecycle-of-a-checkout-session) will not be received. The look and feel of checkout will differ - web branding settings will be seen regardless of dark/light/automatic [color scheme selection](#color-scheme). Additionally [Web Pixels](#integrating-with-web-pixels-monitoring-behavioral-data) will be fired in web, rather than being proxied back to the app via `onPixelEvent()`.
+
+You can opt-out of graceful degradation via configuration.
+
+```kotlin
+ShopifyCheckoutSheetKit.configure {
+    it.gracefulDegradation = GracefulDegradation(enabled = false) // defaults to true
+}
+```
 
 ### Integrating identity & customer accounts
 

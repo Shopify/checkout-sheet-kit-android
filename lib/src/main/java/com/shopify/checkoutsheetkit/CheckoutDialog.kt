@@ -153,7 +153,9 @@ internal class CheckoutDialog(
     internal fun closeCheckoutDialogWithError(error: CheckoutException) {
         checkoutEventProcessor.onCheckoutFailed(error)
         dismiss()
-        CustomTabsIntent.Builder().build().launchUrl(context, Uri.parse(checkoutUrl))
+        if (ShopifyCheckoutSheetKit.configuration.gracefulDegradation.enabled) {
+            CustomTabsIntent.Builder().build().launchUrl(context, Uri.parse(checkoutUrl))
+        }
     }
 
     @ColorInt
