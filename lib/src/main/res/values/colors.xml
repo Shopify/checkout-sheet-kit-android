@@ -6,5 +6,4 @@
     <color name="checkoutDarkFont">#fff</color>
     <color name="checkoutLightProgressIndicator">#1773b0</color>
     <color name="checkoutDarkProgressIndicator">#1e8cc8</color>
-    <color name="white">#fff</color>
 </resources>

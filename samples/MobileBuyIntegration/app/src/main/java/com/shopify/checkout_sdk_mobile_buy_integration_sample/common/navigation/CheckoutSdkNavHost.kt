@@ -54,10 +54,10 @@ import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 sealed class Screen(val route: String) {
-    object Product : Screen("product")
-    object Cart : Screen("cart")
-    object Settings : Screen("settings")
-    object Logs : Screen("logs")
+    data object Product : Screen("product")
+    data object Cart : Screen("cart")
+    data object Settings : Screen("settings")
+    data object Logs : Screen("logs")
 
     companion object {
         fun fromRoute(route: String): Screen {

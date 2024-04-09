@@ -63,7 +63,7 @@ class LogsViewModel(private val logDb: LogDatabase): ViewModel() {
 }
 
 sealed class LogState {
-    object Loading: LogState()
+    data object Loading: LogState()
     data class Populated(
         val logs: List<PrettyLog>
     ): LogState()

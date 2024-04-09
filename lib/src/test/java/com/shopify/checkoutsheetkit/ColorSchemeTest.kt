@@ -143,7 +143,7 @@ class ColorSchemeTest {
     }
 
     @Test
-    fun `color schemes has a helper function for retrieving webview background color`() {
+    fun `color schemes has a helper function for retrieving WebView background color`() {
         val automatic = ColorScheme.Automatic(
             lightColors = Colors(
                 headerBackground = Color.ResourceId(1),

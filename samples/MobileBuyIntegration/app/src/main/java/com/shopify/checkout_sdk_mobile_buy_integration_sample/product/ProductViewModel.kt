@@ -92,7 +92,7 @@ class ProductViewModel(private val client: StorefrontClient) : ViewModel() {
 }
 
 sealed class ProductUIState {
-    object Loading : ProductUIState()
+    data object Loading : ProductUIState()
     data class Error(val error: String) : ProductUIState()
     data class Product(val product: UIProduct, val isAddingToCart: Boolean) : ProductUIState()
 }

@@ -185,7 +185,7 @@ class CheckoutDialogTest {
     }
 
     @Test
-    fun `sets webview container background color based on current configuration`() {
+    fun `sets WebView container background color based on current configuration`() {
         val customColors = customColors()
         ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Web(customColors)
 

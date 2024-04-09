@@ -96,12 +96,12 @@ class DefaultCheckoutEventProcessorTest {
             override fun onWebPixelEvent(event: PixelEvent) {/* not implemented */}
         }
 
-        val uri = Uri.parse("ftp:lsklsm")
+        val uri = Uri.parse("ftp:random")
 
         processor.onCheckoutLinkClicked(uri)
 
         assertThat(shadowActivity.peekNextStartedActivityForResult()).isNull()
-        verify(log).w("DefaultCheckoutEventProcessor", "Unrecognized scheme for link clicked in checkout 'ftp:lsklsm'")
+        verify(log).w("DefaultCheckoutEventProcessor", "Unrecognized scheme for link clicked in checkout 'ftp:random'")
     }
 
     @Test

@@ -46,7 +46,6 @@ android {
     }
 
     lintOptions {
-        baseline file("lint-baseline.xml")
         checkDependencies true
         warningsAsErrors true
         warning 'LintBaseline'
@@ -120,7 +119,7 @@ detekt {
     config.setFrom('detekt.config.yml')
 }
 
-tasks.withType(KotlinCompile) {
+tasks.withType(KotlinCompile).configureEach {
     if (!it.name.contains("Test")) {
         kotlinOptions.freeCompilerArgs += "-Xexplicit-api=strict"
     }

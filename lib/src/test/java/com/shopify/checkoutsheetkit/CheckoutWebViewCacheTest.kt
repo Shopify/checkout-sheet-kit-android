@@ -162,10 +162,10 @@ class CheckoutWebViewCacheTest {
             val viewTwo = CheckoutWebView.cacheableCheckoutView(URL, activity, true)
             val viewThree = CheckoutWebView.cacheableCheckoutView(URL, activity, true)
 
-            // only 2 mins have passed, cache entry still valid
+            // only 2 minutes have passed, cache entry still valid
             assertThat(viewOne).isEqualTo(viewTwo)
 
-            // 5 mins have passed, cache entry now invalid
+            // 5 minutes have passed, cache entry now invalid
             assertThat(viewTwo).isNotEqualTo(viewThree)
         }
     }
