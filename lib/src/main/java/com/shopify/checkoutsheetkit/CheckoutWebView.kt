@@ -168,7 +168,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
                 // Renderer was killed because system ran out of memory.
 
                 val eventProcessor = checkoutBridge.getEventProcessor()
-                eventProcessor.onCheckoutViewFailedWithError(CheckoutSdkError("Renderer process crashed"))
+                eventProcessor.onCheckoutViewFailedWithError(CheckoutSdkError("Renderer process gone."))
                 true
             } else {
                 false
