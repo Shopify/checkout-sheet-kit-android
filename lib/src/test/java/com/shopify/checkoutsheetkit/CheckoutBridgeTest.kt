@@ -253,7 +253,7 @@ class CheckoutBridgeTest {
 
         assertThat(captor.firstValue).isInstanceOf(CheckoutExpiredException::class.java)
         assertThat(captor.firstValue.message).isEqualTo(
-            "Checkout has expired."
+            "Checkout is no longer available with the provided token. Please generate a new checkout URL"
         )
     }
 

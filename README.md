@@ -294,12 +294,15 @@ val processor = object : DefaultCheckoutEventProcessor(activity) {
 
 | `CheckoutError` | Description | Recommendation |
 | -- | -- | -- |
-| `CheckoutLiquidNotMigratedException()`                                                       | `checkout.liquid` is not supported.                                     | Please upgrade to Extensibility. |
+| `CheckoutLiquidNotMigratedException(message)`                                                | `checkout.liquid` is not supported.                                     | Please upgrade to Extensibility. |
+| `CheckoutUnavailableException("Checkout is currently unavailable due to an internal error")` | A server error has been encountered.                                    | Attempt a retry, success will depend on the underlying cause. |
 | `CheckoutUnavailableException("Forbidden")`                                                  | Access to checkout is forbidden.                                        | This error is unrecoverable. |
 | `CheckoutUnavailableException("Customer account required")`                                  | A Customer account is required to proceed                               | Request customer login before proceeding to checkout. See [Customer Accounts API](https://github.com/Shopify/checkout-sheet-kit-android#customer-account-api) for more information. |
 | `CheckoutUnavailableException("Storefront password required")`                               | Access to checkout is password protected                                | We are working on ways to enable the Checkout Sheet Kit for usage with password protected stores |
 | `CheckoutExpiredException("Checkout already completed")`                                     | The checkout has already been completed                                 | If this is incorrect, create a new cart and open a new checkout URL. |
-| `CheckoutExpiredException("Cart is empty")`                                                  | The cart session has expired.                                           | Create a new cart and open a new checkout URL. |
+| `CheckoutExpiredException("Cart is empty")`                                                  | The cart associated with the checkout is empty.                                           | Create a new cart and open a new checkout URL. |
+| `CheckoutExpiredException("Checkout is no longer available with the provided token. Please generate a new checkout URL")` | The cart or checkout is no longer available. | Create a new cart and open a new checkout URL. |
+| `SdkError(message)`                                                                                 | An error in Checkout Sheet Kit has occurred | These errors are unlikely to be recoverable |
 
 #### Integrating with Web Pixels, monitoring behavioral data
 

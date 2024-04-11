@@ -126,12 +126,8 @@ internal class CheckoutBridge(
             CheckoutErrorGroup.CONFIGURATION -> CheckoutUnavailableException(
                 decodedError.reason ?: "Storefront was not configured properly."
             )
-            CheckoutErrorGroup.UNRECOVERABLE -> CheckoutUnavailableException(
-                decodedError.reason ?: "Checkout unavailable."
-            )
-            CheckoutErrorGroup.EXPIRED -> CheckoutExpiredException(
-                decodedError.reason ?: "Checkout has expired."
-            )
+            CheckoutErrorGroup.UNRECOVERABLE -> CheckoutUnavailableException(decodedError.reason)
+            CheckoutErrorGroup.EXPIRED -> CheckoutExpiredException(decodedError.reason)
             else -> null
         }
         sheetKitError?.let {
