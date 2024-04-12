@@ -117,7 +117,7 @@ class CheckoutDialogTest {
         Shadows.shadowOf(Looper.getMainLooper()).runToEndOfTasks()
 
         verify(mockEventProcessor).onCheckoutCanceled()
-        verify(mockEventProcessor, never()).onCheckoutFailed(any())
+        verify(mockEventProcessor, never()).onCheckoutFailed(any(), any())
     }
 
     @Test
@@ -127,13 +127,13 @@ class CheckoutDialogTest {
 
         val dialog = ShadowDialog.getLatestDialog()
         val checkoutDialog = dialog as CheckoutDialog
-        val error = CheckoutSdkError("Error occurred")
+        val error = CheckoutSheetKitException("Error occurred")
 
-        checkoutDialog.closeCheckoutDialogWithError(error)
+        checkoutDialog.closeCheckoutDialogWithError(error, false)
         Shadows.shadowOf(Looper.getMainLooper()).runToEndOfTasks()
 
         verify(mockEventProcessor, never()).onCheckoutCanceled()
-        verify(mockEventProcessor).onCheckoutFailed(error)
+        verify(mockEventProcessor).onCheckoutFailed(error, false)
     }
 
     @Test
@@ -222,7 +222,7 @@ class CheckoutDialogTest {
             override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {
                 // no-op
             }
-            override fun onCheckoutFailed(error: CheckoutException) {
+            override fun onCheckoutFailed(error: CheckoutException, isRecoverable: Boolean) {
                 // no-op
             }
             override fun onCheckoutCanceled() {

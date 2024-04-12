@@ -24,17 +24,15 @@ package com.shopify.checkoutsheetkit
 
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
-
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
+import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.ERROR
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.MODAL
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.WEB_PIXELS
-import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.ERROR
 import com.shopify.checkoutsheetkit.errors.CheckoutErrorDecoder
 import com.shopify.checkoutsheetkit.errors.CheckoutErrorGroup
 import com.shopify.checkoutsheetkit.errors.CheckoutErrorPayload
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEventDecoder
 import com.shopify.checkoutsheetkit.pixelevents.PixelEventDecoder
-
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -107,7 +105,10 @@ internal class CheckoutBridge(
                 else -> {}
             }
         } catch (e: Exception) {
-            eventProcessor.onCheckoutViewFailedWithError(CheckoutSdkError("Error decoding message from checkout."))
+            eventProcessor.onCheckoutViewFailedWithError(
+                error = CheckoutSheetKitException("Error decoding message from checkout."),
+                isRecoverable = true
+            )
         }
     }
 
@@ -125,22 +126,26 @@ internal class CheckoutBridge(
             view.evaluateJavascript(script, null)
         } catch (e: Exception) {
             eventProcessor.onCheckoutViewFailedWithError(
-                CheckoutSdkError("Failed to send '${operation.key}' message to checkout, some features may not work.")
+                error = CheckoutSheetKitException("Failed to send '${operation.key}' message to checkout, some features may not work."),
+                isRecoverable = true,
             )
         }
     }
 
     private fun handleDecodedError(decodedError: CheckoutErrorPayload) {
-        val sheetKitError = when (decodedError.group) {
-            CheckoutErrorGroup.CONFIGURATION -> CheckoutUnavailableException(
-                decodedError.reason ?: "Storefront was not configured properly."
+        when (decodedError.group) {
+            CheckoutErrorGroup.CONFIGURATION -> eventProcessor.onCheckoutViewFailedWithError(
+                error = ConfigurationException(decodedError.reason ?: "Storefront configuration error."), isRecoverable = false,
             )
-            CheckoutErrorGroup.UNRECOVERABLE -> CheckoutUnavailableException(decodedError.reason)
-            CheckoutErrorGroup.EXPIRED -> CheckoutExpiredException(decodedError.reason)
-            else -> null
-        }
-        sheetKitError?.let {
-            eventProcessor.onCheckoutViewFailedWithError(sheetKitError)
+            CheckoutErrorGroup.UNRECOVERABLE -> eventProcessor.onCheckoutViewFailedWithError(
+                error = ClientException(decodedError.reason), isRecoverable = true,
+            )
+            CheckoutErrorGroup.EXPIRED -> eventProcessor.onCheckoutViewFailedWithError(
+                error = CheckoutExpiredException(decodedError.reason), isRecoverable = false,
+            )
+            else -> {
+                // The remaining error groups are unsupported and will be ignored
+            }
         }
     }
 

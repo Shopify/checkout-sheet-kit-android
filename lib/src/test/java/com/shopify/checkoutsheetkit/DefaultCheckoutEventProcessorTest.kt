@@ -91,7 +91,7 @@ class DefaultCheckoutEventProcessorTest {
         val log = mock<LogWrapper>()
         val processor = object: DefaultCheckoutEventProcessor(activity, log) {
             override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {/* not implemented */}
-            override fun onCheckoutFailed(error: CheckoutException) {/* not implemented */}
+            override fun onCheckoutFailed(error: CheckoutException, isRecoverable: Boolean) {/* not implemented */}
             override fun onCheckoutCanceled() {/* not implemented */}
             override fun onWebPixelEvent(event: PixelEvent) {/* not implemented */}
         }
@@ -108,13 +108,15 @@ class DefaultCheckoutEventProcessorTest {
     fun `onCheckoutFailed returns an error description`() {
         val log = mock<LogWrapper>()
         var description = ""
+        var recoverable: Boolean? = null
         val processor =
                 object : DefaultCheckoutEventProcessor(activity, log) {
                     override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {
                         /* not implemented */
                     }
-                    override fun onCheckoutFailed(error: CheckoutException) {
+                    override fun onCheckoutFailed(error: CheckoutException, isRecoverable: Boolean) {
                         description = error.errorDescription
+                        recoverable = isRecoverable
                     }
                     override fun onCheckoutCanceled() {
                         /* not implemented */
@@ -127,15 +129,16 @@ class DefaultCheckoutEventProcessorTest {
 
         val error = object : CheckoutException("error description") {}
 
-        processor.onCheckoutFailed(error)
+        processor.onCheckoutFailed(error, true)
 
         assertThat(description).isEqualTo("error description")
+        assertThat(recoverable).isTrue()
     }
 
     private fun processor(activity: ComponentActivity): DefaultCheckoutEventProcessor {
         return object: DefaultCheckoutEventProcessor(activity) {
             override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {/* not implemented */}
-            override fun onCheckoutFailed(error: CheckoutException) {/* not implemented */}
+            override fun onCheckoutFailed(error: CheckoutException, isRecoverable: Boolean) {/* not implemented */}
             override fun onCheckoutCanceled() {/* not implemented */}
             override fun onWebPixelEvent(event: PixelEvent) {/* not implemented */}
         }

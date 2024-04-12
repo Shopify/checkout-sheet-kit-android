@@ -36,18 +36,30 @@ import kotlinx.serialization.Serializable
 public abstract class CheckoutException(public val errorDescription: String) : Exception(errorDescription)
 
 /**
- * Issued when an internal error occurs within Shopify Checkout Sheet Kit.
- * In event of an error you could use the stacktrace to inform you of how to proceed,
- * if the issue persists, it is recommended to open a bug report in https://github.com/Shopify/checkout-sheet-kit-android
+ * Issued when an internal error occurs within Shopify Checkout Sheet Kit. If the issue persists, it is recommended to open a bug report
+ * in https://github.com/Shopify/checkout-sheet-kit-android
  */
-public class CheckoutSdkError(errorMsg: String) : CheckoutException(errorMsg)
+public class CheckoutSheetKitException(errorMsg: String) : CheckoutException(errorMsg)
 
 /**
  * Issued when checkout has encountered a unrecoverable error (for example server side error).
  * if the issue persists, it is recommended to open a bug report in https://github.com/Shopify/checkout-sheet-kit-android
  */
-public class CheckoutUnavailableException @JvmOverloads constructor(errorDescription: String? = null)
+public open class CheckoutUnavailableException @JvmOverloads constructor(errorDescription: String? = null)
     : CheckoutException(errorDescription ?: "Checkout is currently unavailable due to an internal error")
+
+/**
+ * Subclass of CheckoutUnavailableException, issued when Checkout is unavailable because a HTTP call resulted in an unexpected status code,
+ * (incl. both client or server HTTP errors).
+ */
+public class HttpException @JvmOverloads constructor(errorDescription: String? = null, public val statusCode: Int)
+    : CheckoutUnavailableException(errorDescription)
+
+/**
+ * Subclass of CheckoutUnavailableException, issued when Checkout is unavailable for reasons unrelated to HTTP calls.
+ */
+public class ClientException @JvmOverloads constructor(errorDescription: String? = null)
+    : CheckoutUnavailableException(errorDescription)
 
 /**
  * Issued when checkout is no longer available and will no longer be available with the checkout URL supplied.
@@ -59,12 +71,19 @@ public class CheckoutExpiredException @JvmOverloads constructor(errorDescription
     : CheckoutException(errorDescription ?: "Checkout is no longer available with the provided token. Please generate a new checkout URL")
 
 /**
- * Issued when the provided checkout URL results in an error related to shop being on checkout.liquid.
+ * Issued when the provided checkout URL results in an error related to a configuration issue, e.g. the shop being on checkout.liquid.
  * The SDK only supports stores migrated for extensibility.
  */
-public class CheckoutLiquidNotMigratedException : CheckoutException(
-    "The checkout URL provided has resulted in an error. The store is still using checkout.liquid, whereas the checkout SDK only " +
-            "supports checkout with extensibility."
+public class ConfigurationException @JvmOverloads constructor(errorDescription: String? = null): CheckoutException(
+    errorDescription ?: "Checkout is unavailable due to a configuration issue."
+)
+
+/**
+ * Issued when the provided checkout URL results in an error related to authentication. E.g. if a customer account is required for
+ * checkout and the customer is not logged in.
+ */
+public class AuthenticationException : CheckoutException(
+    "Checkout is unavailable due to a configuration issue."
 )
 
 /**
@@ -82,9 +101,10 @@ public interface CheckoutEventProcessor {
      * error messages for example.
      *
      * @param error - the CheckoutErrorException that occurred
+     * @param isRecoverable - whether the error is likely to be recovered if retried in a non Checkout Sheet Kit WebView
      * @see Exception
      */
-    public fun onCheckoutFailed(error: CheckoutException)
+    public fun onCheckoutFailed(error: CheckoutException, isRecoverable: Boolean)
 
     /**
      * Event representing the cancellation/closing of checkout by the buyer
@@ -108,7 +128,7 @@ internal class NoopEventProcessor : CheckoutEventProcessor {
     override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {/* noop */
     }
 
-    override fun onCheckoutFailed(error: CheckoutException) {/* noop */
+    override fun onCheckoutFailed(error: CheckoutException, isRecoverable: Boolean) {/* noop */
     }
 
     override fun onCheckoutCanceled() {/* noop */

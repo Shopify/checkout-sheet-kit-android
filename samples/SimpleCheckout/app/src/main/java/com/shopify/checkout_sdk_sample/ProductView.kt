@@ -62,8 +62,8 @@ fun ProductView(
             productViewModel.checkoutCompleted()
         }
 
-        override fun onCheckoutFailed(error: CheckoutException) {
-            productViewModel.checkoutFailed(error)
+        override fun onCheckoutFailed(error: CheckoutException, isRecoverable: Boolean) {
+            productViewModel.checkoutFailed(error, isRecoverable)
         }
 
         override fun onCheckoutCanceled() {

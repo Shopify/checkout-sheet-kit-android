@@ -37,7 +37,7 @@ import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 internal class CheckoutWebViewEventProcessor(
     private val eventProcessor: CheckoutEventProcessor,
     private val toggleHeader: (Boolean) -> Unit = {},
-    private val closeCheckoutDialogWithError: (CheckoutException) -> Unit = { CheckoutWebView.clearCache() },
+    private val closeCheckoutDialogWithError: (CheckoutException, Boolean) -> Unit = { _, _ -> CheckoutWebView.clearCache() },
     private val setProgressBarVisibility: (Int) -> Unit = {},
     private val updateProgressBarPercentage: (Int) -> Unit = {},
 ) {
@@ -56,9 +56,9 @@ internal class CheckoutWebViewEventProcessor(
         eventProcessor.onCheckoutLinkClicked(uri)
     }
 
-    fun onCheckoutViewFailedWithError(error: CheckoutException) {
+    fun onCheckoutViewFailedWithError(error: CheckoutException, isRecoverable: Boolean) {
         onMainThread {
-            closeCheckoutDialogWithError(error)
+            closeCheckoutDialogWithError(error, isRecoverable)
         }
     }
 

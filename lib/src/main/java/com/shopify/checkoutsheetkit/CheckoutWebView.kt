@@ -46,11 +46,7 @@ import android.webkit.WebViewClient
 import androidx.activity.ComponentActivity
 import com.shopify.checkoutsheetkit.CheckoutBridge.Companion.userAgentSuffix
 import com.shopify.checkoutsheetkit.InstrumentationType.histogram
-import java.net.HttpURLConnection.HTTP_BAD_GATEWAY
-import java.net.HttpURLConnection.HTTP_FORBIDDEN
-import java.net.HttpURLConnection.HTTP_GATEWAY_TIMEOUT
 import java.net.HttpURLConnection.HTTP_GONE
-import java.net.HttpURLConnection.HTTP_INTERNAL_ERROR
 import java.net.HttpURLConnection.HTTP_NOT_FOUND
 import java.util.concurrent.CountDownLatch
 import kotlin.math.abs
@@ -242,24 +238,45 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
                 handleError(
                     request,
                     errorResponse.statusCode,
-                    errorResponse.reasonPhrase
+                    errorResponse.reasonPhrase,
+                    errorResponse.responseHeaders,
                 )
+            }
+        }
+
+        private fun isRecoverable(statusCode: Int): Boolean {
+            return when (statusCode) {
+                TOO_MANY_REQUESTS -> true
+                in CLIENT_ERROR -> false
+                else -> true
             }
         }
 
         private fun handleError(
             request: WebResourceRequest?,
             errorCode: Int,
-            errorDescription: String
+            errorDescription: String,
+            responseHeaders: MutableMap<String, String> = mutableMapOf(),
         ) {
             if (request?.isForMainFrame == true) {
-                val exception = when (errorCode) {
-                    HTTP_FORBIDDEN -> CheckoutUnavailableException("Forbidden")
-                    HTTP_NOT_FOUND -> CheckoutLiquidNotMigratedException()
-                    HTTP_GONE -> CheckoutExpiredException()
-                    else -> CheckoutUnavailableException(errorDescription)
+                val processor = checkoutBridge.getEventProcessor()
+                when {
+                    errorCode == HTTP_NOT_FOUND && responseHeaders[DEPRECATED_REASON_HEADER] == LIQUID_NOT_SUPPORTED -> {
+                        processor.onCheckoutViewFailedWithError(
+                            error = ConfigurationException("The checkout URL provided has resulted in an error. The store is still using " +
+                                "checkout.liquid, whereas the checkout SDK only supports checkout with extensibility."),
+                            isRecoverable = false,
+                        )
+                    }
+                    errorCode == HTTP_GONE -> processor.onCheckoutViewFailedWithError(
+                        error = CheckoutExpiredException(),
+                        isRecoverable = false,
+                    )
+                    else -> processor.onCheckoutViewFailedWithError(
+                        error = HttpException(errorDescription = errorDescription, statusCode = errorCode),
+                        isRecoverable = isRecoverable(errorCode),
+                    )
                 }
-                checkoutBridge.getEventProcessor().onCheckoutViewFailedWithError(exception)
             }
         }
 
@@ -279,6 +296,12 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
 
         private const val OPEN_EXTERNALLY_PARAM = "open_externally"
         private const val JAVASCRIPT_INTERFACE_NAME = "android"
+
+        private const val DEPRECATED_REASON_HEADER = "X-Shopify-API-Deprecated-Reason"
+        private const val LIQUID_NOT_SUPPORTED = "checkout_liquid_not_supported"
+
+        private const val TOO_MANY_REQUESTS = 429
+        private val CLIENT_ERROR = 400..499
 
         internal var cacheEntry: CheckoutWebViewCacheEntry? = null
         internal var cacheClock = CheckoutWebViewCacheClock()

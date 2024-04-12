@@ -25,7 +25,6 @@ package com.shopify.checkoutsheetkit
 import android.webkit.WebView
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.MODAL
-import com.shopify.checkoutsheetkit.pixelevents.Checkout
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent
 import kotlinx.serialization.encodeToString
@@ -147,8 +146,8 @@ class CheckoutBridgeTest {
 
         checkoutBridge.sendMessage(webView, CheckoutBridge.SDKOperation.Presented)
 
-        val errorCaptor = argumentCaptor<CheckoutSdkError>()
-        verify(mockEventProcessor).onCheckoutViewFailedWithError(errorCaptor.capture())
+        val errorCaptor = argumentCaptor<CheckoutSheetKitException>()
+        verify(mockEventProcessor).onCheckoutViewFailedWithError(errorCaptor.capture(), eq(true))
         assertThat(errorCaptor.firstValue.message).isEqualTo(
             "Failed to send 'presented' message to checkout, some features may not work."
         )
@@ -229,11 +228,14 @@ class CheckoutBridgeTest {
 
         checkoutBridge.postMessage(eventString)
 
-        val captor = argumentCaptor<CheckoutException>()
-        verify(mockEventProcessor, timeout(2000).times(1)).onCheckoutViewFailedWithError(captor.capture())
+        val exceptionCaptor = argumentCaptor<CheckoutException>()
+        val recoverableCaptor = argumentCaptor<Boolean>()
+        verify(mockEventProcessor, timeout(2000).times(1))
+            .onCheckoutViewFailedWithError(exceptionCaptor.capture(), recoverableCaptor.capture())
 
-        assertThat(captor.firstValue).isInstanceOf(CheckoutExpiredException::class.java)
-        assertThat(captor.firstValue.message).isEqualTo("Cart is invalid")
+        assertThat(exceptionCaptor.firstValue).isInstanceOf(CheckoutExpiredException::class.java)
+        assertThat(exceptionCaptor.firstValue.message).isEqualTo("Cart is invalid")
+        assertThat(recoverableCaptor.firstValue).isFalse()
     }
 
     @Test
@@ -249,13 +251,16 @@ class CheckoutBridgeTest {
 
         checkoutBridge.postMessage(eventString)
 
-        val captor = argumentCaptor<CheckoutException>()
-        verify(mockEventProcessor, timeout(2000).times(1)).onCheckoutViewFailedWithError(captor.capture())
+        val exceptionCaptor = argumentCaptor<CheckoutException>()
+        val recoverableCaptor = argumentCaptor<Boolean>()
+        verify(mockEventProcessor, timeout(2000).times(1))
+            .onCheckoutViewFailedWithError(exceptionCaptor.capture(), recoverableCaptor.capture())
 
-        assertThat(captor.firstValue).isInstanceOf(CheckoutExpiredException::class.java)
-        assertThat(captor.firstValue.message).isEqualTo(
+        assertThat(exceptionCaptor.firstValue).isInstanceOf(CheckoutExpiredException::class.java)
+        assertThat(exceptionCaptor.firstValue.message).isEqualTo(
             "Checkout is no longer available with the provided token. Please generate a new checkout URL"
         )
+        assertThat(recoverableCaptor.firstValue).isFalse()
     }
 
     @Test
@@ -273,11 +278,14 @@ class CheckoutBridgeTest {
 
         checkoutBridge.postMessage(eventString)
 
-        val captor = argumentCaptor<CheckoutException>()
-        verify(mockEventProcessor, timeout(2000).times(1)).onCheckoutViewFailedWithError(captor.capture())
+        val exceptionCaptor = argumentCaptor<CheckoutException>()
+        val recoverableCaptor = argumentCaptor<Boolean>()
+        verify(mockEventProcessor, timeout(2000).times(1))
+            .onCheckoutViewFailedWithError(exceptionCaptor.capture(), recoverableCaptor.capture())
 
-        assertThat(captor.firstValue).isInstanceOf(CheckoutUnavailableException::class.java)
-        assertThat(captor.firstValue.message).isEqualTo("Checkout crashed")
+        assertThat(exceptionCaptor.firstValue).isInstanceOf(CheckoutUnavailableException::class.java)
+        assertThat(exceptionCaptor.firstValue.message).isEqualTo("Checkout crashed")
+        assertThat(recoverableCaptor.firstValue).isTrue()
     }
     @Test
     fun `should decode an storefront configuration error payload and call processor#onCheckoutViewFailedWithError`() {
@@ -293,11 +301,14 @@ class CheckoutBridgeTest {
 
         checkoutBridge.postMessage(eventString)
 
-        val captor = argumentCaptor<CheckoutException>()
-        verify(mockEventProcessor, timeout(2000).times(1)).onCheckoutViewFailedWithError(captor.capture())
+        val exceptionCaptor = argumentCaptor<CheckoutException>()
+        val recoverableCaptor = argumentCaptor<Boolean>()
+        verify(mockEventProcessor, timeout(2000).times(1))
+            .onCheckoutViewFailedWithError(exceptionCaptor.capture(), recoverableCaptor.capture())
 
-        assertThat(captor.firstValue).isInstanceOf(CheckoutUnavailableException::class.java)
-        assertThat(captor.firstValue.message).isEqualTo("Storefront password required")
+        assertThat(exceptionCaptor.firstValue).isInstanceOf(ConfigurationException::class.java)
+        assertThat(exceptionCaptor.firstValue.message).isEqualTo("Storefront password required")
+        assertThat(recoverableCaptor.firstValue).isFalse()
     }
 
     @Test
@@ -328,12 +339,14 @@ class CheckoutBridgeTest {
 
         checkoutBridge.postMessage(eventString)
 
-        val captor = argumentCaptor<CheckoutException>()
+        val exceptionCaptor = argumentCaptor<CheckoutException>()
+        val recoverableCaptor = argumentCaptor<Boolean>()
         verify(mockEventProcessor).onCheckoutViewFailedWithError(
-            captor.capture()
+            exceptionCaptor.capture(), recoverableCaptor.capture()
         )
 
-        assertThat(captor.firstValue).isInstanceOf(CheckoutSdkError::class.java)
-        assertThat(captor.firstValue.message).isEqualTo("Error decoding message from checkout.")
+        assertThat(exceptionCaptor.firstValue).isInstanceOf(CheckoutSheetKitException::class.java)
+        assertThat(exceptionCaptor.firstValue.message).isEqualTo("Error decoding message from checkout.")
+        assertThat(recoverableCaptor.firstValue).isTrue()
     }
 }
