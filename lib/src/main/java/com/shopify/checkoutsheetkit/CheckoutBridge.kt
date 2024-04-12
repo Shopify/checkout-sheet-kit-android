@@ -72,33 +72,42 @@ internal class CheckoutBridge(
     }
 
     // Allows Web to postMessages back to the SDK
+    @Suppress("SwallowedException")
     @JavascriptInterface
     fun postMessage(message: String) {
-        val decodedMsg = decoder.decodeFromString<WebToSdkEvent>(message)
+        try {
+            val decodedMsg = decoder.decodeFromString<WebToSdkEvent>(message)
 
-        when (CheckoutWebOperation.fromKey(decodedMsg.name)) {
-            COMPLETED -> {
-                checkoutCompletedEventDecoder.decode(decodedMsg).let { event ->
-                    eventProcessor.onCheckoutViewComplete(event)
+            when (CheckoutWebOperation.fromKey(decodedMsg.name)) {
+                COMPLETED -> {
+                    checkoutCompletedEventDecoder.decode(decodedMsg).let { event ->
+                        eventProcessor.onCheckoutViewComplete(event)
+                    }
                 }
-            }
-            MODAL -> {
-                val modalVisible = decodedMsg.body.toBooleanStrictOrNull()
-                modalVisible?.let {
-                    eventProcessor.onCheckoutViewModalToggled(modalVisible)
+
+                MODAL -> {
+                    val modalVisible = decodedMsg.body.toBooleanStrictOrNull()
+                    modalVisible?.let {
+                        eventProcessor.onCheckoutViewModalToggled(modalVisible)
+                    }
                 }
-            }
-            WEB_PIXELS -> {
-                pixelEventDecoder.decode(decodedMsg)?.let { event ->
-                    eventProcessor.onWebPixelEvent(event)
+
+                WEB_PIXELS -> {
+                    pixelEventDecoder.decode(decodedMsg)?.let { event ->
+                        eventProcessor.onWebPixelEvent(event)
+                    }
                 }
-            }
-            ERROR -> {
-                checkoutErrorDecoder.decode(decodedMsg)?.let { decodedError ->
-                   handleDecodedError(decodedError)
+
+                ERROR -> {
+                    checkoutErrorDecoder.decode(decodedMsg)?.let { decodedError ->
+                        handleDecodedError(decodedError)
+                    }
                 }
+
+                else -> {}
             }
-            else -> {}
+        } catch (e: Exception) {
+            eventProcessor.onCheckoutViewFailedWithError(CheckoutSdkError("Error decoding message from checkout."))
         }
     }
 

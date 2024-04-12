@@ -25,6 +25,7 @@ package com.shopify.checkoutsheetkit
 import android.webkit.WebView
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.MODAL
+import com.shopify.checkoutsheetkit.pixelevents.Checkout
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent
 import kotlinx.serialization.encodeToString
@@ -315,5 +316,24 @@ class CheckoutBridgeTest {
         checkoutBridge.postMessage(eventString)
 
         verifyNoInteractions(mockEventProcessor)
+    }
+
+    @Test
+    fun `should call onCheckoutViewFailedWithError if message cannot be decoded`() {
+        val eventString = """|
+            |{
+            |   "name":"error
+            |}
+        |""".trimMargin()
+
+        checkoutBridge.postMessage(eventString)
+
+        val captor = argumentCaptor<CheckoutException>()
+        verify(mockEventProcessor).onCheckoutViewFailedWithError(
+            captor.capture()
+        )
+
+        assertThat(captor.firstValue).isInstanceOf(CheckoutSdkError::class.java)
+        assertThat(captor.firstValue.message).isEqualTo("Error decoding message from checkout.")
     }
 }

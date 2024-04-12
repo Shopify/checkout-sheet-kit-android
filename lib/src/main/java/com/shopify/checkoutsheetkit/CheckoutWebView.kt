@@ -47,6 +47,7 @@ import androidx.activity.ComponentActivity
 import com.shopify.checkoutsheetkit.CheckoutBridge.Companion.userAgentSuffix
 import com.shopify.checkoutsheetkit.InstrumentationType.histogram
 import java.net.HttpURLConnection.HTTP_BAD_GATEWAY
+import java.net.HttpURLConnection.HTTP_FORBIDDEN
 import java.net.HttpURLConnection.HTTP_GATEWAY_TIMEOUT
 import java.net.HttpURLConnection.HTTP_GONE
 import java.net.HttpURLConnection.HTTP_INTERNAL_ERROR
@@ -253,10 +254,10 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         ) {
             if (request?.isForMainFrame == true) {
                 val exception = when (errorCode) {
+                    HTTP_FORBIDDEN -> CheckoutUnavailableException("Forbidden")
                     HTTP_NOT_FOUND -> CheckoutLiquidNotMigratedException()
                     HTTP_GONE -> CheckoutExpiredException()
-                    HTTP_INTERNAL_ERROR, HTTP_GATEWAY_TIMEOUT, HTTP_BAD_GATEWAY -> CheckoutUnavailableException()
-                    else -> CheckoutSdkError(errorDescription)
+                    else -> CheckoutUnavailableException(errorDescription)
                 }
                 checkoutBridge.getEventProcessor().onCheckoutViewFailedWithError(exception)
             }

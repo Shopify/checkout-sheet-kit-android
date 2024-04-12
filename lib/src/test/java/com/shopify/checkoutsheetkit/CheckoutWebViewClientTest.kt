@@ -223,7 +223,8 @@ class CheckoutWebViewClientTest {
         val loadedUri = Uri.parse("https://checkout-sdk.myshopify.com")
         val mockRequest = mockWebRequest(loadedUri, true)
         val checkoutExpiredResponse = mockWebResourceResponse(
-            status = HttpURLConnection.HTTP_BAD_REQUEST
+            status = HttpURLConnection.HTTP_BAD_REQUEST,
+            description = "Bad request"
         )
 
         val view = viewWithProcessor(activity)
@@ -235,7 +236,8 @@ class CheckoutWebViewClientTest {
 
         val captor = argumentCaptor<CheckoutException>()
         verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
-        assertThat(captor.firstValue).isInstanceOf(CheckoutSdkError::class.java)
+        assertThat(captor.firstValue).isInstanceOf(CheckoutUnavailableException::class.java)
+        assertThat(captor.firstValue.message).isEqualTo("Bad request")
     }
 
     @Test
