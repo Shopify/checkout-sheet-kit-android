@@ -138,14 +138,6 @@ internal class CheckoutBridge(
 
     private fun handleDecodedError(error: CheckoutErrorPayload) {
         when {
-            error.group == CheckoutErrorGroup.CONFIGURATION && error.code == STOREFRONT_PASSWORD_REQUIRED -> {
-                eventProcessor.onCheckoutViewFailedWithError(
-                    ConfigurationException(
-                        errorDescription = error.reason ?: "Storefront password required.",
-                        isRecoverable = false
-                    ),
-                )
-            }
             error.group == CheckoutErrorGroup.CONFIGURATION && error.code == CUSTOMER_ACCOUNT_REQUIRED -> {
                 eventProcessor.onCheckoutViewFailedWithError(
                     AuthenticationException(
@@ -179,7 +171,6 @@ internal class CheckoutBridge(
         private const val SCHEMA_VERSION_NUMBER: String = "8.1"
 
         private const val CUSTOMER_ACCOUNT_REQUIRED = "customer_account_required"
-        private const val STOREFRONT_PASSWORD_REQUIRED = "storefront_password_required"
 
         private fun dispatchMessageTemplate(body: String) = """|
         |if (window.MobileCheckoutSdk && window.MobileCheckoutSdk.dispatchMessage) {
