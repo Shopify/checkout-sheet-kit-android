@@ -107,8 +107,8 @@ fun CheckoutSdkNavHost(
                         }
                     }
 
-                    override fun onCheckoutFailed(error: CheckoutException, isRecoverable: Boolean) {
-                        logger.log("Checkout failed, should fallback? $isRecoverable", error)
+                    override fun onCheckoutFailed(error: CheckoutException) {
+                        logger.log("Checkout failed", error)
 
                         GlobalScope.launch(Dispatchers.Main) {
                             Toast.makeText(

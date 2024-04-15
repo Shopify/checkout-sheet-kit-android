@@ -111,8 +111,8 @@ class ProductViewModel : ViewModel() {
         _checkoutState.value = CurrentCheckoutState.COMPLETE
     }
 
-    fun checkoutFailed(error: CheckoutException, isRecoverable: Boolean) {
-        Log.e("ProductViewModel", "Error occurred during checkout (isRecoverable $isRecoverable)", error)
+    fun checkoutFailed(error: CheckoutException) {
+        Log.e("ProductViewModel", "Error occurred during checkout", error)
         _checkoutState.value = CurrentCheckoutState.ERROR
     }
 

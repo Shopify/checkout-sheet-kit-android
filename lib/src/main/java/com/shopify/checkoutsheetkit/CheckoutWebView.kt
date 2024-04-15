@@ -263,18 +263,22 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
                 when {
                     errorCode == HTTP_NOT_FOUND && responseHeaders[DEPRECATED_REASON_HEADER] == LIQUID_NOT_SUPPORTED -> {
                         processor.onCheckoutViewFailedWithError(
-                            error = ConfigurationException("The checkout URL provided has resulted in an error. The store is still using " +
-                                "checkout.liquid, whereas the checkout SDK only supports checkout with extensibility."),
-                            isRecoverable = false,
+                            ConfigurationException(
+                                errorDescription = "The checkout URL provided has resulted in an error. The store is still using " +
+                                "checkout.liquid, whereas the checkout SDK only supports checkout with extensibility.",
+                                isRecoverable = false,
+                           )
                         )
                     }
                     errorCode == HTTP_GONE -> processor.onCheckoutViewFailedWithError(
-                        error = CheckoutExpiredException(),
-                        isRecoverable = false,
+                        CheckoutExpiredException(isRecoverable = false),
                     )
                     else -> processor.onCheckoutViewFailedWithError(
-                        error = HttpException(errorDescription = errorDescription, statusCode = errorCode),
-                        isRecoverable = isRecoverable(errorCode),
+                        HttpException(
+                            errorDescription = errorDescription,
+                            statusCode = errorCode,
+                            isRecoverable = isRecoverable(errorCode)
+                        ),
                     )
                 }
             }

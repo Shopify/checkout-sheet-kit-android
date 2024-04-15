@@ -47,7 +47,7 @@ public class InteropTest {
             }
 
             @Override
-            public void onCheckoutFailed(@NonNull CheckoutException error, boolean isRecoverable) {
+            public void onCheckoutFailed(@NonNull CheckoutException error) {
 
             }
 

@@ -148,8 +148,8 @@ internal class CheckoutDialog(
         findViewById<ProgressBar>(R.id.progressBar).visibility = visibility
     }
 
-    internal fun closeCheckoutDialogWithError(error: CheckoutException, isRecoverable: Boolean) {
-        checkoutEventProcessor.onCheckoutFailed(error, isRecoverable)
+    internal fun closeCheckoutDialogWithError(error: CheckoutException) {
+        checkoutEventProcessor.onCheckoutFailed(error)
         dismiss()
     }
 

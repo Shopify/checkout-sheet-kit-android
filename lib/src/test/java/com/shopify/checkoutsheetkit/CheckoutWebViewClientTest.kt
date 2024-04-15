@@ -113,11 +113,10 @@ class CheckoutWebViewClientTest {
         webViewClient.onReceivedError(view, mockRequest, mockError)
         ShadowLooper.shadowMainLooper().runToEndOfTasks()
 
-        val exceptionCaptor = argumentCaptor<CheckoutException>()
-        val recoverableCaptor = argumentCaptor<Boolean>()
-        verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(exceptionCaptor.capture(), recoverableCaptor.capture())
-        assertThat(exceptionCaptor.firstValue).isInstanceOf(CheckoutExpiredException::class.java)
-        assertThat(recoverableCaptor.firstValue).isFalse()
+        val captor = argumentCaptor<CheckoutException>()
+        verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
+        assertThat(captor.firstValue).isInstanceOf(CheckoutExpiredException::class.java)
+        assertThat(captor.firstValue.isRecoverable).isFalse()
     }
 
     @Test
@@ -135,11 +134,10 @@ class CheckoutWebViewClientTest {
         webViewClient.onReceivedHttpError(view, mockRequest, checkoutExpiredResponse)
         ShadowLooper.shadowMainLooper().runToEndOfTasks()
 
-        val exceptionCaptor = argumentCaptor<CheckoutException>()
-        val recoverableCaptor = argumentCaptor<Boolean>()
-        verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(exceptionCaptor.capture(), recoverableCaptor.capture())
-        assertThat(exceptionCaptor.firstValue).isInstanceOf(CheckoutExpiredException::class.java)
-        assertThat(recoverableCaptor.firstValue).isFalse()
+        val captor = argumentCaptor<CheckoutException>()
+        verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
+        assertThat(captor.firstValue).isInstanceOf(CheckoutExpiredException::class.java)
+        assertThat(captor.firstValue.isRecoverable).isFalse()
     }
 
     @Test
@@ -158,13 +156,12 @@ class CheckoutWebViewClientTest {
         webViewClient.onReceivedHttpError(view, mockRequest, checkoutExpiredResponse)
         ShadowLooper.shadowMainLooper().runToEndOfTasks()
 
-        val exceptionCaptor = argumentCaptor<CheckoutException>()
-        val recoverableCaptor = argumentCaptor<Boolean>()
-        verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(exceptionCaptor.capture(), recoverableCaptor.capture())
-        assertThat(exceptionCaptor.firstValue).isInstanceOf(HttpException::class.java)
-        assertThat(exceptionCaptor.firstValue.errorDescription).isEqualTo("Not Found")
-        assertThat((exceptionCaptor.firstValue as HttpException).statusCode).isEqualTo(404)
-        assertThat(recoverableCaptor.firstValue).isFalse()
+        val captor = argumentCaptor<CheckoutException>()
+        verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
+        assertThat(captor.firstValue).isInstanceOf(HttpException::class.java)
+        assertThat(captor.firstValue.errorDescription).isEqualTo("Not Found")
+        assertThat((captor.firstValue as HttpException).statusCode).isEqualTo(404)
+        assertThat(captor.firstValue.isRecoverable).isFalse()
     }
 
     @Test
@@ -185,15 +182,14 @@ class CheckoutWebViewClientTest {
         webViewClient.onReceivedHttpError(view, mockRequest, checkoutExpiredResponse)
         ShadowLooper.shadowMainLooper().runToEndOfTasks()
 
-        val exceptionCaptor = argumentCaptor<CheckoutException>()
-        val recoverableCaptor = argumentCaptor<Boolean>()
-        verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(exceptionCaptor.capture(), recoverableCaptor.capture())
-        assertThat(exceptionCaptor.firstValue).isInstanceOf(ConfigurationException::class.java)
-        assertThat(exceptionCaptor.firstValue.errorDescription).isEqualTo(
+        val captor = argumentCaptor<CheckoutException>()
+        verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
+        assertThat(captor.firstValue).isInstanceOf(ConfigurationException::class.java)
+        assertThat(captor.firstValue.errorDescription).isEqualTo(
             "The checkout URL provided has resulted in an error. The store is still using checkout.liquid, whereas the checkout SDK only " +
                 "supports checkout with extensibility."
         )
-        assertThat(recoverableCaptor.firstValue).isFalse()
+        assertThat(captor.firstValue.isRecoverable).isFalse()
     }
 
     @Test
@@ -211,11 +207,10 @@ class CheckoutWebViewClientTest {
         webViewClient.onReceivedHttpError(view, mockRequest, checkoutExpiredResponse)
         ShadowLooper.shadowMainLooper().runToEndOfTasks()
 
-        val exceptionCaptor = argumentCaptor<CheckoutException>()
-        val recoverableCaptor = argumentCaptor<Boolean>()
-        verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(exceptionCaptor.capture(), recoverableCaptor.capture())
-        assertThat(exceptionCaptor.firstValue).isInstanceOf(CheckoutUnavailableException::class.java)
-        assertThat(recoverableCaptor.firstValue).isTrue()
+        val captor = argumentCaptor<CheckoutException>()
+        verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
+        assertThat(captor.firstValue).isInstanceOf(CheckoutUnavailableException::class.java)
+        assertThat(captor.firstValue.isRecoverable).isTrue()
     }
 
     @Test
@@ -233,11 +228,10 @@ class CheckoutWebViewClientTest {
         webViewClient.onReceivedHttpError(view, mockRequest, checkoutExpiredResponse)
         ShadowLooper.shadowMainLooper().runToEndOfTasks()
 
-        val exceptionCaptor = argumentCaptor<CheckoutException>()
-        val recoverableCaptor = argumentCaptor<Boolean>()
-        verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(exceptionCaptor.capture(), recoverableCaptor.capture())
-        assertThat(exceptionCaptor.firstValue).isInstanceOf(CheckoutUnavailableException::class.java)
-        assertThat(recoverableCaptor.firstValue).isTrue()
+        val captor = argumentCaptor<CheckoutException>()
+        verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
+        assertThat(captor.firstValue).isInstanceOf(CheckoutUnavailableException::class.java)
+        assertThat(captor.firstValue.isRecoverable).isTrue()
     }
 
     @Test
@@ -255,11 +249,10 @@ class CheckoutWebViewClientTest {
         webViewClient.onReceivedHttpError(view, mockRequest, checkoutExpiredResponse)
         ShadowLooper.shadowMainLooper().runToEndOfTasks()
 
-        val exceptionCaptor = argumentCaptor<CheckoutException>()
-        val recoverableCaptor = argumentCaptor<Boolean>()
-        verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(exceptionCaptor.capture(), recoverableCaptor.capture())
-        assertThat(exceptionCaptor.firstValue).isInstanceOf(CheckoutUnavailableException::class.java)
-        assertThat(recoverableCaptor.firstValue).isTrue()
+        val captor = argumentCaptor<CheckoutException>()
+        verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
+        assertThat(captor.firstValue).isInstanceOf(CheckoutUnavailableException::class.java)
+        assertThat(captor.firstValue.isRecoverable).isTrue()
     }
 
     @Test
@@ -278,12 +271,11 @@ class CheckoutWebViewClientTest {
         webViewClient.onReceivedHttpError(view, mockRequest, checkoutExpiredResponse)
         ShadowLooper.shadowMainLooper().runToEndOfTasks()
 
-        val exceptionCaptor = argumentCaptor<CheckoutException>()
-        val recoverableCaptor = argumentCaptor<Boolean>()
-        verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(exceptionCaptor.capture(), recoverableCaptor.capture())
-        assertThat(exceptionCaptor.firstValue).isInstanceOf(CheckoutUnavailableException::class.java)
-        assertThat(exceptionCaptor.firstValue.message).isEqualTo("Bad request")
-        assertThat(recoverableCaptor.firstValue).isFalse()
+        val captor = argumentCaptor<CheckoutException>()
+        verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
+        assertThat(captor.firstValue).isInstanceOf(CheckoutUnavailableException::class.java)
+        assertThat(captor.firstValue.message).isEqualTo("Bad request")
+        assertThat(captor.firstValue.isRecoverable).isFalse()
     }
 
     @Test

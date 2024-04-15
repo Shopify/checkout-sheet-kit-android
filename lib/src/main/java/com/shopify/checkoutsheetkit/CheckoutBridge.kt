@@ -106,8 +106,10 @@ internal class CheckoutBridge(
             }
         } catch (e: Exception) {
             eventProcessor.onCheckoutViewFailedWithError(
-                error = CheckoutSheetKitException("Error decoding message from checkout."),
-                isRecoverable = true
+                CheckoutSheetKitException(
+                    errorDescription = "Error decoding message from checkout.",
+                    isRecoverable = true,
+                ),
             )
         }
     }
@@ -126,22 +128,45 @@ internal class CheckoutBridge(
             view.evaluateJavascript(script, null)
         } catch (e: Exception) {
             eventProcessor.onCheckoutViewFailedWithError(
-                error = CheckoutSheetKitException("Failed to send '${operation.key}' message to checkout, some features may not work."),
-                isRecoverable = true,
+                CheckoutSheetKitException(
+                    errorDescription = "Failed to send '${operation.key}' message to checkout, some features may not work.",
+                    isRecoverable = true,
+                )
             )
         }
     }
 
-    private fun handleDecodedError(decodedError: CheckoutErrorPayload) {
-        when (decodedError.group) {
-            CheckoutErrorGroup.CONFIGURATION -> eventProcessor.onCheckoutViewFailedWithError(
-                error = ConfigurationException(decodedError.reason ?: "Storefront configuration error."), isRecoverable = false,
+    private fun handleDecodedError(error: CheckoutErrorPayload) {
+        when {
+            error.group == CheckoutErrorGroup.CONFIGURATION && error.code == STOREFRONT_PASSWORD_REQUIRED -> {
+                eventProcessor.onCheckoutViewFailedWithError(
+                    ConfigurationException(
+                        errorDescription = error.reason ?: "Storefront password required.",
+                        isRecoverable = false
+                    ),
+                )
+            }
+            error.group == CheckoutErrorGroup.CONFIGURATION && error.code == CUSTOMER_ACCOUNT_REQUIRED -> {
+                eventProcessor.onCheckoutViewFailedWithError(
+                    AuthenticationException(
+                        errorDescription = error.reason ?: "Customer account required.",
+                        isRecoverable = false
+                    ),
+                )
+            }
+            error.group == CheckoutErrorGroup.CONFIGURATION -> {
+                eventProcessor.onCheckoutViewFailedWithError(
+                    ConfigurationException(
+                        errorDescription = error.reason ?: "Storefront configuration error.",
+                        isRecoverable = false
+                    ),
+                )
+            }
+            error.group == CheckoutErrorGroup.UNRECOVERABLE -> eventProcessor.onCheckoutViewFailedWithError(
+                ClientException(errorDescription = error.reason, isRecoverable = true),
             )
-            CheckoutErrorGroup.UNRECOVERABLE -> eventProcessor.onCheckoutViewFailedWithError(
-                error = ClientException(decodedError.reason), isRecoverable = true,
-            )
-            CheckoutErrorGroup.EXPIRED -> eventProcessor.onCheckoutViewFailedWithError(
-                error = CheckoutExpiredException(decodedError.reason), isRecoverable = false,
+            error.group == CheckoutErrorGroup.EXPIRED -> eventProcessor.onCheckoutViewFailedWithError(
+                CheckoutExpiredException(errorDescription = error.reason, isRecoverable = false),
             )
             else -> {
                 // The remaining error groups are unsupported and will be ignored
@@ -152,6 +177,10 @@ internal class CheckoutBridge(
     companion object {
         private const val SDK_VERSION_NUMBER: String = BuildConfig.SDK_VERSION
         private const val SCHEMA_VERSION_NUMBER: String = "8.1"
+
+        private const val CUSTOMER_ACCOUNT_REQUIRED = "customer_account_required"
+        private const val STOREFRONT_PASSWORD_REQUIRED = "storefront_password_required"
+
         private fun dispatchMessageTemplate(body: String) = """|
         |if (window.MobileCheckoutSdk && window.MobileCheckoutSdk.dispatchMessage) {
         |    window.MobileCheckoutSdk.dispatchMessage($body);
