@@ -241,34 +241,46 @@ val processor = object : DefaultCheckoutEventProcessor(activity) {
          */
 
         /**
-         * Issued when an internal error within Shopify Checkout SDK.
-         * In event of an sdkError you could use the stacktrace to inform you of how to proceed,
-         * if the issue persists, it is recommended to open a bug report in https://github.com/Shopify/checkout-sheet-kit-android
+         * Issued when an internal error occurs within Shopify Checkout Sheet Kit. For example in communication between the kit and checkout.
+         * If the issue persists, it is recommended to open a bug report in https://github.com/Shopify/checkout-sheet-kit-android
          */
-        class CheckoutSdkError(errorMsg: String) : CheckoutException(errorMsg)
+        class CheckoutSheetKitException(val errorDescription: String) : CheckoutException(errorDescription)
 
         /**
-         * Issued when checkout has encountered a unrecoverable error (for example server side error).
+         * Issued when checkout has encountered an unexpected error, see subclasses for more information.
          * if the issue persists, it is recommended to open a bug report in https://github.com/Shopify/checkout-sheet-kit-android
          */
-        class CheckoutUnavailableException : CheckoutException("Checkout is currently unavailable due to an internal error.")
+        class CheckoutUnavailableException(val errorDescription: String) : CheckoutException(errorDescription)
+
+        /**
+        * Subclass of CheckoutUnavailableException, issued when Checkout is unavailable because a HTTP call resulted in an unexpected status code,
+        * this includes both client or server HTTP errors.
+        */
+        class HttpException(val errorDescription: String, val statusCode: Int) : CheckoutUnavailableException(errorDescription)
+
+        /**
+        * Subclass of CheckoutUnavailableException, issued when Checkout is unavailable for reasons unrelated to HTTP calls, (e.g. due to
+        * unhandled client-side errors).
+        */
+        class ClientException(val errorDescription: String) : CheckoutUnavailableException(errorDescription)
 
         /**
          * Issued when checkout is no longer available and will no longer be available with the checkout URL supplied.
-         * This may happen when the user has paused on checkout for a long period (hours) and
-         * then attempted to proceed again with the same checkout URL.
+         * This may happen when the user has paused on checkout for a long period (hours) and then attempted to proceed again with the same checkout URL.
          * In event of checkoutExpired, a new checkout URL will need to be generated.
          */
-        class CheckoutExpiredException :
-            CheckoutException("Checkout is no longer available with the token provided. Please generate a new checkout URL.")
+        class CheckoutExpiredException(val errorDescription: String) : CheckoutException()
 
         /**
-         * Issued when the provided checkout URL results in an error related to shop being on checkout.liquid.
-         * The SDK only supports stores migrated for extensibility.
+         * Issued when the provided checkout URL results in an error related to a configuration error. E.g. a checkout is opened for a shop that uses 
+         * checkout.liquid (the SDK only supports stores migrated for extensibility).
          */
-        class CheckoutLiquidNotMigratedException :
-            CheckoutException("The checkout URL provided has resulted in an error because the store is still using checkout.liquid. Checkout Sheet Kit only supports checkout with extensibility.")
+        class ConfigurationException(val errorDescription: String) : CheckoutException(errorDescription)
 
+        /**
+         * Issued when authentication is required. E.g. if a customer account is required to checkout, and the customer has not logged in.
+         */
+        class AuthenticationException(val errorDescription: String) : CheckoutException(errorDescription)
     }
 
     override fun onCheckoutLinkClicked(uri: Uri) {

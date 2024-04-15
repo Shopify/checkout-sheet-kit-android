@@ -24,17 +24,15 @@ package com.shopify.checkoutsheetkit
 
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
-
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
+import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.ERROR
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.MODAL
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.WEB_PIXELS
-import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.ERROR
 import com.shopify.checkoutsheetkit.errors.CheckoutErrorDecoder
 import com.shopify.checkoutsheetkit.errors.CheckoutErrorGroup
 import com.shopify.checkoutsheetkit.errors.CheckoutErrorPayload
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEventDecoder
 import com.shopify.checkoutsheetkit.pixelevents.PixelEventDecoder
-
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -107,7 +105,12 @@ internal class CheckoutBridge(
                 else -> {}
             }
         } catch (e: Exception) {
-            eventProcessor.onCheckoutViewFailedWithError(CheckoutSdkError("Error decoding message from checkout."))
+            eventProcessor.onCheckoutViewFailedWithError(
+                CheckoutSheetKitException(
+                    errorDescription = "Error decoding message from checkout.",
+                    isRecoverable = true,
+                ),
+            )
         }
     }
 
@@ -125,28 +128,50 @@ internal class CheckoutBridge(
             view.evaluateJavascript(script, null)
         } catch (e: Exception) {
             eventProcessor.onCheckoutViewFailedWithError(
-                CheckoutSdkError("Failed to send '${operation.key}' message to checkout, some features may not work.")
+                CheckoutSheetKitException(
+                    errorDescription = "Failed to send '${operation.key}' message to checkout, some features may not work.",
+                    isRecoverable = true,
+                )
             )
         }
     }
 
-    private fun handleDecodedError(decodedError: CheckoutErrorPayload) {
-        val sheetKitError = when (decodedError.group) {
-            CheckoutErrorGroup.CONFIGURATION -> CheckoutUnavailableException(
-                decodedError.reason ?: "Storefront was not configured properly."
+    private fun handleDecodedError(error: CheckoutErrorPayload) {
+        when {
+            error.group == CheckoutErrorGroup.CONFIGURATION && error.code == CUSTOMER_ACCOUNT_REQUIRED -> {
+                eventProcessor.onCheckoutViewFailedWithError(
+                    AuthenticationException(
+                        errorDescription = error.reason ?: "Customer account required.",
+                        isRecoverable = false
+                    ),
+                )
+            }
+            error.group == CheckoutErrorGroup.CONFIGURATION -> {
+                eventProcessor.onCheckoutViewFailedWithError(
+                    ConfigurationException(
+                        errorDescription = error.reason ?: "Storefront configuration error.",
+                        isRecoverable = false
+                    ),
+                )
+            }
+            error.group == CheckoutErrorGroup.UNRECOVERABLE -> eventProcessor.onCheckoutViewFailedWithError(
+                ClientException(errorDescription = error.reason, isRecoverable = true),
             )
-            CheckoutErrorGroup.UNRECOVERABLE -> CheckoutUnavailableException(decodedError.reason)
-            CheckoutErrorGroup.EXPIRED -> CheckoutExpiredException(decodedError.reason)
-            else -> null
-        }
-        sheetKitError?.let {
-            eventProcessor.onCheckoutViewFailedWithError(sheetKitError)
+            error.group == CheckoutErrorGroup.EXPIRED -> eventProcessor.onCheckoutViewFailedWithError(
+                CheckoutExpiredException(errorDescription = error.reason, isRecoverable = false),
+            )
+            else -> {
+                // The remaining error groups are unsupported and will be ignored
+            }
         }
     }
 
     companion object {
         private const val SDK_VERSION_NUMBER: String = BuildConfig.SDK_VERSION
         private const val SCHEMA_VERSION_NUMBER: String = "8.1"
+
+        private const val CUSTOMER_ACCOUNT_REQUIRED = "customer_account_required"
+
         private fun dispatchMessageTemplate(body: String) = """|
         |if (window.MobileCheckoutSdk && window.MobileCheckoutSdk.dispatchMessage) {
         |    window.MobileCheckoutSdk.dispatchMessage($body);

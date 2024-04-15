@@ -116,6 +116,7 @@ class CheckoutWebViewClientTest {
         val captor = argumentCaptor<CheckoutException>()
         verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
         assertThat(captor.firstValue).isInstanceOf(CheckoutExpiredException::class.java)
+        assertThat(captor.firstValue.isRecoverable).isFalse()
     }
 
     @Test
@@ -136,6 +137,7 @@ class CheckoutWebViewClientTest {
         val captor = argumentCaptor<CheckoutException>()
         verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
         assertThat(captor.firstValue).isInstanceOf(CheckoutExpiredException::class.java)
+        assertThat(captor.firstValue.isRecoverable).isFalse()
     }
 
     @Test
@@ -143,7 +145,8 @@ class CheckoutWebViewClientTest {
         val loadedUri = Uri.parse("https://checkout-sdk.myshopify.com")
         val mockRequest = mockWebRequest(loadedUri, true)
         val checkoutExpiredResponse = mockWebResourceResponse(
-            status = HttpURLConnection.HTTP_NOT_FOUND
+            status = HttpURLConnection.HTTP_NOT_FOUND,
+            description = "Not Found",
         )
 
         val view = viewWithProcessor(activity)
@@ -155,7 +158,38 @@ class CheckoutWebViewClientTest {
 
         val captor = argumentCaptor<CheckoutException>()
         verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
-        assertThat(captor.firstValue).isInstanceOf(CheckoutLiquidNotMigratedException::class.java)
+        assertThat(captor.firstValue).isInstanceOf(HttpException::class.java)
+        assertThat(captor.firstValue.errorDescription).isEqualTo("Not Found")
+        assertThat((captor.firstValue as HttpException).statusCode).isEqualTo(404)
+        assertThat(captor.firstValue.isRecoverable).isFalse()
+    }
+
+    @Test
+    fun `should call event processor calls onCheckoutViewFailedWithError on http error for main frame - 404 and deprecated header`() {
+        val loadedUri = Uri.parse("https://checkout-sdk.myshopify.com")
+        val mockRequest = mockWebRequest(loadedUri, true)
+        val checkoutExpiredResponse = mockWebResourceResponse(
+            status = HttpURLConnection.HTTP_NOT_FOUND,
+            headers = mutableMapOf(
+                "X-Shopify-API-Deprecated-Reason" to "checkout_liquid_not_supported"
+            )
+        )
+
+        val view = viewWithProcessor(activity)
+        CheckoutWebView.cacheEntry = view.toCacheEntry(loadedUri.toString())
+        val webViewClient = view.CheckoutWebViewClient()
+
+        webViewClient.onReceivedHttpError(view, mockRequest, checkoutExpiredResponse)
+        ShadowLooper.shadowMainLooper().runToEndOfTasks()
+
+        val captor = argumentCaptor<CheckoutException>()
+        verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
+        assertThat(captor.firstValue).isInstanceOf(ConfigurationException::class.java)
+        assertThat(captor.firstValue.errorDescription).isEqualTo(
+            "The checkout URL provided has resulted in an error. The store is still using checkout.liquid, whereas the checkout SDK only " +
+                "supports checkout with extensibility."
+        )
+        assertThat(captor.firstValue.isRecoverable).isFalse()
     }
 
     @Test
@@ -176,6 +210,7 @@ class CheckoutWebViewClientTest {
         val captor = argumentCaptor<CheckoutException>()
         verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
         assertThat(captor.firstValue).isInstanceOf(CheckoutUnavailableException::class.java)
+        assertThat(captor.firstValue.isRecoverable).isTrue()
     }
 
     @Test
@@ -196,6 +231,7 @@ class CheckoutWebViewClientTest {
         val captor = argumentCaptor<CheckoutException>()
         verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
         assertThat(captor.firstValue).isInstanceOf(CheckoutUnavailableException::class.java)
+        assertThat(captor.firstValue.isRecoverable).isTrue()
     }
 
     @Test
@@ -216,6 +252,7 @@ class CheckoutWebViewClientTest {
         val captor = argumentCaptor<CheckoutException>()
         verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
         assertThat(captor.firstValue).isInstanceOf(CheckoutUnavailableException::class.java)
+        assertThat(captor.firstValue.isRecoverable).isTrue()
     }
 
     @Test
@@ -238,6 +275,7 @@ class CheckoutWebViewClientTest {
         verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
         assertThat(captor.firstValue).isInstanceOf(CheckoutUnavailableException::class.java)
         assertThat(captor.firstValue.message).isEqualTo("Bad request")
+        assertThat(captor.firstValue.isRecoverable).isFalse()
     }
 
     @Test
@@ -332,11 +370,13 @@ class CheckoutWebViewClientTest {
 
     private fun mockWebResourceResponse(
         status: Int = 410,
-        description: String = "Checkout expired"
+        description: String = "Checkout expired",
+        headers: MutableMap<String, String> = mutableMapOf()
     ): WebResourceResponse {
         val mock = mock<WebResourceResponse>()
         whenever(mock.statusCode).thenReturn(status)
         whenever(mock.reasonPhrase).thenReturn(description)
+        whenever(mock.responseHeaders).thenReturn(headers)
         return mock
     }
 

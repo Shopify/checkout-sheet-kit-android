@@ -25,7 +25,6 @@ package com.shopify.checkoutsheetkit
 import android.webkit.WebView
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.MODAL
-import com.shopify.checkoutsheetkit.pixelevents.Checkout
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent
 import kotlinx.serialization.encodeToString
@@ -147,11 +146,12 @@ class CheckoutBridgeTest {
 
         checkoutBridge.sendMessage(webView, CheckoutBridge.SDKOperation.Presented)
 
-        val errorCaptor = argumentCaptor<CheckoutSdkError>()
+        val errorCaptor = argumentCaptor<CheckoutSheetKitException>()
         verify(mockEventProcessor).onCheckoutViewFailedWithError(errorCaptor.capture())
         assertThat(errorCaptor.firstValue.message).isEqualTo(
             "Failed to send 'presented' message to checkout, some features may not work."
         )
+        assertThat(errorCaptor.firstValue.isRecoverable).isTrue()
     }
 
     @Test
@@ -234,6 +234,7 @@ class CheckoutBridgeTest {
 
         assertThat(captor.firstValue).isInstanceOf(CheckoutExpiredException::class.java)
         assertThat(captor.firstValue.message).isEqualTo("Cart is invalid")
+        assertThat(captor.firstValue.isRecoverable).isFalse()
     }
 
     @Test
@@ -256,6 +257,7 @@ class CheckoutBridgeTest {
         assertThat(captor.firstValue.message).isEqualTo(
             "Checkout is no longer available with the provided token. Please generate a new checkout URL"
         )
+        assertThat(captor.firstValue.isRecoverable).isFalse()
     }
 
     @Test
@@ -278,15 +280,17 @@ class CheckoutBridgeTest {
 
         assertThat(captor.firstValue).isInstanceOf(CheckoutUnavailableException::class.java)
         assertThat(captor.firstValue.message).isEqualTo("Checkout crashed")
+        assertThat(captor.firstValue.isRecoverable).isTrue()
     }
     @Test
-    fun `should decode an storefront configuration error payload and call processor#onCheckoutViewFailedWithError`() {
+    fun `should decode a configuration error payload and call processor#onCheckoutViewFailedWithError - storefront pw required`() {
         val eventString = """|
             |{
             |   "name":"error",
             |   "body": "[{
             |       \"group\": \"configuration\",
             |       \"reason\": \"Storefront password required\"
+            |       \"code\": \"storefront_password_required\"
             |   }]"
             |}
         |""".trimMargin()
@@ -296,8 +300,32 @@ class CheckoutBridgeTest {
         val captor = argumentCaptor<CheckoutException>()
         verify(mockEventProcessor, timeout(2000).times(1)).onCheckoutViewFailedWithError(captor.capture())
 
-        assertThat(captor.firstValue).isInstanceOf(CheckoutUnavailableException::class.java)
+        assertThat(captor.firstValue).isInstanceOf(ConfigurationException::class.java)
         assertThat(captor.firstValue.message).isEqualTo("Storefront password required")
+        assertThat(captor.firstValue.isRecoverable).isFalse()
+    }
+
+    @Test
+    fun `should decode a configuration error payload and call processor#onCheckoutViewFailedWithError - customer acc required`() {
+        val eventString = """|
+            |{
+            |   "name":"error",
+            |   "body": "[{
+            |       \"group\": \"configuration\",
+            |       \"reason\": \"Customer account required\"
+            |       \"code\": \"customer_account_required\"
+            |   }]"
+            |}
+        |""".trimMargin()
+
+        checkoutBridge.postMessage(eventString)
+
+        val captor = argumentCaptor<CheckoutException>()
+        verify(mockEventProcessor, timeout(2000).times(1)).onCheckoutViewFailedWithError(captor.capture())
+
+        assertThat(captor.firstValue).isInstanceOf(AuthenticationException::class.java)
+        assertThat(captor.firstValue.message).isEqualTo("Customer account required")
+        assertThat(captor.firstValue.isRecoverable).isFalse()
     }
 
     @Test
@@ -329,11 +357,10 @@ class CheckoutBridgeTest {
         checkoutBridge.postMessage(eventString)
 
         val captor = argumentCaptor<CheckoutException>()
-        verify(mockEventProcessor).onCheckoutViewFailedWithError(
-            captor.capture()
-        )
+        verify(mockEventProcessor).onCheckoutViewFailedWithError(captor.capture())
 
-        assertThat(captor.firstValue).isInstanceOf(CheckoutSdkError::class.java)
+        assertThat(captor.firstValue).isInstanceOf(CheckoutSheetKitException::class.java)
         assertThat(captor.firstValue.message).isEqualTo("Error decoding message from checkout.")
+        assertThat(captor.firstValue.isRecoverable).isTrue()
     }
 }

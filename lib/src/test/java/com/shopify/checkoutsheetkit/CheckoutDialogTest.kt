@@ -127,7 +127,7 @@ class CheckoutDialogTest {
 
         val dialog = ShadowDialog.getLatestDialog()
         val checkoutDialog = dialog as CheckoutDialog
-        val error = CheckoutSdkError("Error occurred")
+        val error = CheckoutSheetKitException("Error occurred", false)
 
         checkoutDialog.closeCheckoutDialogWithError(error)
         Shadows.shadowOf(Looper.getMainLooper()).runToEndOfTasks()
