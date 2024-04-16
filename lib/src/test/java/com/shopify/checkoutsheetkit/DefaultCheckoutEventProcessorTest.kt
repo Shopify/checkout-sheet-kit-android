@@ -108,6 +108,7 @@ class DefaultCheckoutEventProcessorTest {
     fun `onCheckoutFailed returns an error description`() {
         val log = mock<LogWrapper>()
         var description = ""
+        var recoverable: Boolean? = null
         val processor =
                 object : DefaultCheckoutEventProcessor(activity, log) {
                     override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {
@@ -115,6 +116,7 @@ class DefaultCheckoutEventProcessorTest {
                     }
                     override fun onCheckoutFailed(error: CheckoutException) {
                         description = error.errorDescription
+                        recoverable = error.isRecoverable
                     }
                     override fun onCheckoutCanceled() {
                         /* not implemented */
@@ -125,11 +127,12 @@ class DefaultCheckoutEventProcessorTest {
                     }
                 }
 
-        val error = object : CheckoutException("error description") {}
+        val error = object : CheckoutUnavailableException("error description", "unknown", true) {}
 
         processor.onCheckoutFailed(error)
 
         assertThat(description).isEqualTo("error description")
+        assertThat(recoverable).isTrue()
     }
 
     private fun processor(activity: ComponentActivity): DefaultCheckoutEventProcessor {

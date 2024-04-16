@@ -27,45 +27,6 @@ import android.content.Intent
 import android.net.Uri
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
-import kotlinx.serialization.Serializable
-
-/**
- * Superclass for the Shopify Checkout Sheet Kit exceptions
- */
-@Serializable
-public abstract class CheckoutException(public val errorDescription: String) : Exception(errorDescription)
-
-/**
- * Issued when an internal error occurs within Shopify Checkout Sheet Kit.
- * In event of an error you could use the stacktrace to inform you of how to proceed,
- * if the issue persists, it is recommended to open a bug report in https://github.com/Shopify/checkout-sheet-kit-android
- */
-public class CheckoutSdkError(errorMsg: String) : CheckoutException(errorMsg)
-
-/**
- * Issued when checkout has encountered a unrecoverable error (for example server side error).
- * if the issue persists, it is recommended to open a bug report in https://github.com/Shopify/checkout-sheet-kit-android
- */
-public class CheckoutUnavailableException : CheckoutException("Checkout is currently unavailable due to an internal error")
-
-/**
- * Issued when checkout is no longer available and will no longer be available with the checkout URL supplied.
- * This may happen when the user has paused on checkout for a long period (hours) and
- * then attempted to proceed again with the same checkout URL.
- * In event of checkoutExpired, a new checkout URL will need to be generated.
- */
-public class CheckoutExpiredException : CheckoutException(
-    "Checkout is no longer available with the provided token. Please generate a new checkout URL"
-)
-
-/**
- * Issued when the provided checkout URL results in an error related to shop being on checkout.liquid.
- * The SDK only supports stores migrated for extensibility.
- */
-public class CheckoutLiquidNotMigratedException : CheckoutException(
-    "The checkout URL provided has resulted in an error. The store is still using checkout.liquid, whereas the checkout SDK only " +
-            "supports checkout with extensibility."
-)
 
 /**
  * Interface to implement to allow responding to lifecycle events in checkout.

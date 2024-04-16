@@ -102,25 +102,25 @@ class CheckoutBridgeTest {
     @Test
     fun `user agent suffix includes metadata for the schema version, theme, and variant - dark`() {
         ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Dark()
-        assertThat(CheckoutBridge.userAgentSuffix()).endsWith("(8.0;dark;standard)")
+        assertThat(CheckoutBridge.userAgentSuffix()).endsWith("(8.1;dark;standard)")
     }
 
     @Test
     fun `user agent suffix includes metadata for the schema version, theme, and variant - light`() {
         ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Light()
-        assertThat(CheckoutBridge.userAgentSuffix()).endsWith("(8.0;light;standard)")
+        assertThat(CheckoutBridge.userAgentSuffix()).endsWith("(8.1;light;standard)")
     }
 
     @Test
     fun `user agent suffix includes metadata for the schema version, theme, and variant - web`() {
         ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Web()
-        assertThat(CheckoutBridge.userAgentSuffix()).endsWith("(8.0;web_default;standard)")
+        assertThat(CheckoutBridge.userAgentSuffix()).endsWith("(8.1;web_default;standard)")
     }
 
     @Test
     fun `user agent suffix includes metadata for the schema version, theme, and variant - automatic`() {
         ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Automatic()
-        assertThat(CheckoutBridge.userAgentSuffix()).endsWith("(8.0;automatic;standard)")
+        assertThat(CheckoutBridge.userAgentSuffix()).endsWith("(8.1;automatic;standard)")
     }
 
     @Test
@@ -146,11 +146,15 @@ class CheckoutBridgeTest {
 
         checkoutBridge.sendMessage(webView, CheckoutBridge.SDKOperation.Presented)
 
-        val errorCaptor = argumentCaptor<CheckoutSdkError>()
+        val errorCaptor = argumentCaptor<CheckoutSheetKitException>()
         verify(mockEventProcessor).onCheckoutViewFailedWithError(errorCaptor.capture())
-        assertThat(errorCaptor.firstValue.message).isEqualTo(
+
+        val error = errorCaptor.firstValue
+        assertThat(error.message).isEqualTo(
             "Failed to send 'presented' message to checkout, some features may not work."
         )
+        assertThat(error.isRecoverable).isTrue()
+        assertThat(error.errorCode).isEqualTo(CheckoutSheetKitException.ERROR_SENDING_MESSAGE_TO_CHECKOUT)
     }
 
     @Test
@@ -209,5 +213,195 @@ class CheckoutBridgeTest {
         verify(mockEventProcessor, timeout(2000).times(1)).onWebPixelEvent(captor.capture())
 
         assertThat(captor.firstValue).isInstanceOf(StandardPixelEvent::class.java)
+    }
+
+    @Test
+    fun `should decode a checkout expired error payload and call processor#onCheckoutViewFailedWithError - invalid`() {
+        val eventString = """|
+            |{
+            |   "name":"error",
+            |   "body": "[{
+            |       \"group\": \"expired\",
+            |       \"reason\": \"Cart is invalid\",
+            |       \"flowType\": \"regular\",
+            |       \"code\": \"invalid_cart\"
+            |   }]"
+            |}
+        |""".trimMargin()
+
+        checkoutBridge.postMessage(eventString)
+
+        val captor = argumentCaptor<CheckoutException>()
+        verify(mockEventProcessor, timeout(2000).times(1)).onCheckoutViewFailedWithError(captor.capture())
+
+        val error = captor.firstValue
+        assertThat(error).isInstanceOf(CheckoutExpiredException::class.java)
+        assertThat(error.message).isEqualTo("Cart is invalid")
+        assertThat(error.isRecoverable).isFalse()
+        assertThat(error.errorCode).isEqualTo(CheckoutExpiredException.INVALID_CART)
+    }
+
+    @Test
+    fun `should decode a checkout expired error payload and call processor#onCheckoutViewFailedWithError - completed`() {
+        val eventString = """|
+            |{
+            |   "name":"error",
+            |   "body": "[{
+            |       \"group\": \"expired\",
+            |       \"reason\": \"Cart is invalid\",
+            |       \"flowType\": \"regular\",
+            |       \"code\": \"cart_completed\"
+            |   }]"
+            |}
+        |""".trimMargin()
+
+        checkoutBridge.postMessage(eventString)
+
+        val captor = argumentCaptor<CheckoutException>()
+        verify(mockEventProcessor, timeout(2000).times(1)).onCheckoutViewFailedWithError(captor.capture())
+
+        val error = captor.firstValue
+        assertThat(error).isInstanceOf(CheckoutExpiredException::class.java)
+        assertThat(error.message).isEqualTo("Cart is invalid")
+        assertThat(error.isRecoverable).isFalse()
+        assertThat(error.errorCode).isEqualTo(CheckoutExpiredException.CHECKOUT_EXPIRED)
+    }
+
+
+    @Test
+    fun `should decode a barebones expired error payload and call processor#onCheckoutViewFailedWithError`() {
+        val eventString =  """|
+            |{
+            |   "name": "error",
+            |   "body": "[{
+            |       \"group\": \"expired\"
+            |   }]"
+            |}
+        |""".trimMargin()
+
+        checkoutBridge.postMessage(eventString)
+
+        val captor = argumentCaptor<CheckoutException>()
+        verify(mockEventProcessor, timeout(2000).times(1)).onCheckoutViewFailedWithError(captor.capture())
+
+        val error = captor.firstValue
+        assertThat(error).isInstanceOf(CheckoutExpiredException::class.java)
+        assertThat(error.message).isEqualTo(
+            "Checkout is no longer available with the provided token. Please generate a new checkout URL"
+        )
+        assertThat(error.isRecoverable).isFalse()
+        assertThat(error.errorCode).isEqualTo(CheckoutExpiredException.CHECKOUT_EXPIRED)
+    }
+
+    @Test
+    fun `should decode an unrecoverable error payload and call processor#onCheckoutViewFailedWithError`() {
+        val eventString = """|
+            |{
+            |   "name":"error",
+            |   "body": "[{
+            |       \"group\": \"unrecoverable\",
+            |       \"reason\": \"Checkout crashed\",
+            |       \"code\": \"sdk_not_enabled\"
+            |   }]"
+            |}
+        |""".trimMargin()
+
+        checkoutBridge.postMessage(eventString)
+
+        val captor = argumentCaptor<CheckoutException>()
+        verify(mockEventProcessor, timeout(2000).times(1)).onCheckoutViewFailedWithError(captor.capture())
+
+        val error = captor.firstValue
+        assertThat(error).isInstanceOf(CheckoutUnavailableException::class.java)
+        assertThat(error.message).isEqualTo("Checkout crashed")
+        assertThat(error.isRecoverable).isTrue()
+        assertThat(error.errorCode).isEqualTo(CheckoutUnavailableException.CLIENT_ERROR)
+    }
+    @Test
+    fun `should decode a configuration error payload and call processor#onCheckoutViewFailedWithError - storefront pw required`() {
+        val eventString = """|
+            |{
+            |   "name":"error",
+            |   "body": "[{
+            |       \"group\": \"configuration\",
+            |       \"reason\": \"Storefront password required\",
+            |       \"code\": \"storefront_password_required\"
+            |   }]"
+            |}
+        |""".trimMargin()
+
+        checkoutBridge.postMessage(eventString)
+
+        val captor = argumentCaptor<CheckoutException>()
+        verify(mockEventProcessor, timeout(2000).times(1)).onCheckoutViewFailedWithError(captor.capture())
+
+        val error = captor.firstValue
+        assertThat(error).isInstanceOf(ConfigurationException::class.java)
+        assertThat(error.message).isEqualTo("Storefront password required")
+        assertThat(error.isRecoverable).isFalse()
+        assertThat(error.errorCode).isEqualTo(ConfigurationException.STOREFRONT_PASSWORD_REQUIRED)
+    }
+
+    @Test
+    fun `should decode a configuration error payload and call processor#onCheckoutViewFailedWithError - customer acc required`() {
+        val eventString = """|
+            |{
+            |   "name":"error",
+            |   "body": "[{
+            |       \"group\": \"configuration\",
+            |       \"reason\": \"Customer account required\",
+            |       \"code\": \"customer_account_required\"
+            |   }]"
+            |}
+        |""".trimMargin()
+
+        checkoutBridge.postMessage(eventString)
+
+        val captor = argumentCaptor<CheckoutException>()
+        verify(mockEventProcessor, timeout(2000).times(1)).onCheckoutViewFailedWithError(captor.capture())
+
+        val error = captor.firstValue
+        assertThat(error).isInstanceOf(AuthenticationException::class.java)
+        assertThat(error.message).isEqualTo("Customer account required")
+        assertThat(error.isRecoverable).isFalse()
+        assertThat(error.errorCode).isEqualTo(AuthenticationException.CUSTOMER_ACCOUNT_REQUIRED)
+    }
+
+    @Test
+    fun `should ignore unsupported error payloads`() {
+        val eventString = """|
+            |{
+            |   "name":"error",
+            |   "body": "[{
+            |       \"group\": \"authentication\",
+            |       \"reason\": \"invalid signature\",
+            |       \"code\": \"invalid_signature\"
+            |   }]"
+            |}
+        |""".trimMargin()
+
+        checkoutBridge.postMessage(eventString)
+
+        verifyNoInteractions(mockEventProcessor)
+    }
+
+    @Test
+    fun `should call onCheckoutViewFailedWithError if message cannot be decoded`() {
+        val eventString = """|
+            |{
+            |   "name":"error
+            |}
+        |""".trimMargin()
+
+        checkoutBridge.postMessage(eventString)
+
+        val captor = argumentCaptor<CheckoutException>()
+        verify(mockEventProcessor).onCheckoutViewFailedWithError(captor.capture())
+
+        val error = captor.firstValue
+        assertThat(error).isInstanceOf(CheckoutSheetKitException::class.java)
+        assertThat(error.message).isEqualTo("Error decoding message from checkout.")
+        assertThat(error.isRecoverable).isTrue()
+        assertThat(error.errorCode).isEqualTo(CheckoutSheetKitException.ERROR_RECEIVING_MESSAGE_FROM_CHECKOUT)
     }
 }

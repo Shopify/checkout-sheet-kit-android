@@ -24,13 +24,15 @@ package com.shopify.checkoutsheetkit
 
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
-
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
+import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.ERROR
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.MODAL
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.WEB_PIXELS
+import com.shopify.checkoutsheetkit.errorevents.CheckoutErrorDecoder
+import com.shopify.checkoutsheetkit.errorevents.CheckoutErrorGroup
+import com.shopify.checkoutsheetkit.errorevents.CheckoutErrorPayload
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEventDecoder
 import com.shopify.checkoutsheetkit.pixelevents.PixelEventDecoder
-
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -39,7 +41,8 @@ internal class CheckoutBridge(
     private var eventProcessor: CheckoutWebViewEventProcessor,
     private val decoder: Json = Json { ignoreUnknownKeys = true },
     private val pixelEventDecoder: PixelEventDecoder = PixelEventDecoder(decoder),
-    private val checkoutCompletedEventDecoder: CheckoutCompletedEventDecoder = CheckoutCompletedEventDecoder(decoder)
+    private val checkoutCompletedEventDecoder: CheckoutCompletedEventDecoder = CheckoutCompletedEventDecoder(decoder),
+    private val checkoutErrorDecoder: CheckoutErrorDecoder = CheckoutErrorDecoder(decoder),
 ) {
 
     fun setEventProcessor(eventProcessor: CheckoutWebViewEventProcessor) {
@@ -51,7 +54,8 @@ internal class CheckoutBridge(
     enum class CheckoutWebOperation(val key: String) {
         COMPLETED("completed"),
         MODAL("checkoutBlockingEvent"),
-        WEB_PIXELS("webPixels");
+        WEB_PIXELS("webPixels"),
+        ERROR("error");
 
         companion object {
             fun fromKey(key: String): CheckoutWebOperation? {
@@ -66,28 +70,48 @@ internal class CheckoutBridge(
     }
 
     // Allows Web to postMessages back to the SDK
+    @Suppress("SwallowedException")
     @JavascriptInterface
     fun postMessage(message: String) {
-        val decodedMsg = decoder.decodeFromString<WebToSdkEvent>(message)
+        try {
+            val decodedMsg = decoder.decodeFromString<WebToSdkEvent>(message)
 
-        when (CheckoutWebOperation.fromKey(decodedMsg.name)) {
-            COMPLETED -> {
-                checkoutCompletedEventDecoder.decode(decodedMsg).let { event ->
-                    eventProcessor.onCheckoutViewComplete(event)
+            when (CheckoutWebOperation.fromKey(decodedMsg.name)) {
+                COMPLETED -> {
+                    checkoutCompletedEventDecoder.decode(decodedMsg).let { event ->
+                        eventProcessor.onCheckoutViewComplete(event)
+                    }
                 }
-            }
-            MODAL -> {
-                val modalVisible = decodedMsg.body.toBooleanStrictOrNull()
-                modalVisible?.let {
-                    eventProcessor.onCheckoutViewModalToggled(modalVisible)
+
+                MODAL -> {
+                    val modalVisible = decodedMsg.body.toBooleanStrictOrNull()
+                    modalVisible?.let {
+                        eventProcessor.onCheckoutViewModalToggled(modalVisible)
+                    }
                 }
-            }
-            WEB_PIXELS -> {
-                pixelEventDecoder.decode(decodedMsg)?.let { event ->
-                    eventProcessor.onWebPixelEvent(event)
+
+                WEB_PIXELS -> {
+                    pixelEventDecoder.decode(decodedMsg)?.let { event ->
+                        eventProcessor.onWebPixelEvent(event)
+                    }
                 }
+
+                ERROR -> {
+                    checkoutErrorDecoder.decode(decodedMsg)?.let { exception ->
+                        eventProcessor.onCheckoutViewFailedWithError(exception)
+                    }
+                }
+
+                else -> {}
             }
-            else -> {}
+        } catch (e: Exception) {
+            eventProcessor.onCheckoutViewFailedWithError(
+                CheckoutSheetKitException(
+                    errorDescription = "Error decoding message from checkout.",
+                    errorCode = CheckoutSheetKitException.ERROR_RECEIVING_MESSAGE_FROM_CHECKOUT,
+                    isRecoverable = true,
+                ),
+            )
         }
     }
 
@@ -105,14 +129,19 @@ internal class CheckoutBridge(
             view.evaluateJavascript(script, null)
         } catch (e: Exception) {
             eventProcessor.onCheckoutViewFailedWithError(
-                CheckoutSdkError("Failed to send '${operation.key}' message to checkout, some features may not work.")
+                CheckoutSheetKitException(
+                    errorDescription = "Failed to send '${operation.key}' message to checkout, some features may not work.",
+                    errorCode = CheckoutSheetKitException.ERROR_SENDING_MESSAGE_TO_CHECKOUT,
+                    isRecoverable = true,
+                )
             )
         }
     }
 
     companion object {
         private const val SDK_VERSION_NUMBER: String = BuildConfig.SDK_VERSION
-        private const val SCHEMA_VERSION_NUMBER: String = "8.0"
+        private const val SCHEMA_VERSION_NUMBER: String = "8.1"
+
         private fun dispatchMessageTemplate(body: String) = """|
         |if (window.MobileCheckoutSdk && window.MobileCheckoutSdk.dispatchMessage) {
         |    window.MobileCheckoutSdk.dispatchMessage($body);
