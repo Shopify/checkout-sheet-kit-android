@@ -266,12 +266,16 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
                             ConfigurationException(
                                 errorDescription = "The checkout URL provided has resulted in an error. The store is still using " +
                                 "checkout.liquid, whereas the checkout SDK only supports checkout with extensibility.",
+                                errorCode = ConfigurationException.CHECKOUT_LIQUID_NOT_MIGRATED,
                                 isRecoverable = false,
                            )
                         )
                     }
                     errorCode == HTTP_GONE -> processor.onCheckoutViewFailedWithError(
-                        CheckoutExpiredException(isRecoverable = false),
+                        CheckoutExpiredException(
+                            isRecoverable = false,
+                            errorCode = CheckoutExpiredException.CHECKOUT_EXPIRED
+                        ),
                     )
                     else -> processor.onCheckoutViewFailedWithError(
                         HttpException(

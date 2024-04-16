@@ -27,67 +27,6 @@ import android.content.Intent
 import android.net.Uri
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
-import kotlinx.serialization.Serializable
-
-/**
- * Superclass for the Shopify Checkout Sheet Kit exceptions
- */
-@Serializable
-public abstract class CheckoutException(public val errorDescription: String, public val isRecoverable: Boolean)
-    : Exception(errorDescription)
-
-/**
- * Issued when an internal error occurs within Shopify Checkout Sheet Kit. If the issue persists, it is recommended to open a bug report
- * in https://github.com/Shopify/checkout-sheet-kit-android
- */
-public class CheckoutSheetKitException(errorDescription: String, isRecoverable: Boolean)
-    : CheckoutException(errorDescription, isRecoverable)
-
-/**
- * Issued when checkout has encountered a unrecoverable error (for example server side error).
- * if the issue persists, it is recommended to open a bug report in https://github.com/Shopify/checkout-sheet-kit-android
- */
-public open class CheckoutUnavailableException @JvmOverloads constructor(errorDescription: String? = null, isRecoverable: Boolean)
-    : CheckoutException(errorDescription ?: "Checkout is currently unavailable due to an internal error", isRecoverable)
-
-/**
- * Subclass of CheckoutUnavailableException, issued when Checkout is unavailable because a HTTP call resulted in an unexpected status code,
- * (incl. both client or server HTTP errors).
- */
-public class HttpException @JvmOverloads constructor(errorDescription: String? = null, public val statusCode: Int, isRecoverable: Boolean)
-    : CheckoutUnavailableException(errorDescription, isRecoverable)
-
-/**
- * Subclass of CheckoutUnavailableException, issued when Checkout is unavailable for reasons unrelated to HTTP calls.
- */
-public class ClientException @JvmOverloads constructor(errorDescription: String? = null, isRecoverable: Boolean)
-    : CheckoutUnavailableException(errorDescription, isRecoverable)
-
-/**
- * Issued when checkout is no longer available and will no longer be available with the checkout URL supplied.
- * This may happen when the user has paused on checkout for a long period (hours) and
- * then attempted to proceed again with the same checkout URL.
- * In event of checkoutExpired, a new checkout URL will need to be generated.
- */
-public class CheckoutExpiredException @JvmOverloads constructor(errorDescription: String? = null, isRecoverable: Boolean)
-    : CheckoutException(
-        errorDescription ?: "Checkout is no longer available with the provided token. Please generate a new checkout URL",
-        isRecoverable
-    )
-
-/**
- * Issued when the provided checkout URL results in an error related to a configuration issue, e.g. the shop being on checkout.liquid.
- * The SDK only supports stores migrated for extensibility.
- */
-public class ConfigurationException @JvmOverloads constructor(errorDescription: String? = null, isRecoverable: Boolean)
-    : CheckoutException(errorDescription ?: "Checkout is unavailable due to a configuration issue.", isRecoverable)
-
-/**
- * Issued when the provided checkout URL results in an error related to authentication. E.g. if a customer account is required for
- * checkout and the customer is not logged in.
- */
-public class AuthenticationException @JvmOverloads constructor(errorDescription: String? = null, isRecoverable: Boolean) :
-    CheckoutException(errorDescription ?: "Checkout is unavailable due to a configuration issue.", isRecoverable)
 
 /**
  * Interface to implement to allow responding to lifecycle events in checkout.

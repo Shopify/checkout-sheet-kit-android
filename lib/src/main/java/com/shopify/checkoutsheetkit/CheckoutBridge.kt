@@ -108,6 +108,7 @@ internal class CheckoutBridge(
             eventProcessor.onCheckoutViewFailedWithError(
                 CheckoutSheetKitException(
                     errorDescription = "Error decoding message from checkout.",
+                    errorCode = CheckoutSheetKitException.ERROR_RECEIVING_MESSAGE_FROM_CHECKOUT,
                     isRecoverable = true,
                 ),
             )
@@ -130,6 +131,7 @@ internal class CheckoutBridge(
             eventProcessor.onCheckoutViewFailedWithError(
                 CheckoutSheetKitException(
                     errorDescription = "Failed to send '${operation.key}' message to checkout, some features may not work.",
+                    errorCode = CheckoutSheetKitException.ERROR_SENDING_MESSAGE_TO_CHECKOUT,
                     isRecoverable = true,
                 )
             )
@@ -142,7 +144,8 @@ internal class CheckoutBridge(
                 eventProcessor.onCheckoutViewFailedWithError(
                     AuthenticationException(
                         errorDescription = error.reason ?: "Customer account required.",
-                        isRecoverable = false
+                        errorCode = AuthenticationException.CUSTOMER_ACCOUNT_REQUIRED,
+                        isRecoverable = false,
                     ),
                 )
             }
@@ -150,15 +153,34 @@ internal class CheckoutBridge(
                 eventProcessor.onCheckoutViewFailedWithError(
                     ConfigurationException(
                         errorDescription = error.reason ?: "Storefront configuration error.",
-                        isRecoverable = false
+                        errorCode = if (error.code == STOREFRONT_PASSWORD_REQUIRED) {
+                            ConfigurationException.STOREFRONT_PASSWORD_REQUIRED }
+                            else  {
+                                ConfigurationException.UNKNOWN
+                            },
+                        isRecoverable = false,
                     ),
                 )
             }
             error.group == CheckoutErrorGroup.UNRECOVERABLE -> eventProcessor.onCheckoutViewFailedWithError(
-                ClientException(errorDescription = error.reason, isRecoverable = true),
+                ClientException(
+                    errorDescription = error.reason,
+                    isRecoverable = true,
+                ),
+            )
+            error.group == CheckoutErrorGroup.EXPIRED && error.code == INVALID_CART -> eventProcessor.onCheckoutViewFailedWithError(
+                CheckoutExpiredException(
+                    errorDescription = error.reason,
+                    errorCode = CheckoutExpiredException.INVALID_CART,
+                    isRecoverable = false,
+                ),
             )
             error.group == CheckoutErrorGroup.EXPIRED -> eventProcessor.onCheckoutViewFailedWithError(
-                CheckoutExpiredException(errorDescription = error.reason, isRecoverable = false),
+                CheckoutExpiredException(
+                    errorDescription = error.reason,
+                    errorCode = CheckoutExpiredException.CHECKOUT_EXPIRED,
+                    isRecoverable = false,
+                )
             )
             else -> {
                 // The remaining error groups are unsupported and will be ignored
@@ -171,6 +193,8 @@ internal class CheckoutBridge(
         private const val SCHEMA_VERSION_NUMBER: String = "8.1"
 
         private const val CUSTOMER_ACCOUNT_REQUIRED = "customer_account_required"
+        private const val STOREFRONT_PASSWORD_REQUIRED = "storefront_password_required"
+        private const val INVALID_CART = "invalid_cart"
 
         private fun dispatchMessageTemplate(body: String) = """|
         |if (window.MobileCheckoutSdk && window.MobileCheckoutSdk.dispatchMessage) {

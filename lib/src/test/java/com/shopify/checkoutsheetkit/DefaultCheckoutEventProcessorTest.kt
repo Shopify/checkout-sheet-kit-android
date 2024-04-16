@@ -127,7 +127,7 @@ class DefaultCheckoutEventProcessorTest {
                     }
                 }
 
-        val error = object : CheckoutException("error description", true) {}
+        val error = object : CheckoutUnavailableException("error description", "unknown", true) {}
 
         processor.onCheckoutFailed(error)
 

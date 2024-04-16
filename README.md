@@ -237,51 +237,7 @@ val processor = object : DefaultCheckoutEventProcessor(activity) {
     override fun onCheckoutFailed(error: CheckoutException) {
         /**
          * Called when the checkout encountered an error and has been aborted.
-         * CheckoutException will be one of the following:
          */
-
-        /**
-         * Issued when an internal error occurs within Shopify Checkout Sheet Kit. For example in communication between the kit and checkout.
-         * If the issue persists, it is recommended to open a bug report in https://github.com/Shopify/checkout-sheet-kit-android
-         */
-        class CheckoutSheetKitException(val errorDescription: String) : CheckoutException(errorDescription)
-
-        /**
-         * Issued when checkout has encountered an unexpected error, see subclasses for more information.
-         * if the issue persists, it is recommended to open a bug report in https://github.com/Shopify/checkout-sheet-kit-android
-         */
-        class CheckoutUnavailableException(val errorDescription: String) : CheckoutException(errorDescription)
-
-        /**
-        * Subclass of CheckoutUnavailableException, issued when Checkout is unavailable because a HTTP call resulted in an unexpected status code,
-        * this includes both client or server HTTP errors.
-        */
-        class HttpException(val errorDescription: String, val statusCode: Int) : CheckoutUnavailableException(errorDescription)
-
-        /**
-        * Subclass of CheckoutUnavailableException, issued when Checkout is unavailable for reasons unrelated to HTTP calls, (e.g. due to
-        * unhandled client-side errors).
-        */
-        class ClientException(val errorDescription: String) : CheckoutUnavailableException(errorDescription)
-
-        /**
-         * Issued when checkout is no longer available and will no longer be available with the checkout URL supplied.
-         * This may happen when the user has paused on checkout for a long period (hours) and then attempted to proceed again with the same checkout URL.
-         * In event of checkoutExpired, a new checkout URL will need to be generated.
-         */
-        class CheckoutExpiredException(val errorDescription: String) : CheckoutException()
-
-        /**
-         * Issued when the provided checkout URL results in an error related to a configuration error. E.g. a checkout is opened for a shop that uses 
-         * checkout.liquid (the SDK only supports stores migrated for extensibility).
-         */
-        class ConfigurationException(val errorDescription: String) : CheckoutException(errorDescription)
-
-        /**
-         * Issued when authentication is required. E.g. if a customer account is required to checkout, and the customer has not logged in.
-         */
-        class AuthenticationException(val errorDescription: String) : CheckoutException(errorDescription)
-    }
 
     override fun onCheckoutLinkClicked(uri: Uri) {
         // Called when the buyer clicks a link within the checkout experience:
@@ -296,25 +252,75 @@ val processor = object : DefaultCheckoutEventProcessor(activity) {
         // Use this to submit events to your analytics system, see below.
     }
 }
-
 ```
 
 > [!Note]
 > The `DefaultCheckoutEventProcessor` provides default implementations for current and future callback functions (such as `onLinkClicked()`), which can be overridden by clients wanting to change default behavior.
 
+#### Exception Hierarchy
+
+```mermaid
+---
+title: Checkout Sheet Kit Exception Hierarchy
+---
+classDiagram
+    CheckoutException <|-- ConfigurationException
+    CheckoutException <|-- CheckoutExpiredException
+    CheckoutException <|-- AuthenticationException
+    CheckoutException <|-- CheckoutSheetKitException
+    CheckoutException <|-- CheckoutUnavailableException
+    CheckoutUnavailableException <|-- HttpException
+    CheckoutUnavailableException <|-- ClientException
+
+    CheckoutException : +String errorDescription
+    CheckoutException : +String errorCode
+    CheckoutException : +bool isRecoverable
+
+    class ConfigurationException{
+        note: "Store or checkout configuration issues."
+    }
+    class CheckoutExpiredException{
+        note: "Expired or invalid carts/checkouts."
+    }
+    class AuthenticationException{
+        note: "Authentication issues."
+    }
+    class CheckoutUnavailableException{
+        note: "Unexpected errors."
+    }
+    class HttpException{
+        note: "Unexpected Http response"
+        +int statusCode
+    }
+    class ClientException{
+        note: "Unexpected client/web error"
+    }
+    class CheckoutSheetKitException{
+        note: "Error in Checkout Sheet Kit code"
+    }
+```
+
 #### Error handling guidance
 
-| `CheckoutError` | Description | Recommendation |
-| -- | -- | -- |
-| `CheckoutLiquidNotMigratedException(message)`                                                | `checkout.liquid` is not supported.                                     | Please upgrade to Extensibility. |
-| `CheckoutUnavailableException("Checkout is currently unavailable due to an internal error")` | A server error has been encountered.                                    | Attempt a retry, success will depend on the underlying cause. |
-| `CheckoutUnavailableException("Forbidden")`                                                  | Access to checkout is forbidden.                                        | This error is unrecoverable. |
-| `CheckoutUnavailableException("Customer account required")`                                  | A Customer account is required to proceed                               | Request customer login before proceeding to checkout. See [Customer Accounts API](https://github.com/Shopify/checkout-sheet-kit-android#customer-account-api) for more information. |
-| `CheckoutUnavailableException("Storefront password required")`                               | Access to checkout is password protected                                | We are working on ways to enable the Checkout Sheet Kit for usage with password protected stores |
-| `CheckoutExpiredException("Checkout already completed")`                                     | The checkout has already been completed                                 | If this is incorrect, create a new cart and open a new checkout URL. |
-| `CheckoutExpiredException("Cart is empty")`                                                  | The cart associated with the checkout is empty.                                           | Create a new cart and open a new checkout URL. |
-| `CheckoutExpiredException("Checkout is no longer available with the provided token. Please generate a new checkout URL")` | The cart or checkout is no longer available. | Create a new cart and open a new checkout URL. |
-| `SdkError(message)`                                                                                 | An error in Checkout Sheet Kit has occurred | These errors are unlikely to be recoverable |
+| Exception Class                | Error Code                     | Description | Recommendation |
+| ------------------------------ | ------------------------------ | ----------------------------------------------------------------------------- | ------------------------------------------------------ |
+| `ConfigurationException`       | 'checkout_liquid_not_migrated' | `checkout.liquid` is not supported.                                           | Upgrade to Extensibility.                              |
+| `ConfigurationException`       | 'storefront_password_required' | Access to checkout is password protected.                                     | We are working on ways to enable the Checkout Sheet Kit for usage with password protected stores. |
+| `ConfigurationException`       | 'unknown'                      | Other configuration issue, see error details for more info.                   | Resolve the configuration issue in the error message.  |
+| `CheckoutExpiredException`     | 'checkout_expired'             | The cart or checkout is no longer available or empty.                         | Create a new cart and open a new checkout URL.         |
+| `CheckoutExpiredException`     | 'invalid_cart'                 | The cart associated with the checkout is invalid (e.g. empty).                | Update / create new cart and re-open the checkout URL. |
+| `AuthenticationException`      | 'customer_account_required     | A Customer account is required to proceed.                                    | Request customer login before proceeding to checkout. See [Customer Accounts API](https://github.com/Shopify/checkout-sheet-kit-android#customer-account-api) for more information. |
+| `CheckoutSheetKitException`    | 'error_receiving_message'      | Checkout Sheet Kit failed to receive a message from checkout.                 | Fallback to checkout outside of Sheet Kit.             |
+| `CheckoutSheetKitException`    | 'error_sending_message'        | Checkout Sheet Kit failed to send a message to checkout.                      | Fallback to checkout outside of Sheet Kit.             |
+| `CheckoutSheetKitException`    | 'unknown'                      | An error in Checkout Sheet Kit has occurred, see error details for more info. | Fallback to checkout outside of Sheet Kit.             |
+| `HttpException`                | 'http_error'                   | An unexpected server error has been encountered.                              | Fallback to checkout outside of Sheet Kit.             |
+| `ClientException`              | 'client_error'                 | An unhandled client error was encountered.                                    | Fallback to checkout outside of Sheet Kit.             |
+| `CheckoutUnavailableException` | 'unknown'                      | Checkout is unavailable for another reason, see error details for more info.  | Fallback to checkout outside of Sheet Kit.             |
+
+See [Graceful degradation](todo) for fallback functionality provided by Checkout Sheet Kit.
+
+> [!Note]
+> Additional error codes may be added in the future.
 
 #### Integrating with Web Pixels, monitoring behavioral data
 
