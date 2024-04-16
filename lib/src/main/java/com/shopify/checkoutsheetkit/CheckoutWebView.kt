@@ -264,8 +264,8 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
                     errorCode == HTTP_NOT_FOUND && responseHeaders[DEPRECATED_REASON_HEADER] == LIQUID_NOT_SUPPORTED -> {
                         processor.onCheckoutViewFailedWithError(
                             ConfigurationException(
-                                errorDescription = "The checkout URL provided has resulted in an error. The store is still using " +
-                                "checkout.liquid, whereas the checkout SDK only supports checkout with extensibility.",
+                                errorDescription = "Storefronts using checkout.liquid are not supported. Please upgrade to Checkout " +
+                                    "Extensibility.",
                                 errorCode = ConfigurationException.CHECKOUT_LIQUID_NOT_MIGRATED,
                                 isRecoverable = false,
                            )

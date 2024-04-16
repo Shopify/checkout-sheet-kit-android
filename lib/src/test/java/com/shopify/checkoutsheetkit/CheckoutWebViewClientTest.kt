@@ -191,8 +191,7 @@ class CheckoutWebViewClientTest {
         val error = captor.firstValue
         assertThat(error).isInstanceOf(ConfigurationException::class.java)
         assertThat(error.errorDescription).isEqualTo(
-            "The checkout URL provided has resulted in an error. The store is still using checkout.liquid, whereas the checkout SDK only " +
-                "supports checkout with extensibility."
+            "Storefronts using checkout.liquid are not supported. Please upgrade to Checkout Extensibility."
         )
         assertThat(error.isRecoverable).isFalse()
         assertThat(error.errorCode).isEqualTo(ConfigurationException.CHECKOUT_LIQUID_NOT_MIGRATED)

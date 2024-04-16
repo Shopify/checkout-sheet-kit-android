@@ -32,7 +32,7 @@ internal class CheckoutErrorDecoder @JvmOverloads constructor(
 ) {
     fun decode(decodedMsg: WebToSdkEvent): CheckoutErrorPayload? = try {
         val errors = decoder.decodeFromString<List<CheckoutErrorPayload>>(decodedMsg.body)
-        errors.firstOrNull()
+        errors.first()
     } catch (e: Exception) {
         log.e("CheckoutBridge", "Failed to decode CheckoutErrorPayload", e)
         null
