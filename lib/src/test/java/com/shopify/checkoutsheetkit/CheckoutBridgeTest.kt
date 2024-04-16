@@ -324,7 +324,7 @@ class CheckoutBridgeTest {
             |   "name":"error",
             |   "body": "[{
             |       \"group\": \"configuration\",
-            |       \"reason\": \"Storefront password required\"
+            |       \"reason\": \"Storefront password required\",
             |       \"code\": \"storefront_password_required\"
             |   }]"
             |}
@@ -349,7 +349,7 @@ class CheckoutBridgeTest {
             |   "name":"error",
             |   "body": "[{
             |       \"group\": \"configuration\",
-            |       \"reason\": \"Customer account required\"
+            |       \"reason\": \"Customer account required\",
             |       \"code\": \"customer_account_required\"
             |   }]"
             |}

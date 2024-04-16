@@ -24,10 +24,15 @@ package com.shopify.checkoutsheetkit.errors
 
 import com.shopify.checkoutsheetkit.LogWrapper
 import com.shopify.checkoutsheetkit.WebToSdkEvent
+import com.shopify.checkoutsheetkit.errorevents.CheckoutErrorDecoder
+import com.shopify.checkoutsheetkit.errorevents.CheckoutErrorGroup
+import com.shopify.checkoutsheetkit.errorevents.CheckoutErrorPayload
 import kotlinx.serialization.json.Json
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.mockito.Mockito
+import java.lang.RuntimeException
 
 class CheckoutErrorDecoderTest {
 
@@ -49,7 +54,7 @@ class CheckoutErrorDecoderTest {
             ]""".trimMargin()
         )
 
-        val decoded = decoder.decode(event)
+        val decoded = decoder.decodeMessage(event)
 
         assertThat(decoded).isEqualTo(
             CheckoutErrorPayload(
@@ -77,7 +82,7 @@ class CheckoutErrorDecoderTest {
             ]""".trimMargin()
         )
 
-        val decoded = decoder.decode(event)
+        val decoded = decoder.decodeMessage(event)
 
         assertThat(decoded).isEqualTo(
             CheckoutErrorPayload(
@@ -91,7 +96,7 @@ class CheckoutErrorDecoderTest {
     }
 
     @Test
-    fun `should return null if decoding fails`() {
+    fun `should throw if decoding fails`() {
         val event = WebToSdkEvent(
             name = "error",
             body = """[
@@ -103,9 +108,7 @@ class CheckoutErrorDecoderTest {
             ]""".trimMargin()
         )
 
-        val decoded = decoder.decode(event)
-
-        assertThat(decoded).isNull()
+        assertThrows(RuntimeException::class.java) { decoder.decodeMessage(event) }
     }
 
     @Test
@@ -130,8 +133,8 @@ class CheckoutErrorDecoderTest {
             ]""".trimMargin()
         )
 
-        val decoded = decoder.decode(event)
+        val decoded = decoder.decodeMessage(event)
 
-        assertThat(decoded?.code).isEqualTo("sdk_not_enabled")
+        assertThat(decoded.code).isEqualTo("sdk_not_enabled")
     }
 }

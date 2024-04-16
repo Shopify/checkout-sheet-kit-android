@@ -28,9 +28,9 @@ import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.COMPLETE
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.ERROR
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.MODAL
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.WEB_PIXELS
-import com.shopify.checkoutsheetkit.errors.CheckoutErrorDecoder
-import com.shopify.checkoutsheetkit.errors.CheckoutErrorGroup
-import com.shopify.checkoutsheetkit.errors.CheckoutErrorPayload
+import com.shopify.checkoutsheetkit.errorevents.CheckoutErrorDecoder
+import com.shopify.checkoutsheetkit.errorevents.CheckoutErrorGroup
+import com.shopify.checkoutsheetkit.errorevents.CheckoutErrorPayload
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEventDecoder
 import com.shopify.checkoutsheetkit.pixelevents.PixelEventDecoder
 import kotlinx.serialization.Serializable
@@ -97,8 +97,8 @@ internal class CheckoutBridge(
                 }
 
                 ERROR -> {
-                    checkoutErrorDecoder.decode(decodedMsg)?.let { decodedError ->
-                        handleDecodedError(decodedError)
+                    checkoutErrorDecoder.decode(decodedMsg)?.let { exception ->
+                        eventProcessor.onCheckoutViewFailedWithError(exception)
                     }
                 }
 
@@ -138,63 +138,9 @@ internal class CheckoutBridge(
         }
     }
 
-    private fun handleDecodedError(error: CheckoutErrorPayload) {
-        when {
-            error.group == CheckoutErrorGroup.CONFIGURATION && error.code == CUSTOMER_ACCOUNT_REQUIRED -> {
-                eventProcessor.onCheckoutViewFailedWithError(
-                    AuthenticationException(
-                        errorDescription = error.reason ?: "Customer account required.",
-                        errorCode = AuthenticationException.CUSTOMER_ACCOUNT_REQUIRED,
-                        isRecoverable = false,
-                    ),
-                )
-            }
-            error.group == CheckoutErrorGroup.CONFIGURATION -> {
-                eventProcessor.onCheckoutViewFailedWithError(
-                    ConfigurationException(
-                        errorDescription = error.reason ?: "Storefront configuration error.",
-                        errorCode = if (error.code == STOREFRONT_PASSWORD_REQUIRED) {
-                            ConfigurationException.STOREFRONT_PASSWORD_REQUIRED }
-                            else  {
-                                ConfigurationException.UNKNOWN
-                            },
-                        isRecoverable = false,
-                    ),
-                )
-            }
-            error.group == CheckoutErrorGroup.UNRECOVERABLE -> eventProcessor.onCheckoutViewFailedWithError(
-                ClientException(
-                    errorDescription = error.reason,
-                    isRecoverable = true,
-                ),
-            )
-            error.group == CheckoutErrorGroup.EXPIRED && error.code == INVALID_CART -> eventProcessor.onCheckoutViewFailedWithError(
-                CheckoutExpiredException(
-                    errorDescription = error.reason,
-                    errorCode = CheckoutExpiredException.INVALID_CART,
-                    isRecoverable = false,
-                ),
-            )
-            error.group == CheckoutErrorGroup.EXPIRED -> eventProcessor.onCheckoutViewFailedWithError(
-                CheckoutExpiredException(
-                    errorDescription = error.reason,
-                    errorCode = CheckoutExpiredException.CHECKOUT_EXPIRED,
-                    isRecoverable = false,
-                )
-            )
-            else -> {
-                // The remaining error groups are unsupported and will be ignored
-            }
-        }
-    }
-
     companion object {
         private const val SDK_VERSION_NUMBER: String = BuildConfig.SDK_VERSION
         private const val SCHEMA_VERSION_NUMBER: String = "8.1"
-
-        private const val CUSTOMER_ACCOUNT_REQUIRED = "customer_account_required"
-        private const val STOREFRONT_PASSWORD_REQUIRED = "storefront_password_required"
-        private const val INVALID_CART = "invalid_cart"
 
         private fun dispatchMessageTemplate(body: String) = """|
         |if (window.MobileCheckoutSdk && window.MobileCheckoutSdk.dispatchMessage) {

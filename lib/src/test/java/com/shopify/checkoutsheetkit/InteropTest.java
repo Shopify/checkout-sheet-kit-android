@@ -7,6 +7,7 @@ import android.app.Activity;
 import androidx.activity.ComponentActivity;
 import androidx.annotation.NonNull;
 
+import com.shopify.checkoutsheetkit.errorevents.CheckoutErrorDecoder;
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent;
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEventDecoder;
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent;
@@ -85,9 +86,7 @@ public class InteropTest {
         WebToSdkEvent webEvent = new WebToSdkEvent("webPixels", eventString);
         Json json = Json.Default;
 
-        PixelEventDecoder decoder = new PixelEventDecoder(
-            json
-        );
+        PixelEventDecoder decoder = new PixelEventDecoder(json);
 
         PixelEvent event = decoder.decode(webEvent);
 
@@ -98,6 +97,30 @@ public class InteropTest {
 
         assertThat(checkoutStartedOrderId).isEqualTo(orderId);
      }
+
+    @SuppressWarnings("all")
+    @Test
+    public void canAccessFieldsOnExceptions() {
+        String eventString = "[{" +
+            "\"group\": \"configuration\"," +
+            "\"reason\": \"Customer account required\"," +
+            "\"code\": \"customer_account_required\"" +
+        "}]";
+
+        WebToSdkEvent webEvent = new WebToSdkEvent("error", eventString);
+        Json json = JsonKt.Json(Json.Default, b -> {
+            b.setIgnoreUnknownKeys(true);
+            return null;
+        });
+        CheckoutErrorDecoder decoder = new CheckoutErrorDecoder(json);
+
+        CheckoutException exception = decoder.decode(webEvent);
+
+        assertThat(exception.getClass()).isEqualTo(AuthenticationException.class);
+        assertThat(exception.getErrorCode()).isEqualTo("customer_account_required");
+        assertThat(exception.getErrorDescription()).isEqualTo("Customer account required");
+        assertThat(exception.isRecoverable()).isEqualTo(false);
+    }
 
     @SuppressWarnings("all")
     @Test
