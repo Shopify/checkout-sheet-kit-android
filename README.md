@@ -302,7 +302,7 @@ classDiagram
 
 #### Error handling guidance
 
-| Exception Class                | Error Code                     | Description | Recommendation |
+| Exception Class                | Error Code                     | Description                                                                   | Recommendation                                         |
 | ------------------------------ | ------------------------------ | ----------------------------------------------------------------------------- | ------------------------------------------------------ |
 | `ConfigurationException`       | 'checkout_liquid_not_migrated' | `checkout.liquid` is not supported.                                           | Upgrade to Extensibility.                              |
 | `ConfigurationException`       | 'storefront_password_required' | Access to checkout is password protected.                                     | We are working on ways to enable the Checkout Sheet Kit for usage with password protected stores. |
@@ -317,7 +317,7 @@ classDiagram
 | `ClientException`              | 'client_error'                 | An unhandled client error was encountered.                                    | Fallback to checkout outside of Sheet Kit.             |
 | `CheckoutUnavailableException` | 'unknown'                      | Checkout is unavailable for another reason, see error details for more info.  | Fallback to checkout outside of Sheet Kit.             |
 
-See [Graceful degradation](todo) for fallback functionality provided by Checkout Sheet Kit.
+See [Graceful degradation](todo) for fallback functionality provided by Checkout Sheet Kit. If you provide your own fallback, `error.isRecoverable` provides a more general way of deciding whether to fallback.
 
 > [!Note]
 > Additional error codes may be added in the future.
