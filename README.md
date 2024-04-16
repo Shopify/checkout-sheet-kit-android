@@ -272,6 +272,7 @@ classDiagram
     CheckoutUnavailableException <|-- HttpException
     CheckoutUnavailableException <|-- ClientException
 
+    <<Abstract>> CheckoutException
     CheckoutException : +String errorDescription
     CheckoutException : +String errorCode
     CheckoutException : +bool isRecoverable
