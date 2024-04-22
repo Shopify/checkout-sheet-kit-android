@@ -2,8 +2,6 @@ package com.shopify.checkoutsheetkit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import android.app.Activity;
-
 import androidx.activity.ComponentActivity;
 import androidx.annotation.NonNull;
 
@@ -15,50 +13,61 @@ import com.shopify.checkoutsheetkit.pixelevents.PixelEventDecoder;
 import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent;
 import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEventData;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.android.controller.ActivityController;
 
 import kotlinx.serialization.json.Json;
 import kotlinx.serialization.json.JsonKt;
 
 @RunWith(RobolectricTestRunner.class)
 public class InteropTest {
-
-    private Activity activity = null;
+    private Configuration initialConfiguration = null;
 
     @Before
     public void setUp() {
-        activity = Robolectric.buildActivity(ComponentActivity.class).get();
+        initialConfiguration = ShopifyCheckoutSheetKit.getConfiguration();
+    }
+
+    @After
+    public void tearDown() {
+        ShopifyCheckoutSheetKit.configure(config -> {
+            config.setColorScheme(initialConfiguration.getColorScheme());
+            config.setPreloading(initialConfiguration.getPreloading());
+        });
     }
 
     @Test
     public void canInstantiateCustomEventProcessorWithDefaultArg() {
-        DefaultCheckoutEventProcessor processor = new DefaultCheckoutEventProcessor(activity) {
-            @Override
-            public void onWebPixelEvent(@NonNull PixelEvent event) {
+        try (ActivityController<ComponentActivity> controller = Robolectric.buildActivity(ComponentActivity.class)) {
+            DefaultCheckoutEventProcessor processor = new DefaultCheckoutEventProcessor(controller.get()) {
+                @Override
+                public void onWebPixelEvent(@NonNull PixelEvent event) {
 
-            }
+                }
 
-            @Override
-            public void onCheckoutCompleted(@NonNull CheckoutCompletedEvent checkoutCompletedEvent) {
+                @Override
+                public void onCheckoutCompleted(@NonNull CheckoutCompletedEvent checkoutCompletedEvent) {
 
-            }
+                }
 
-            @Override
-            public void onCheckoutFailed(@NonNull CheckoutException error) {
+                @Override
+                public void onCheckoutFailed(@NonNull CheckoutException error) {
 
-            }
+                }
 
-            @Override
-            public void onCheckoutCanceled() {
+                @Override
+                public void onCheckoutCanceled() {
 
-            }
-        };
+                }
+            };
 
-        assertThat(processor).isNotNull();
+            assertThat(processor).isNotNull();
+        }
     }
 
     // java tests lack access to internal kotlin classes in the project
@@ -138,6 +147,19 @@ public class InteropTest {
                 .isEqualTo("gid://shopify/OrderIdentity/9697125302294");
         assertThat(event.getOrderDetails().getCart().getLines().get(0).getPrice().getAmount())
                 .isEqualTo(8.0);
+    }
+
+    @Test
+    public void canConfigureCheckoutSheetKit() {
+        ShopifyCheckoutSheetKit.configure(configuration -> {
+            configuration.setPreloading(new Preloading(false));
+            configuration.setColorScheme(new ColorScheme.Dark());
+        });
+
+        Configuration configuration = ShopifyCheckoutSheetKit.getConfiguration();
+
+        assertThat(configuration.getColorScheme().getId()).isEqualTo("dark");
+        assertThat(configuration.getPreloading().getEnabled()).isEqualTo(false);
     }
 
     private final String EXAMPLE_EVENT = "{\n" +

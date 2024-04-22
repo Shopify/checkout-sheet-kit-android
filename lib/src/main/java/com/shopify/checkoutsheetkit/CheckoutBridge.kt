@@ -29,8 +29,6 @@ import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.ERROR
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.MODAL
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.WEB_PIXELS
 import com.shopify.checkoutsheetkit.errorevents.CheckoutErrorDecoder
-import com.shopify.checkoutsheetkit.errorevents.CheckoutErrorGroup
-import com.shopify.checkoutsheetkit.errorevents.CheckoutErrorPayload
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEventDecoder
 import com.shopify.checkoutsheetkit.pixelevents.PixelEventDecoder
 import kotlinx.serialization.Serializable

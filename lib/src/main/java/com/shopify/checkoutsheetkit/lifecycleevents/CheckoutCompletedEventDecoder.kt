@@ -41,16 +41,7 @@ internal class CheckoutCompletedEventDecoder @JvmOverloads constructor(
             decoder.decodeFromString<CheckoutCompletedEvent>(decodedMsg.body)
         } catch (e: Exception) {
             log.e("CheckoutBridge", "Failed to decode CheckoutCompleted event", e)
-            CheckoutCompletedEvent(
-                orderDetails = OrderDetails(
-                    id = "",
-                    cart = CartInfo(
-                        price = Price(),
-                        token = "",
-                        lines = emptyList()
-                    )
-                )
-            )
+            emptyCompletedEvent()
         }
     }
 }
