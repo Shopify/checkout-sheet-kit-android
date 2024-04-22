@@ -72,16 +72,10 @@ internal class CheckoutErrorDecoder @JvmOverloads constructor(
                     errorDescription = this.reason,
                     isRecoverable = true,
                 )
-            this.group == CheckoutErrorGroup.EXPIRED && this.code == INVALID_CART ->
-                CheckoutExpiredException(
-                    errorDescription = this.reason,
-                    errorCode = CheckoutExpiredException.INVALID_CART,
-                    isRecoverable = false,
-                )
             this.group == CheckoutErrorGroup.EXPIRED ->
                 CheckoutExpiredException(
                     errorDescription = this.reason,
-                    errorCode = CheckoutExpiredException.CHECKOUT_EXPIRED,
+                    errorCode = this.expiredErrorCode(),
                     isRecoverable = false,
                 )
             else -> {
@@ -91,9 +85,18 @@ internal class CheckoutErrorDecoder @JvmOverloads constructor(
         }
     }
 
+    private fun CheckoutErrorPayload.expiredErrorCode(): String {
+        return when (this.code) {
+            INVALID_CART -> CheckoutExpiredException.INVALID_CART
+            CART_COMPLETED -> CheckoutExpiredException.CART_COMPLETED
+            else -> CheckoutExpiredException.CART_EXPIRED
+        }
+    }
+
     companion object {
         private const val CUSTOMER_ACCOUNT_REQUIRED = "customer_account_required"
         private const val STOREFRONT_PASSWORD_REQUIRED = "storefront_password_required"
         private const val INVALID_CART = "invalid_cart"
+        private const val CART_COMPLETED = "cart_completed"
     }
 }

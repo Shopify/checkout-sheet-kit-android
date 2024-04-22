@@ -46,6 +46,7 @@ public class CheckoutSheetKitException(
         public companion object {
             public const val ERROR_SENDING_MESSAGE_TO_CHECKOUT: String = "error_sending_message"
             public const val ERROR_RECEIVING_MESSAGE_FROM_CHECKOUT: String = "error_receiving_message"
+            public const val RENDER_PROCESS_GONE: String = "render_process_gone"
             public const val UNKNOWN: String = "unknown"
         }
 }
@@ -99,7 +100,8 @@ public class CheckoutExpiredException @JvmOverloads constructor(
     isRecoverable,
 ) {
         public companion object {
-            public const val CHECKOUT_EXPIRED: String = "checkout_expired"
+            public const val CART_EXPIRED: String = "cart_expired"
+            public const val CART_COMPLETED: String = "cart_completed"
             public const val INVALID_CART: String = "invalid_cart"
             public const val UNKNOWN: String = "unknown"
         }

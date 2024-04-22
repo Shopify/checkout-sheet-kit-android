@@ -117,3 +117,16 @@ public data class Price(
     public val taxes: MoneyV2? = null,
     public val total: MoneyV2? = null,
 )
+
+internal fun emptyCompletedEvent(id: String? = null): CheckoutCompletedEvent {
+    return CheckoutCompletedEvent(
+        orderDetails = OrderDetails(
+            cart = CartInfo(
+                token = "",
+                lines = emptyList(),
+                price = Price()
+            ),
+            id = id ?: "",
+        )
+    )
+}

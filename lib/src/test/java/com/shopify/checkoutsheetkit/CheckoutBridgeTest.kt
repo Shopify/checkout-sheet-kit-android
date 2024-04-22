@@ -248,7 +248,7 @@ class CheckoutBridgeTest {
             |   "name":"error",
             |   "body": "[{
             |       \"group\": \"expired\",
-            |       \"reason\": \"Cart is invalid\",
+            |       \"reason\": \"Checkout has been completed\",
             |       \"flowType\": \"regular\",
             |       \"code\": \"cart_completed\"
             |   }]"
@@ -262,9 +262,9 @@ class CheckoutBridgeTest {
 
         val error = captor.firstValue
         assertThat(error).isInstanceOf(CheckoutExpiredException::class.java)
-        assertThat(error.message).isEqualTo("Cart is invalid")
+        assertThat(error.message).isEqualTo("Checkout has been completed")
         assertThat(error.isRecoverable).isFalse()
-        assertThat(error.errorCode).isEqualTo(CheckoutExpiredException.CHECKOUT_EXPIRED)
+        assertThat(error.errorCode).isEqualTo(CheckoutExpiredException.CART_COMPLETED)
     }
 
 
@@ -290,7 +290,7 @@ class CheckoutBridgeTest {
             "Checkout is no longer available with the provided token. Please generate a new checkout URL"
         )
         assertThat(error.isRecoverable).isFalse()
-        assertThat(error.errorCode).isEqualTo(CheckoutExpiredException.CHECKOUT_EXPIRED)
+        assertThat(error.errorCode).isEqualTo(CheckoutExpiredException.CART_EXPIRED)
     }
 
     @Test

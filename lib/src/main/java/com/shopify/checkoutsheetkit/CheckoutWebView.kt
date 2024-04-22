@@ -33,7 +33,6 @@ import android.os.Looper
 import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.View
-import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.webkit.RenderProcessGoneDetail
@@ -165,10 +164,13 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !detail.didCrash()) {
                 // Renderer was killed because system ran out of memory.
-
-                // Removing the view from `CheckoutWebViewContainer will trigger a cache clear
-                // and call webView.destroy()
-                (view.parent as ViewGroup).removeView(view)
+                checkoutBridge.getEventProcessor().onCheckoutViewFailedWithError(
+                    CheckoutSheetKitException(
+                        errorDescription = "Render process gone.",
+                        errorCode = CheckoutSheetKitException.RENDER_PROCESS_GONE,
+                        isRecoverable = true,
+                    )
+                )
                 true
             } else {
                 false
@@ -274,7 +276,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
                     errorCode == HTTP_GONE -> processor.onCheckoutViewFailedWithError(
                         CheckoutExpiredException(
                             isRecoverable = false,
-                            errorCode = CheckoutExpiredException.CHECKOUT_EXPIRED
+                            errorCode = CheckoutExpiredException.CART_EXPIRED
                         ),
                     )
                     else -> processor.onCheckoutViewFailedWithError(

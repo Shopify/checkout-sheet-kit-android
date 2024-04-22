@@ -32,6 +32,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
@@ -117,7 +118,7 @@ class CheckoutWebViewClientTest {
         verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
         assertThat(captor.firstValue).isInstanceOf(CheckoutExpiredException::class.java)
         assertThat(captor.firstValue.isRecoverable).isFalse()
-        assertThat(captor.firstValue.errorCode).isEqualTo(CheckoutExpiredException.CHECKOUT_EXPIRED)
+        assertThat(captor.firstValue.errorCode).isEqualTo(CheckoutExpiredException.CART_EXPIRED)
     }
 
     @Test
@@ -139,7 +140,7 @@ class CheckoutWebViewClientTest {
         verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
         assertThat(captor.firstValue).isInstanceOf(CheckoutExpiredException::class.java)
         assertThat(captor.firstValue.isRecoverable).isFalse()
-        assertThat(captor.firstValue.errorCode).isEqualTo(CheckoutExpiredException.CHECKOUT_EXPIRED)
+        assertThat(captor.firstValue.errorCode).isEqualTo(CheckoutExpiredException.CART_EXPIRED)
     }
 
     @Test
@@ -317,7 +318,7 @@ class CheckoutWebViewClientTest {
 
     @Test
     fun `onRenderProcessGone should return false if sdk version is too low to check detail#didCrash()`() {
-        val view = viewWithProcessor(activity).withParent()
+        val view = viewWithProcessor(activity)
         val webViewClient = view.CheckoutWebViewClient()
         val detail = mock<RenderProcessGoneDetail>()
         whenever(detail.didCrash()).thenReturn(false)
@@ -325,13 +326,13 @@ class CheckoutWebViewClientTest {
         val result = webViewClient.onRenderProcessGone(view, detail)
 
         assertThat(result).isFalse
-        assertThat(view.parent).isNotNull
+        verify(checkoutWebViewEventProcessor, never()).onCheckoutViewFailedWithError(any())
     }
 
     @Config(sdk = [26])
     @Test
     fun `onRenderProcessGone should do nothing if the renderer crashed`() {
-        val view = viewWithProcessor(activity).withParent()
+        val view = viewWithProcessor(activity)
         val webViewClient = view.CheckoutWebViewClient()
         val detail = mock<RenderProcessGoneDetail>()
         whenever(detail.didCrash()).thenReturn(true)
@@ -339,13 +340,13 @@ class CheckoutWebViewClientTest {
         val result = webViewClient.onRenderProcessGone(view, detail)
 
         assertThat(result).isFalse
-        assertThat(view.parent).isNotNull
+        verify(checkoutWebViewEventProcessor, never()).onCheckoutViewFailedWithError(any())
     }
 
     @Config(sdk = [26])
     @Test
-    fun `onRenderProcessGone should remove the view from its parent if the render process crashed due to low memory`() {
-        val view = viewWithProcessor(activity).withParent()
+    fun `onRenderProcessGone should call onCheckoutFailed if the render process crashed due to low memory`() {
+        val view = viewWithProcessor(activity)
         val webViewClient = view.CheckoutWebViewClient()
         val detail = mock<RenderProcessGoneDetail>()
         whenever(detail.didCrash()).thenReturn(false)
@@ -353,7 +354,11 @@ class CheckoutWebViewClientTest {
         val result = webViewClient.onRenderProcessGone(view, detail)
 
         assertThat(result).isTrue
-        assertThat(view.parent).isNull()
+        val captor = argumentCaptor<CheckoutSheetKitException>()
+        verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
+        assertThat(captor.firstValue).isInstanceOf(CheckoutSheetKitException::class.java)
+        assertThat(captor.firstValue.message).isEqualTo("Render process gone.")
+        assertThat(captor.firstValue.errorCode).isEqualTo(CheckoutSheetKitException.RENDER_PROCESS_GONE)
     }
 
     private fun mockWebRequest(uri: Uri, forMainFrame: Boolean = false): WebResourceRequest {
@@ -391,12 +396,6 @@ class CheckoutWebViewClientTest {
         whenever(mock.reasonPhrase).thenReturn(description)
         whenever(mock.responseHeaders).thenReturn(headers)
         return mock
-    }
-
-    private fun CheckoutWebView.withParent(): CheckoutWebView {
-        val container = CheckoutWebViewContainer(activity)
-        container.addView(this)
-        return this
     }
 
     private fun CheckoutWebView.toCacheEntry(key: String): CheckoutWebView.CheckoutWebViewCacheEntry {
