@@ -151,7 +151,7 @@ class CheckoutWebViewTest {
     fun `should recover from errors`() {
         Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
             val view = CheckoutWebView(activityController.get())
-            assertThat(view.recoverErrors ).isTrue()
+            assertThat(view.recoverErrors).isTrue()
         }
     }
 

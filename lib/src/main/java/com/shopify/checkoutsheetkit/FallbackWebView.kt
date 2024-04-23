@@ -72,7 +72,7 @@ internal class FallbackWebView(context: Context, attributeSet: AttributeSet? = n
             }
         }
 
-        private fun getOrderIdFromQueryString(uri: Uri): String? = uri.getQueryParameter("orderId")
+        private fun getOrderIdFromQueryString(uri: Uri): String? = uri.getQueryParameter("order_id")
         private fun isConfirmation(uri: Uri) = uri.pathSegments.any { pathSegment -> typRegex.matches(pathSegment) }
     }
 }

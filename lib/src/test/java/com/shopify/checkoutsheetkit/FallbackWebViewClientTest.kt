@@ -86,7 +86,7 @@ class FallbackWebViewClientTest {
             view.setEventProcessor(mockProcessor)
 
             val client = view.FallbackWebViewClient()
-            client.onPageFinished(view, "https://abc.com/cn-12345678/thank-you?orderId=123")
+            client.onPageFinished(view, "https://abc.com/cn-12345678/thank-you?order_id=123")
 
             verify(mockProcessor).onCheckoutViewComplete(emptyCompletedEvent(id = "123"))
         }

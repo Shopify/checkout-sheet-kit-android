@@ -312,13 +312,13 @@ classDiagram
 | `CheckoutExpiredException`     | 'cart_completed'               | The cart associated with the checkout has completed checkout.                 | Create new cart and open a new checkout URL. |
 | `CheckoutExpiredException`     | 'invalid_cart'                 | The cart associated with the checkout is invalid (e.g. empty).                | Create a new cart and open a new checkout URL. |
 | `AuthenticationException`      | 'customer_account_required     | A Customer account is required to proceed.                                    | Request customer login before proceeding to checkout. See [Customer Accounts API](https://github.com/Shopify/checkout-sheet-kit-android#customer-account-api) for more information. |
-| `CheckoutSheetKitException`    | 'error_receiving_message'      | Checkout Sheet Kit failed to receive a message from checkout.                 | Fallback to checkout outside of Sheet Kit.             |
-| `CheckoutSheetKitException`    | 'error_sending_message'        | Checkout Sheet Kit failed to send a message to checkout.                      | Fallback to checkout outside of Sheet Kit.             |
-| `CheckoutSheetKitException`    | 'render_process_gone'          | The render process for the checkout WebView is gone.                          | Fallback to checkout outside of Sheet Kit.             |
-| `CheckoutSheetKitException`    | 'unknown'                      | An error in Checkout Sheet Kit has occurred, see error details for more info. | Fallback to checkout outside of Sheet Kit.             |
-| `HttpException`                | 'http_error'                   | An unexpected server error has been encountered.                              | Fallback to checkout outside of Sheet Kit.             |
-| `ClientException`              | 'client_error'                 | An unhandled client error was encountered.                                    | Fallback to checkout outside of Sheet Kit.             |
-| `CheckoutUnavailableException` | 'unknown'                      | Checkout is unavailable for another reason, see error details for more info.  | Fallback to checkout outside of Sheet Kit.             |
+| `CheckoutSheetKitException`    | 'error_receiving_message'      | Checkout Sheet Kit failed to receive a message from checkout.                 | Show checkout in a fallback WebView.                   |
+| `CheckoutSheetKitException`    | 'error_sending_message'        | Checkout Sheet Kit failed to send a message to checkout.                      | Show checkout in a fallback WebView.                   |
+| `CheckoutSheetKitException`    | 'render_process_gone'          | The render process for the checkout WebView is gone.                          | Show checkout in a fallback WebView.                   |
+| `CheckoutSheetKitException`    | 'unknown'                      | An error in Checkout Sheet Kit has occurred, see error details for more info. | Show checkout in a fallback WebView.                   |
+| `HttpException`                | 'http_error'                   | An unexpected server error has been encountered.                              | Show checkout in a fallback WebView.                   |
+| `ClientException`              | 'client_error'                 | An unhandled client error was encountered.                                    | Show checkout in a fallback WebView.                   |
+| `CheckoutUnavailableException` | 'unknown'                      | Checkout is unavailable for another reason, see error details for more info.  | Show checkout in a fallback WebView.                   |
 
 See [Error recovery](#error-recovery) for fallback functionality provided by Checkout Sheet Kit. If you provide your own fallback, `error.isRecoverable` provides a more general way of deciding whether to fallback.
 

@@ -77,7 +77,7 @@ class FallbackWebViewTest {
     fun `should not recover from errors`() {
         Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
             val view = FallbackWebView(activityController.get())
-            assertThat(view.recoverErrors ).isFalse()
+            assertThat(view.recoverErrors).isFalse()
         }
     }
 }
