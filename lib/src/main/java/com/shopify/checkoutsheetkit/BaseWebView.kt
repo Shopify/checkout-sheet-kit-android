@@ -137,6 +137,7 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
         internal open fun isRecoverable(statusCode: Int): Boolean {
             return when (statusCode) {
                 TOO_MANY_REQUESTS -> recoverErrors
+                ERROR_BAD_URL -> false
                 in CLIENT_ERROR -> false
                 else -> recoverErrors
             }
