@@ -46,7 +46,7 @@ class FallbackWebViewTest {
             assertThat(view.visibility).isEqualTo(VISIBLE)
             assertThat(view.settings.javaScriptEnabled).isTrue
             assertThat(view.settings.domStorageEnabled).isTrue
-            assertThat(view.settings.userAgentString).contains("ShopifyCheckoutSheetKitRecovery")
+            assertThat(view.settings.userAgentString).contains("ShopifyCheckoutSDK/${BuildConfig.SDK_VERSION} (noconnect")
             assertThat(view.layoutParams.height).isEqualTo(MATCH_PARENT)
             assertThat(view.layoutParams.width).isEqualTo(MATCH_PARENT)
             assertThat(view.id).isNotNull

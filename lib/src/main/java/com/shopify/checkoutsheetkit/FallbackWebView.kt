@@ -34,7 +34,7 @@ internal class FallbackWebView(context: Context, attributeSet: AttributeSet? = n
     init {
         webViewClient = FallbackWebViewClient()
         val theme = ShopifyCheckoutSheetKit.configuration.colorScheme.id
-        val suffix = "ShopifyCheckoutSheetKitRecovery/${BuildConfig.SDK_VERSION} (theme=$theme)"
+        val suffix = "ShopifyCheckoutSDK/${BuildConfig.SDK_VERSION} (noconnect;$theme;recovery)"
         settings.userAgentString = "${settings.userAgentString} $suffix"
     }
 
