@@ -158,7 +158,7 @@ class CheckoutDialogTest {
         assertThat(checkoutDialog.containsChildOfType(FallbackWebView::class.java)).isTrue()
         assertThat(checkoutDialog.containsChildOfType(CheckoutWebView::class.java)).isFalse()
         verify(mockEventProcessor, never()).onCheckoutCanceled()
-        verify(mockEventProcessor, never()).onCheckoutFailed(any())
+        verify(mockEventProcessor).onCheckoutFailed(any())
     }
 
     @Test
