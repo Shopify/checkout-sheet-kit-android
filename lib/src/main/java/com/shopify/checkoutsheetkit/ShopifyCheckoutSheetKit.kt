@@ -22,6 +22,7 @@
  */
 package com.shopify.checkoutsheetkit
 
+import android.app.Dialog
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -104,7 +105,7 @@ public object ShopifyCheckoutSheetKit {
         checkoutUrl: String,
         context: ComponentActivity,
         checkoutEventProcessor: T
-    ): CheckoutDialog? {
+    ): Dialog? {
         if (context.isDestroyed || context.isFinishing) {
             return null
         }
