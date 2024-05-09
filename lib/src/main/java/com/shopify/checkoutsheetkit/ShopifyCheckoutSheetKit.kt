@@ -97,15 +97,16 @@ public object ShopifyCheckoutSheetKit {
      * @param context The context the checkout is being presented from
      * @param checkoutEventProcessor provides callbacks to allow clients to listen for and respond to checkout lifecycle events such as
      * (failure, completion, cancellation, external link clicks).
+     * @return the Dialog presented
      */
     @JvmStatic
     public fun <T: DefaultCheckoutEventProcessor> present(
         checkoutUrl: String,
         context: ComponentActivity,
         checkoutEventProcessor: T
-    ) {
+    ): CheckoutDialog? {
         if (context.isDestroyed || context.isFinishing) {
-            return
+            return null
         }
         val dialog = CheckoutDialog(checkoutUrl, checkoutEventProcessor, context)
         context.lifecycle.addObserver(object: DefaultLifecycleObserver {
@@ -115,5 +116,6 @@ public object ShopifyCheckoutSheetKit {
             }
         })
         dialog.start(context)
+        return dialog
     }
 }
