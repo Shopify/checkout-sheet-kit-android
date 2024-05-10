@@ -32,6 +32,7 @@ package com.shopify.checkoutsheetkit
 public data class Configuration internal constructor(
     var colorScheme: ColorScheme = ColorScheme.Automatic(),
     var preloading: Preloading = Preloading(),
+    var errorRecovery: ErrorRecovery = object : ErrorRecovery {},
 )
 
 /**
@@ -42,3 +43,12 @@ public data class Configuration internal constructor(
 public data class Preloading(
     val enabled: Boolean = true
 )
+
+public interface ErrorRecovery {
+    public fun preRecoveryActions(exception: CheckoutException, checkoutUrl: String) {
+        // logging or pre-recovery cleanup can be added here
+    }
+    public fun shouldRecoverFromError(checkoutException: CheckoutException): Boolean {
+        return checkoutException.isRecoverable
+    }
+}

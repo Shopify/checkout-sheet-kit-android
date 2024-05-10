@@ -23,9 +23,29 @@
 package com.shopify.checkoutsheetkit
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
 
 class ConfigurationTest {
+
+    private lateinit var initialConfiguration: Configuration
+
+    @Before
+    fun setUp() {
+        initialConfiguration = ShopifyCheckoutSheetKit.configuration
+    }
+
+    @After
+    fun tearDown() {
+        ShopifyCheckoutSheetKit.configure {
+            it.colorScheme = initialConfiguration.colorScheme
+            it.preloading = initialConfiguration.preloading
+            it.errorRecovery = initialConfiguration.errorRecovery
+        }
+    }
 
     @Test
     fun `can set colorScheme via configure function - light`() {
@@ -79,5 +99,57 @@ class ConfigurationTest {
         }
 
         assertThat(ShopifyCheckoutSheetKit.getConfiguration().preloading.enabled).isFalse
+    }
+
+    @Test
+    fun `by default attempt to recover from recoverable errors`() {
+        val recoverableException = recoverableException()
+
+        val shouldRecover = ShopifyCheckoutSheetKit.configuration.errorRecovery.shouldRecoverFromError(recoverableException)
+
+        assertThat(shouldRecover).isEqualTo(true)
+    }
+
+    @Test
+    fun `can disable error recovery`() {
+        val recoverableException = recoverableException()
+        ShopifyCheckoutSheetKit.configure {
+            it.errorRecovery = object: ErrorRecovery {
+                override fun shouldRecoverFromError(checkoutException: CheckoutException) = false
+            }
+        }
+
+        val shouldRecover = ShopifyCheckoutSheetKit.configuration.errorRecovery.shouldRecoverFromError(recoverableException)
+
+        assertThat(shouldRecover).isEqualTo(false)
+    }
+
+    @Test
+    fun `can set pre-recovery actions`() {
+        val mockFn = mock<Function0<Unit>>()
+
+        val recoverableException = recoverableException()
+        ShopifyCheckoutSheetKit.configure {
+            it.errorRecovery = object: ErrorRecovery {
+                override fun preRecoveryActions(exception: CheckoutException, checkoutUrl: String) {
+                    mockFn.invoke()
+                }
+            }
+        }
+
+        ShopifyCheckoutSheetKit.configuration.errorRecovery.preRecoveryActions(
+            recoverableException,
+            "https://shopify.dev"
+        )
+
+        verify(mockFn).invoke()
+    }
+
+    private fun recoverableException(): CheckoutException {
+        return CheckoutSheetKitException(
+            errorDescription = "Unknown error",
+            errorCode = CheckoutSheetKitException.UNKNOWN,
+            isRecoverable = true
+        )
     }
 }

@@ -110,12 +110,14 @@ fun CheckoutSdkNavHost(
                     override fun onCheckoutFailed(error: CheckoutException) {
                         logger.log("Checkout failed", error)
 
-                        GlobalScope.launch(Dispatchers.Main) {
-                            Toast.makeText(
-                                activity,
-                                activity.getText(R.string.checkout_error),
-                                Toast.LENGTH_SHORT
-                            ).show()
+                        if (!error.isRecoverable) {
+                            GlobalScope.launch(Dispatchers.Main) {
+                                Toast.makeText(
+                                    activity,
+                                    activity.getText(R.string.checkout_error),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         }
                     }
 
