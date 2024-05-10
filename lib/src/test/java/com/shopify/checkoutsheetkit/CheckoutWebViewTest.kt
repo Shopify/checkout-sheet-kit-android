@@ -61,7 +61,6 @@ class CheckoutWebViewTest {
         assertThat(view.visibility).isEqualTo(VISIBLE)
         assertThat(view.settings.javaScriptEnabled).isTrue
         assertThat(view.settings.domStorageEnabled).isTrue
-        assertThat(view.settings.userAgentString).contains("ShopifyCheckoutSDK")
         assertThat(view.layoutParams.height).isEqualTo(MATCH_PARENT)
         assertThat(view.layoutParams.width).isEqualTo(MATCH_PARENT)
         assertThat(view.id).isNotNull
@@ -69,6 +68,46 @@ class CheckoutWebViewTest {
         assertThat(shadowOf(view).backgroundColor).isEqualTo(Color.TRANSPARENT)
         assertThat(shadowOf(view).getJavascriptInterface("android").javaClass)
             .isEqualTo(CheckoutBridge::class.java)
+    }
+
+    @Test
+    fun `user agent suffix includes ShopifyCheckoutSDK and version number`() {
+        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Dark()
+        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
+
+        assertThat(view.settings.userAgentString).contains("ShopifyCheckoutSDK/3.0.0 ")
+    }
+
+    @Test
+    fun `user agent suffix includes metadata for the schema version, theme, and variant - dark`() {
+        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Dark()
+        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
+
+        assertThat(view.settings.userAgentString).endsWith("(8.1;dark;standard)")
+    }
+
+    @Test
+    fun `user agent suffix includes metadata for the schema version, theme, and variant - light`() {
+        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Light()
+        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
+
+        assertThat(view.settings.userAgentString).endsWith("(8.1;light;standard)")
+    }
+
+    @Test
+    fun `user agent suffix includes metadata for the schema version, theme, and variant - web`() {
+        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Web()
+        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
+
+        assertThat(view.settings.userAgentString).endsWith("(8.1;web_default;standard)")
+    }
+
+    @Test
+    fun `user agent suffix includes metadata for the schema version, theme, and variant - automatic`() {
+        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Automatic()
+        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
+
+        assertThat(view.settings.userAgentString).endsWith("(8.1;automatic;standard)")
     }
 
     @Test

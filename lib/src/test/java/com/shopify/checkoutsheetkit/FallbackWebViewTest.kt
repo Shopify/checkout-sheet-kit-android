@@ -46,13 +46,57 @@ class FallbackWebViewTest {
             assertThat(view.visibility).isEqualTo(VISIBLE)
             assertThat(view.settings.javaScriptEnabled).isTrue
             assertThat(view.settings.domStorageEnabled).isTrue
-            assertThat(view.settings.userAgentString).contains("ShopifyCheckoutSDK/${BuildConfig.SDK_VERSION} (noconnect")
             assertThat(view.layoutParams.height).isEqualTo(MATCH_PARENT)
             assertThat(view.layoutParams.width).isEqualTo(MATCH_PARENT)
             assertThat(view.id).isNotNull
             assertThat(shadowOf(view).webViewClient.javaClass).isEqualTo(FallbackWebView.FallbackWebViewClient::class.java)
             assertThat(shadowOf(view).backgroundColor).isEqualTo(Color.TRANSPARENT)
             assertThat(shadowOf(view).getJavascriptInterface("android")).isNull()
+        }
+    }
+
+    @Test
+    fun `user agent suffix includes ShopifyCheckoutSDK and version number`() {
+        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Dark()
+        Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
+            val view = FallbackWebView(activityController.get())
+            assertThat(view.settings.userAgentString).contains("ShopifyCheckoutSDK/3.0.0 ")
+        }
+    }
+
+    @Test
+    fun `user agent suffix includes metadata for the schema version, theme, and variant - dark`() {
+        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Dark()
+        Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
+            val view = FallbackWebView(activityController.get())
+            assertThat(view.settings.userAgentString).endsWith("(noconnect;dark;standard_recovery)")
+        }
+    }
+
+    @Test
+    fun `user agent suffix includes metadata for the schema version, theme, and variant - light`() {
+        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Light()
+        Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
+            val view = FallbackWebView(activityController.get())
+            assertThat(view.settings.userAgentString).endsWith("(noconnect;light;standard_recovery)")
+        }
+    }
+
+    @Test
+    fun `user agent suffix includes metadata for the schema version, theme, and variant - web`() {
+        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Web()
+        Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
+            val view = FallbackWebView(activityController.get())
+            assertThat(view.settings.userAgentString).endsWith("(noconnect;web_default;standard_recovery)")
+        }
+    }
+
+    @Test
+    fun `user agent suffix includes metadata for the schema version, theme, and variant - automatic`() {
+        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Automatic()
+        Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
+            val view = FallbackWebView(activityController.get())
+            assertThat(view.settings.userAgentString).endsWith("(noconnect;automatic;standard_recovery)")
         }
     }
 

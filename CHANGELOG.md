@@ -1,8 +1,8 @@
 # Changelog
 
-## 3.0.0 April 19, 2024
+## 3.0.0 May 10, 2024
 
-- Improves error handling. See [Error Handling Guidance](https://github.com/Shopify/checkout-sheet-kit-android#error-handling-guidance) for more information.
+- Improved error handling. Attempts to load checkout in a recovery WebView when certain errors are encountered. See [Error Handling](https://github.com/Shopify/checkout-sheet-kit-android#error-handling) for more information.
 
 ## 2.0.1 March 19, 2024
 

@@ -94,36 +94,6 @@ class CheckoutBridgeTest {
     }
 
     @Test
-    fun `user agent suffix includes ShopifyCheckoutSDK and version number`() {
-        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Dark()
-        assertThat(CheckoutBridge.userAgentSuffix()).startsWith("ShopifyCheckoutSDK/${BuildConfig.SDK_VERSION} ")
-    }
-
-    @Test
-    fun `user agent suffix includes metadata for the schema version, theme, and variant - dark`() {
-        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Dark()
-        assertThat(CheckoutBridge.userAgentSuffix()).endsWith("(8.1;dark;standard)")
-    }
-
-    @Test
-    fun `user agent suffix includes metadata for the schema version, theme, and variant - light`() {
-        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Light()
-        assertThat(CheckoutBridge.userAgentSuffix()).endsWith("(8.1;light;standard)")
-    }
-
-    @Test
-    fun `user agent suffix includes metadata for the schema version, theme, and variant - web`() {
-        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Web()
-        assertThat(CheckoutBridge.userAgentSuffix()).endsWith("(8.1;web_default;standard)")
-    }
-
-    @Test
-    fun `user agent suffix includes metadata for the schema version, theme, and variant - automatic`() {
-        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Automatic()
-        assertThat(CheckoutBridge.userAgentSuffix()).endsWith("(8.1;automatic;standard)")
-    }
-
-    @Test
     fun `sendMessage evaluates javascript on the provided WebView`() {
         val webView = mock<WebView>()
         checkoutBridge.sendMessage(webView, CheckoutBridge.SDKOperation.Presented)

@@ -31,14 +31,14 @@ import com.shopify.checkoutsheetkit.lifecycleevents.emptyCompletedEvent
 internal class FallbackWebView(context: Context, attributeSet: AttributeSet? = null) :
     BaseWebView(context, attributeSet) {
 
+    override val recoverErrors = false
+    override val variant = "standard_recovery"
+    override val cspSchema = "noconnect"
+
     init {
         webViewClient = FallbackWebViewClient()
-        val theme = ShopifyCheckoutSheetKit.configuration.colorScheme.id
-        val suffix = "ShopifyCheckoutSDK/${BuildConfig.SDK_VERSION} (noconnect;$theme;standard_recovery)"
-        settings.userAgentString = "${settings.userAgentString} $suffix"
+        settings.userAgentString = "${settings.userAgentString} ${userAgentSuffix()}"
     }
-
-    override val recoverErrors = false
 
     private var checkoutEventProcessor = CheckoutWebViewEventProcessor(NoopEventProcessor())
 
