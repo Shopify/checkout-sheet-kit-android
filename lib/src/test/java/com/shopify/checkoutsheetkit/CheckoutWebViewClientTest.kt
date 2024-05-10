@@ -27,6 +27,7 @@ import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
+import android.webkit.WebViewClient.ERROR_BAD_URL
 import androidx.activity.ComponentActivity
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
@@ -264,6 +265,31 @@ class CheckoutWebViewClientTest {
         val error = captor.firstValue
         assertThat(error).isInstanceOf(CheckoutUnavailableException::class.java)
         assertThat(error.isRecoverable).isTrue()
+        assertThat(error.errorCode).isEqualTo(CheckoutUnavailableException.HTTP_ERROR)
+    }
+
+    @Test
+    fun `should call event processor calls onCheckoutViewFailedWithError on http error for main frame - bad url`() {
+        val loadedUri = Uri.parse("https://checkout-sdk.myshopify.com")
+        val mockRequest = mockWebRequest(loadedUri, true)
+        val checkoutExpiredResponse = mockWebResourceResponse(
+            status = ERROR_BAD_URL,
+            description = "Bad url"
+        )
+
+        val view = viewWithProcessor(activity)
+        CheckoutWebView.cacheEntry = view.toCacheEntry(loadedUri.toString())
+        val webViewClient = view.CheckoutWebViewClient()
+
+        webViewClient.onReceivedHttpError(view, mockRequest, checkoutExpiredResponse)
+        ShadowLooper.shadowMainLooper().runToEndOfTasks()
+
+        val captor = argumentCaptor<CheckoutException>()
+        verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
+        val error = captor.firstValue
+        assertThat(error).isInstanceOf(CheckoutUnavailableException::class.java)
+        assertThat(error.message).isEqualTo("Bad url")
+        assertThat(error.isRecoverable).isFalse()
         assertThat(error.errorCode).isEqualTo(CheckoutUnavailableException.HTTP_ERROR)
     }
 

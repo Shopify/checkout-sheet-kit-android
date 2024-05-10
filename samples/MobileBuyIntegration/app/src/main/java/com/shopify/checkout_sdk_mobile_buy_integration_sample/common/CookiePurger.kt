@@ -1,18 +1,18 @@
 /*
  * MIT License
- * 
+ *
  * Copyright 2023-present, Shopify Inc.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,36 +20,28 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutsheetkit
+package com.shopify.checkout_sdk_mobile_buy_integration_sample.common
 
-import android.content.Context
-import android.util.AttributeSet
-import android.view.View
-import android.widget.RelativeLayout
+import android.webkit.CookieManager
 
-internal class CheckoutWebViewContainer @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0,
-    defStyleRes: Int = 0
-) : RelativeLayout(context, attrs, defStyleAttr, defStyleRes) {
+/**
+ * Purges cookies from the CookieManager for a given url.
+ *
+ * N.B. CookieManager is shared across WebViews, this may impact other WebViews in an application
+ * showing a page on the same domain as the provided url.
+ */
+internal object CookiePurger {
 
-    // Clear the cache whenever the WebView is removed from it's container
-    // We should only clear the cache and destroy the WebView after it's been removed from it's parent
-    override fun onViewRemoved(child: View?) {
-        super.onViewRemoved(child)
-        if (child is CheckoutWebView && (!retainCache || CheckoutWebView.cacheEntry?.isStale == true)) {
-            CheckoutWebView.clearCache()
-        }
+    internal fun purge(url: String) {
+        val cookieManager = CookieManager.getInstance()
 
-        if (child is FallbackWebView) {
-            child.destroy()
-        }
-
-        retainCache = false
-    }
-
-    companion object {
-        internal var retainCache = false
+        cookieManager
+            .getCookie(url)
+            .split(';')
+            .map { cookieString -> cookieString.trim().split('=') }
+            .map { cookieValue -> cookieValue.first() }
+            .forEach { cookieName ->
+                cookieManager.setCookie(url, "$cookieName= ; Max-Age=0")
+            }
     }
 }

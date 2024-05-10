@@ -17,9 +17,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.android.controller.ActivityController;
+
+import java.util.function.Function;
 
 import kotlinx.serialization.json.Json;
 import kotlinx.serialization.json.JsonKt;
@@ -38,6 +41,7 @@ public class InteropTest {
         ShopifyCheckoutSheetKit.configure(config -> {
             config.setColorScheme(initialConfiguration.getColorScheme());
             config.setPreloading(initialConfiguration.getPreloading());
+            config.setErrorRecovery(initialConfiguration.getErrorRecovery());
         });
     }
 
@@ -151,15 +155,34 @@ public class InteropTest {
 
     @Test
     public void canConfigureCheckoutSheetKit() {
+        @SuppressWarnings("unchecked")
+        Function<String, Void> fn = Mockito.mock(Function.class);
+        CheckoutSheetKitException exception = new CheckoutSheetKitException("Internal Error", "n/a", true);
+
         ShopifyCheckoutSheetKit.configure(configuration -> {
             configuration.setPreloading(new Preloading(false));
             configuration.setColorScheme(new ColorScheme.Dark());
+            configuration.setErrorRecovery(new ErrorRecovery() {
+                @Override
+                public boolean shouldRecoverFromError(@NonNull CheckoutException checkoutException) {
+                    return false;
+                }
+
+                @Override
+                public void preRecoveryActions(@NonNull CheckoutException exception, @NonNull String checkoutUrl) {
+                    fn.apply("called");
+                }
+            });
         });
 
         Configuration configuration = ShopifyCheckoutSheetKit.getConfiguration();
 
         assertThat(configuration.getColorScheme().getId()).isEqualTo("dark");
         assertThat(configuration.getPreloading().getEnabled()).isEqualTo(false);
+        assertThat(configuration.getErrorRecovery().shouldRecoverFromError(exception)).isEqualTo(false);
+
+        configuration.getErrorRecovery().preRecoveryActions(exception, "https://shopify.dev");
+        Mockito.verify(fn).apply("called");
     }
 
     private final String EXAMPLE_EVENT = "{\n" +
