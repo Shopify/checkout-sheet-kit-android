@@ -301,41 +301,22 @@ classDiagram
     }
 ```
 
-#### Error handling guidance
+#### Error handling
 
-| Exception Class                | Error Code                     | Description                                                                   | Recommendation                                         |
-| ------------------------------ | ------------------------------ | ----------------------------------------------------------------------------- | ------------------------------------------------------ |
-| `ConfigurationException`       | 'checkout_liquid_not_migrated' | `checkout.liquid` is not supported.                                           | Upgrade to Extensibility.                              |
-| `ConfigurationException`       | 'storefront_password_required' | Access to checkout is password protected.                                     | We are working on ways to enable the Checkout Sheet Kit for usage with password protected stores. |
-| `ConfigurationException`       | 'unknown'                      | Other configuration issue, see error details for more info.                   | Resolve the configuration issue in the error message.  |
-| `CheckoutExpiredException`     | 'cart_expired'                 | The cart or checkout is no longer available.                                  | Create a new cart and open a new checkout URL.         |
-| `CheckoutExpiredException`     | 'cart_completed'               | The cart associated with the checkout has completed checkout.                 | Create new cart and open a new checkout URL. |
-| `CheckoutExpiredException`     | 'invalid_cart'                 | The cart associated with the checkout is invalid (e.g. empty).                | Create a new cart and open a new checkout URL. |
-| `AuthenticationException`      | 'customer_account_required     | A Customer account is required to proceed.                                    | Request customer login before proceeding to checkout. See [Customer Accounts API](https://github.com/Shopify/checkout-sheet-kit-android#customer-account-api) for more information. |
-| `CheckoutSheetKitException`    | 'error_receiving_message'      | Checkout Sheet Kit failed to receive a message from checkout.                 | Show checkout in a fallback WebView.                   |
-| `CheckoutSheetKitException`    | 'error_sending_message'        | Checkout Sheet Kit failed to send a message to checkout.                      | Show checkout in a fallback WebView.                   |
-| `CheckoutSheetKitException`    | 'render_process_gone'          | The render process for the checkout WebView is gone.                          | Show checkout in a fallback WebView.                   |
-| `CheckoutSheetKitException`    | 'unknown'                      | An error in Checkout Sheet Kit has occurred, see error details for more info. | Show checkout in a fallback WebView.                   |
-| `HttpException`                | 'http_error'                   | An unexpected server error has been encountered.                              | Show checkout in a fallback WebView.                   |
-| `ClientException`              | 'client_error'                 | An unhandled client error was encountered.                                    | Show checkout in a fallback WebView.                   |
-| `CheckoutUnavailableException` | 'unknown'                      | Checkout is unavailable for another reason, see error details for more info.  | Show checkout in a fallback WebView.                   |
+In the event of a checkout error occurring, the Checkout Sheet Kit _may_ attempt to retry to recover from the error. Recovery will happen in the background by discarding the failed WebView and creating a new "recovery" instance. Recovery will be attempted in the following scenarios:
 
-See [Error recovery](#error-recovery) for fallback functionality provided by Checkout Sheet Kit. If you provide your own fallback, `error.isRecoverable` provides a more general way of deciding whether to fallback.
+- The WebView receives a 5XX status code
+- An internal SDK error is emitted
 
-> [!Note]
-> Additional error codes may be added in the future.
+There are some caveats to note when this scenario occurs:
 
-### Error Recovery
+1. The checkout experience may look different to buyers. Though the sheet kit will attempt to load any checkoput customizations for the storefront, there is no guarantee they will show in recovery mode.
+2. The `onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent)` will be emitted with partial data. Invocations will only received the order ID via `checkoutCompletedEvent.orderDetails.id`.
+3. `onWebPixelEvent(event: PixelEvent)` lifecycle methods will **not** be emitted.
 
-In order to offer increased resiliency, when certain errors (`isRecoverable == true`) are encountered Checkout Sheet Kit will attempt to gracefully degrade to show web checkout within a fallback WebView.
+Should you wish to opt-out of this fallback experience entirely, you can do so by overriding `shouldRecoverFromError`. Errors given to the `onCheckoutFailed(error: CheckoutException)` lifecycle method will contain an `isRecoverable` property by default indicating whether the request should be retried or not.
 
-The fallback WebView has some limitations:
-
-- The look and feel of checkout will differ in some ways, for example `web` branding settings will be seen regardless of dark/light/automatic [color scheme selection](#color-scheme),
-- [Web Pixels](#integrating-with-web-pixels-monitoring-behavioral-data) will be fired in web, and pixel events will not be redirected back to the app via `onPixelEvent()`,
-- Checkout Completed events will have minimal information (orderId only).
-
-The fallback behavior can be disabled via configuration (e.g. if you'd like to implement custom fallback behavior), we also provide a callback where you can execute code before a fallback takes place, allowing for logging, or clearing up any potentially problematic state.
+`preRecoveryActions()` can also be overridden to execute code before a fallback takes place, for example to add logging, or clear up any potentially problematic state such as in cookies. By default this function is a no-op.
 
 ```kotlin
 ShopifyCheckoutSheetKit.configure {
@@ -354,6 +335,25 @@ ShopifyCheckoutSheetKit.configure {
     }
 }
 ```
+
+#### `CheckoutException`
+
+| Exception Class                | Error Code                     | Description                                                                   | Recommendation                                         |
+| ------------------------------ | ------------------------------ | ----------------------------------------------------------------------------- | ------------------------------------------------------ |
+| `ConfigurationException`       | 'checkout_liquid_not_migrated' | `checkout.liquid` is not supported.                                           | Upgrade to Extensibility.                              |
+| `ConfigurationException`       | 'storefront_password_required' | Access to checkout is password protected.                                     | We are working on ways to enable the Checkout Sheet Kit for usage with password protected stores. |
+| `ConfigurationException`       | 'unknown'                      | Other configuration issue, see error details for more info.                   | Resolve the configuration issue in the error message.  |
+| `CheckoutExpiredException`     | 'cart_expired'                 | The cart or checkout is no longer available.                                  | Create a new cart and open a new checkout URL.         |
+| `CheckoutExpiredException`     | 'cart_completed'               | The cart associated with the checkout has completed checkout.                 | Create new cart and open a new checkout URL.           |
+| `CheckoutExpiredException`     | 'invalid_cart'                 | The cart associated with the checkout is invalid (e.g. empty).                | Create a new cart and open a new checkout URL.         |
+| `AuthenticationException`      | 'customer_account_required     | A Customer account is required to proceed.                                    | Request customer login before proceeding to checkout. See [Customer Accounts API](https://github.com/Shopify/checkout-sheet-kit-android#customer-account-api) for more information. |
+| `CheckoutSheetKitException`    | 'error_receiving_message'      | Checkout Sheet Kit failed to receive a message from checkout.                 | Show checkout in a fallback WebView.                   |
+| `CheckoutSheetKitException`    | 'error_sending_message'        | Checkout Sheet Kit failed to send a message to checkout.                      | Show checkout in a fallback WebView.                   |
+| `CheckoutSheetKitException`    | 'render_process_gone'          | The render process for the checkout WebView is gone.                          | Show checkout in a fallback WebView.                   |
+| `CheckoutSheetKitException`    | 'unknown'                      | An error in Checkout Sheet Kit has occurred, see error details for more info. | Show checkout in a fallback WebView.                   |
+| `HttpException`                | 'http_error'                   | An unexpected server error has been encountered.                              | Show checkout in a fallback WebView.                   |
+| `ClientException`              | 'client_error'                 | An unhandled client error was encountered.                                    | Show checkout in a fallback WebView.                   |
+| `CheckoutUnavailableException` | 'unknown'                      | Checkout is unavailable for another reason, see error details for more info.  | Show checkout in a fallback WebView.                   |
 
 #### Integrating with Web Pixels, monitoring behavioral data
 
