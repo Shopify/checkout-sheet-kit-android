@@ -52,6 +52,8 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
 
     abstract fun getEventProcessor(): CheckoutWebViewEventProcessor
     abstract val recoverErrors: Boolean
+    abstract val variant: String
+    abstract val cspSchema: String
 
     private fun configureWebView() {
         visibility = VISIBLE
@@ -79,6 +81,13 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
         }
         return super.onKeyDown(keyCode, event)
     }
+
+    internal fun userAgentSuffix(): String {
+        val theme = ShopifyCheckoutSheetKit.configuration.colorScheme.id
+        val version = ShopifyCheckoutSheetKit.version.split("-").first()
+        return "ShopifyCheckoutSDK/${version} ($cspSchema;$theme;$variant)"
+    }
+
     open inner class BaseWebViewClient : WebViewClient() {
         init {
             if (BuildConfig.DEBUG) {
