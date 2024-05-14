@@ -22,11 +22,77 @@
  */
 package com.shopify.checkoutsheetkit
 
+import org.assertj.core.api.AbstractAssert
+
 fun withPreloadingEnabled(block: () -> Unit) {
     try {
         ShopifyCheckoutSheetKit.configure { it.preloading = Preloading(enabled = true) }
         block()
     } finally {
         ShopifyCheckoutSheetKit.configure { it.preloading = Preloading(enabled = false) }
+    }
+}
+
+class CheckoutExceptionAssert(actual: CheckoutException) :
+    AbstractAssert<CheckoutExceptionAssert, CheckoutException>(actual, CheckoutExceptionAssert::class.java) {
+    companion object {
+        fun assertThat(actual: CheckoutException): CheckoutExceptionAssert {
+            return CheckoutExceptionAssert(actual)
+        }
+    }
+
+    fun isRecoverable(): CheckoutExceptionAssert {
+        isNotNull()
+
+        if (!actual.isRecoverable) {
+            failWithMessage("Expected exception to be recoverable but was not")
+        }
+
+        return this
+    }
+
+    fun isNotRecoverable(): CheckoutExceptionAssert {
+        isNotNull()
+
+        if (actual.isRecoverable) {
+            failWithMessage("Expected exception not to be recoverable but was")
+        }
+
+        return this
+    }
+
+    fun hasDescription(description: String): CheckoutExceptionAssert {
+        isNotNull()
+
+        if (actual.errorDescription != description) {
+            failWithMessage("Expected exception to have description <%s>, but was, <%s>", description, actual.errorDescription)
+        }
+
+        return this
+    }
+
+    fun hasErrorCode(errorCode: String): CheckoutExceptionAssert {
+        isNotNull()
+
+        if (actual.errorCode != errorCode) {
+            failWithMessage("Expected exception to have errorCode <%s>, but was, <%s>", errorCode, actual.errorCode)
+        }
+
+        return this
+    }
+
+    fun hasStatusCode(statusCode: Int): CheckoutExceptionAssert {
+        isNotNull()
+
+        if (actual !is HttpException) {
+            failWithMessage("Cannot assert status code on an exception that is not a HttpException")
+        }
+
+        val actualCode = (actual as HttpException).statusCode
+        if (actualCode != statusCode) {
+            failWithMessage("Expected exception to have statusCode <%s>, but was, <%s>", statusCode, actualCode)
+        }
+
+        return this
     }
 }

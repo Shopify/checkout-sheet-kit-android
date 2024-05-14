@@ -46,17 +46,14 @@ import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
 import java.net.HttpURLConnection
 import kotlin.time.Duration.Companion.minutes
+import com.shopify.checkoutsheetkit.CheckoutExceptionAssert.Companion.assertThat
 
 @RunWith(RobolectricTestRunner::class)
 class CheckoutWebViewClientTest {
 
     private lateinit var activity: ComponentActivity
     private val mockEventProcessor = mock<CheckoutEventProcessor>()
-    private val checkoutWebViewEventProcessor = spy(
-        CheckoutWebViewEventProcessor(
-            mockEventProcessor
-        )
-    )
+    private val checkoutWebViewEventProcessor = spy(CheckoutWebViewEventProcessor(mockEventProcessor))
 
     @Before
     fun setUp() {
@@ -65,257 +62,223 @@ class CheckoutWebViewClientTest {
 
     @Test
     fun `overrides url loading to call event processor for mailto links`() {
-        val loadedUri = Uri.parse("mailto:daniel.kift@shopify.com")
-        val mockRequest = mockWebRequest(loadedUri)
+        val mockRequest = mockWebRequest(Uri.parse("mailto:daniel.kift@shopify.com"))
 
         val view = viewWithProcessor(activity)
         val webViewClient = view.CheckoutWebViewClient()
         val overridden = webViewClient.shouldOverrideUrlLoading(view, mockRequest)
 
         assertThat(overridden).isTrue
-        verify(mockEventProcessor).onCheckoutLinkClicked(loadedUri)
+        verify(mockEventProcessor).onCheckoutLinkClicked(mockRequest.url)
     }
 
     @Test
     fun `overrides url loading to call event processor for tel links`() {
-        val loadedUri = Uri.parse("tel:0123456789")
-        val mockRequest = mockWebRequest(loadedUri)
+        val mockRequest = mockWebRequest(Uri.parse("tel:0123456789"))
 
         val view = viewWithProcessor(activity)
         val webViewClient = view.CheckoutWebViewClient()
         val overridden = webViewClient.shouldOverrideUrlLoading(view, mockRequest)
 
         assertThat(overridden).isTrue
-        verify(mockEventProcessor).onCheckoutLinkClicked(loadedUri)
+        verify(mockEventProcessor).onCheckoutLinkClicked(mockRequest.url)
     }
 
     @Test
     fun `does not override url loading to call event processor for web links`() {
-        val loadedUri = Uri.parse("https://checkout-sdk.myshopify.com")
-        val mockRequest = mockWebRequest(loadedUri)
+        val mockRequest = mockWebRequest(Uri.parse("https://checkout-sdk.myshopify.com"))
 
         val view = viewWithProcessor(activity)
         val webViewClient = view.CheckoutWebViewClient()
         val overridden = webViewClient.shouldOverrideUrlLoading(view, mockRequest)
 
         assertThat(overridden).isFalse
-        verify(mockEventProcessor, never()).onCheckoutLinkClicked(loadedUri)
+        verify(mockEventProcessor, never()).onCheckoutLinkClicked(mockRequest.url)
     }
 
     @Test
     fun `should call event processor and clear cache on web resource load error for main frame`() {
-        val loadedUri = Uri.parse("https://checkout-sdk.myshopify.com")
-        val mockRequest = mockWebRequest(loadedUri, true)
-        val mockError = mockWebResourceError()
+        val mockRequest = mockWebRequest(Uri.parse("https://checkout-sdk.myshopify.com"), true)
+        val mockResponse = mockWebResourceError()
 
         val view = viewWithProcessor(activity)
-        CheckoutWebView.cacheEntry = view.toCacheEntry(loadedUri.toString())
+        CheckoutWebView.cacheEntry = view.toCacheEntry(mockRequest.url.toString())
         val webViewClient = view.CheckoutWebViewClient()
 
-        webViewClient.onReceivedError(view, mockRequest, mockError)
+        webViewClient.onReceivedError(view, mockRequest, mockResponse)
         ShadowLooper.shadowMainLooper().runToEndOfTasks()
 
         val captor = argumentCaptor<CheckoutException>()
         verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
-        assertThat(captor.firstValue).isInstanceOf(CheckoutExpiredException::class.java)
-        assertThat(captor.firstValue.isRecoverable).isFalse()
-        assertThat(captor.firstValue.errorCode).isEqualTo(CheckoutExpiredException.CART_EXPIRED)
+        assertThat(captor.firstValue)
+            .isInstanceOf(CheckoutExpiredException::class.java)
+            .isNotRecoverable()
+            .hasErrorCode(CheckoutExpiredException.CART_EXPIRED)
     }
 
     @Test
     fun `should call event processor calls onCheckoutViewFailedWithError on http error for main frame - 410`() {
-        val loadedUri = Uri.parse("https://checkout-sdk.myshopify.com")
-        val mockRequest = mockWebRequest(loadedUri, true)
-        val checkoutExpiredResponse = mockWebResourceResponse(
+        val mockRequest = mockWebRequest(Uri.parse("https://checkout-sdk.myshopify.com"), true)
+        val mockResponse = mockWebResourceResponse(
             status = HttpURLConnection.HTTP_GONE
         )
 
-        val view = viewWithProcessor(activity)
-        CheckoutWebView.cacheEntry = view.toCacheEntry(loadedUri.toString())
-        val webViewClient = view.CheckoutWebViewClient()
-
-        webViewClient.onReceivedHttpError(view, mockRequest, checkoutExpiredResponse)
-        ShadowLooper.shadowMainLooper().runToEndOfTasks()
+        triggerOnReceivedHttpError(mockRequest, mockResponse)
 
         val captor = argumentCaptor<CheckoutException>()
         verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
-        assertThat(captor.firstValue).isInstanceOf(CheckoutExpiredException::class.java)
-        assertThat(captor.firstValue.isRecoverable).isFalse()
-        assertThat(captor.firstValue.errorCode).isEqualTo(CheckoutExpiredException.CART_EXPIRED)
+        assertThat(captor.firstValue)
+            .isInstanceOf(CheckoutExpiredException::class.java)
+            .isNotRecoverable()
+            .hasErrorCode(CheckoutExpiredException.CART_EXPIRED)
     }
 
     @Test
     fun `should call event processor calls onCheckoutViewFailedWithError on http error for main frame - 404`() {
-        val loadedUri = Uri.parse("https://checkout-sdk.myshopify.com")
-        val mockRequest = mockWebRequest(loadedUri, true)
-        val checkoutExpiredResponse = mockWebResourceResponse(
+        val mockRequest = mockWebRequest(Uri.parse("https://checkout-sdk.myshopify.com"), true)
+        val mockResponse = mockWebResourceResponse(
             status = HttpURLConnection.HTTP_NOT_FOUND,
             description = "Not Found",
         )
 
-        val view = viewWithProcessor(activity)
-        CheckoutWebView.cacheEntry = view.toCacheEntry(loadedUri.toString())
-        val webViewClient = view.CheckoutWebViewClient()
-
-        webViewClient.onReceivedHttpError(view, mockRequest, checkoutExpiredResponse)
-        ShadowLooper.shadowMainLooper().runToEndOfTasks()
+        triggerOnReceivedHttpError(mockRequest, mockResponse)
 
         val captor = argumentCaptor<CheckoutException>()
         verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
-        val error = captor.firstValue
-        assertThat(error).isInstanceOf(HttpException::class.java)
-        assertThat(error.errorDescription).isEqualTo("Not Found")
-        assertThat((error as HttpException).statusCode).isEqualTo(404)
-        assertThat(error.isRecoverable).isFalse()
-        assertThat(error.errorCode).isEqualTo(CheckoutUnavailableException.HTTP_ERROR)
+        assertThat(captor.firstValue)
+            .isInstanceOf(HttpException::class.java)
+            .hasErrorCode(CheckoutUnavailableException.HTTP_ERROR)
+            .isNotRecoverable()
+            .hasDescription("Not Found")
+            .hasStatusCode(404)
     }
 
     @Test
     fun `should call event processor calls onCheckoutViewFailedWithError on http error for main frame - 404 and deprecated header`() {
-        val loadedUri = Uri.parse("https://checkout-sdk.myshopify.com")
-        val mockRequest = mockWebRequest(loadedUri, true)
-        val checkoutExpiredResponse = mockWebResourceResponse(
+        val mockRequest = mockWebRequest(Uri.parse("https://checkout-sdk.myshopify.com"), true)
+        val mockResponse = mockWebResourceResponse(
             status = HttpURLConnection.HTTP_NOT_FOUND,
-            headers = mutableMapOf(
-                "X-Shopify-API-Deprecated-Reason" to "checkout_liquid_not_supported"
-            )
+            headers = mutableMapOf("X-Shopify-API-Deprecated-Reason" to "checkout_liquid_not_supported")
         )
 
-        val view = viewWithProcessor(activity)
-        CheckoutWebView.cacheEntry = view.toCacheEntry(loadedUri.toString())
-        val webViewClient = view.CheckoutWebViewClient()
-
-        webViewClient.onReceivedHttpError(view, mockRequest, checkoutExpiredResponse)
-        ShadowLooper.shadowMainLooper().runToEndOfTasks()
+        triggerOnReceivedHttpError(mockRequest, mockResponse)
 
         val captor = argumentCaptor<CheckoutException>()
         verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
-        val error = captor.firstValue
-        assertThat(error).isInstanceOf(ConfigurationException::class.java)
-        assertThat(error.errorDescription).isEqualTo(
-            "Storefronts using checkout.liquid are not supported. Please upgrade to Checkout Extensibility."
-        )
-        assertThat(error.isRecoverable).isFalse()
-        assertThat(error.errorCode).isEqualTo(ConfigurationException.CHECKOUT_LIQUID_NOT_MIGRATED)
+        assertThat(captor.firstValue)
+            .isInstanceOf(ConfigurationException::class.java)
+            .isNotRecoverable()
+            .hasErrorCode(ConfigurationException.CHECKOUT_LIQUID_NOT_MIGRATED)
+            .hasDescription("Storefronts using checkout.liquid are not supported. Please upgrade to Checkout Extensibility.")
     }
 
     @Test
     fun `should call event processor calls onCheckoutViewFailedWithError on http error for main frame - 500`() {
-        val loadedUri = Uri.parse("https://checkout-sdk.myshopify.com")
-        val mockRequest = mockWebRequest(loadedUri, true)
-        val checkoutExpiredResponse = mockWebResourceResponse(
+        val mockRequest = mockWebRequest(Uri.parse("https://checkout-sdk.myshopify.com"), true)
+        val mockResponse = mockWebResourceResponse(
             status = HttpURLConnection.HTTP_INTERNAL_ERROR
         )
 
-        val view = viewWithProcessor(activity)
-        CheckoutWebView.cacheEntry = view.toCacheEntry(loadedUri.toString())
-        val webViewClient = view.CheckoutWebViewClient()
-
-        webViewClient.onReceivedHttpError(view, mockRequest, checkoutExpiredResponse)
-        ShadowLooper.shadowMainLooper().runToEndOfTasks()
+        triggerOnReceivedHttpError(mockRequest, mockResponse)
 
         val captor = argumentCaptor<CheckoutException>()
         verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
-        val error = captor.firstValue
-        assertThat(error).isInstanceOf(CheckoutUnavailableException::class.java)
-        assertThat(error.isRecoverable).isTrue()
-        assertThat(error.errorCode).isEqualTo(CheckoutUnavailableException.HTTP_ERROR)
+        assertThat(captor.firstValue)
+            .isInstanceOf(CheckoutUnavailableException::class.java)
+            .isRecoverable()
+            .hasErrorCode(CheckoutUnavailableException.HTTP_ERROR)
     }
 
     @Test
     fun `should call event processor calls onCheckoutViewFailedWithError on http error for main frame - 504`() {
-        val loadedUri = Uri.parse("https://checkout-sdk.myshopify.com")
-        val mockRequest = mockWebRequest(loadedUri, true)
-        val checkoutExpiredResponse = mockWebResourceResponse(
+        val mockRequest = mockWebRequest(Uri.parse("https://checkout-sdk.myshopify.com"), true)
+        val mockResponse = mockWebResourceResponse(
             status = HttpURLConnection.HTTP_GATEWAY_TIMEOUT
         )
 
-        val view = viewWithProcessor(activity)
-        CheckoutWebView.cacheEntry = view.toCacheEntry(loadedUri.toString())
-        val webViewClient = view.CheckoutWebViewClient()
-
-        webViewClient.onReceivedHttpError(view, mockRequest, checkoutExpiredResponse)
-        ShadowLooper.shadowMainLooper().runToEndOfTasks()
+        triggerOnReceivedHttpError(mockRequest, mockResponse)
 
         val captor = argumentCaptor<CheckoutException>()
         verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
-        val error = captor.firstValue
-        assertThat(error).isInstanceOf(CheckoutUnavailableException::class.java)
-        assertThat(error.isRecoverable).isTrue()
-        assertThat(error.errorCode).isEqualTo(CheckoutUnavailableException.HTTP_ERROR)
+        assertThat(captor.firstValue)
+            .isInstanceOf(CheckoutUnavailableException::class.java)
+            .isRecoverable()
+            .hasErrorCode(CheckoutUnavailableException.HTTP_ERROR)
     }
 
     @Test
     fun `should call event processor calls onCheckoutViewFailedWithError on http error for main frame - 502`() {
-        val loadedUri = Uri.parse("https://checkout-sdk.myshopify.com")
-        val mockRequest = mockWebRequest(loadedUri, true)
-        val checkoutExpiredResponse = mockWebResourceResponse(
+        val mockRequest = mockWebRequest(Uri.parse("https://checkout-sdk.myshopify.com"), true)
+        val mockResponse = mockWebResourceResponse(
             status = HttpURLConnection.HTTP_BAD_GATEWAY
         )
 
-        val view = viewWithProcessor(activity)
-        CheckoutWebView.cacheEntry = view.toCacheEntry(loadedUri.toString())
-        val webViewClient = view.CheckoutWebViewClient()
-
-        webViewClient.onReceivedHttpError(view, mockRequest, checkoutExpiredResponse)
-        ShadowLooper.shadowMainLooper().runToEndOfTasks()
+        triggerOnReceivedHttpError(mockRequest, mockResponse)
 
         val captor = argumentCaptor<CheckoutException>()
         verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
-        val error = captor.firstValue
-        assertThat(error).isInstanceOf(CheckoutUnavailableException::class.java)
-        assertThat(error.isRecoverable).isTrue()
-        assertThat(error.errorCode).isEqualTo(CheckoutUnavailableException.HTTP_ERROR)
+        assertThat(captor.firstValue)
+            .isInstanceOf(CheckoutUnavailableException::class.java)
+            .isRecoverable()
+            .hasErrorCode(CheckoutUnavailableException.HTTP_ERROR)
     }
 
     @Test
     fun `should call event processor calls onCheckoutViewFailedWithError on http error for main frame - bad url`() {
         val loadedUri = Uri.parse("https://checkout-sdk.myshopify.com")
         val mockRequest = mockWebRequest(loadedUri, true)
-        val checkoutExpiredResponse = mockWebResourceResponse(
+        val mockResponse = mockWebResourceResponse(
             status = ERROR_BAD_URL,
             description = "Bad url"
         )
 
-        val view = viewWithProcessor(activity)
-        CheckoutWebView.cacheEntry = view.toCacheEntry(loadedUri.toString())
-        val webViewClient = view.CheckoutWebViewClient()
-
-        webViewClient.onReceivedHttpError(view, mockRequest, checkoutExpiredResponse)
-        ShadowLooper.shadowMainLooper().runToEndOfTasks()
+        triggerOnReceivedHttpError(mockRequest, mockResponse)
 
         val captor = argumentCaptor<CheckoutException>()
         verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
-        val error = captor.firstValue
-        assertThat(error).isInstanceOf(CheckoutUnavailableException::class.java)
-        assertThat(error.message).isEqualTo("Bad url")
-        assertThat(error.isRecoverable).isFalse()
-        assertThat(error.errorCode).isEqualTo(CheckoutUnavailableException.HTTP_ERROR)
+        assertThat(captor.firstValue)
+            .isInstanceOf(CheckoutUnavailableException::class.java)
+            .isNotRecoverable()
+            .hasErrorCode(CheckoutUnavailableException.HTTP_ERROR)
+            .hasDescription("Bad url")
     }
 
     @Test
     fun `should call event processor calls onCheckoutViewFailedWithError on http error for main frame - other`() {
-        val loadedUri = Uri.parse("https://checkout-sdk.myshopify.com")
-        val mockRequest = mockWebRequest(loadedUri, true)
-        val checkoutExpiredResponse = mockWebResourceResponse(
+        val mockRequest = mockWebRequest(Uri.parse("https://checkout-sdk.myshopify.com"), true)
+        val mockResponse = mockWebResourceResponse(
             status = HttpURLConnection.HTTP_BAD_REQUEST,
             description = "Bad request"
         )
 
-        val view = viewWithProcessor(activity)
-        CheckoutWebView.cacheEntry = view.toCacheEntry(loadedUri.toString())
-        val webViewClient = view.CheckoutWebViewClient()
-
-        webViewClient.onReceivedHttpError(view, mockRequest, checkoutExpiredResponse)
-        ShadowLooper.shadowMainLooper().runToEndOfTasks()
+        triggerOnReceivedHttpError(mockRequest, mockResponse)
 
         val captor = argumentCaptor<CheckoutException>()
         verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
-        val error = captor.firstValue
-        assertThat(error).isInstanceOf(CheckoutUnavailableException::class.java)
-        assertThat(error.message).isEqualTo("Bad request")
-        assertThat(error.isRecoverable).isFalse()
-        assertThat(error.errorCode).isEqualTo(CheckoutUnavailableException.HTTP_ERROR)
+        assertThat(captor.firstValue)
+            .isNotRecoverable()
+            .isInstanceOf(CheckoutUnavailableException::class.java)
+            .hasErrorCode(CheckoutUnavailableException.HTTP_ERROR)
+            .hasDescription("Bad request")
+    }
+
+    @Test
+    fun `should call event processor with default description including the status code if the reason phrase is blank`() {
+        val mockRequest = mockWebRequest(Uri.parse("https://checkout-sdk.myshopify.com"), true)
+        val mockResponse = mockWebResourceResponse(
+            status = HttpURLConnection.HTTP_BAD_GATEWAY,
+            description = ""
+        )
+
+        triggerOnReceivedHttpError(mockRequest, mockResponse)
+
+        val captor = argumentCaptor<CheckoutException>()
+        verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
+        assertThat(captor.firstValue)
+            .isRecoverable()
+            .isInstanceOf(HttpException::class.java)
+            .hasErrorCode(CheckoutUnavailableException.HTTP_ERROR)
+            .hasDescription("HTTP 502 Error")
     }
 
     @Test
@@ -382,9 +345,19 @@ class CheckoutWebViewClientTest {
         assertThat(result).isTrue
         val captor = argumentCaptor<CheckoutSheetKitException>()
         verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
-        assertThat(captor.firstValue).isInstanceOf(CheckoutSheetKitException::class.java)
-        assertThat(captor.firstValue.message).isEqualTo("Render process gone.")
-        assertThat(captor.firstValue.errorCode).isEqualTo(CheckoutSheetKitException.RENDER_PROCESS_GONE)
+        assertThat(captor.firstValue)
+            .isInstanceOf(CheckoutSheetKitException::class.java)
+            .hasDescription("Render process gone.")
+            .hasErrorCode(CheckoutSheetKitException.RENDER_PROCESS_GONE)
+    }
+
+    private fun triggerOnReceivedHttpError(mockRequest: WebResourceRequest, checkoutExpiredResponse: WebResourceResponse) {
+        val view = viewWithProcessor(activity)
+        CheckoutWebView.cacheEntry = view.toCacheEntry(mockRequest.url.toString())
+        val webViewClient = view.CheckoutWebViewClient()
+
+        webViewClient.onReceivedHttpError(view, mockRequest, checkoutExpiredResponse)
+        ShadowLooper.shadowMainLooper().runToEndOfTasks()
     }
 
     private fun mockWebRequest(uri: Uri, forMainFrame: Boolean = false): WebResourceRequest {
