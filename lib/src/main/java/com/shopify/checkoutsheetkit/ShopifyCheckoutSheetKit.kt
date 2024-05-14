@@ -98,14 +98,14 @@ public object ShopifyCheckoutSheetKit {
      * @param context The context the checkout is being presented from
      * @param checkoutEventProcessor provides callbacks to allow clients to listen for and respond to checkout lifecycle events such as
      * (failure, completion, cancellation, external link clicks).
-     * @return the Dialog presented
+     * @return An instance of [CheckoutSheetKitDialog] if the dialog was successfully created and displayed.
      */
     @JvmStatic
     public fun <T: DefaultCheckoutEventProcessor> present(
         checkoutUrl: String,
         context: ComponentActivity,
         checkoutEventProcessor: T
-    ): Dialog? {
+    ): CheckoutSheetKitDialog? {
         if (context.isDestroyed || context.isFinishing) {
             return null
         }
@@ -117,6 +117,17 @@ public object ShopifyCheckoutSheetKit {
             }
         })
         dialog.start(context)
-        return dialog
+        return CheckoutSheetKitDialog { dialog.dismiss() }
     }
+}
+
+/**
+ * A checkout sheet dialog. Use the [dismiss] method to dismiss the presented dialog
+ */
+@FunctionalInterface
+public fun interface CheckoutSheetKitDialog {
+    /**
+     * Dismisses the checkout sheet dialog.
+     */
+    public fun dismiss()
 }
