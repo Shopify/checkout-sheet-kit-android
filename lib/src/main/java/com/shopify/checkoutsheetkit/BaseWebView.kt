@@ -138,7 +138,7 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
                 handleError(
                     request,
                     errorResponse.statusCode,
-                    errorResponse.reasonPhrase,
+                    errorResponse.reasonPhrase.ifBlank { "HTTP ${errorResponse.statusCode} Error" },
                     errorResponse.responseHeaders,
                 )
             }
