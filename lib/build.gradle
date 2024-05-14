@@ -14,7 +14,7 @@ def resolveEnvVarValue(name, defaultValue) {
     return rawValue ? rawValue : defaultValue
 }
 
-def versionName = resolveEnvVarValue("CHECKOUT_SHEET_KIT_VERSION", "3.0.0")
+def versionName = resolveEnvVarValue("CHECKOUT_SHEET_KIT_VERSION", "3.0.0-beta.1")
 
 ext {
     app_compat_version = '1.6.1'

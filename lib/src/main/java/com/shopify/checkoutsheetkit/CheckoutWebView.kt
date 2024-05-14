@@ -40,6 +40,8 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
     BaseWebView(context, attributeSet) {
 
     override val recoverErrors = true
+    override val variant = "standard"
+    override val cspSchema = CheckoutBridge.SCHEMA_VERSION_NUMBER
 
     private val checkoutBridge = CheckoutBridge(CheckoutWebViewEventProcessor(NoopEventProcessor()))
     private var loadComplete = false
@@ -64,7 +66,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
     init {
         webViewClient = CheckoutWebViewClient()
         addJavascriptInterface(checkoutBridge, JAVASCRIPT_INTERFACE_NAME)
-        settings.userAgentString = "${settings.userAgentString} ${CheckoutBridge.userAgentSuffix()}"
+        settings.userAgentString = "${settings.userAgentString} ${userAgentSuffix()}"
     }
 
     fun hasFinishedLoading() = loadComplete
