@@ -22,7 +22,6 @@
  */
 package com.shopify.checkoutsheetkit
 
-import android.app.Dialog
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
