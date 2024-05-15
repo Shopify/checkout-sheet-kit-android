@@ -122,18 +122,3 @@ public class ConfigurationException @JvmOverloads constructor(
             public const val UNKNOWN: String = "unknown"
         }
 }
-
-/**
- * Issued when the provided checkout URL results in an error related to authentication. E.g. if a customer account is required for
- * checkout and the customer is not logged in.
- */
-public class AuthenticationException @JvmOverloads constructor(
-    errorDescription: String? = null,
-    errorCode: String = UNKNOWN,
-    isRecoverable: Boolean,
-) : CheckoutException(errorDescription ?: "Checkout is unavailable due to an authentication issue.", errorCode, isRecoverable) {
-      public companion object {
-          public const val CUSTOMER_ACCOUNT_REQUIRED: String = "customer_account_required"
-          public const val UNKNOWN: String = "unknown"
-      }
-}

@@ -313,31 +313,6 @@ class CheckoutBridgeTest {
     }
 
     @Test
-    fun `should decode a configuration error payload and call processor#onCheckoutViewFailedWithError - customer acc required`() {
-        val eventString = """|
-            |{
-            |   "name":"error",
-            |   "body": "[{
-            |       \"group\": \"configuration\",
-            |       \"reason\": \"Customer account required\",
-            |       \"code\": \"customer_account_required\"
-            |   }]"
-            |}
-        |""".trimMargin()
-
-        checkoutBridge.postMessage(eventString)
-
-        val captor = argumentCaptor<CheckoutException>()
-        verify(mockEventProcessor, timeout(2000).times(1)).onCheckoutViewFailedWithError(captor.capture())
-
-        val error = captor.firstValue
-        assertThat(error).isInstanceOf(AuthenticationException::class.java)
-        assertThat(error.message).isEqualTo("Customer account required")
-        assertThat(error.isRecoverable).isFalse()
-        assertThat(error.errorCode).isEqualTo(AuthenticationException.CUSTOMER_ACCOUNT_REQUIRED)
-    }
-
-    @Test
     fun `should ignore unsupported error payloads`() {
         val eventString = """|
             |{
