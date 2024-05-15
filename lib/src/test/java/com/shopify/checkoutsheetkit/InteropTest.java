@@ -21,6 +21,7 @@ import org.mockito.Mockito;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.android.controller.ActivityController;
+import org.robolectric.shadows.ShadowDialog;
 
 import java.util.function.Function;
 
@@ -183,6 +184,39 @@ public class InteropTest {
 
         configuration.getErrorRecovery().preRecoveryActions(exception, "https://shopify.dev");
         Mockito.verify(fn).apply("called");
+    }
+
+    @Test
+    public void presentReturnsAHandleToAllowDismissingDialog() {
+        try (ActivityController<ComponentActivity> controller = Robolectric.buildActivity(ComponentActivity.class)) {
+            ComponentActivity activity = controller.get();
+            CheckoutSheetKitDialog dialog = ShopifyCheckoutSheetKit.present(
+                "https://shopify.dev",
+                activity,
+                new DefaultCheckoutEventProcessor(activity) {
+                    @Override
+                    public void onCheckoutCompleted(@NonNull CheckoutCompletedEvent checkoutCompletedEvent) {
+                        // do nothing
+                    }
+
+                    @Override
+                    public void onCheckoutFailed(@NonNull CheckoutException error) {
+                        // do nothing
+                    }
+
+                    @Override
+                    public void onCheckoutCanceled() {
+                        // do nothing
+                    }
+                }
+            );
+
+            assertThat(dialog).isNotNull();
+            assertThat(ShadowDialog.getLatestDialog().isShowing()).isTrue();
+
+            dialog.dismiss();
+            assertThat(ShadowDialog.getLatestDialog().isShowing()).isFalse();
+        }
     }
 
     private final String EXAMPLE_EVENT = "{\n" +

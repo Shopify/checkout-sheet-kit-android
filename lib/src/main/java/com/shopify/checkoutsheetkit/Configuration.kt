@@ -33,6 +33,7 @@ public data class Configuration internal constructor(
     var colorScheme: ColorScheme = ColorScheme.Automatic(),
     var preloading: Preloading = Preloading(),
     var errorRecovery: ErrorRecovery = object : ErrorRecovery {},
+    var platform: Platform? = null,
 )
 
 /**
@@ -51,4 +52,8 @@ public interface ErrorRecovery {
     public fun shouldRecoverFromError(checkoutException: CheckoutException): Boolean {
         return checkoutException.isRecoverable
     }
+}
+
+public enum class Platform(public val displayName: String) {
+    REACT_NATIVE("ReactNative")
 }
