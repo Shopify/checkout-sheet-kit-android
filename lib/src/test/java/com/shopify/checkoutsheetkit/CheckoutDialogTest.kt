@@ -115,6 +115,23 @@ class CheckoutDialogTest {
     }
 
     @Test
+    fun `present returns interface allowing dismissal of the dialog`() {
+        val dialogHandle = ShopifyCheckoutSheetKit.present("https://shopify.com", activity, processor)
+
+        val dialog = ShadowDialog.getLatestDialog()
+        assertThat(dialog.isShowing).isTrue()
+        assertThat(dialog.containsChildOfType(CheckoutWebView::class.java)).isTrue()
+
+        dialogHandle?.dismiss()
+        ShadowLooper.runUiThreadTasks()
+
+        assertThat(dialog.isShowing).isFalse()
+        await().atMost(2, TimeUnit.SECONDS).until {
+            !dialog.containsChildOfType(CheckoutWebView::class.java)
+        }
+    }
+
+    @Test
     fun `calls onCheckoutCanceled if cancel is called`() {
         val mockEventProcessor = mock<DefaultCheckoutEventProcessor>()
         ShopifyCheckoutSheetKit.present("https://shopify.com", activity, mockEventProcessor)
