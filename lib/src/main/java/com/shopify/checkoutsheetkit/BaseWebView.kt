@@ -172,15 +172,6 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
                             )
                         )
                     }
-                    errorCode == HTTP_UNAUTHORIZED &&  responseHeaders[SHEET_KIT_ERROR_HEADER]?.lowercase() == ACCOUNT_REQUIRED -> {
-                        processor.onCheckoutViewFailedWithError(
-                            AuthenticationException(
-                                errorDescription = "Customer account required.",
-                                isRecoverable = false,
-                                errorCode = AuthenticationException.CUSTOMER_ACCOUNT_REQUIRED,
-                            )
-                        )
-                    }
                     errorCode == HTTP_GONE -> processor.onCheckoutViewFailedWithError(
                         CheckoutExpiredException(
                             isRecoverable = false,
@@ -201,9 +192,7 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
 
     companion object {
         private const val DEPRECATED_REASON_HEADER = "X-Shopify-API-Deprecated-Reason"
-        private const val SHEET_KIT_ERROR_HEADER = "X-Shopify-Checkout-Sheet-Kit-Error"
         private const val LIQUID_NOT_SUPPORTED = "checkout_liquid_not_supported"
-        private const val ACCOUNT_REQUIRED = "customer_account_required"
 
         private const val TOO_MANY_REQUESTS = 429
         private val CLIENT_ERROR = 400..499

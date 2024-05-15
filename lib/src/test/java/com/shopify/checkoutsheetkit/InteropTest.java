@@ -115,9 +115,9 @@ public class InteropTest {
     @Test
     public void canAccessFieldsOnExceptions() {
         String eventString = "[{" +
-            "\"group\": \"configuration\"," +
-            "\"reason\": \"Customer account required\"," +
-            "\"code\": \"customer_account_required\"" +
+            "\"group\": \"expired\"," +
+            "\"reason\": \"Checkout has expired\"," +
+            "\"code\": \"cart_completed\"" +
         "}]";
 
         WebToSdkEvent webEvent = new WebToSdkEvent("error", eventString);
@@ -129,9 +129,9 @@ public class InteropTest {
 
         CheckoutException exception = decoder.decode(webEvent);
 
-        assertThat(exception.getClass()).isEqualTo(AuthenticationException.class);
-        assertThat(exception.getErrorCode()).isEqualTo("customer_account_required");
-        assertThat(exception.getErrorDescription()).isEqualTo("Customer account required");
+        assertThat(exception.getClass()).isEqualTo(CheckoutExpiredException.class);
+        assertThat(exception.getErrorCode()).isEqualTo("cart_completed");
+        assertThat(exception.getErrorDescription()).isEqualTo("Checkout has expired");
         assertThat(exception.isRecoverable()).isEqualTo(false);
     }
 

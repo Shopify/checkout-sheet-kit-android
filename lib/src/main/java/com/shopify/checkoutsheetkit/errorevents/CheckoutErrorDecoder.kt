@@ -22,7 +22,6 @@
  */
 package com.shopify.checkoutsheetkit.errorevents
 
-import com.shopify.checkoutsheetkit.AuthenticationException
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.CheckoutExpiredException
 import com.shopify.checkoutsheetkit.ClientException
@@ -48,31 +47,23 @@ internal class CheckoutErrorDecoder @JvmOverloads constructor(
     }
 
     private fun CheckoutErrorPayload.mapToCheckoutException(): CheckoutException? {
-        return when {
-            this.group == CheckoutErrorGroup.CONFIGURATION && this.code == CUSTOMER_ACCOUNT_REQUIRED -> {
-                AuthenticationException(
-                    errorDescription = this.reason ?: "Customer account required.",
-                    errorCode = AuthenticationException.CUSTOMER_ACCOUNT_REQUIRED,
-                    isRecoverable = false,
-                )
-            }
-            this.group == CheckoutErrorGroup.CONFIGURATION -> {
+        return when (this.group) {
+            CheckoutErrorGroup.CONFIGURATION -> {
                 ConfigurationException(
                     errorDescription = this.reason ?: "Storefront configuration error.",
                     errorCode = if (this.code == STOREFRONT_PASSWORD_REQUIRED) {
-                        ConfigurationException.STOREFRONT_PASSWORD_REQUIRED }
-                    else  {
+                        ConfigurationException.STOREFRONT_PASSWORD_REQUIRED } else  {
                         ConfigurationException.UNKNOWN
                     },
                     isRecoverable = false,
                 )
             }
-            this.group == CheckoutErrorGroup.UNRECOVERABLE ->
+            CheckoutErrorGroup.UNRECOVERABLE ->
                 ClientException(
                     errorDescription = this.reason,
                     isRecoverable = true,
                 )
-            this.group == CheckoutErrorGroup.EXPIRED ->
+            CheckoutErrorGroup.EXPIRED ->
                 CheckoutExpiredException(
                     errorDescription = this.reason,
                     errorCode = this.expiredErrorCode(),
@@ -94,7 +85,6 @@ internal class CheckoutErrorDecoder @JvmOverloads constructor(
     }
 
     companion object {
-        private const val CUSTOMER_ACCOUNT_REQUIRED = "customer_account_required"
         private const val STOREFRONT_PASSWORD_REQUIRED = "storefront_password_required"
         private const val INVALID_CART = "invalid_cart"
         private const val CART_COMPLETED = "cart_completed"
