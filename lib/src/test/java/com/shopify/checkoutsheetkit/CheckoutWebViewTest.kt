@@ -28,6 +28,7 @@ import android.view.View.VISIBLE
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.activity.ComponentActivity
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,6 +53,11 @@ class CheckoutWebViewTest {
         shadowOf(Looper.getMainLooper()).runToEndOfTasks()
 
         activity = Robolectric.buildActivity(ComponentActivity::class.java).get()
+    }
+
+    @After
+    fun tearDown() {
+        ShopifyCheckoutSheetKit.configuration.platform = null
     }
 
     @Test
@@ -108,6 +114,15 @@ class CheckoutWebViewTest {
         val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
 
         assertThat(view.settings.userAgentString).endsWith("(8.1;automatic;standard)")
+    }
+
+    @Test
+    fun `user agent suffix includes platform if specified`() {
+        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Automatic()
+        ShopifyCheckoutSheetKit.configuration.platform = Platform.REACT_NATIVE
+        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
+
+        assertThat(view.settings.userAgentString).endsWith("(8.1;automatic;standard) ReactNative")
     }
 
     @Test

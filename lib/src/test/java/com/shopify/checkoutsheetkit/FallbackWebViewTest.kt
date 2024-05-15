@@ -27,6 +27,7 @@ import android.view.View.VISIBLE
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.activity.ComponentActivity
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
@@ -37,6 +38,11 @@ import org.robolectric.Shadows.shadowOf
 
 @RunWith(RobolectricTestRunner::class)
 class FallbackWebViewTest {
+
+    @After
+    fun tearDown() {
+        ShopifyCheckoutSheetKit.configuration.platform = null
+    }
 
     @Test
     fun `configures web view on initialization`() {
@@ -97,6 +103,16 @@ class FallbackWebViewTest {
         Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
             val view = FallbackWebView(activityController.get())
             assertThat(view.settings.userAgentString).endsWith("(noconnect;automatic;standard_recovery)")
+        }
+    }
+
+    @Test
+    fun `user agent suffix includes platform if specified`() {
+        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Automatic()
+        ShopifyCheckoutSheetKit.configuration.platform = Platform.REACT_NATIVE
+        Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
+            val view = FallbackWebView(activityController.get())
+            assertThat(view.settings.userAgentString).endsWith("(noconnect;automatic;standard_recovery) ReactNative")
         }
     }
 

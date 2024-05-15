@@ -85,7 +85,9 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
     internal fun userAgentSuffix(): String {
         val theme = ShopifyCheckoutSheetKit.configuration.colorScheme.id
         val version = ShopifyCheckoutSheetKit.version.split("-").first()
-        return "ShopifyCheckoutSDK/${version} ($cspSchema;$theme;$variant)"
+        val platform = ShopifyCheckoutSheetKit.configuration.platform
+        val platformSuffix = if (platform != null) " ${platform.displayName}" else ""
+        return "ShopifyCheckoutSDK/${version} ($cspSchema;$theme;$variant)$platformSuffix"
     }
 
     open inner class BaseWebViewClient : WebViewClient() {
