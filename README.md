@@ -319,7 +319,6 @@ title: Checkout Sheet Kit Exception Hierarchy
 classDiagram
     CheckoutException <|-- ConfigurationException
     CheckoutException <|-- CheckoutExpiredException
-    CheckoutException <|-- AuthenticationException
     CheckoutException <|-- CheckoutSheetKitException
     CheckoutException <|-- CheckoutUnavailableException
     CheckoutUnavailableException <|-- HttpException
