@@ -100,7 +100,7 @@ class CheckoutErrorDecoderTest {
             name = "error",
             body = """[
                 |{
-                |   "group": "authentication",
+                |   "group": "unrecoverable",
                 |   "flowType": "regular",
                 |   "type": "invalid_
                 |}

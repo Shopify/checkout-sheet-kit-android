@@ -257,50 +257,6 @@ val processor = object : DefaultCheckoutEventProcessor(activity) {
 > [!Note]
 > The `DefaultCheckoutEventProcessor` provides default implementations for current and future callback functions (such as `onLinkClicked()`), which can be overridden by clients wanting to change default behavior.
 
-#### Exception Hierarchy
-
-```mermaid
----
-title: Checkout Sheet Kit Exception Hierarchy
----
-classDiagram
-    CheckoutException <|-- ConfigurationException
-    CheckoutException <|-- CheckoutExpiredException
-    CheckoutException <|-- AuthenticationException
-    CheckoutException <|-- CheckoutSheetKitException
-    CheckoutException <|-- CheckoutUnavailableException
-    CheckoutUnavailableException <|-- HttpException
-    CheckoutUnavailableException <|-- ClientException
-
-    <<Abstract>> CheckoutException
-    CheckoutException : +String errorDescription
-    CheckoutException : +String errorCode
-    CheckoutException : +bool isRecoverable
-
-    class ConfigurationException{
-        note: "Store or checkout configuration issues."
-    }
-    class CheckoutExpiredException{
-        note: "Expired or invalid carts/checkouts."
-    }
-    class AuthenticationException{
-        note: "Authentication issues."
-    }
-    class CheckoutUnavailableException{
-        note: "Unexpected errors."
-    }
-    class HttpException{
-        note: "Unexpected Http response"
-        +int statusCode
-    }
-    class ClientException{
-        note: "Unexpected client/web error"
-    }
-    class CheckoutSheetKitException{
-        note: "Error in Checkout Sheet Kit code"
-    }
-```
-
 #### Error handling
 
 In the event of a checkout error occurring, the Checkout Sheet Kit _may_ attempt to retry to recover from the error. Recovery will happen in the background by discarding the failed WebView and creating a new "recovery" instance. Recovery will be attempted in the following scenarios:
@@ -353,6 +309,46 @@ ShopifyCheckoutSheetKit.configure {
 | `HttpException`                | 'http_error'                   | An unexpected server error has been encountered.                              | Show checkout in a fallback WebView.                   |
 | `ClientException`              | 'client_error'                 | An unhandled client error was encountered.                                    | Show checkout in a fallback WebView.                   |
 | `CheckoutUnavailableException` | 'unknown'                      | Checkout is unavailable for another reason, see error details for more info.  | Show checkout in a fallback WebView.                   |
+
+#### Exception Hierarchy
+
+```mermaid
+---
+title: Checkout Sheet Kit Exception Hierarchy
+---
+classDiagram
+    CheckoutException <|-- ConfigurationException
+    CheckoutException <|-- CheckoutExpiredException
+    CheckoutException <|-- CheckoutSheetKitException
+    CheckoutException <|-- CheckoutUnavailableException
+    CheckoutUnavailableException <|-- HttpException
+    CheckoutUnavailableException <|-- ClientException
+
+    <<Abstract>> CheckoutException
+    CheckoutException : +String errorDescription
+    CheckoutException : +String errorCode
+    CheckoutException : +bool isRecoverable
+
+    class ConfigurationException{
+        note: "Store or checkout configuration issues."
+    }
+    class CheckoutExpiredException{
+        note: "Expired or invalid carts/checkouts."
+    }
+    class CheckoutUnavailableException{
+        note: "Unexpected errors."
+    }
+    class HttpException{
+        note: "Unexpected Http response"
+        +int statusCode
+    }
+    class ClientException{
+        note: "Unexpected client/web error"
+    }
+    class CheckoutSheetKitException{
+        note: "Error in Checkout Sheet Kit code"
+    }
+```
 
 #### Integrating with Web Pixels, monitoring behavioral data
 
