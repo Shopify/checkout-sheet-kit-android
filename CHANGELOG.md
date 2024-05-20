@@ -1,8 +1,11 @@
 # Changelog
 
-## 3.0.0 May 10, 2024
+## 3.0.0 May 20, 2024
 
-- Improved error handling. Attempts to load checkout in a recovery WebView when certain errors are encountered. See [Error Handling](https://github.com/Shopify/checkout-sheet-kit-android#error-handling) for more information.
+- `ShopifyCheckoutSheet.present()` now returns an interface allowing clients to dismiss the sheet.
+- Error handling has been improved*. The kit also attempts to load checkout in a recovery WebView when certain errors are encountered. See [Error Handling](https://github.com/Shopify/checkout-sheet-kit-android#error-handling) for more information.
+
+*Please note the exception class hierarchy has been updated to be more comprehensive. Each exception class now returns an `isRecoverable: Boolean`, an `errorCode` and an `errorDescription`.
 
 ## 2.0.1 March 19, 2024
 
