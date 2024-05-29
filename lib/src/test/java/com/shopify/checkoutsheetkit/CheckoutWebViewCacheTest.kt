@@ -75,6 +75,26 @@ class CheckoutWebViewCacheTest {
     }
 
     @Test
+    fun `calls onPause if preloading so the PageVisibility API reports the correct value`() {
+        withPreloadingEnabled {
+            val viewOne = CheckoutWebView.cacheableCheckoutView(URL, activity, true)
+            shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+            assertThat(shadowOf(viewOne).wasOnPauseCalled()).isTrue()
+        }
+    }
+
+    @Test
+    fun `does not call onPause if not preloading`() {
+        withPreloadingEnabled {
+            val viewOne = CheckoutWebView.cacheableCheckoutView(URL, activity, false)
+
+            shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+
+            assertThat(shadowOf(viewOne).wasOnPauseCalled()).isFalse()
+        }
+    }
+
+    @Test
     fun `cacheableCheckoutView returns the new view if URL has changed`() {
         withPreloadingEnabled {
             val newUrl = "https://another.checkout.url"

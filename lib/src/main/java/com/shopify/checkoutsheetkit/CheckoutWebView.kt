@@ -216,6 +216,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             if (!preloadingEnabled || cacheEntry?.isValid(url) != true) {
                 val view = CheckoutWebView(activity as Context).apply {
                     loadCheckout(url, isPreload)
+                    if (isPreload) onPause()
                 }
 
                 setCacheEntry(
