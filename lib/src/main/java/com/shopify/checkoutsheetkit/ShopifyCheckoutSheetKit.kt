@@ -82,12 +82,22 @@ public object ShopifyCheckoutSheetKit {
     @JvmStatic
     public fun preload(checkoutUrl: String, context: ComponentActivity) {
         if (!configuration.preloading.enabled) return
-        CheckoutWebView.clearCache()
-        CheckoutWebView.cacheableCheckoutView(
-            url = checkoutUrl,
-            activity = context,
-            isPreload = true,
-        )
+
+        val cacheEntry = CheckoutWebView.cacheEntry
+        if (cacheEntry?.view != null && cacheEntry.view.isInViewHierarchy()) {
+            if (cacheEntry.key != checkoutUrl) {
+                CheckoutWebView.markCacheEntryStale()
+            }
+
+            cacheEntry.view.loadCheckout(checkoutUrl, false)
+        } else {
+            CheckoutWebView.markCacheEntryStale()
+            CheckoutWebView.cacheableCheckoutView(
+                url = checkoutUrl,
+                activity = context,
+                isPreload = true,
+            )
+        }
     }
 
     /**
@@ -129,4 +139,8 @@ public fun interface CheckoutSheetKitDialog {
      * Dismisses the checkout sheet dialog.
      */
     public fun dismiss()
+}
+
+private fun CheckoutWebView.isInViewHierarchy(): Boolean {
+    return this.parent != null
 }

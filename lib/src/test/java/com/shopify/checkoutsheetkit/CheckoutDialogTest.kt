@@ -31,7 +31,6 @@ import android.widget.RelativeLayout
 import androidx.activity.ComponentActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.children
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.emptyCompletedEvent
 import org.assertj.core.api.Assertions.assertThat
 import org.awaitility.Awaitility.await
@@ -65,7 +64,7 @@ class CheckoutDialogTest {
             it.preloading = Preloading(enabled = false)
         }
         activity = Robolectric.buildActivity(ComponentActivity::class.java).get()
-        processor = defaultCheckoutEventProcessor()
+        processor = noopDefaultCheckoutEventProcessor(activity)
     }
 
     @After
@@ -349,20 +348,6 @@ class CheckoutDialogTest {
     private fun <T: WebView> Dialog.containsChildOfType(clazz: Class<T>): Boolean {
         val layout = this.findViewById<RelativeLayout>(R.id.checkoutSdkContainer)
         return layout.children.any { clazz.isInstance(it) }
-    }
-
-    private fun defaultCheckoutEventProcessor(): DefaultCheckoutEventProcessor {
-        return object : DefaultCheckoutEventProcessor(activity) {
-            override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {
-                // no-op
-            }
-            override fun onCheckoutFailed(error: CheckoutException) {
-                // no-op
-            }
-            override fun onCheckoutCanceled() {
-                // no-op
-            }
-        }
     }
 
     private fun checkoutException(isRecoverable: Boolean): CheckoutException {

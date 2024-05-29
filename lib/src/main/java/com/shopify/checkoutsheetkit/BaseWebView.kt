@@ -40,7 +40,6 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import java.net.HttpURLConnection.HTTP_GONE
 import java.net.HttpURLConnection.HTTP_NOT_FOUND
-import java.net.HttpURLConnection.HTTP_UNAUTHORIZED
 
 @SuppressLint("SetJavaScriptEnabled")
 internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet? = null) :
