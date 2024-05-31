@@ -68,6 +68,7 @@ internal class CheckoutDialog(
             context,
         )
 
+        checkoutWebView.onResume()
         checkoutWebView.setEventProcessor(eventProcessor())
 
         val colorScheme = ShopifyCheckoutSheetKit.configuration.colorScheme

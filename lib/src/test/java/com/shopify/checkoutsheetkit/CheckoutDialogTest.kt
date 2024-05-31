@@ -33,6 +33,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.children
 import com.shopify.checkoutsheetkit.lifecycleevents.emptyCompletedEvent
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.fail
 import org.awaitility.Awaitility.await
 import org.junit.After
 import org.junit.Before
@@ -48,6 +49,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.shadows.ShadowDialog
 import org.robolectric.shadows.ShadowLooper
+import org.robolectric.shadows.ShadowWebView
 import java.util.concurrent.TimeUnit
 
 @RunWith(RobolectricTestRunner::class)
@@ -96,6 +98,17 @@ class CheckoutDialogTest {
         await().atMost(2, TimeUnit.SECONDS).until {
             dialog.containsChildOfType(CheckoutWebView::class.java)
         }
+    }
+
+    @Test
+    fun `checkoutView child WebView onResume has been called`() {
+        ShopifyCheckoutSheetKit.present("https://shopify.com", activity, processor)
+
+        val webView: WebView = ShadowDialog.getLatestDialog()
+            .findViewById<CheckoutWebViewContainer>(R.id.checkoutSdkContainer)
+            .children.firstOrNull { it is WebView } as WebView? ?: fail("No WebVew found in dialog")
+
+        assertThat(shadowOf(webView).wasOnResumeCalled()).isTrue()
     }
 
     @Test

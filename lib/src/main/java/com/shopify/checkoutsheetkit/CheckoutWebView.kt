@@ -216,6 +216,11 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             if (!preloadingEnabled || cacheEntry?.isValid(url) != true) {
                 val view = CheckoutWebView(activity as Context).apply {
                     loadCheckout(url, isPreload)
+                    if (isPreload) {
+                        // Pauses processing that can be paused safely (e.g. geolocation, animations), but not JavaScript / network requests
+                        // https://developer.android.com/reference/android/webkit/WebView#onPause()
+                        onPause()
+                    }
                 }
 
                 setCacheEntry(
