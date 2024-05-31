@@ -81,7 +81,7 @@ class CheckoutWebViewTest {
         ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Dark()
         val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
 
-        assertThat(view.settings.userAgentString).contains("ShopifyCheckoutSDK/3.0.0 ")
+        assertThat(view.settings.userAgentString).contains("ShopifyCheckoutSDK/3.0.1 ")
     }
 
     @Test
