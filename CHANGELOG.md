@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.1 May 31, 2024
+
+- Call `onPause()` on the WebView as it's created if preloading, and `onResume()` when it's presented, so the Page Visibility API reports correct values.
+- Ensure `WebView.destroy()` is not called on visible views, if preload is called while the view is visible.
+
 ## 3.0.0 May 20, 2024
 
 - `ShopifyCheckoutSheet.present()` now returns an interface allowing clients to dismiss the sheet.
