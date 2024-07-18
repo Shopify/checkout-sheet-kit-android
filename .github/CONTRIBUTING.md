@@ -39,3 +39,22 @@ project before it is implemented.
 5. Commit your changes and push
 6. Ensure all checks (e.g. tests) are passing in GitHub
 7. Create a new pull request with a detailed description of what is changing and why
+
+## Releasing a new version
+
+Open a pull request with the following changes:
+
+1. Bump the [versionName](https://github.com/Shopify/checkout-kit-android/blob/main/lib/build.gradle#L17)
+2. Add an entry to the top of the [CHANGELOG](https://github.com/shopify/checkout-sheet-kit-android/blob/main/CHANGELOG.md)
+
+Once you have merged a pull request with these changes, you will be ready to publish a new version.
+
+TO do so, navigate to <https://github.com/Shopify/checkout-sheet-kit-android/releases> and click "Draft a new release" then complete the following steps:
+
+1. Create a tag for the new version,
+2. Use the same tag as the name for the version,
+3. Document a full list of changes since the previous release, tagging merged pull requests where applicable, in the description box,
+4. Check "Set as the latest release",
+5. When ready click "Publish release". This will trigger a GitHub workflow to start the process of publishing a new version of the library to maven central.
+
+**Note** - A manual approval by a maintainer is required before release to maven central.
