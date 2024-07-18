@@ -6,7 +6,7 @@ files = []
 Find.find('.') do |path|
     next unless File.file?(path) && path.end_with?('.kt')
 
-    lines = IO.readlines(path)
+    lines = File.readlines(path)
 
     files << path unless lines[0].start_with?("/*") && lines[1].start_with?(" * MIT License")
 end
