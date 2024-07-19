@@ -49,12 +49,12 @@ Open a pull request with the following changes:
 
 Once you have merged a pull request with these changes, you will be ready to publish a new version.
 
-TO do so, navigate to <https://github.com/Shopify/checkout-sheet-kit-android/releases> and click "Draft a new release" then complete the following steps:
+To do so, navigate to <https://github.com/Shopify/checkout-sheet-kit-android/releases> and click "Draft a new release" then complete the following steps:
 
-1. Create a tag for the new version,
-2. Use the same tag as the name for the version,
-3. Document a full list of changes since the previous release, tagging merged pull requests where applicable, in the description box,
-4. Check "Set as the latest release",
-5. When ready click "Publish release". This will trigger a GitHub workflow to start the process of publishing a new version of the library to maven central.
+1. Create a tag for the new version
+2. Use the same tag as the name for the version
+3. Document a full list of changes since the previous release, tagging merged pull requests where applicable, in the description box
+4. Check "Set as the latest release"
+5. When ready click "Publish release"
 
-**Note** - A manual approval by a maintainer is required before release to maven central.
+This will trigger a GitHub workflow to start the process of publishing a new version of the library to maven central. **Note** - A manual approval by a maintainer is required before release to maven central.
