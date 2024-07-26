@@ -22,10 +22,12 @@
  */
 package com.shopify.checkoutsheetkit
 
+import android.Manifest
 import android.graphics.Color
 import android.os.Looper
 import android.view.View.VISIBLE
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.webkit.PermissionRequest
 import androidx.activity.ComponentActivity
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
@@ -37,6 +39,7 @@ import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.spy
 import org.mockito.Mockito.verify
+import org.mockito.kotlin.whenever
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
@@ -199,6 +202,35 @@ class CheckoutWebViewTest {
 
         shadow.webChromeClient?.onProgressChanged(view, 50)
         verify(webViewEventProcessor).updateProgressBar(50)
+    }
+
+    @Test
+    fun `calls grant when video capture resource permission requested and app has camera permission`() {
+        val application = shadowOf(activity.application)
+        application.grantPermissions(Manifest.permission.CAMERA)
+
+        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
+        val permissionRequest = mock<PermissionRequest>()
+        val requestedResources = arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE)
+        whenever(permissionRequest.resources).thenReturn(requestedResources)
+
+        val shadow = shadowOf(view)
+        shadow.webChromeClient?.onPermissionRequest(permissionRequest)
+
+        verify(permissionRequest).grant(requestedResources)
+    }
+
+    @Test
+    fun `calls deny when video capture resource permission requested and app does not have camera permission`() {
+        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
+        val permissionRequest = mock<PermissionRequest>()
+        val requestedResources = arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE)
+        whenever(permissionRequest.resources).thenReturn(requestedResources)
+
+        val shadow = shadowOf(view)
+        shadow.webChromeClient?.onPermissionRequest(permissionRequest)
+
+        verify(permissionRequest).deny()
     }
 
     @Test

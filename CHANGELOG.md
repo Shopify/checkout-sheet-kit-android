@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0.2 Jul 26, 2024
+
+- Implements `webChromeClient.onPermissionRequest()` to grant permission to the camera to allow apps that require the camera to verify identity to function correctly.
+- Relevant camera permissions must be added to the client's `AndroidManifest.xml`
+
 ## 3.0.1 May 31, 2024
 
 - Call `onPause()` on the WebView as it's created if preloading, and `onResume()` when it's presented, so the Page Visibility API reports correct values.
