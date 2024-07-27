@@ -83,6 +83,7 @@ class MobileBuyEventProcessor(
     }
 
     override fun onPermissionRequest(permissionRequest: PermissionRequest) {
+        logger.log("Permission requested for ${permissionRequest.resources}")
         context.getActivity()?.let { activity ->
             if (Permissions.hasPermission(activity, permissionRequest)) {
                 permissionRequest.grant(permissionRequest.resources)
