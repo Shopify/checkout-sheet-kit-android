@@ -2,8 +2,7 @@
 
 ## 3.0.2 Jul 26, 2024
 
-- Implements `webChromeClient.onPermissionRequest()` to grant permission to the camera to allow apps that require the camera to verify identity to function correctly.
-- Relevant camera permissions must be added to the client's `AndroidManifest.xml`
+- Implements `onPermissionRequest()` to call a new `eventProcessor.onPermissionRequest(permissionRequest: PermissionRequest)` callback allowing clients to grant or deny permission requests, or request permissions (e.g. camera, record audio). This is sometimes required for checkouts that use features that require verifying identity.
 
 ## 3.0.1 May 31, 2024
 

@@ -25,6 +25,7 @@ package com.shopify.checkoutsheetkit
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.webkit.PermissionRequest
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 
@@ -59,6 +60,11 @@ public interface CheckoutEventProcessor {
     public fun onCheckoutLinkClicked(uri: Uri)
 
     /**
+     * A permission has been requested by the web chrome client, e.g. to access the camera
+     */
+    public fun onPermissionRequest(permissionRequest: PermissionRequest)
+
+    /**
      * Web Pixel event emitted from checkout, that can be optionally transformed, enhanced (e.g. with user and session identifiers),
      * and processed
      */
@@ -79,6 +85,9 @@ internal class NoopEventProcessor : CheckoutEventProcessor {
     }
 
     override fun onWebPixelEvent(event: PixelEvent) {/* noop */
+    }
+
+    override fun onPermissionRequest(permissionRequest: PermissionRequest) {/* noop */
     }
 }
 
@@ -103,6 +112,10 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
 
     override fun onWebPixelEvent(event: PixelEvent) {
         // no-op, override to implement
+    }
+
+    override fun onPermissionRequest(permissionRequest: PermissionRequest) {
+        // no-op override to implement
     }
 
     private fun Context.launchEmailApp(to: String) {

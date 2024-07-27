@@ -27,6 +27,7 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
+import android.webkit.PermissionRequest
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 
@@ -59,6 +60,12 @@ internal class CheckoutWebViewEventProcessor(
     fun onCheckoutViewFailedWithError(error: CheckoutException) {
         onMainThread {
             closeCheckoutDialogWithError(error)
+        }
+    }
+
+    fun onPermissionRequest(permissionRequest: PermissionRequest) {
+        onMainThread {
+            eventProcessor.onPermissionRequest(permissionRequest)
         }
     }
 

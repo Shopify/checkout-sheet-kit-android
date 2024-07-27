@@ -205,11 +205,11 @@ class CheckoutWebViewTest {
     }
 
     @Test
-    fun `calls grant when video capture resource permission requested and app has camera permission`() {
-        val application = shadowOf(activity.application)
-        application.grantPermissions(Manifest.permission.CAMERA)
-
+    fun `calls processors onPermissionRequest when resource permission requested`() {
         val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
+        val webViewEventProcessor = mock<CheckoutWebViewEventProcessor>()
+        view.setEventProcessor(webViewEventProcessor)
+
         val permissionRequest = mock<PermissionRequest>()
         val requestedResources = arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE)
         whenever(permissionRequest.resources).thenReturn(requestedResources)
@@ -217,20 +217,7 @@ class CheckoutWebViewTest {
         val shadow = shadowOf(view)
         shadow.webChromeClient?.onPermissionRequest(permissionRequest)
 
-        verify(permissionRequest).grant(requestedResources)
-    }
-
-    @Test
-    fun `calls deny when video capture resource permission requested and app does not have camera permission`() {
-        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
-        val permissionRequest = mock<PermissionRequest>()
-        val requestedResources = arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE)
-        whenever(permissionRequest.resources).thenReturn(requestedResources)
-
-        val shadow = shadowOf(view)
-        shadow.webChromeClient?.onPermissionRequest(permissionRequest)
-
-        verify(permissionRequest).deny()
+        verify(webViewEventProcessor).onPermissionRequest(permissionRequest)
     }
 
     @Test

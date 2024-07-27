@@ -25,7 +25,6 @@ package com.shopify.checkoutsheetkit
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.pm.PackageManager
 import android.graphics.Color.TRANSPARENT
 import android.os.Build
 import android.util.AttributeSet
@@ -71,30 +70,7 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
                 getEventProcessor().updateProgressBar(newProgress)
             }
             override fun onPermissionRequest(request: PermissionRequest) {
-                request.resources?.forEach { resource ->
-                    if (resource == PermissionRequest.RESOURCE_VIDEO_CAPTURE) {
-                        if (!hasCameraPermission()) {
-                            requestPermissions()
-                            request.deny()
-                        } else {
-                            request.grant(request.resources)
-                        }
-                    }
-                }
-            }
-
-            private fun hasCameraPermission() =
-                ActivityCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.CAMERA
-                ) == PackageManager.PERMISSION_GRANTED
-
-            private fun requestPermissions() {
-                ActivityCompat.requestPermissions(
-                    context as ComponentActivity,
-                    arrayOf(Manifest.permission.CAMERA),
-                    CAMERA_PERMISSION_REQUEST
-                )
+                getEventProcessor().onPermissionRequest(request)
             }
         }
         isHorizontalScrollBarEnabled = false
@@ -225,7 +201,6 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
     companion object {
         private const val DEPRECATED_REASON_HEADER = "X-Shopify-API-Deprecated-Reason"
         private const val LIQUID_NOT_SUPPORTED = "checkout_liquid_not_supported"
-        private const val CAMERA_PERMISSION_REQUEST = 1
 
         private const val TOO_MANY_REQUESTS = 429
         private val CLIENT_ERROR = 400..499
