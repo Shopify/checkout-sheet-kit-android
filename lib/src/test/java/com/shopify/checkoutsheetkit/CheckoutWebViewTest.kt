@@ -22,7 +22,6 @@
  */
 package com.shopify.checkoutsheetkit
 
-import android.Manifest
 import android.graphics.Color
 import android.os.Looper
 import android.view.View.VISIBLE

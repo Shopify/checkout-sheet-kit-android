@@ -22,7 +22,6 @@
  */
 package com.shopify.checkoutsheetkit
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color.TRANSPARENT
@@ -40,8 +39,6 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import androidx.activity.ComponentActivity
-import androidx.core.app.ActivityCompat
 import java.net.HttpURLConnection.HTTP_GONE
 import java.net.HttpURLConnection.HTTP_NOT_FOUND
 

@@ -49,7 +49,6 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.shadows.ShadowDialog
 import org.robolectric.shadows.ShadowLooper
-import org.robolectric.shadows.ShadowWebView
 import java.util.concurrent.TimeUnit
 
 @RunWith(RobolectricTestRunner::class)
