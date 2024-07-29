@@ -31,6 +31,7 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup.LayoutParams
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.webkit.PermissionRequest
 import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
@@ -64,6 +65,9 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
             override fun onProgressChanged(view: WebView?, newProgress: Int) {
                 super.onProgressChanged(view, newProgress)
                 getEventProcessor().updateProgressBar(newProgress)
+            }
+            override fun onPermissionRequest(request: PermissionRequest) {
+                getEventProcessor().onPermissionRequest(request)
             }
         }
         isHorizontalScrollBarEnabled = false

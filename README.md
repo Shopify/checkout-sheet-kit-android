@@ -251,6 +251,11 @@ val processor = object : DefaultCheckoutEventProcessor(activity) {
         // Called when a web pixel event is emitted in checkout.
         // Use this to submit events to your analytics system, see below.
     }
+
+    override fun onPermissionRequest(permissionRequest: PermissionRequest) {
+        // Called when a permission has been requested, e.g. to access the camera
+        // implement to grant/deny/request permissions.
+    }
 }
 ```
 

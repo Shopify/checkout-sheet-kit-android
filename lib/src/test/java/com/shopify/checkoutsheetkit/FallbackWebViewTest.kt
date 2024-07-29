@@ -66,7 +66,7 @@ class FallbackWebViewTest {
         ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Dark()
         Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
             val view = FallbackWebView(activityController.get())
-            assertThat(view.settings.userAgentString).contains("ShopifyCheckoutSDK/3.0.1 ")
+            assertThat(view.settings.userAgentString).contains("ShopifyCheckoutSDK/3.0.2 ")
         }
     }
 

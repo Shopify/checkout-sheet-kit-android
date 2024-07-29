@@ -26,6 +26,7 @@ import android.graphics.Color
 import android.os.Looper
 import android.view.View.VISIBLE
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.webkit.PermissionRequest
 import androidx.activity.ComponentActivity
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
@@ -37,6 +38,7 @@ import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.spy
 import org.mockito.Mockito.verify
+import org.mockito.kotlin.whenever
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
@@ -81,7 +83,7 @@ class CheckoutWebViewTest {
         ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Dark()
         val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
 
-        assertThat(view.settings.userAgentString).contains("ShopifyCheckoutSDK/3.0.1 ")
+        assertThat(view.settings.userAgentString).contains("ShopifyCheckoutSDK/3.0.2 ")
     }
 
     @Test
@@ -199,6 +201,22 @@ class CheckoutWebViewTest {
 
         shadow.webChromeClient?.onProgressChanged(view, 50)
         verify(webViewEventProcessor).updateProgressBar(50)
+    }
+
+    @Test
+    fun `calls processors onPermissionRequest when resource permission requested`() {
+        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
+        val webViewEventProcessor = mock<CheckoutWebViewEventProcessor>()
+        view.setEventProcessor(webViewEventProcessor)
+
+        val permissionRequest = mock<PermissionRequest>()
+        val requestedResources = arrayOf(PermissionRequest.RESOURCE_VIDEO_CAPTURE)
+        whenever(permissionRequest.resources).thenReturn(requestedResources)
+
+        val shadow = shadowOf(view)
+        shadow.webChromeClient?.onPermissionRequest(permissionRequest)
+
+        verify(webViewEventProcessor).onPermissionRequest(permissionRequest)
     }
 
     @Test

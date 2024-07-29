@@ -22,7 +22,9 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation
 
-import android.widget.Toast
+import android.content.Context
+import android.content.ContextWrapper
+import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
@@ -30,27 +32,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.AppBarState
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.analytics.Analytics
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.analytics.toAnalyticsEvent
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.MobileBuyEventProcessor
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.LogsView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.LogsViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.product.ProductView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsViewModel
-import com.shopify.checkoutsheetkit.CheckoutException
-import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
-import com.shopify.checkoutsheetkit.pixelevents.CustomPixelEvent
-import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
-import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 
 sealed class Screen(val route: String) {
@@ -97,49 +88,12 @@ fun CheckoutSdkNavHost(
             CartView(
                 cartViewModel = cartViewModel,
                 setAppBarState = setAppBarState,
-                checkoutEventProcessor = object : DefaultCheckoutEventProcessor(activity) {
-                    override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {
-                        logger.log(checkoutCompletedEvent)
-
-                        cartViewModel.clearCart()
-                        GlobalScope.launch(Dispatchers.Main) {
-                            navController.popBackStack(Screen.Product.route, false)
-                        }
-                    }
-
-                    override fun onCheckoutFailed(error: CheckoutException) {
-                        logger.log("Checkout failed", error)
-
-                        if (!error.isRecoverable) {
-                            GlobalScope.launch(Dispatchers.Main) {
-                                Toast.makeText(
-                                    activity,
-                                    activity.getText(R.string.checkout_error),
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        }
-                    }
-
-                    override fun onCheckoutCanceled() {
-                        // optionally respond to checkout being canceled/closed
-                        logger.log("Checkout canceled")
-                    }
-
-                    override fun onWebPixelEvent(event: PixelEvent) {
-                        logger.log(event)
-
-                        // handle pixel events (e.g. transform, augment, and process), e.g.
-                        val analyticsEvent = when (event) {
-                            is StandardPixelEvent -> event.toAnalyticsEvent()
-                            is CustomPixelEvent -> event.toAnalyticsEvent()
-                        }
-
-                        analyticsEvent?.let {
-                            Analytics.record(analyticsEvent)
-                        }
-                    }
-                }
+                checkoutEventProcessor = MobileBuyEventProcessor(
+                    cartViewModel,
+                    navController,
+                    logger,
+                    activity,
+                )
             )
         }
 
@@ -158,4 +112,10 @@ fun CheckoutSdkNavHost(
             )
         }
     }
+}
+
+fun Context.getActivity(): ComponentActivity? = when (this) {
+    is ComponentActivity -> this
+    is ContextWrapper -> baseContext.getActivity()
+    else -> null
 }
