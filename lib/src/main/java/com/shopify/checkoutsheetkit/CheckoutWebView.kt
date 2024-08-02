@@ -42,6 +42,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
     override val recoverErrors = true
     override val variant = "standard"
     override val cspSchema = CheckoutBridge.SCHEMA_VERSION_NUMBER
+    var isPreload = false
 
     private val checkoutBridge = CheckoutBridge(CheckoutWebViewEventProcessor(NoopEventProcessor()))
     private var loadComplete = false
@@ -95,6 +96,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
 
     fun loadCheckout(url: String, isPreload: Boolean) {
         initLoadTime = System.currentTimeMillis()
+        this.isPreload = isPreload
         Handler(Looper.getMainLooper()).post {
             val headers = if (isPreload) mutableMapOf("Sec-Purpose" to "prefetch") else mutableMapOf()
             loadUrl(url, headers)
@@ -114,7 +116,10 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             val timeToLoad = System.currentTimeMillis() - initLoadTime
             checkoutBridge.sendMessage(view, CheckoutBridge.SDKOperation.Instrumentation(
                 InstrumentationPayload(
-                    "checkout_finished_loading", timeToLoad, histogram, mapOf()
+                    name= "checkout_finished_loading",
+                    value= timeToLoad,
+                    type = histogram,
+                    tags = mapOf("preloading" to isPreload.toString()),
                 )
             ))
             getEventProcessor().onCheckoutViewLoadComplete()
