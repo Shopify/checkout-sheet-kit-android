@@ -43,6 +43,7 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.shadows.ShadowLooper
+import java.util.regex.Pattern
 
 @RunWith(RobolectricTestRunner::class)
 class CheckoutWebViewTest {
@@ -137,6 +138,38 @@ class CheckoutWebViewTest {
             ShadowLooper.shadowMainLooper().runToEndOfTasks()
 
             assertThat(shadow.lastAdditionalHttpHeaders.getOrDefault("Sec-Purpose", "")).isEqualTo("prefetch")
+        }
+    }
+
+    @Test
+    fun `records checkout_finished_loading instrumentation event on page finished - preloading`() {
+        withPreloadingEnabled {
+            val isPreload = true
+            val view = CheckoutWebView.cacheableCheckoutView(URL, activity, isPreload)
+            val shadow = shadowOf(view)
+            shadow.webViewClient.onPageFinished(view, URL)
+
+            val regex = Pattern.compile(
+                """.*\.dispatchMessage\('instrumentation', \{"detail":\{"name":"checkout_finished_loading","value":\d*,"type":"histogram","tags":\{"preloading":"true"}}}\).*""",
+                Pattern.DOTALL
+            )
+            assertThat(shadow.lastEvaluatedJavascript).matches(regex)
+        }
+    }
+
+    @Test
+    fun `records checkout_finished_loading instrumentation event on page finished - presenting`() {
+        withPreloadingEnabled {
+            val isPreload = false
+            val view = CheckoutWebView.cacheableCheckoutView(URL, activity, isPreload)
+            val shadow = shadowOf(view)
+            shadow.webViewClient.onPageFinished(view, URL)
+
+            val regex = Pattern.compile(
+                """.*\.dispatchMessage\('instrumentation', \{"detail":\{"name":"checkout_finished_loading","value":\d*,"type":"histogram","tags":\{"preloading":"false"}}}\).*""",
+                Pattern.DOTALL
+            )
+            assertThat(shadow.lastEvaluatedJavascript).matches(regex)
         }
     }
 
