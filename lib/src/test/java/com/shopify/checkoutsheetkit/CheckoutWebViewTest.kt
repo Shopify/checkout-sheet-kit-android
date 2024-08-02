@@ -150,6 +150,7 @@ class CheckoutWebViewTest {
             shadow.webViewClient.onPageFinished(view, URL)
 
             val regex = Pattern.compile(
+                @Suppress("MaxLineLength")
                 """.*\.dispatchMessage\('instrumentation', \{"detail":\{"name":"checkout_finished_loading","value":\d*,"type":"histogram","tags":\{"preloading":"true"}}}\).*""",
                 Pattern.DOTALL
             )
@@ -166,6 +167,7 @@ class CheckoutWebViewTest {
             shadow.webViewClient.onPageFinished(view, URL)
 
             val regex = Pattern.compile(
+                @Suppress("MaxLineLength")
                 """.*\.dispatchMessage\('instrumentation', \{"detail":\{"name":"checkout_finished_loading","value":\d*,"type":"histogram","tags":\{"preloading":"false"}}}\).*""",
                 Pattern.DOTALL
             )
