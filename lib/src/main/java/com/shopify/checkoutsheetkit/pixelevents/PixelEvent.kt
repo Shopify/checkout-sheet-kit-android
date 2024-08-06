@@ -905,7 +905,7 @@ public data class DeliveryOption(
     public val title: String? = null,
 
     /**
-     * The type of delivery option, e.g. pickup, pickupPoint, shipping, local
+     * The type of delivery option, e.g. pickup, pickupPoint, shipping, local.
      */
     public val type: String? = null,
 )
@@ -955,7 +955,13 @@ public data class OrderCustomer(
 
 @Serializable
 public data class Property(
+    /**
+     * The key for the property.
+     */
     public val key: String? = null,
+    /**
+     * The value for the property.
+     */
     public val value: String? = null,
 )
 
