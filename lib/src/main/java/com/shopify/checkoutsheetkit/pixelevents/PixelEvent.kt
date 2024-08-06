@@ -507,6 +507,16 @@ public data class Checkout(
     public val billingAddress: MailingAddress? = null,
 
     /**
+     * Indicates whether the customer has consented to be sent marketing material via email.
+     */
+    public val buyerAcceptsEmailMarketing: Boolean? = null,
+
+    /**
+     * Indicates whether the customer has consented to be sent marketing material via SMS.
+     */
+    public val buyerAcceptsSmsMarketing: Boolean? = null,
+
+    /**
      * The three-letter code that represents the currency, for example, USD.
      * Supported codes include standard ISO 4217 codes, legacy codes, and non-
      * standard codes.
@@ -514,9 +524,19 @@ public data class Checkout(
     public val currencyCode: String? = null,
 
     /**
+     * Represents the selected delivery options for a checkout.
+     */
+    public val delivery: Delivery? = null,
+
+    /**
      * A list of discount applications.
      */
     public val discountApplications: List<DiscountApplication>? = null,
+
+    /**
+     * The total amount of the discounts applied to the price of the checkout.
+     */
+    public val discountsAmount: MoneyV2? = null,
 
     /**
      * The email attached to this checkout.
@@ -528,6 +548,11 @@ public data class Checkout(
      * in the checkout.
      */
     public val lineItems: List<CheckoutLineItem>? = null,
+
+    /**
+     * Information about the active localized experience.
+     */
+    public val localization: Localization? = null,
 
     /**
      * The resulting order from a paid checkout.
@@ -550,6 +575,11 @@ public data class Checkout(
      * `shipping_line` object.
      */
     public val shippingLine: ShippingRate? = null,
+
+    /**
+     * The phone number provided by the buyer after opting in to SMS marketing.
+     */
+    public val smsMarketingPhone: String? = null,
 
     /**
      * The price at checkout before duties, shipping, and taxes.
@@ -594,6 +624,53 @@ public data class Attribute(
      * The value for the attribute.
      */
     public val value: String? = null
+)
+
+@Serializable
+public data class Country(
+    /**
+     * The ISO-3166-1 code for this country, for example, "US".
+     */
+    public val isoCode: String? = null,
+)
+
+@Serializable
+public data class Language(
+    /**
+     * The BCP-47 language tag. It may contain a dash followed by an ISO 3166-1 alpha-2 region code, for example, "en-US".
+     */
+    public val isoCode: String? = null,
+)
+
+@Serializable
+public data class Market(
+    /**
+     * A human-readable, shop-scoped identifier.
+     */
+    public val handle: String? = null,
+
+    /**
+     * A globally unique identifier.
+     */
+    public val id: String? = null,
+)
+
+@Serializable
+public data class Localization(
+    /**
+     * The country of the active localized experience.
+     */
+    public val country: Country? = null,
+
+    /**
+     * The language of the active localized experience.
+     */
+    public val language: Language? = null,
+
+    /**
+     * The market including the country of the active localized experience.
+     */
+    public val market: Market? = null,
 )
 
 /**
@@ -756,14 +833,30 @@ public data class CheckoutLineItem(
     public val discountAllocations: List<DiscountAllocation>? = null,
 
     /**
+     * The combined price of all of the items in the line item after line-level discounts have been applied.
+     */
+    public val finalLinePrice: MoneyV2? = null,
+
+    /**
      * A globally unique identifier.
      */
     public val id: String? = null,
 
     /**
+     * The properties of the line item. A shop may add, or enable customers to add custom information to a line item. Line item properties
+     * consist of a key and value pair.
+     */
+    public val properties: List<Property>? = null,
+
+    /**
      * The quantity of the line item.
      */
     public val quantity: Double? = null,
+
+    /**
+     * The selling plan associated with the line item and the effect that each selling plan has on variants when they're purchased.
+     */
+    public val sellingPlanAllocation: SellingPlanAllocation? = null,
 
     /**
      * The title of the line item. Defaults to the product's title.
@@ -774,6 +867,47 @@ public data class CheckoutLineItem(
      * Product variant of the line item.
      */
     public val variant: ProductVariant? = null
+)
+
+@Serializable
+public data class Delivery(
+    /**
+     * The selected delivery options for the event.
+     */
+    public val selectedDeliveryOptions: List<DeliveryOption>? = null,
+)
+
+@Serializable
+public data class DeliveryOption(
+    /**
+     * The cost of the delivery option.
+     */
+    public val cost: MoneyV2? = null,
+
+    /**
+     * The cost of the delivery option after discounts have been applied.
+     */
+    public val costAfterDiscounts: MoneyV2? = null,
+
+    /**
+     * The description of the delivery option.
+     */
+    public val description: String? = null,
+
+    /**
+     * The unique identifier of the delivery option.
+     */
+    public val handle: String? = null,
+
+    /**
+     * The title of the delivery option.
+     */
+    public val title: String? = null,
+
+    /**
+     * The type of delivery option, e.g. pickup, pickupPoint, shipping, local
+     */
+    public val type: String? = null,
 )
 
 /**
@@ -799,10 +933,51 @@ public data class DiscountAllocation(
  */
 @Serializable
 public data class Order(
+
+    /**
+     * The customer that placed the order.
+     */
+    public val customer: OrderCustomer? = null,
+
     /**
      * The ID of the order.
      */
     public val id: String? = null
+)
+
+@Serializable
+public data class OrderCustomer(
+    /**
+     * The ID of the customer.
+     */
+    public val id: String? = null,
+)
+
+@Serializable
+public data class Property(
+    public val key: String? = null,
+    public val value: String? = null,
+)
+
+@Serializable
+public data class SellingPlanAllocation(
+    /**
+     * A representation of how products and variants can be sold and purchased. For example, an individual selling plan could be
+     * '6 weeks of prepaid granola, delivered weekly'.
+     */
+    public val sellingPlan: SellingPlan,
+)
+
+@Serializable
+public data class SellingPlan(
+    /**
+     * A globally unique identifier.
+     */
+    public val id: String? = null,
+    /**
+     * The name of the selling plan. For example, '6 weeks of prepaid granola, delivered weekly'.
+     */
+    public val name: String? = null,
 )
 
 /**
@@ -829,7 +1004,36 @@ public data class Transaction(
     /**
      * The name of the payment provider used for the transaction.
      */
-    public val gateway: String? = null
+    public val gateway: String? = null,
+
+    /**
+     * The payment method used for the transaction.
+     */
+    public val paymentMethod: TransactionPaymentMethod? = null,
+)
+
+@Serializable
+public data class TransactionPaymentMethod(
+    /**
+     * The name of the payment method used for the transaction. This may further specify the payment method used.
+     */
+    public val name: String? = null,
+
+    /**
+     * The type of payment method used for the transaction.
+     *
+     * - creditCard: A vaulted or manually entered credit card.
+     * - redeemable: A redeemable payment method, such as a gift card or store credit.
+     * - deferred: A deferred payment, such as invoicing the buyer and collecting payment later.
+     * - local: A local payment method specific to the current region or market.
+     * - manualPayment: A manual payment method, such as an in-person retail transaction.
+     * - paymentOnDelivery: A payment that will be collected on delivery.
+     * - wallet: An integrated wallet, such as PayPal, Google Pay, Apple Pay, etc.
+     * - offsite: A payment processed outside of Shopify's checkout, excluding integrated wallets.
+     * - customOnSite: A custom payment method that is processed through a checkout extension with a payments app.
+     * - other: Another type of payment not defined here.
+     */
+    public val type: String? = null,
 )
 
 /**
