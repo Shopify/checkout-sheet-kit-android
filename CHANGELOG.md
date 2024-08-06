@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.3 August 6, 2024
+
+- Tag instrumentation with `preloading` state.
+
 ## 3.0.2 Jul 26, 2024
 
 - Implements `onPermissionRequest()` to call a new `eventProcessor.onPermissionRequest(permissionRequest: PermissionRequest)` callback allowing clients to grant or deny permission requests, or request permissions (e.g. camera, record audio). This is sometimes required for checkouts that use features that require verifying identity.
