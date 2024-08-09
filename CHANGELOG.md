@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.0.4 August 7, 2024
+
+- Update Web Pixel schema data classes.
+
 ## 3.0.3 August 6, 2024
 
 - Tag instrumentation with `preloading` state.
@@ -16,9 +20,9 @@
 ## 3.0.0 May 20, 2024
 
 - `ShopifyCheckoutSheet.present()` now returns an interface allowing clients to dismiss the sheet.
-- Error handling has been improved*. The kit also attempts to load checkout in a recovery WebView when certain errors are encountered. See [Error Handling](https://github.com/Shopify/checkout-sheet-kit-android#error-handling) for more information.
+- Error handling has been improved\*. The kit also attempts to load checkout in a recovery WebView when certain errors are encountered. See [Error Handling](https://github.com/Shopify/checkout-sheet-kit-android#error-handling) for more information.
 
-*Please note the exception class hierarchy has been updated to be more comprehensive. Each exception class now returns an `isRecoverable: Boolean`, an `errorCode` and an `errorDescription`.
+\*Please note the exception class hierarchy has been updated to be more comprehensive. Each exception class now returns an `isRecoverable: Boolean`, an `errorCode` and an `errorDescription`.
 
 ## 2.0.1 March 19, 2024
 
@@ -36,8 +40,8 @@ If you were previously setting the loading spinner color, the field has been ren
 
 ```diff
 Colors(
-	- spinnerColor = Color.ResourceId(R.color.a_color),
-	+ progressIndicator = Color.ResourceId(R.color.a_color),
+ - spinnerColor = Color.ResourceId(R.color.a_color),
+ + progressIndicator = Color.ResourceId(R.color.a_color),
 )
 ```
 
@@ -45,7 +49,7 @@ Colors(
 
 ```kotlin
 override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {
-	println(checkoutCompletedEvent.orderDetails.id)
+ println(checkoutCompletedEvent.orderDetails.id)
 }
 ```
 
@@ -81,12 +85,14 @@ _Note_: If your processor extends `DefaultCheckoutEventProcessor`, a no-op imple
 ```
 
 2. Update the imports throughout your codebase:
+
 ```diff
 - com.shopify.checkoutkit.*
 + com.shopify.checkoutsheetkit.*
 ```
 
 3. Update the `present|preload|configure()` calls throughout your codebase:
+
 ```diff
 - ShopifyCheckoutKit.present|preload|configure()
 + ShopifyCheckoutSheetKit.present|preload|configure()
