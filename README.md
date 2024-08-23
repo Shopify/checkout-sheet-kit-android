@@ -10,7 +10,7 @@
 
 ### Requirements
 
-- JDK 11+
+- JDK 17+
 - Android SDK 23+
 - The SDK is not compatible with checkout.liquid. The Shopify Store must be migrated for extensibility
 

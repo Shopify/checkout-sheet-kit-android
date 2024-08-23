@@ -54,7 +54,6 @@ fun ProductView(
 ) {
 
     val productUIState = productViewModel.uiState.collectAsState().value
-    val activity = LocalContext.current as ComponentActivity
 
     LaunchedEffect(productUIState) {
         setAppBarState(
@@ -124,9 +123,6 @@ fun ProductView(
                             productViewModel.setIsAddingToCart(true)
                             cartViewModel.addToCart(selectedVariant.id) {
                                 productViewModel.setIsAddingToCart(false)
-                                if (it?.checkoutUrl != null) {
-                                    ShopifyCheckoutSheetKit.preload(it.checkoutUrl, activity)
-                                }
                             }
                         }
                     }
