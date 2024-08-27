@@ -137,14 +137,14 @@ internal class CheckoutBridge(
     }
 
     companion object {
-        const val SCHEMA_VERSION_NUMBER: String = "8.1"
+        const val SCHEMA_VERSION_NUMBER: String = "2024-04"
 
         private fun dispatchMessageTemplate(body: String) = """|
-        |if (window.MobileCheckoutSdk && window.MobileCheckoutSdk.dispatchMessage) {
-        |    window.MobileCheckoutSdk.dispatchMessage($body);
+        |if (window.Shopify && window.Shopify.CheckoutSheetProtocol.postMessage) {
+        |    window.Shopify.CheckoutSheetProtocol.postMessage($body);
         |} else {
         |    window.addEventListener('mobileCheckoutBridgeReady', function () {
-        |        window.MobileCheckoutSdk.dispatchMessage($body);
+        |        window.Shopify.CheckoutSheetProtocol.postMessage($body);
         |    }, {passive: true, once: true});
         |}
         |""".trimMargin()

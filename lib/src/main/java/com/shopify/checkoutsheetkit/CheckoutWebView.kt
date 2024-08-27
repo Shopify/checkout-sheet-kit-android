@@ -98,7 +98,12 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         initLoadTime = System.currentTimeMillis()
         this.isPreload = isPreload
         Handler(Looper.getMainLooper()).post {
-            val headers = if (isPreload) mutableMapOf("Sec-Purpose" to "prefetch") else mutableMapOf()
+            val headers = mutableMapOf(
+                COLOR_SCHEME_HEADER to ShopifyCheckoutSheetKit.configuration.colorScheme.id
+            )
+            if (isPreload) {
+                headers["Sec-Purpose"] = "prefetch"
+            }
             loadUrl(url, headers)
         }
     }
@@ -129,10 +134,21 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             view: WebView?,
             request: WebResourceRequest?
         ): Boolean {
-            if (request?.hasExternalAnnotation() == true || request?.url?.isContactLink() == true) {
-                checkoutBridge.getEventProcessor().onCheckoutViewLinkClicked(request.trimmedUri())
-                return true
+            request?.let {
+                if (request.hasExternalAnnotation() || request.url?.isContactLink() == true) {
+                    checkoutBridge.getEventProcessor().onCheckoutViewLinkClicked(request.trimmedUri())
+                    return true
+                }
+                if (request.isForMainFrame) {
+                    val requestHeaders = request.requestHeaders?.toMutableMap() ?: mutableMapOf()
+                    if (requestHeaders[COLOR_SCHEME_HEADER] == null) {
+                        requestHeaders[COLOR_SCHEME_HEADER] = ShopifyCheckoutSheetKit.configuration.colorScheme.id
+                        loadUrl(request.url.toString(), requestHeaders)
+                        return true
+                    }
+                }
             }
+
             return false
         }
 
@@ -178,7 +194,8 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         }
 
         private const val OPEN_EXTERNALLY_PARAM = "open_externally"
-        private const val JAVASCRIPT_INTERFACE_NAME = "android"
+        private const val JAVASCRIPT_INTERFACE_NAME = "CheckoutSheetProtocolConsumer"
+        private const val COLOR_SCHEME_HEADER = "Sec-CH-Prefers-Color-Scheme"
 
         internal var cacheEntry: CheckoutWebViewCacheEntry? = null
         internal var cacheClock = CheckoutWebViewCacheClock()
