@@ -252,6 +252,16 @@ val processor = object : DefaultCheckoutEventProcessor(activity) {
         // Use this to submit events to your analytics system, see below.
     }
 
+    override fun onShowFileChooser(
+        webView: WebView,
+        filePathCallback: ValueCallback<Array<Uri>>,
+        fileChooserParams: FileChooserParams,
+    ): Boolean {
+        // Called to tell the client to show a file chooser. This is called to handle HTML forms with 'file' input type,
+        // in response to the user pressing the "Select File" button.
+        // To cancel the request, call filePathCallback.onReceiveValue(null) and return true.
+    }
+
     override fun onPermissionRequest(permissionRequest: PermissionRequest) {
         // Called when a permission has been requested, e.g. to access the camera
         // implement to grant/deny/request permissions.

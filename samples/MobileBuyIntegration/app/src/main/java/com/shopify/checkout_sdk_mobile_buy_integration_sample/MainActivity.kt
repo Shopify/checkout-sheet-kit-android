@@ -22,18 +22,57 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.webkit.ValueCallback
+import android.webkit.WebChromeClient.FileChooserParams
 import android.webkit.WebView.setWebContentsDebuggingEnabled
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 
 class MainActivity : ComponentActivity() {
+
+    private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
+    private lateinit var showFileChooserLauncher: ActivityResultLauncher<FileChooserParams>
+
+    private var filePathCallback: ValueCallback<Array<Uri>>? = null
+    private var fileChooserParams: FileChooserParams? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setWebContentsDebuggingEnabled(true)
         setContent {
             CheckoutSdkApp()
+        }
+        requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            val fileChooserParams = this.fileChooserParams
+            if (isGranted && fileChooserParams != null) {
+                this.showFileChooserLauncher.launch(fileChooserParams)
+                this.fileChooserParams = null
+            }
+        }
+        showFileChooserLauncher = registerForActivityResult(FileChooserResultContract()) { uri: Uri? ->
+            filePathCallback?.onReceiveValue(if (uri != null) arrayOf(uri) else null)
+            filePathCallback = null
+        }
+    }
+
+    // Show a file chooser when prompted by the event processor
+    fun onShowFileChooser(filePathCallback: ValueCallback<Array<Uri>>, fileChooserParams: FileChooserParams) {
+        this.filePathCallback = filePathCallback
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            // Permissions not yet granted, request before launching chooser
+            this.fileChooserParams = fileChooserParams
+            requestPermissionLauncher.launch(Manifest.permission.CAMERA)
+        } else {
+            // Permissions already granted, launch chooser
+            showFileChooserLauncher.launch(fileChooserParams)
+            this.fileChooserParams = null
         }
     }
 }

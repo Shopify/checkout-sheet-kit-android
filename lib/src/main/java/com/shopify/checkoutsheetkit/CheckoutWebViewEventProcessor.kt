@@ -28,6 +28,9 @@ import android.os.Looper
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
 import android.webkit.PermissionRequest
+import android.webkit.ValueCallback
+import android.webkit.WebChromeClient.FileChooserParams
+import android.webkit.WebView
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 
@@ -61,6 +64,14 @@ internal class CheckoutWebViewEventProcessor(
         onMainThread {
             closeCheckoutDialogWithError(error)
         }
+    }
+
+    fun onShowFileChooser(
+        webView: WebView,
+        filePathCallback: ValueCallback<Array<Uri>>,
+        fileChooserParams: FileChooserParams,
+    ): Boolean {
+        return eventProcessor.onShowFileChooser(webView, filePathCallback, fileChooserParams)
     }
 
     fun onPermissionRequest(permissionRequest: PermissionRequest) {

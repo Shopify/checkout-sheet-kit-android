@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.0 September 6, 2024
+
+- Implement and expose `onShowFileChooser()`, to support clients with checkouts that need to show a native file chooser. Example in the MobileBuyIntegration demo app.
+
 ## 3.0.4 August 7, 2024
 
 - Update Web Pixel schema data classes.

@@ -23,10 +23,13 @@
 package com.shopify.checkoutsheetkit
 
 import android.graphics.Color
+import android.net.Uri
 import android.os.Looper
 import android.view.View.VISIBLE
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.webkit.PermissionRequest
+import android.webkit.ValueCallback
+import android.webkit.WebChromeClient.FileChooserParams
 import androidx.activity.ComponentActivity
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
@@ -252,6 +255,21 @@ class CheckoutWebViewTest {
         shadow.webChromeClient?.onPermissionRequest(permissionRequest)
 
         verify(webViewEventProcessor).onPermissionRequest(permissionRequest)
+    }
+
+    @Test
+    fun `calls processors onShowFileChooser when called on webChromeClient`() {
+        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
+        val webViewEventProcessor = mock<CheckoutWebViewEventProcessor>()
+        view.setEventProcessor(webViewEventProcessor)
+
+        val shadow = shadowOf(view)
+        val filePathCallback = mock<ValueCallback<Array<Uri>>>()
+        val fileChooserParams = mock<FileChooserParams>()
+
+        shadow.webChromeClient.onShowFileChooser(view, filePathCallback, fileChooserParams)
+
+        verify(webViewEventProcessor).onShowFileChooser(view, filePathCallback, fileChooserParams)
     }
 
     @Test

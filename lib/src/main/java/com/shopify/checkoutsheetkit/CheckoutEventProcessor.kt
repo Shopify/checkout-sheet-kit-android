@@ -26,6 +26,9 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.webkit.PermissionRequest
+import android.webkit.ValueCallback
+import android.webkit.WebChromeClient
+import android.webkit.WebView
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 
@@ -69,6 +72,16 @@ public interface CheckoutEventProcessor {
      * and processed
      */
     public fun onWebPixelEvent(event: PixelEvent)
+
+    /**
+     * Called when the client should show a file chooser. This is called to handle HTML forms with 'file' input type, in response to the
+     * user pressing the "Select File" button. To cancel the request, call filePathCallback.onReceiveValue(null) and return true.
+     */
+    public fun onShowFileChooser(
+        webView: WebView,
+        filePathCallback: ValueCallback<Array<Uri>>,
+        fileChooserParams: WebChromeClient.FileChooserParams,
+    ): Boolean
 }
 
 internal class NoopEventProcessor : CheckoutEventProcessor {
@@ -85,6 +98,14 @@ internal class NoopEventProcessor : CheckoutEventProcessor {
     }
 
     override fun onWebPixelEvent(event: PixelEvent) {/* noop */
+    }
+
+    override fun onShowFileChooser(
+        webView: WebView,
+        filePathCallback: ValueCallback<Array<Uri>>,
+        fileChooserParams: WebChromeClient.FileChooserParams,
+    ): Boolean {
+        return false
     }
 
     override fun onPermissionRequest(permissionRequest: PermissionRequest) {/* noop */
@@ -116,6 +137,14 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
 
     override fun onPermissionRequest(permissionRequest: PermissionRequest) {
         // no-op override to implement
+    }
+
+    override fun onShowFileChooser(
+        webView: WebView,
+        filePathCallback: ValueCallback<Array<Uri>>,
+        fileChooserParams: WebChromeClient.FileChooserParams,
+    ): Boolean {
+        return false
     }
 
     private fun Context.launchEmailApp(to: String) {

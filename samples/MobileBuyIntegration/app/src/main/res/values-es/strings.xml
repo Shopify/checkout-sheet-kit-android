@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="checkout_web_view_title">¡Comprar ahora!</string>
+    <string name="filechooser_title">Seleccionar o capturar imagen</string>
 </resources>
