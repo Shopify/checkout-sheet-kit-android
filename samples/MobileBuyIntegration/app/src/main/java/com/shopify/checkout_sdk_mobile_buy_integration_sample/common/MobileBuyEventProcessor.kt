@@ -87,8 +87,7 @@ class MobileBuyEventProcessor(
         filePathCallback: ValueCallback<Array<Uri>>,
         fileChooserParams: WebChromeClient.FileChooserParams,
     ): Boolean {
-        (context as MainActivity).onShowFileChooser(filePathCallback, fileChooserParams)
-        return true
+        return (context as MainActivity).onShowFileChooser(filePathCallback, fileChooserParams)
     }
 
     override fun onWebPixelEvent(event: PixelEvent) {

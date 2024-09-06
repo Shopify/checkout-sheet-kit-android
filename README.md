@@ -23,7 +23,7 @@ your project:
 #### Gradle
 
 ```groovy
-implementation "com.shopify:checkout-sheet-kit:3.0.4"
+implementation "com.shopify:checkout-sheet-kit:3.1.0"
 ```
 
 #### Maven
@@ -33,7 +33,7 @@ implementation "com.shopify:checkout-sheet-kit:3.0.4"
 <dependency>
    <groupId>com.shopify</groupId>
    <artifactId>checkout-sheet-kit</artifactId>
-   <version>3.0.4</version>
+   <version>3.1.0</version>
 </dependency>
 ```
 

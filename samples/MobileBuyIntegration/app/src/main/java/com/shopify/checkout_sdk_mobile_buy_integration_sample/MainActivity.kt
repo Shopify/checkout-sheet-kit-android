@@ -55,6 +55,7 @@ class MainActivity : ComponentActivity() {
                 this.showFileChooserLauncher.launch(fileChooserParams)
                 this.fileChooserParams = null
             }
+            // N.B. a file chooser intent (without camera) could be launched here if the permission was denied
         }
         showFileChooserLauncher = registerForActivityResult(FileChooserResultContract()) { uri: Uri? ->
             filePathCallback?.onReceiveValue(if (uri != null) arrayOf(uri) else null)
@@ -63,7 +64,7 @@ class MainActivity : ComponentActivity() {
     }
 
     // Show a file chooser when prompted by the event processor
-    fun onShowFileChooser(filePathCallback: ValueCallback<Array<Uri>>, fileChooserParams: FileChooserParams) {
+    fun onShowFileChooser(filePathCallback: ValueCallback<Array<Uri>>, fileChooserParams: FileChooserParams): Boolean {
         this.filePathCallback = filePathCallback
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             // Permissions not yet granted, request before launching chooser
@@ -74,5 +75,6 @@ class MainActivity : ComponentActivity() {
             showFileChooserLauncher.launch(fileChooserParams)
             this.fileChooserParams = null
         }
+        return true
     }
 }
