@@ -23,7 +23,7 @@ your project:
 #### Gradle
 
 ```groovy
-implementation "com.shopify:checkout-sheet-kit:3.0.4"
+implementation "com.shopify:checkout-sheet-kit:3.1.0"
 ```
 
 #### Maven
@@ -33,7 +33,7 @@ implementation "com.shopify:checkout-sheet-kit:3.0.4"
 <dependency>
    <groupId>com.shopify</groupId>
    <artifactId>checkout-sheet-kit</artifactId>
-   <version>3.0.4</version>
+   <version>3.1.0</version>
 </dependency>
 ```
 
@@ -250,6 +250,16 @@ val processor = object : DefaultCheckoutEventProcessor(activity) {
     override fun onWebPixelEvent(event: PixelEvent) {
         // Called when a web pixel event is emitted in checkout.
         // Use this to submit events to your analytics system, see below.
+    }
+
+    override fun onShowFileChooser(
+        webView: WebView,
+        filePathCallback: ValueCallback<Array<Uri>>,
+        fileChooserParams: FileChooserParams,
+    ): Boolean {
+        // Called to tell the client to show a file chooser. This is called to handle HTML forms with 'file' input type,
+        // in response to the user pressing the "Select File" button.
+        // To cancel the request, call filePathCallback.onReceiveValue(null) and return true.
     }
 
     override fun onPermissionRequest(permissionRequest: PermissionRequest) {

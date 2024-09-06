@@ -25,6 +25,7 @@ package com.shopify.checkoutsheetkit
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color.TRANSPARENT
+import android.net.Uri
 import android.os.Build
 import android.util.AttributeSet
 import android.view.KeyEvent
@@ -33,6 +34,7 @@ import android.view.ViewGroup.LayoutParams
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.webkit.PermissionRequest
 import android.webkit.RenderProcessGoneDetail
+import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
@@ -60,6 +62,7 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
         settings.apply {
             javaScriptEnabled = true
             domStorageEnabled = true
+            allowContentAccess = true
         }
         webChromeClient = object: WebChromeClient() {
             override fun onProgressChanged(view: WebView?, newProgress: Int) {
@@ -68,6 +71,14 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
             }
             override fun onPermissionRequest(request: PermissionRequest) {
                 getEventProcessor().onPermissionRequest(request)
+            }
+
+            override fun onShowFileChooser(
+                webView: WebView,
+                filePathCallback: ValueCallback<Array<Uri>>,
+                fileChooserParams: FileChooserParams,
+            ): Boolean {
+                return getEventProcessor().onShowFileChooser(webView, filePathCallback, fileChooserParams)
             }
         }
         isHorizontalScrollBarEnabled = false

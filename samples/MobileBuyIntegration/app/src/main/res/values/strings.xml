@@ -6,4 +6,5 @@
     <string name="color_scheme_automatic" translatable="false">Automatic</string>
     <string name="checkout_error" translatable="false">Checkout failed, please try again</string>
     <string name="checkout_web_view_title">Buy Now!</string>
+    <string name="filechooser_title">Select or Capture Image</string>
 </resources>
