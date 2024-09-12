@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.1 September 25, 2024
+
+- Ensure that cached WebView instances don't have existing parents before trying to add them to their container.
+
 ## 3.1.0 September 6, 2024
 
 - Implement and expose `onShowFileChooser()`, to support clients with checkouts that need to show a native file chooser. Example in the MobileBuyIntegration demo app.
