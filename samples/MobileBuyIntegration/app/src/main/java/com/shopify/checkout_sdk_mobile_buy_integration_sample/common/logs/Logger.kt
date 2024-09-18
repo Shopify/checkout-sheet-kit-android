@@ -27,6 +27,8 @@ import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
 import com.shopify.checkoutsheetkit.pixelevents.CustomPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent
+import com.shopify.checkoutsheetkit.pixelevents.AlertDisplayedPixelEvent
+import com.shopify.checkoutsheetkit.pixelevents.UIExtensionErroredPixelEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -38,6 +40,24 @@ class Logger(
 ) {
     fun log(pixelEvent: PixelEvent) {
         when (pixelEvent) {
+            is AlertDisplayedPixelEvent -> {
+                insert(
+                    LogLine(
+                        type = LogType.ALERT_DISPLAYED_PIXEL,
+                        message = pixelEvent.name ?: "",
+                        alertDisplayedPixelEvent = pixelEvent
+                    )
+                )
+            }
+            is UIExtensionErroredPixelEvent -> {
+                insert(
+                    LogLine(
+                        type = LogType.UI_EXTENSION_ERRORED_PIXEL,
+                        message = pixelEvent.name ?: "",
+                        uiExtensionErroredPixelEvent = pixelEvent
+                    )
+                )
+            }
             is StandardPixelEvent -> {
                 insert(
                     LogLine(

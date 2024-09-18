@@ -35,14 +35,29 @@ internal class PixelEventDecoder @JvmOverloads constructor(
     fun decode(decodedMsg: WebToSdkEvent): PixelEvent? {
         return try {
             val eventWrapper = decoder.decodeFromString<PixelEventWrapper>(decodedMsg.body)
-            when (EventType.fromTypeName(eventWrapper.event["type"]?.jsonPrimitive?.content)) {
-                EventType.STANDARD -> decoder.decodeFromJsonElement<StandardPixelEvent>(eventWrapper.event)
-                EventType.CUSTOM -> decoder.decodeFromJsonElement<CustomPixelEvent>(eventWrapper.event)
+            val eventType = EventType.fromTypeName(eventWrapper.event["type"]?.jsonPrimitive?.content)
+            when {
+                isStandardEvent(eventType) && eventWrapper.name == ALERT_DISPLAYED_NAME ->
+                    decoder.decodeFromJsonElement<AlertDisplayedPixelEvent>(eventWrapper.event)
+                isStandardEvent(eventType) && eventWrapper.name == UI_EXTENSION_ERRORED_NAME ->
+                    decoder.decodeFromJsonElement<UIExtensionErroredPixelEvent>(eventWrapper.event)
+                isStandardEvent(eventType) -> decoder.decodeFromJsonElement<StandardPixelEvent>(eventWrapper.event)
+                eventType == EventType.CUSTOM -> decoder.decodeFromJsonElement<CustomPixelEvent>(eventWrapper.event)
                 else -> return null
             }
         } catch (e: Exception) {
             log.e("CheckoutBridge", "Failed to decode pixel event", e)
             null
         }
+    }
+
+    private fun isStandardEvent(eventType: EventType?): Boolean {
+        return STANDARD_EVENT_TYPES.contains(eventType)
+    }
+
+    companion object {
+        private const val ALERT_DISPLAYED_NAME = "alert_displayed"
+        private const val UI_EXTENSION_ERRORED_NAME = "ui_extension_errored"
+        private val STANDARD_EVENT_TYPES = listOf(EventType.STANDARD, EventType.EXTENDED_STANDARD)
     }
 }

@@ -63,6 +63,7 @@ fun StandardPixelEvent.toAnalyticsEvent(): AnalyticsEvent {
         checkoutAmount = data?.checkout?.totalPrice?.amount ?: 0.0
     )
 }
+
 fun CustomPixelEvent.toAnalyticsEvent(): AnalyticsEvent? {
     return when (name) {
         "first_custom_event" -> {

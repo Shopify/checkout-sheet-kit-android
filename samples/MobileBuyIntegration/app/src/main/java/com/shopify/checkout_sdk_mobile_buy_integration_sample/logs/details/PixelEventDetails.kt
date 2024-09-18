@@ -32,6 +32,10 @@ import com.shopify.checkoutsheetkit.pixelevents.CustomPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEventData
+import com.shopify.checkoutsheetkit.pixelevents.AlertDisplayedPixelEvent
+import com.shopify.checkoutsheetkit.pixelevents.AlertDisplayedPixelEventData
+import com.shopify.checkoutsheetkit.pixelevents.UIExtensionErroredPixelEvent
+import com.shopify.checkoutsheetkit.pixelevents.UIExtensionErroredPixelEventData
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -40,8 +44,12 @@ fun PixelEventDetails(
     event: PixelEvent?,
     prettyJson: Json,
 ) {
-    val evenModifier = Modifier.fillMaxWidth().background(color = MaterialTheme.colors.surface)
-    val oddModifier = Modifier.fillMaxWidth().background(color = MaterialTheme.colors.background)
+    val evenModifier = Modifier
+        .fillMaxWidth()
+        .background(color = MaterialTheme.colors.surface)
+    val oddModifier = Modifier
+        .fillMaxWidth()
+        .background(color = MaterialTheme.colors.background)
 
     LogDetails(header = "Event Name", message = event?.name ?: "", evenModifier)
     LogDetails(header = "Timestamp", message = event?.timestamp ?: "", oddModifier)
@@ -64,6 +72,20 @@ fun PixelEventDetails(
                 evenModifier,
             )
             LogDetails(header = "Context", message = prettyJson.encodeDataToString<Context>(event.context), oddModifier)
+        }
+        is AlertDisplayedPixelEvent -> {
+            LogDetails(
+                header = "Data",
+                message = prettyJson.encodeDataToString<AlertDisplayedPixelEventData>(event.data),
+                modifier = evenModifier
+            )
+        }
+        is UIExtensionErroredPixelEvent -> {
+            LogDetails(
+                header = "Data",
+                message = prettyJson.encodeDataToString<UIExtensionErroredPixelEventData>(event.data),
+                modifier = evenModifier
+            )
         }
         else -> {}
     }

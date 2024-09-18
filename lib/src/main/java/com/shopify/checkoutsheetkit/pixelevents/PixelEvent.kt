@@ -41,6 +41,7 @@ internal class PixelEventWrapper(
 @Serializable
 public enum class EventType(public val typeName: String) {
     @SerialName("standard") STANDARD("standard"),
+    @SerialName("extended-standard") EXTENDED_STANDARD("extended-standard"),
     @SerialName("custom") CUSTOM("custom");
 
     public companion object {
@@ -78,6 +79,131 @@ public sealed interface PixelEvent {
      */
     public val type: EventType?
 }
+
+@Serializable
+public data class AlertDisplayedPixelEvent(
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val type: EventType? = null,
+    public val context: Context? = null,
+    public val data: AlertDisplayedPixelEventData? = null,
+): PixelEvent
+
+@Serializable
+public data class UIExtensionErroredPixelEvent(
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val type: EventType? = null,
+    public val context: Context? = null,
+    public val data: UIExtensionErroredPixelEventData? = null,
+): PixelEvent
+
+/**
+ * An object that contains information about an error that was displayed to a buyer.
+ */
+@Serializable
+public data class AlertDisplayedPixelEventData(
+    public val alert: AlertDisplayedPixelEventAlert? = null
+)
+
+@Serializable
+public data class AlertDisplayedPixelEventAlert(
+    /**
+     * The part of the page the error relates to.
+     * Follows the [Shopify Functions target format], for example "cart.deliveryGroups[0].deliveryAddress.address1".
+     */
+    public val target: String? = null,
+
+    /**
+     * The value of the field at the time the error occurred or null if the error does not relate to an individual field.
+     */
+    public val value: String? = null,
+
+    /**
+     * The type of error that occurred, current possible values are:
+     *  - `INPUT_REQUIRED` - A required field is empty.
+     *  - `INPUT_INVALID` - The input provided is incorrect or improperly formatted.
+     *  - `CONTACT_ERROR` - An alert related to a contact information issue was displayed.
+     *  - `DELIVERY_ERROR` - An alert related to a delivery issue was displayed.
+     *  - `PAYMENT_ERROR` - An alert related to a payment issue was displayed.
+     *  - `DISCOUNT_ERROR` - An alert related to a discount code or gift card issue was displayed.
+     *  - `INVENTORY_ERROR` - An alert related to an inventory issue was displayed.
+     *  - `MERCHANDISE_ERROR` - An alert related to a merchandise issue was displayed.
+     *  - `CHECKOUT_ERROR` - An alert related to a general checkout issue was displayed.
+     */
+    public val type: String? = null,
+
+    /**
+     * The alert message that was displayed to the user.
+     */
+    public val message: String? = null,
+)
+
+/**
+ * An object that contains data about a UI Extension error that occurred.
+ */
+@Serializable
+public data class UIExtensionErroredPixelEventData(
+    public val error: UIExtensionErrorPixelEventError? = null
+)
+
+@Serializable
+public data class UIExtensionErrorPixelEventError(
+    /**
+     * The type of error that occurred. Current possible values:
+     *   - `EXTENSION_USAGE_ERROR` - An error caused by incorrect usage of extension APIs or UI components.
+     */
+    public val type: String? = null,
+
+    /**
+     * The unique identifier of the app that the extension belongs to.
+     */
+    public val appId: String? = null,
+
+    /**
+     * The name of the app that the extension belongs to.
+     */
+    public val appName: String? = null,
+
+    /**
+     * The API version used by the extension
+     */
+    public val apiVersion: String? = null,
+
+    /**
+     * The version of the app that encountered the error.
+     */
+    public val appVersion: String? = null,
+
+    /**
+     * The name of the extension that encountered the error.
+     */
+    public val extensionName: String? = null,
+
+    /**
+     * The [target](https://shopify.dev/docs/api/checkout-ui-extensions/latest/targets) of the extension, for example
+     * "purchase.checkout.delivery-address.render-after".
+     */
+    public val extensionTarget: String? = null,
+
+    /**
+     * The [placement reference](https://shopify.dev/docs/apps/build/checkout/test-checkout-ui-extensions#dynamic-targets) of the extension,
+     * only populated for dynamic targets.
+     */
+    public val placementReference: String? = null,
+
+    /**
+     * The message associated with the error that occurred.
+     */
+    public val message: String? = null,
+
+    /**
+     * The stack trace associated with the error that occurred.
+     */
+    public val trace: String? = null,
+)
 
 @Serializable
 public data class StandardPixelEvent(

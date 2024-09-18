@@ -71,6 +71,7 @@ val appModules = module {
             "log-db"
         )
             .addMigrations(MIGRATION_1_2)
+            .fallbackToDestructiveMigration()
             .build()
     }
 

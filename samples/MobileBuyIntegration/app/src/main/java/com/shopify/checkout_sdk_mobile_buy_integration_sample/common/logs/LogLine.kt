@@ -32,6 +32,10 @@ import com.shopify.checkoutsheetkit.pixelevents.Context
 import com.shopify.checkoutsheetkit.pixelevents.CustomPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEventData
+import com.shopify.checkoutsheetkit.pixelevents.AlertDisplayedPixelEvent
+import com.shopify.checkoutsheetkit.pixelevents.AlertDisplayedPixelEventData
+import com.shopify.checkoutsheetkit.pixelevents.UIExtensionErroredPixelEvent
+import com.shopify.checkoutsheetkit.pixelevents.UIExtensionErroredPixelEventData
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.util.Date
@@ -45,12 +49,14 @@ data class LogLine(
     val type: LogType,
     @Embedded(prefix = "standard_pixel") val standardPixelEvent: StandardPixelEvent? = null,
     @Embedded(prefix = "custom_pixel") val customPixelEvent: CustomPixelEvent? = null,
+    @Embedded(prefix = "alert_displayed_pixel") val alertDisplayedPixelEvent: AlertDisplayedPixelEvent? = null,
+    @Embedded(prefix = "ui_extension_errored_pixel") val uiExtensionErroredPixelEvent: UIExtensionErroredPixelEvent? = null,
     @Embedded(prefix = "error_details") val errorDetails: ErrorDetails? = null,
     @Embedded(prefix = "checkout_completed") val checkoutCompleted: CheckoutCompletedEvent? = null,
 )
 
 enum class LogType {
-    STANDARD, ERROR, CUSTOM_PIXEL, STANDARD_PIXEL, CHECKOUT_COMPLETED
+    STANDARD, ERROR, ALERT_DISPLAYED_PIXEL, UI_EXTENSION_ERRORED_PIXEL, CUSTOM_PIXEL, STANDARD_PIXEL, CHECKOUT_COMPLETED
 }
 
 data class ErrorDetails(
@@ -67,6 +73,26 @@ class Converters {
     @TypeConverter
     fun stringToStandardPixelEventData(value: String): StandardPixelEventData {
         return Json.decodeFromString<StandardPixelEventData>(value)
+    }
+
+    @TypeConverter
+    fun alertDisplayedPixelEventDataToString(value: AlertDisplayedPixelEventData): String {
+        return Json.encodeToString<AlertDisplayedPixelEventData>(value)
+    }
+
+    @TypeConverter
+    fun stringToAlertDisplayedPixelEventData(value: String): AlertDisplayedPixelEventData {
+        return Json.decodeFromString<AlertDisplayedPixelEventData>(value)
+    }
+
+    @TypeConverter
+    fun uiExtensionErroredPixelEventDataToString(value: UIExtensionErroredPixelEventData): String {
+        return Json.encodeToString<UIExtensionErroredPixelEventData>(value)
+    }
+
+    @TypeConverter
+    fun stringToUIExtensionErroredPixelEventData(value: String): UIExtensionErroredPixelEventData {
+        return Json.decodeFromString<UIExtensionErroredPixelEventData>(value)
     }
 
     @TypeConverter

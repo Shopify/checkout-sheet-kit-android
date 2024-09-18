@@ -381,6 +381,8 @@ fun onWebPixelEvent(event: PixelEvent) {
     }
 
     when (event) {
+        is AlertDisplayedEvent -> processAlertDisplayedEvent(event)
+        is UIExtensionErroredEvent -> processUIExtensionErroredEvent(event)
         is StandardPixelEvent -> processStandardEvent(event)
         is CustomPixelEvent -> processCustomEvent(event)
     }

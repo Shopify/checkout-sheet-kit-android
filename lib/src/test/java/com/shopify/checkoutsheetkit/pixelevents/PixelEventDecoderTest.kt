@@ -76,6 +76,93 @@ class PixelEventDecoderTest {
     }
 
     @Test
+    fun `should deserialize a alert_displayed event`() {
+        val event = """|
+            |{
+            |    "name": "alert_displayed",
+            |    "event": {
+            |        "type": "standard",
+            |        "id": "sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B",
+            |        "name": "alert_displayed",
+            |        "timestamp": "2023-12-20T16:39:23+0000",
+            |        "data": {
+            |            "alert": {
+            |                "target": "cart.deliveryGroups[0].deliveryAddress.address1",
+            |                "value": "",
+            |                "type": "INPUT_REQUIRED",
+            |                "message": "Enter an address"
+            |            }
+            |        }
+            |    }
+            |}
+        |""".trimMargin()
+            .toWebToSdkEvent()
+
+        val result = decoder.decode(event)
+
+        assertThat(result).isInstanceOf(AlertDisplayedPixelEvent::class.java)
+
+        val alertDisplayedEvent = result as AlertDisplayedPixelEvent
+        assertThat(alertDisplayedEvent.name).isEqualTo("alert_displayed")
+        assertThat(alertDisplayedEvent.timestamp).isEqualTo("2023-12-20T16:39:23+0000")
+        assertThat(alertDisplayedEvent.id).isEqualTo("sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B")
+        assertThat(alertDisplayedEvent.data?.alert?.target).isEqualTo("cart.deliveryGroups[0].deliveryAddress.address1")
+        assertThat(alertDisplayedEvent.data?.alert?.value).isEqualTo("")
+        assertThat(alertDisplayedEvent.data?.alert?.type).isEqualTo("INPUT_REQUIRED")
+        assertThat(alertDisplayedEvent.data?.alert?.message).isEqualTo("Enter an address")
+        verifyNoInteractions(logWrapper)
+    }
+
+    @Test
+    fun `should deserialize a ui_extension_error event`() {
+        val event = """|
+            |{
+            |    "name": "ui_extension_errored",
+            |    "event": {
+            |        "type": "standard",
+            |        "id": "sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B",
+            |        "name": "ui_extension_errored",
+            |        "timestamp": "2023-12-20T16:39:23+0000",
+            |        "data": {
+            |            "error": {
+            |                "extensionTarget": "purchase.checkout.delivery.render-after",
+            |                "placementReference": "",
+            |                "trace": "",
+            |                "type": "EXTENSION_USAGE_ERROR",
+            |                "message": "Something went wrong",
+            |                "appName": "My App",
+            |                "appId": "gid://shopify/App/123",
+            |                "appVersion": "1.0.0",
+            |                "apiVersion": "2024-04",
+            |                "extensionName": "My Extension"
+            |            }
+            |        }
+            |    }
+            |}
+        |""".trimMargin()
+            .toWebToSdkEvent()
+
+        val result = decoder.decode(event)
+
+        assertThat(result).isInstanceOf(UIExtensionErroredPixelEvent::class.java)
+
+        val uiExtensionErrorEvent = result as UIExtensionErroredPixelEvent
+        assertThat(uiExtensionErrorEvent.name).isEqualTo("ui_extension_errored")
+        assertThat(uiExtensionErrorEvent.timestamp).isEqualTo("2023-12-20T16:39:23+0000")
+        assertThat(uiExtensionErrorEvent.id).isEqualTo("sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B")
+        assertThat(uiExtensionErrorEvent.data?.error?.extensionTarget).isEqualTo("purchase.checkout.delivery.render-after")
+        assertThat(uiExtensionErrorEvent.data?.error?.placementReference).isEqualTo("")
+        assertThat(uiExtensionErrorEvent.data?.error?.trace).isEqualTo("")
+        assertThat(uiExtensionErrorEvent.data?.error?.message).isEqualTo("Something went wrong")
+        assertThat(uiExtensionErrorEvent.data?.error?.type).isEqualTo("EXTENSION_USAGE_ERROR")
+        assertThat(uiExtensionErrorEvent.data?.error?.appName).isEqualTo("My App")
+        assertThat(uiExtensionErrorEvent.data?.error?.appVersion).isEqualTo("1.0.0")
+        assertThat(uiExtensionErrorEvent.data?.error?.apiVersion).isEqualTo("2024-04")
+        assertThat(uiExtensionErrorEvent.data?.error?.extensionName).isEqualTo("My Extension")
+        verifyNoInteractions(logWrapper)
+    }
+
+    @Test
     fun `should deserialize a standard event - CheckoutCompleted`() {
         val event = """|
             |{

@@ -97,6 +97,7 @@ class MobileBuyEventProcessor(
         val analyticsEvent = when (event) {
             is StandardPixelEvent -> event.toAnalyticsEvent()
             is CustomPixelEvent -> event.toAnalyticsEvent()
+            else -> null
         }
 
         analyticsEvent?.let {
