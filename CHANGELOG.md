@@ -1,10 +1,5 @@
 # Changelog
 
-## 3.1.1 September 27, 2024
-
-- Enhancement: Improved camera image result handling across all devices, including better URI management for Samsung and Xiaomi devices during the checkout process.
-- Resolved issues where camera results were not correctly returned on certain devices when using the file picker and camera.
-
 ## 3.1.0 September 6, 2024
 
 - Implement and expose `onShowFileChooser()`, to support clients with checkouts that need to show a native file chooser. Example in the MobileBuyIntegration demo app.
