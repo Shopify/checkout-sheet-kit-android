@@ -56,6 +56,7 @@ class FileChooserResultContract : ActivityResultContract<FileChooserParams, Uri?
         cameraImageUri = FileProvider.getUriForFile(context, "${context.packageName}.provider", photoFile)
         val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
             putExtra(MediaStore.EXTRA_OUTPUT, cameraImageUri)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)  // Ensures URI can be written
         }
 
         val chooserIntent = Intent.createChooser(fileChooserIntent, context.getText(R.string.filechooser_title))
@@ -64,11 +65,11 @@ class FileChooserResultContract : ActivityResultContract<FileChooserParams, Uri?
     }
 
     override fun parseResult(resultCode: Int, intent: Intent?) : Uri? {
-        if (resultCode != RESULT_OK) {
-            return null
+        return if (resultCode == RESULT_OK) {
+            intent?.data ?: cameraImageUri // Return the image URI captured by the camera
+        } else {
+            null
         }
-
-        return intent?.data ?: cameraImageUri
     }
 
     private fun createImageFile(context: Context): File {
