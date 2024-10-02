@@ -31,7 +31,7 @@ android {
         applicationId "com.shopify.checkout_sdk_mobile_buy_integration_sample"
         minSdk 23
         targetSdk 34
-        versionCode 33
+        versionCode 34
         versionName "0.0.${versionCode}"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
