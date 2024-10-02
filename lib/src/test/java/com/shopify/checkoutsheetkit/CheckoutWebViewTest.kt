@@ -280,6 +280,42 @@ class CheckoutWebViewTest {
         }
     }
 
+    @Test
+    fun `removeFromParent() should remove parent if a parent exists but not destroy WebView`() {
+        withPreloadingEnabled {
+            Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
+                val ctx = activityController.get()
+                val webView = CheckoutWebView.cacheableCheckoutView("https://shopify.dev", ctx, true)
+                val container = CheckoutWebViewContainer(ctx)
+                container.addView(webView)
+                assertThat(webView.parent).isNotNull()
+
+                webView.removeFromParent()
+                shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+
+                val shadow = shadowOf(webView)
+                assertThat(shadow.wasDestroyCalled()).isFalse()
+                assertThat(webView.parent).isNull()
+            }
+        }
+    }
+
+    @Test
+    fun `removeFromParent() should do nothing if no parent exists`() {
+        withPreloadingEnabled {
+            Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
+                val ctx = activityController.get()
+                val webView = CheckoutWebView.cacheableCheckoutView("https://shopify.dev", ctx, true)
+                webView.removeFromParent()
+                shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+
+                val shadow = shadowOf(webView)
+                assertThat(shadow.wasDestroyCalled()).isFalse()
+                assertThat(webView.parent).isNull()
+            }
+        }
+    }
+
     companion object {
         private const val URL = "https://a.checkout.testurl"
     }

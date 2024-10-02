@@ -30,6 +30,7 @@ import android.os.Build
 import android.util.AttributeSet
 import android.view.KeyEvent
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.webkit.PermissionRequest
@@ -212,5 +213,17 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
 
         private const val TOO_MANY_REQUESTS = 429
         private val CLIENT_ERROR = 400..499
+    }
+}
+
+/**
+ * Removes the WebView from its parent if a parent exists
+ */
+internal fun BaseWebView.removeFromParent() {
+    val parent = this.parent
+    if (parent is ViewGroup) {
+        // Ensure view is not destroyed when removing from parent
+        CheckoutWebViewContainer.retainCacheEntry = RetainCacheEntry.YES
+        parent.removeView(this)
     }
 }
