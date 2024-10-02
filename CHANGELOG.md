@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.1.1 September 25, 2024
+## 3.1.1 October 2, 2024
 
 - Ensure that cached WebView instances don't have existing parents before trying to add them to their container.
 
