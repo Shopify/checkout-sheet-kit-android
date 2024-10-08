@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.sp
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.AppBarState
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.toDisplayText
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
+import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 
 @Composable
 fun <T: DefaultCheckoutEventProcessor> CartView(
@@ -61,6 +62,7 @@ fun <T: DefaultCheckoutEventProcessor> CartView(
     checkoutEventProcessor: T,
 ) {
     val state = cartViewModel.cartState.collectAsState().value
+    val activity = LocalContext.current as ComponentActivity
 
     LaunchedEffect(state) {
         setAppBarState(
@@ -78,6 +80,10 @@ fun <T: DefaultCheckoutEventProcessor> CartView(
                 }
             )
         )
+
+        if (state is CartState.Populated) {
+            ShopifyCheckoutSheetKit.preload(state.checkoutUrl, activity)
+        }
     }
 
     Column(
