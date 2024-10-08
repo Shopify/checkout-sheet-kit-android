@@ -22,20 +22,20 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.common
 
-import android.Manifest
 import android.content.Context
-import android.webkit.PermissionRequest
+import android.net.Uri
+import android.webkit.ValueCallback
+import android.webkit.WebChromeClient
+import android.webkit.WebView
 import android.widget.Toast
-import androidx.core.app.ActivityCompat
 import androidx.navigation.NavController
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.MainActivity
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.analytics.Analytics
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.analytics.toAnalyticsEvent
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.getActivity
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.permissions.Permissions
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
@@ -82,20 +82,12 @@ class MobileBuyEventProcessor(
         logger.log("Checkout canceled")
     }
 
-    override fun onPermissionRequest(permissionRequest: PermissionRequest) {
-        logger.log("Permission requested for ${permissionRequest.resources}")
-        context.getActivity()?.let { activity ->
-            if (Permissions.hasPermission(activity, permissionRequest)) {
-                permissionRequest.grant(permissionRequest.resources)
-            } else {
-                ActivityCompat.requestPermissions(
-                    activity,
-                    arrayOf(Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO),
-                    Permissions.PERMISSION_REQUEST_CODE,
-                )
-                permissionRequest.deny()
-            }
-        }
+    override fun onShowFileChooser(
+        webView: WebView,
+        filePathCallback: ValueCallback<Array<Uri>>,
+        fileChooserParams: WebChromeClient.FileChooserParams,
+    ): Boolean {
+        return (context as MainActivity).onShowFileChooser(filePathCallback, fileChooserParams)
     }
 
     override fun onWebPixelEvent(event: PixelEvent) {

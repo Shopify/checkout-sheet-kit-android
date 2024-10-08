@@ -89,7 +89,7 @@ internal class CheckoutDialog(
 
         addWebViewToContainer(colorScheme, checkoutWebView)
         setOnCancelListener {
-            CheckoutWebViewContainer.retainCache = ShopifyCheckoutSheetKit.configuration.preloading.enabled
+            CheckoutWebViewContainer.retainCacheEntry = RetainCacheEntry.IF_NOT_STALE
             checkoutEventProcessor.onCheckoutCanceled()
         }
 
@@ -119,12 +119,13 @@ internal class CheckoutDialog(
 
     private fun addWebViewToContainer(
         colorScheme: ColorScheme,
-        checkoutWebView: WebView
+        checkoutWebView: BaseWebView,
     ) {
         findViewById<RelativeLayout>(R.id.checkoutSdkContainer).apply {
             setBackgroundColor(colorScheme.webViewBackgroundColor())
             val layoutParams = RelativeLayout.LayoutParams(WRAP_CONTENT, MATCH_PARENT)
             layoutParams.addRule(RelativeLayout.BELOW, R.id.progressBar)
+            checkoutWebView.removeFromParent()
             addView(checkoutWebView, layoutParams)
         }
     }

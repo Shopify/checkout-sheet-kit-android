@@ -1,9 +1,10 @@
 <resources>
-    <string name="app_name">Checkout SDK Mobile Buy Integration Sample</string>
-    <string name="color_scheme_light">Light</string>
-    <string name="color_scheme_dark">Dark</string>
-    <string name="color_scheme_web">Web</string>
-    <string name="color_scheme_automatic">Automatic</string>
-    <string name="checkout_error">Checkout failed, please try again</string>
+    <string name="app_name" translatable="false">Checkout SDK Mobile Buy Integration Sample</string>
+    <string name="color_scheme_light" translatable="false">Light</string>
+    <string name="color_scheme_dark" translatable="false">Dark</string>
+    <string name="color_scheme_web" translatable="false">Web</string>
+    <string name="color_scheme_automatic" translatable="false">Automatic</string>
+    <string name="checkout_error" translatable="false">Checkout failed, please try again</string>
     <string name="checkout_web_view_title">Buy Now!</string>
+    <string name="filechooser_title">Select or Capture Image</string>
 </resources>

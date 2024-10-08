@@ -26,39 +26,55 @@ import android.os.Looper
 import androidx.activity.ComponentActivity
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
+import kotlin.time.Duration.Companion.minutes
 
 @RunWith(RobolectricTestRunner::class)
 class CheckoutWebViewContainerTest {
 
+    private val mockCacheClock = mock<CheckoutWebView.CheckoutWebViewCacheClock>()
+
+    @Before
+    fun setUp() {
+        CheckoutWebView.cacheClock = mockCacheClock
+    }
+
     @After
     fun tearDown() {
         CheckoutWebView.clearCache()
+        shadowOf(Looper.getMainLooper()).runToEndOfTasks()
     }
 
     @Test
-    fun `should destroy FallbackWebView when it is removed`() {
+    fun `should destroy FallbackWebView when it is removed in all cases`() {
         Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
-            val activity = activityController.get()
+            withPreloadingEnabled {
+                val activity = activityController.get()
 
-            val container = CheckoutWebViewContainer(activity)
-            val fallbackView = FallbackWebView(activity)
-            val shadow = shadowOf(fallbackView)
+                val container = CheckoutWebViewContainer(activity)
+                val fallbackView = FallbackWebView(activity)
+                val shadow = shadowOf(fallbackView)
 
-            container.addView(fallbackView)
-            assertThat(shadow.wasDestroyCalled()).isFalse()
+                container.addView(fallbackView)
+                assertThat(shadow.wasDestroyCalled()).isFalse()
 
-            container.removeView(fallbackView)
-            assertThat(shadow.wasDestroyCalled()).isTrue()
+                container.removeView(fallbackView)
+
+                assertThat(shadow.wasDestroyCalled()).isTrue()
+            }
         }
     }
 
+    // cache entries are essentially immediately stale if preloading is disabled
     @Test
-    fun `should destroy CheckoutWebView when it is removed if preloading disabled`() {
+    fun `should destroy CheckoutWebView when retainCacheEntry is IF_NOT_STALE and preloading is disabled`() {
         Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
             val activity = activityController.get()
 
@@ -69,6 +85,7 @@ class CheckoutWebViewContainerTest {
             container.addView(checkoutWebView)
             assertThat(shadow.wasDestroyCalled()).isFalse()
 
+            CheckoutWebViewContainer.retainCacheEntry = RetainCacheEntry.IF_NOT_STALE
             container.removeView(checkoutWebView)
             shadowOf(Looper.getMainLooper()).runToEndOfTasks()
 
@@ -77,9 +94,11 @@ class CheckoutWebViewContainerTest {
     }
 
     @Test
-    fun `should destroy CheckoutWebView when it is removed if preloading and retain is false`() {
+    fun `should destroy CheckoutWebView when retainCacheEntry is IF_NOT_STALE and entry is stale`() {
         Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
             withPreloadingEnabled {
+                whenever(mockCacheClock.currentTimeMillis()).thenReturn(System.currentTimeMillis())
+
                 val activity = activityController.get()
 
                 val container = CheckoutWebViewContainer(activity)
@@ -88,6 +107,9 @@ class CheckoutWebViewContainerTest {
 
                 container.addView(checkoutWebView)
                 assertThat(shadow.wasDestroyCalled()).isFalse()
+
+                CheckoutWebViewContainer.retainCacheEntry = RetainCacheEntry.IF_NOT_STALE
+                makeCacheEntryStale()
 
                 container.removeView(checkoutWebView)
                 shadowOf(Looper.getMainLooper()).runToEndOfTasks()
@@ -98,7 +120,7 @@ class CheckoutWebViewContainerTest {
     }
 
     @Test
-    fun `should not destroy CheckoutWebView when it is removed if preloading and retain is true`() {
+    fun `should not destroy non-stale CheckoutWebView when retainCacheEntry == IF_NOT_STALE and entry is not stale`() {
         Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
             withPreloadingEnabled {
                 val activity = activityController.get()
@@ -110,13 +132,68 @@ class CheckoutWebViewContainerTest {
                 container.addView(checkoutWebView)
                 assertThat(shadow.wasDestroyCalled()).isFalse()
 
-                CheckoutWebViewContainer.retainCache = true
+                CheckoutWebViewContainer.retainCacheEntry = RetainCacheEntry.IF_NOT_STALE
                 container.removeView(checkoutWebView)
                 shadowOf(Looper.getMainLooper()).runToEndOfTasks()
 
                 assertThat(shadow.wasDestroyCalled()).isFalse()
-                assertThat(CheckoutWebViewContainer.retainCache).isFalse()
             }
         }
+    }
+
+    @Test
+    fun `should not destroy CheckoutWebView when retainCacheEntry == YES and entry is stale`() {
+        Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
+            withPreloadingEnabled {
+                whenever(mockCacheClock.currentTimeMillis()).thenReturn(System.currentTimeMillis())
+
+                val activity = activityController.get()
+
+                val container = CheckoutWebViewContainer(activity)
+                val checkoutWebView = CheckoutWebView.cacheableCheckoutView("https://shopify.dev", activity, true)
+                val shadow = shadowOf(checkoutWebView)
+
+                container.addView(checkoutWebView)
+                assertThat(shadow.wasDestroyCalled()).isFalse()
+
+                CheckoutWebViewContainer.retainCacheEntry = RetainCacheEntry.YES
+                makeCacheEntryStale()
+
+                container.removeView(checkoutWebView)
+                shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+                assertThat(shadow.wasDestroyCalled()).isFalse()
+                assertThat(CheckoutWebViewContainer.retainCacheEntry).isEqualTo(RetainCacheEntry.IF_NOT_STALE)
+            }
+        }
+    }
+
+    @Test
+    fun `should not destroy CheckoutWebView when retainCacheEntry == YES and entry is not stale`() {
+        Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
+            withPreloadingEnabled {
+                whenever(mockCacheClock.currentTimeMillis()).thenReturn(System.currentTimeMillis())
+
+                val activity = activityController.get()
+
+                val container = CheckoutWebViewContainer(activity)
+                val checkoutWebView = CheckoutWebView.cacheableCheckoutView("https://shopify.dev", activity, true)
+                val shadow = shadowOf(checkoutWebView)
+
+                container.addView(checkoutWebView)
+                assertThat(shadow.wasDestroyCalled()).isFalse()
+
+                CheckoutWebViewContainer.retainCacheEntry = RetainCacheEntry.YES
+
+                container.removeView(checkoutWebView)
+                shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+                assertThat(shadow.wasDestroyCalled()).isFalse()
+                assertThat(CheckoutWebViewContainer.retainCacheEntry).isEqualTo(RetainCacheEntry.IF_NOT_STALE)
+            }
+        }
+    }
+
+    private fun makeCacheEntryStale() {
+        val initialTime = mockCacheClock.currentTimeMillis()
+        whenever(mockCacheClock.currentTimeMillis()).thenReturn(initialTime.plus(60 * 10 * 1000))
     }
 }
