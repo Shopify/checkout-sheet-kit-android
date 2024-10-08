@@ -76,7 +76,7 @@ class PixelEventDecoderTest {
     }
 
     @Test
-    fun `should deserialize a alert_displayed event`() {
+    fun `should deserialize an alert_displayed event`() {
         val event = """|
             |{
             |    "name": "alert_displayed",
@@ -114,7 +114,7 @@ class PixelEventDecoderTest {
     }
 
     @Test
-    fun `should deserialize a ui_extension_error event`() {
+    fun `should deserialize a ui_extension_errored event`() {
         val event = """|
             |{
             |    "name": "ui_extension_errored",
