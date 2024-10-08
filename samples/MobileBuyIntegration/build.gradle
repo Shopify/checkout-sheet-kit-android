@@ -1,13 +1,13 @@
 buildscript {
     ext {
-        app_compat_version = '1.6.1'
+        app_compat_version = '1.7.0'
         core_version = '1.13.1'
-        activity_version = '1.9.0'
-        lifecycle_version = '2.7.0'
+        activity_version = '1.9.2'
+        lifecycle_version = '2.8.5'
         datastore_version = '1.1.1'
-        nav_version = '2.7.7'
+        nav_version = '2.8.0'
         compose_ui_version = '1.6.5'
-        mobile_buy_version = '17.0.0'
+        mobile_buy_version = '18.0.0'
         coil_version = '2.6.0'
         kotlin_serialization_version = '1.6.3'
         koin_android_compose_version = '3.5.3'
@@ -15,7 +15,7 @@ buildscript {
     }
 }
 plugins {
-    id 'com.android.application' version '8.3.1' apply false
+    id 'com.android.application' version '8.5.2' apply false
     id 'org.jetbrains.kotlin.android' version '1.9.22' apply false
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.22' apply false
     id 'io.gitlab.arturbosch.detekt' version '1.23.0' apply false
