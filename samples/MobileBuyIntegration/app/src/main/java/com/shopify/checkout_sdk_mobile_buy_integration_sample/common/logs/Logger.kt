@@ -26,8 +26,14 @@ import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
 import com.shopify.checkoutsheetkit.pixelevents.CustomPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
-import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.AlertDisplayedPixelEvent
+import com.shopify.checkoutsheetkit.pixelevents.CheckoutAddressInfoSubmittedPixelEvent
+import com.shopify.checkoutsheetkit.pixelevents.CheckoutCompletedPixelEvent
+import com.shopify.checkoutsheetkit.pixelevents.CheckoutContactInfoSubmittedPixelEvent
+import com.shopify.checkoutsheetkit.pixelevents.CheckoutShippingInfoSubmittedPixelEvent
+import com.shopify.checkoutsheetkit.pixelevents.CheckoutStartedPixelEvent
+import com.shopify.checkoutsheetkit.pixelevents.PageViewedPixelEvent
+import com.shopify.checkoutsheetkit.pixelevents.PaymentInfoSubmittedPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.UIExtensionErroredPixelEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -58,12 +64,66 @@ class Logger(
                     )
                 )
             }
-            is StandardPixelEvent -> {
+            is PageViewedPixelEvent -> {
                 insert(
                     LogLine(
-                        type = LogType.STANDARD_PIXEL,
+                        type = LogType.PAGE_VIEWED_PIXEL,
                         message = pixelEvent.name ?: "",
-                        standardPixelEvent = pixelEvent,
+                        pageViewedPixelEvent = pixelEvent,
+                    )
+                )
+            }
+            is CheckoutStartedPixelEvent -> {
+                insert(
+                    LogLine(
+                        type = LogType.CHECKOUT_STARTED_PIXEL,
+                        message = pixelEvent.name ?: "",
+                        checkoutStartedPixelEvent = pixelEvent,
+                    )
+                )
+            }
+            is CheckoutCompletedPixelEvent -> {
+                insert(
+                    LogLine(
+                        type = LogType.CHECKOUT_COMPLETED_PIXEL,
+                        message = pixelEvent.name ?: "",
+                        checkoutCompletedPixelEvent = pixelEvent,
+                    )
+                )
+            }
+            is PaymentInfoSubmittedPixelEvent -> {
+                insert(
+                    LogLine(
+                        type = LogType.PAYMENT_INFO_SUBMITTED_PIXEL,
+                        message = pixelEvent.name ?: "",
+                        paymentInfoSubmittedPixelEvent = pixelEvent,
+                    )
+                )
+            }
+            is CheckoutAddressInfoSubmittedPixelEvent -> {
+                insert(
+                    LogLine(
+                        type = LogType.CHECKOUT_ADDRESS_INFO_SUBMITTED_PIXEL,
+                        message = pixelEvent.name ?: "",
+                        checkoutAddressInfoSubmittedPixelEvent = pixelEvent,
+                    )
+                )
+            }
+            is CheckoutContactInfoSubmittedPixelEvent -> {
+                insert(
+                    LogLine(
+                        type = LogType.CHECKOUT_CONTACT_INFO_SUBMITTED_PIXEL,
+                        message = pixelEvent.name ?: "",
+                        checkoutContactInfoSubmittedPixelEvent = pixelEvent,
+                    )
+                )
+            }
+            is CheckoutShippingInfoSubmittedPixelEvent -> {
+                insert(
+                    LogLine(
+                        type = LogType.CHECKOUT_SHIPPING_INFO_SUBMITTED_PIXEL,
+                        message = pixelEvent.name ?: "",
+                        checkoutShippingInfoSubmittedPixelEvent = pixelEvent,
                     )
                 )
             }

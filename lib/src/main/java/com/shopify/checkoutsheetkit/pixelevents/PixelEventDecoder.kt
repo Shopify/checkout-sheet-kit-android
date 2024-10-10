@@ -37,12 +37,26 @@ internal class PixelEventDecoder @JvmOverloads constructor(
             val eventWrapper = decoder.decodeFromString<PixelEventWrapper>(decodedMsg.body)
             val eventType = EventType.fromTypeName(eventWrapper.event["type"]?.jsonPrimitive?.content)
             when {
-                isStandardEvent(eventType) && eventWrapper.name == ALERT_DISPLAYED_NAME ->
+                eventType == EventType.CUSTOM ->
+                    decoder.decodeFromJsonElement<CustomPixelEvent>(eventWrapper.event)
+                eventWrapper.name == EventName.PAGE_VIEWED.value ->
+                    decoder.decodeFromJsonElement<PageViewedPixelEvent>(eventWrapper.event)
+                eventWrapper.name == EventName.CHECKOUT_STARTED.value ->
+                    decoder.decodeFromJsonElement<CheckoutStartedPixelEvent>(eventWrapper.event)
+                eventWrapper.name == EventName.CHECKOUT_CONTACT_INFO_SUBMITTED.value ->
+                    decoder.decodeFromJsonElement<CheckoutContactInfoSubmittedPixelEvent>(eventWrapper.event)
+                eventWrapper.name == EventName.CHECKOUT_ADDRESS_INFO_SUBMITTED.value ->
+                    decoder.decodeFromJsonElement<CheckoutAddressInfoSubmittedPixelEvent>(eventWrapper.event)
+                eventWrapper.name == EventName.CHECKOUT_SHIPPING_INFO_SUBMITTED.value ->
+                    decoder.decodeFromJsonElement<CheckoutShippingInfoSubmittedPixelEvent>(eventWrapper.event)
+                eventWrapper.name == EventName.PAYMENT_INFO_SUBMITTED.value ->
+                    decoder.decodeFromJsonElement<PaymentInfoSubmittedPixelEvent>(eventWrapper.event)
+                eventWrapper.name == EventName.CHECKOUT_COMPLETED.value ->
+                    decoder.decodeFromJsonElement<CheckoutCompletedPixelEvent>(eventWrapper.event)
+                eventWrapper.name == EventName.ALERT_DISPLAYED.value ->
                     decoder.decodeFromJsonElement<AlertDisplayedPixelEvent>(eventWrapper.event)
-                isStandardEvent(eventType) && eventWrapper.name == UI_EXTENSION_ERRORED_NAME ->
+                eventWrapper.name == EventName.UI_EXTENSION_ERRORED.value ->
                     decoder.decodeFromJsonElement<UIExtensionErroredPixelEvent>(eventWrapper.event)
-                isStandardEvent(eventType) -> decoder.decodeFromJsonElement<StandardPixelEvent>(eventWrapper.event)
-                eventType == EventType.CUSTOM -> decoder.decodeFromJsonElement<CustomPixelEvent>(eventWrapper.event)
                 else -> return null
             }
         } catch (e: Exception) {
@@ -51,13 +65,17 @@ internal class PixelEventDecoder @JvmOverloads constructor(
         }
     }
 
-    private fun isStandardEvent(eventType: EventType?): Boolean {
-        return STANDARD_EVENT_TYPES.contains(eventType)
-    }
-
     companion object {
-        private const val ALERT_DISPLAYED_NAME = "alert_displayed"
-        private const val UI_EXTENSION_ERRORED_NAME = "ui_extension_errored"
-        private val STANDARD_EVENT_TYPES = listOf(EventType.STANDARD, EventType.EXTENDED_STANDARD)
+        enum class EventName(val value: String) {
+            PAGE_VIEWED("page_viewed"),
+            CHECKOUT_STARTED("checkout_started"),
+            CHECKOUT_COMPLETED("checkout_completed"),
+            PAYMENT_INFO_SUBMITTED("payment_info_submitted"),
+            CHECKOUT_ADDRESS_INFO_SUBMITTED("checkout_address_info_submitted"),
+            CHECKOUT_CONTACT_INFO_SUBMITTED("checkout_contact_info_submitted"),
+            CHECKOUT_SHIPPING_INFO_SUBMITTED("checkout_shipping_info_submitted"),
+            ALERT_DISPLAYED("alert_displayed"),
+            UI_EXTENSION_ERRORED("ui_extension_errored"),
+        }
     }
 }

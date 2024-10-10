@@ -30,10 +30,15 @@ import androidx.compose.ui.Modifier
 import com.shopify.checkoutsheetkit.pixelevents.Context
 import com.shopify.checkoutsheetkit.pixelevents.CustomPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
-import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent
-import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEventData
 import com.shopify.checkoutsheetkit.pixelevents.AlertDisplayedPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.AlertDisplayedPixelEventData
+import com.shopify.checkoutsheetkit.pixelevents.CheckoutAddressInfoSubmittedPixelEvent
+import com.shopify.checkoutsheetkit.pixelevents.CheckoutCompletedPixelEvent
+import com.shopify.checkoutsheetkit.pixelevents.CheckoutContactInfoSubmittedPixelEvent
+import com.shopify.checkoutsheetkit.pixelevents.CheckoutShippingInfoSubmittedPixelEvent
+import com.shopify.checkoutsheetkit.pixelevents.CheckoutStartedPixelEvent
+import com.shopify.checkoutsheetkit.pixelevents.PageViewedPixelEvent
+import com.shopify.checkoutsheetkit.pixelevents.PaymentInfoSubmittedPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.UIExtensionErroredPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.UIExtensionErroredPixelEventData
 import kotlinx.serialization.encodeToString
@@ -57,13 +62,41 @@ fun PixelEventDetails(
     LogDetails(header = "Type", message = event?.type?.name?.lowercase() ?: "", oddModifier)
 
     when (event) {
-        is StandardPixelEvent -> {
-            LogDetails(
-                header = "Data",
-                message = prettyJson.encodeDataToString<StandardPixelEventData>(event.data),
-                evenModifier,
-            )
-            LogDetails(header = "Context", message = prettyJson.encodeDataToString<Context>(event.context), oddModifier)
+        is PageViewedPixelEvent -> {
+            LogData("", evenModifier)
+            LogContext(prettyJson.encodeDataToString<Context>(event.context), oddModifier)
+        }
+        is CheckoutStartedPixelEvent -> {
+            LogData(prettyJson.encodeDataToString(event.data), evenModifier)
+            LogContext(prettyJson.encodeDataToString<Context>(event.context), oddModifier)
+        }
+        is CheckoutContactInfoSubmittedPixelEvent -> {
+            LogData(prettyJson.encodeDataToString(event.data), evenModifier)
+            LogContext(prettyJson.encodeDataToString<Context>(event.context), oddModifier)
+        }
+        is CheckoutAddressInfoSubmittedPixelEvent -> {
+            LogData(prettyJson.encodeDataToString(event.data), evenModifier,)
+            LogContext(prettyJson.encodeDataToString<Context>(event.context), oddModifier)
+        }
+        is CheckoutShippingInfoSubmittedPixelEvent -> {
+            LogData(prettyJson.encodeDataToString(event.data), evenModifier)
+            LogContext(prettyJson.encodeDataToString<Context>(event.context), oddModifier)
+        }
+        is PaymentInfoSubmittedPixelEvent -> {
+            LogData(prettyJson.encodeDataToString(event.data), evenModifier)
+            LogContext(prettyJson.encodeDataToString<Context>(event.context), oddModifier)
+        }
+        is CheckoutCompletedPixelEvent -> {
+            LogData(prettyJson.encodeDataToString(event.data), evenModifier,)
+            LogContext(prettyJson.encodeDataToString<Context>(event.context), oddModifier)
+        }
+        is AlertDisplayedPixelEvent -> {
+            LogData(prettyJson.encodeDataToString<AlertDisplayedPixelEventData>(event.data), evenModifier)
+            LogContext(prettyJson.encodeDataToString<Context>(event.context), oddModifier)
+        }
+        is UIExtensionErroredPixelEvent -> {
+            LogData(prettyJson.encodeDataToString<UIExtensionErroredPixelEventData>(event.data), evenModifier)
+            LogContext(prettyJson.encodeDataToString<Context>(event.context), oddModifier)
         }
         is CustomPixelEvent -> {
             LogDetails(
@@ -71,21 +104,7 @@ fun PixelEventDetails(
                 message = event.customData ?: "",
                 evenModifier,
             )
-            LogDetails(header = "Context", message = prettyJson.encodeDataToString<Context>(event.context), oddModifier)
-        }
-        is AlertDisplayedPixelEvent -> {
-            LogDetails(
-                header = "Data",
-                message = prettyJson.encodeDataToString<AlertDisplayedPixelEventData>(event.data),
-                modifier = evenModifier
-            )
-        }
-        is UIExtensionErroredPixelEvent -> {
-            LogDetails(
-                header = "Data",
-                message = prettyJson.encodeDataToString<UIExtensionErroredPixelEventData>(event.data),
-                modifier = evenModifier
-            )
+            LogContext(prettyJson.encodeDataToString<Context>(event.context), oddModifier)
         }
         else -> {}
     }
@@ -94,4 +113,22 @@ fun PixelEventDetails(
 private inline fun <reified T> Json.encodeDataToString(el: T?, default: String = "n/a"): String {
     if (el == null) return default
     return encodeToString(el)
+}
+
+@Composable
+fun LogData(message: String, modifier: Modifier) {
+    LogDetails(
+        header = "Data",
+        message = message,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun LogContext(message: String, modifier: Modifier) {
+    LogDetails(
+        header = "Context",
+        message = message,
+        modifier = modifier
+    )
 }

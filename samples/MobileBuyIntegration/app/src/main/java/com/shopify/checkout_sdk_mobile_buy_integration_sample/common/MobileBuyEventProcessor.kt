@@ -39,9 +39,10 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
+import com.shopify.checkoutsheetkit.pixelevents.CheckoutCompletedPixelEvent
+import com.shopify.checkoutsheetkit.pixelevents.CheckoutStartedPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.CustomPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
-import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -95,7 +96,8 @@ class MobileBuyEventProcessor(
 
         // handle pixel events (e.g. transform, augment, and process), e.g.
         val analyticsEvent = when (event) {
-            is StandardPixelEvent -> event.toAnalyticsEvent()
+            is CheckoutStartedPixelEvent -> event.toAnalyticsEvent()
+            is CheckoutCompletedPixelEvent -> event.toAnalyticsEvent()
             is CustomPixelEvent -> event.toAnalyticsEvent()
             else -> null
         }

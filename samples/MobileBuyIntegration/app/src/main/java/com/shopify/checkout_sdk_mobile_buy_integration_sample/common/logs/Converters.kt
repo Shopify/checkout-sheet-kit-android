@@ -3,20 +3,23 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs
 import androidx.room.TypeConverter
 import com.shopify.checkoutsheetkit.lifecycleevents.OrderDetails
 import com.shopify.checkoutsheetkit.pixelevents.AlertDisplayedPixelEventData
+import com.shopify.checkoutsheetkit.pixelevents.Checkout
+import com.shopify.checkoutsheetkit.pixelevents.CheckoutPixelEventData
+import com.shopify.checkoutsheetkit.pixelevents.CheckoutStartedPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.Context
 import com.shopify.checkoutsheetkit.pixelevents.PageViewedPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.UIExtensionErroredPixelEventData
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-class TypeConverters {
+class Converters {
     @TypeConverter
-    fun pageViewedPixelEventToString(value: PageViewedPixelEvent): String {
-        return Json.encodeToString<PageViewedPixelEvent>(value)
+    fun checkoutPixelEventToString(value: CheckoutPixelEventData): String {
+        return Json.encodeToString<CheckoutPixelEventData>(value)
     }
     @TypeConverter
-    fun stringToPageViewedPixelEventData(value: String): PageViewedPixelEvent {
-        return Json.decodeFromString<PageViewedPixelEvent>(value)
+    fun stringToCheckoutPixelEventData(value: String): CheckoutPixelEventData {
+        return Json.decodeFromString<CheckoutPixelEventData>(value)
     }
 
     @TypeConverter

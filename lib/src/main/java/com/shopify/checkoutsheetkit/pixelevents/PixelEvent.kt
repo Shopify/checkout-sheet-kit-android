@@ -206,17 +206,76 @@ public data class UIExtensionErrorPixelEventError(
 )
 
 @Serializable
-public data class StandardPixelEvent(
+public data class PageViewedPixelEvent(
     public override val id: String? = null,
     public override val name: String? = null,
     public override val timestamp: String? = null,
     public override val type: EventType? = null,
     public val context: Context? = null,
-    public val data: StandardPixelEventData? = null,
 ): PixelEvent
 
 @Serializable
-public data class StandardPixelEventData(
+public data class CheckoutStartedPixelEvent(
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val type: EventType? = null,
+    public val context: Context? = null,
+    public val data: CheckoutPixelEventData? = null,
+): PixelEvent
+
+@Serializable
+public data class CheckoutCompletedPixelEvent(
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val type: EventType? = null,
+    public val context: Context? = null,
+    public val data: CheckoutPixelEventData? = null,
+): PixelEvent
+
+@Serializable
+public data class CheckoutAddressInfoSubmittedPixelEvent(
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val type: EventType? = null,
+    public val context: Context? = null,
+    public val data: CheckoutPixelEventData? = null,
+): PixelEvent
+
+@Serializable
+public data class CheckoutContactInfoSubmittedPixelEvent(
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val type: EventType? = null,
+    public val context: Context? = null,
+    public val data: CheckoutPixelEventData? = null,
+): PixelEvent
+
+@Serializable
+public data class CheckoutShippingInfoSubmittedPixelEvent(
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val type: EventType? = null,
+    public val context: Context? = null,
+    public val data: CheckoutPixelEventData? = null,
+): PixelEvent
+
+@Serializable
+public data class PaymentInfoSubmittedPixelEvent(
+    public override val id: String? = null,
+    public override val name: String? = null,
+    public override val timestamp: String? = null,
+    public override val type: EventType? = null,
+    public val context: Context? = null,
+    public val data: CheckoutPixelEventData? = null,
+): PixelEvent
+
+@Serializable
+public data class CheckoutPixelEventData(
     public val checkout: Checkout? = null
 )
 

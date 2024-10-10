@@ -22,8 +22,9 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.common.analytics
 
+import com.shopify.checkoutsheetkit.pixelevents.CheckoutCompletedPixelEvent
+import com.shopify.checkoutsheetkit.pixelevents.CheckoutStartedPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.CustomPixelEvent
-import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent
 import kotlinx.serialization.json.Json
 
 object Analytics {
@@ -54,7 +55,17 @@ data class SecondCustomEventData(
     val attr2: Double,
 )
 
-fun StandardPixelEvent.toAnalyticsEvent(): AnalyticsEvent {
+fun CheckoutStartedPixelEvent.toAnalyticsEvent(): AnalyticsEvent {
+    return AnalyticsEvent(
+        id = id ?: "",
+        name = name ?: "",
+        timestamp = timestamp ?: "",
+        userId = Analytics.userId(),
+        checkoutAmount = data?.checkout?.totalPrice?.amount ?: 0.0
+    )
+}
+
+fun CheckoutCompletedPixelEvent.toAnalyticsEvent(): AnalyticsEvent {
     return AnalyticsEvent(
         id = id ?: "",
         name = name ?: "",

@@ -64,9 +64,9 @@ class PixelEventDecoderTest {
 
         val result = decoder.decode(event)
 
-        assertThat(result).isInstanceOf(StandardPixelEvent::class.java)
+        assertThat(result).isInstanceOf(CheckoutStartedPixelEvent::class.java)
 
-        val checkoutStartedEvent = result as StandardPixelEvent
+        val checkoutStartedEvent = result as CheckoutStartedPixelEvent
         assertThat(checkoutStartedEvent.name).isEqualTo("checkout_started")
         assertThat(checkoutStartedEvent.timestamp).isEqualTo("2023-12-20T16:39:23+0000")
         assertThat(checkoutStartedEvent.id).isEqualTo("sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B")
@@ -191,9 +191,9 @@ class PixelEventDecoderTest {
 
         val result = decoder.decode(event)
 
-        assertThat(result).isInstanceOf(StandardPixelEvent::class.java)
+        assertThat(result).isInstanceOf(CheckoutCompletedPixelEvent::class.java)
 
-        val checkoutStarted = result as StandardPixelEvent
+        val checkoutStarted = result as CheckoutCompletedPixelEvent
         assertThat(checkoutStarted.name).isEqualTo("checkout_completed")
         assertThat(checkoutStarted.timestamp).isEqualTo("2023-12-20T16:39:23+0000")
         assertThat(checkoutStarted.id).isEqualTo("sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B")
@@ -315,9 +315,9 @@ class PixelEventDecoderTest {
 
         val result = decoder.decode(event)
 
-        assertThat(result).isInstanceOf(StandardPixelEvent::class.java)
+        assertThat(result).isInstanceOf(PageViewedPixelEvent::class.java)
 
-        val pageViewedEvent = result as StandardPixelEvent
+        val pageViewedEvent = result as PageViewedPixelEvent
         assertThat(pageViewedEvent.name).isEqualTo("page_viewed")
         assertThat(pageViewedEvent.timestamp).isEqualTo("2023-12-20T16:39:23+0000")
         assertThat(pageViewedEvent.id).isEqualTo("sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B")
