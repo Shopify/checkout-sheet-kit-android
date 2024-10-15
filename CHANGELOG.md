@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.2 October 15 2024
+
+- Prevent entering recovery mode for single-use multipass URLs.
+
 ## 3.1.1 October 2, 2024
 
 - Ensure that cached WebView instances don't have existing parents before trying to add them to their container.
