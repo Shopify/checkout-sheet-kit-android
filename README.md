@@ -450,6 +450,10 @@ and initialize a buyer-aware checkout session.
 > the above JSON omits useful customer attributes that should be provided where possible and
 > encryption and signing should be done server-side to ensure Multipass keys are kept secret.
 
+> [!NOTE]
+> Multipass errors are not "recoverable" (See [Error Handling](#error-handling)) due to their one-time nature. Failed requests containing multipass URLs
+> will require re-generating new tokens.
+
 #### Shop Pay
 
 To initialize accelerated Shop Pay checkout, the cart can set a
