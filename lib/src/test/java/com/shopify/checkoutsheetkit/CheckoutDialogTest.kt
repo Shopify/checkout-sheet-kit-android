@@ -192,7 +192,7 @@ class CheckoutDialogTest {
     @Test
     fun `does not call attemptToRecoverFromError if closeCheckoutDialogWithError is called when url contains multipass`() {
         val mockEventProcessor = mock<DefaultCheckoutEventProcessor>()
-        ShopifyCheckoutSheetKit.present("https://shopify.com/a/b/c/multipass", activity, mockEventProcessor)
+        ShopifyCheckoutSheetKit.present("https://shopify.com/account/login/multipass", activity, mockEventProcessor)
 
         val checkoutDialog = ShadowDialog.getLatestDialog() as CheckoutDialog
         assertThat(checkoutDialog.containsChildOfType(CheckoutWebView::class.java)).isTrue()

@@ -162,21 +162,9 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
 
             return trimmedUri.build()
         }
-
-        private fun Uri?.isWebLink(): Boolean = setOf(Scheme.HTTP, Scheme.HTTPS).contains(this?.scheme)
-        private fun Uri?.isMailtoLink(): Boolean = this?.scheme == Scheme.MAILTO
-        private fun Uri?.isTelLink(): Boolean = this?.scheme == Scheme.TEL
-        private fun Uri?.isContactLink(): Boolean = this.isMailtoLink() || this.isTelLink()
     }
 
     companion object {
-        private object Scheme {
-            const val HTTP = "http"
-            const val HTTPS = "https"
-            const val TEL = "tel"
-            const val MAILTO = "mailto"
-        }
-
         private const val OPEN_EXTERNALLY_PARAM = "open_externally"
         private const val JAVASCRIPT_INTERFACE_NAME = "android"
 

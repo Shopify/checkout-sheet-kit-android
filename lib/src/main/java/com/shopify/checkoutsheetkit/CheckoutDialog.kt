@@ -151,9 +151,8 @@ internal class CheckoutDialog(
 
     internal fun closeCheckoutDialogWithError(exception: CheckoutException) {
         checkoutEventProcessor.onCheckoutFailed(exception)
-
-        val isOneTimeUseURL = this.checkoutUrl.contains("multipass")
-        if (!isOneTimeUseURL && ShopifyCheckoutSheetKit.configuration.errorRecovery.shouldRecoverFromError(exception)) {
+        if (!this.checkoutUrl.isOneTimeUse() &&
+            ShopifyCheckoutSheetKit.configuration.errorRecovery.shouldRecoverFromError(exception)) {
             attemptToRecoverFromError(exception)
         } else {
             dismiss()
