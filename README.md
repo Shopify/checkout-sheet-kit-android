@@ -23,7 +23,7 @@ your project:
 #### Gradle
 
 ```groovy
-implementation "com.shopify:checkout-sheet-kit:3.1.1"
+implementation "com.shopify:checkout-sheet-kit:3.1.2"
 ```
 
 #### Maven
@@ -33,7 +33,7 @@ implementation "com.shopify:checkout-sheet-kit:3.1.1"
 <dependency>
    <groupId>com.shopify</groupId>
    <artifactId>checkout-sheet-kit</artifactId>
-   <version>3.1.1</version>
+   <version>3.1.2</version>
 </dependency>
 ```
 
@@ -449,6 +449,10 @@ and initialize a buyer-aware checkout session.
 > [!Important]
 > the above JSON omits useful customer attributes that should be provided where possible and
 > encryption and signing should be done server-side to ensure Multipass keys are kept secret.
+
+> [!NOTE]
+> Multipass errors are not "recoverable" (See [Error Handling](#error-handling)) due to their one-time nature. Failed requests containing multipass URLs
+> will require re-generating new tokens.
 
 #### Shop Pay
 
