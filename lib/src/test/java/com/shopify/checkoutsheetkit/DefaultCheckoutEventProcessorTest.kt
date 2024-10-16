@@ -23,6 +23,8 @@
 package com.shopify.checkoutsheetkit
 
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
 import android.net.Uri
 import androidx.activity.ComponentActivity
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
@@ -35,6 +37,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.RuntimeEnvironment
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.shadows.ShadowActivity
 
@@ -59,7 +62,7 @@ class DefaultCheckoutEventProcessorTest {
 
         val intent = shadowActivity.peekNextStartedActivityForResult().intent
         assertThat(intent.data).isEqualTo(uri)
-        intent.type = Intent.ACTION_VIEW
+        assertThat(intent.action).isEqualTo(Intent.ACTION_VIEW)
     }
 
     @Test
@@ -71,7 +74,7 @@ class DefaultCheckoutEventProcessorTest {
 
         val intent = shadowActivity.peekNextStartedActivityForResult().intent
         assertThat(intent.getStringArrayExtra(Intent.EXTRA_EMAIL)).isEqualTo(arrayOf("test.user@shopify.com"))
-        intent.type = "vnd.android.cursor.item/email"
+        assertThat(intent.action).isEqualTo("android.intent.action.SEND")
     }
 
     @Test
@@ -83,7 +86,33 @@ class DefaultCheckoutEventProcessorTest {
 
         val intent = shadowActivity.peekNextStartedActivityForResult().intent
         assertThat(intent.data).isEqualTo(uri)
-        intent.type =  Intent.ACTION_DIAL
+        assertThat(intent.action).isEqualTo(Intent.ACTION_DIAL)
+    }
+
+    @Test
+    fun `onCheckoutLinkedClick with known deep link scheme logs warning`() {
+        val log = mock<LogWrapper>()
+        val uri = Uri.parse("geo:40.712776,-74.005974?q=Statue+of+Liberty")
+
+        val expectedIntent = Intent(Intent.ACTION_VIEW)
+        expectedIntent.data = uri
+
+        val pm: PackageManager = RuntimeEnvironment.getApplication().packageManager
+        val shadowPackageManager = shadowOf(pm)
+        shadowPackageManager.addResolveInfoForIntent(expectedIntent, ResolveInfo())
+
+        val processor = object: DefaultCheckoutEventProcessor(activity, log) {
+            override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {/* not implemented */}
+            override fun onCheckoutFailed(error: CheckoutException) {/* not implemented */}
+            override fun onCheckoutCanceled() {/* not implemented */}
+            override fun onWebPixelEvent(event: PixelEvent) {/* not implemented */}
+        }
+
+        processor.onCheckoutLinkClicked(uri)
+
+        val intent = shadowActivity.peekNextStartedActivityForResult().intent
+        assertThat(intent.data).isEqualTo(uri)
+        assertThat(intent.action).isEqualTo(Intent.ACTION_VIEW)
     }
 
     @Test
