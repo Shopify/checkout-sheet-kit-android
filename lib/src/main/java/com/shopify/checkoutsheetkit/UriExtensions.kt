@@ -28,7 +28,7 @@ internal fun Uri?.isWebLink(): Boolean = setOf(Scheme.HTTP, Scheme.HTTPS).contai
 internal fun Uri?.isMailtoLink(): Boolean = this?.scheme == Scheme.MAILTO
 internal fun Uri?.isTelLink(): Boolean = this?.scheme == Scheme.TEL
 internal fun Uri?.isContactLink(): Boolean = this.isMailtoLink() || this.isTelLink()
-internal fun String.isOneTimeUse(): Boolean = this.contains("login/multipass")
+internal fun String.isOneTimeUse(): Boolean = this.contains("multipass")
 
 internal object Scheme {
     const val HTTP = "http"
