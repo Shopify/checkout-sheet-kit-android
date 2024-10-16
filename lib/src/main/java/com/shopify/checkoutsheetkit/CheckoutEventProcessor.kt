@@ -22,6 +22,7 @@
  */
 package com.shopify.checkoutsheetkit
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -127,7 +128,7 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
             "tel" -> context.launchPhoneApp(uri.schemeSpecificPart)
             "mailto" -> context.launchEmailApp(uri.schemeSpecificPart)
             "https", "http" -> context.launchBrowser(uri)
-            else -> log.w(TAG, "Unrecognized scheme for link clicked in checkout '$uri'")
+            else -> context.tryLaunchDeepLink(uri)
         }
     }
 
@@ -163,6 +164,17 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
     private fun Context.launchPhoneApp(phone: String) {
         val intent = Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null))
         startActivity(intent)
+    }
+
+    @SuppressLint("QueryPermissionsNeeded")
+    private fun Context.tryLaunchDeepLink(uri: Uri) {
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.data = uri
+        if (context.packageManager.queryIntentActivities(intent, 0).isNotEmpty()) {
+            startActivity(intent)
+        } else {
+            log.w(TAG, "Unrecognized scheme for link clicked in checkout '$uri'")
+        }
     }
 
     private companion object {
