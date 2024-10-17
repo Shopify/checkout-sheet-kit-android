@@ -1,16 +1,16 @@
 buildscript {
     ext {
-        core_version = '1.12.0'
+        core_version = '1.13.1'
         compose_ui_version = '1.6.5'
-        lifecycle_version = '2.7.0'
-        activity_version = '1.8.2'
+        lifecycle_version = '2.8.5'
+        activity_version = '1.9.2'
         coil_version = '2.6.0'
         khttp_version = '1.6.1'
         kotlin_serialization_version = '1.6.2'
     }
 }
 plugins {
-    id 'com.android.application' version '8.3.0' apply false
+    id 'com.android.application' version '8.5.2' apply false
     id 'org.jetbrains.kotlin.android' version '1.9.22' apply false
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.22' apply false
     id 'io.gitlab.arturbosch.detekt' version '1.23.0' apply false
