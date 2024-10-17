@@ -254,7 +254,7 @@ val processor = object : DefaultCheckoutEventProcessor(activity) {
         // and is being directed outside the application.
 
         // Note: to support deep links on Android 11+ using the `DefaultCheckoutEventProcessor`,
-        // the client app should declare queries in its manifest declaring which apps it should interact with.
+        // the client app should add a queries element in its manifest declaring which apps it should interact with.
         // See the MobileBuyIntegration sample's manifest for an example.
         // Queries reference - https://developer.android.com/guide/topics/manifest/queries-element
 
