@@ -38,7 +38,7 @@ sealed class CartState {
 
 }
 
-data class CartLine(val title: String, val vendor: String, val quantity: Int)
+data class CartLine(val id: ID, val title: String, val vendor: String, val quantity: Int)
 data class CartTotals(val totalQuantity: Int, val totalAmount: Amount)
 data class Amount(val currency: String, val price: Double)
 

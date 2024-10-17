@@ -30,6 +30,7 @@ import com.shopify.buy3.Storefront
 import com.shopify.buy3.Storefront.CartBuyerIdentityInput
 import com.shopify.buy3.Storefront.CartInput
 import com.shopify.buy3.Storefront.CartLineInput
+import com.shopify.buy3.Storefront.CartLineUpdateInput
 import com.shopify.buy3.Storefront.CartQuery
 import com.shopify.buy3.Storefront.MutationQuery
 import com.shopify.buy3.Storefront.ProductVariantQuery
@@ -71,6 +72,29 @@ class StorefrontClient(private val client: GraphClient) {
             }
         }
         executeQuery(query, successCallback, failureCallback)
+    }
+
+    fun cartLinesUpdate(
+        cartId: ID,
+        lineItemID: ID,
+        quantity: Int,
+        successCallback: (GraphResponse<Storefront.Mutation>) -> Unit,
+        failureCallback: ((GraphError) -> Unit)? = {},
+    ) {
+        val lineUpdateInput = CartLineUpdateInput(lineItemID).setQuantity(quantity)
+
+        val mutation =  Storefront.mutation { mutation ->
+            mutation.cartLinesUpdate(
+                cartId,
+                listOf(lineUpdateInput)
+            ) { cartLinesUpdate ->
+                cartLinesUpdate.cart { cartQuery ->
+                    cartQueryFragment(cartQuery)
+                }
+            }
+        }
+
+        executeMutation(mutation, successCallback, failureCallback)
     }
 
     fun createCart(
@@ -129,6 +153,7 @@ class StorefrontClient(private val client: GraphClient) {
             }
             .lines({ it.first(250) }) { lineQuery ->
                 lineQuery.nodes { line ->
+                    line.id()
                     line.quantity()
                     line.merchandise { merchandise ->
                         merchandise.onProductVariant { variant ->

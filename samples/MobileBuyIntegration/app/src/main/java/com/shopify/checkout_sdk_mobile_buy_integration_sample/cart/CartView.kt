@@ -36,6 +36,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -43,6 +44,10 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -54,6 +59,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.AppBarState
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.toDisplayText
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
+import com.shopify.graphql.support.ID
 
 @Composable
 fun <T: DefaultCheckoutEventProcessor> CartView(
@@ -62,7 +68,10 @@ fun <T: DefaultCheckoutEventProcessor> CartView(
     checkoutEventProcessor: T,
 ) {
     val state = cartViewModel.cartState.collectAsState().value
+    val loading = cartViewModel.loadingState.collectAsState().value
+
     val activity = LocalContext.current as ComponentActivity
+    var mutableQuantity by remember { mutableStateOf<Map<String, Int>>(mutableMapOf()) }
 
     LaunchedEffect(state) {
         setAppBarState(
@@ -86,21 +95,32 @@ fun <T: DefaultCheckoutEventProcessor> CartView(
         }
     }
 
+    if (loading) {
+        LinearProgressIndicator(
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+
     Column(
         Modifier
             .fillMaxSize()
             .padding(20.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        val activity = LocalContext.current as ComponentActivity
         when (state) {
             is CartState.Empty -> {
                 EmptyCartMessage(Modifier.fillMaxSize())
             }
 
             is CartState.Populated -> {
+                mutableQuantity = state.cartLines.associate {
+                    it.title to it.quantity
+                }
+
                 CartLines(
                     lines = state.cartLines,
+                    loading = loading,
+                    setQuantity = cartViewModel::updateCartQuantity,
                     modifier = Modifier.weight(1f, false)
                 )
                 CheckoutButton(
@@ -120,7 +140,7 @@ fun <T: DefaultCheckoutEventProcessor> CartView(
 }
 
 @Composable
-private fun CartLines(lines: List<CartLine>, modifier: Modifier = Modifier) {
+private fun CartLines(lines: List<CartLine>, loading: Boolean, setQuantity: (ID, Int) -> Unit, modifier: Modifier = Modifier) {
     LazyColumn(modifier) {
         items(lines) { item ->
             Row(
@@ -133,6 +153,8 @@ private fun CartLines(lines: List<CartLine>, modifier: Modifier = Modifier) {
                     title = item.title,
                     vendor = item.vendor,
                     quantity = item.quantity,
+                    setQuantity = { quantity -> setQuantity(item.id, quantity) },
+                    loading = loading,
                     modifier = Modifier
                         .fillMaxWidth(.9f)
                         .align(alignment = Alignment.CenterVertically)

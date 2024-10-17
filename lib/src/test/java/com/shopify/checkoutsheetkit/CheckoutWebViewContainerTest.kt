@@ -34,7 +34,6 @@ import org.mockito.kotlin.whenever
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
-import kotlin.time.Duration.Companion.minutes
 
 @RunWith(RobolectricTestRunner::class)
 class CheckoutWebViewContainerTest {

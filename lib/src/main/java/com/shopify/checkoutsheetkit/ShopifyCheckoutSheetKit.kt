@@ -69,6 +69,14 @@ public object ShopifyCheckoutSheetKit {
     }
 
     /**
+     * Invalidate WebViews cached due to preload calls
+     */
+    @JvmStatic
+    public fun invalidate() {
+        CheckoutWebView.markCacheEntryStale()
+    }
+
+    /**
      * Preloads a Shopify checkout in the background.
      *
      * Preloading checkout is fully optional, but allows reducing the time taken between calling

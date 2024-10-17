@@ -22,6 +22,7 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.cart
 
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -47,6 +48,9 @@ class CartViewModel(
     private val _cartState = MutableStateFlow<CartState>(CartState.Empty)
     val cartState: StateFlow<CartState> = _cartState.asStateFlow()
 
+    private val _loadingState = MutableStateFlow(false)
+    val loadingState: StateFlow<Boolean> = _loadingState
+
     private var demoBuyerIdentityEnabled = false
 
     init {
@@ -65,6 +69,21 @@ class CartViewModel(
         when (val state = _cartState.value) {
             is CartState.Empty -> performCartCreate(variant, onComplete)
             is CartState.Populated -> performCartLinesAdd(state.cartID, variant, onComplete)
+        }
+    }
+
+    fun updateCartQuantity(lineItemID: ID, quantity: Int) {
+        when (val state = _cartState.value) {
+            is CartState.Populated -> {
+                _loadingState.value = true
+                client.cartLinesUpdate(state.cartID, lineItemID, quantity, {
+                    // Invalidate any preload calls so checkout reflects latest quantity
+                    ShopifyCheckoutSheetKit.invalidate()
+                    _cartState.value = it.data?.cartLinesUpdate?.cart.toUiState()
+                    _loadingState.value = false
+                })
+            }
+            is CartState.Empty -> Log.e("CartViewModel", "attempting to update the quantity on an empty cart")
         }
     }
 
@@ -111,8 +130,10 @@ class CartViewModel(
             return CartState.Empty
         }
         val cartLines = lines.nodes.mapNotNull { cartLine ->
+            val cartLineId = cartLine.id
             (cartLine.merchandise as? Storefront.ProductVariant)?.let {
                 CartLine(
+                    id = cartLineId,
                     title = it.product.title,
                     vendor = it.product.vendor,
                     quantity = cartLine.quantity

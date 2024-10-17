@@ -27,15 +27,26 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.Card
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun CartItem(title: String, vendor: String, quantity: Int, modifier: Modifier) {
+fun CartItem(
+    loading: Boolean,
+    title: String,
+    vendor: String,
+    quantity: Int,
+    setQuantity: (Int) -> Unit,
+    modifier: Modifier
+) {
     Card(
         elevation = 0.dp,
         modifier = modifier
@@ -44,12 +55,31 @@ fun CartItem(title: String, vendor: String, quantity: Int, modifier: Modifier) {
             horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxWidth(.9f).padding(10.dp),
         ) {
-            Column(Modifier.weight(.9f)) {
+            Column(Modifier.weight(.9f).align(Alignment.CenterVertically)) {
                 Text(title)
                 Text(vendor, fontSize = 10.sp)
             }
 
-            Text("$quantity")
+            Row {
+                TextButton(
+                    modifier = Modifier.width(40.dp),
+                    enabled = !loading,
+                    onClick = { setQuantity(quantity - 1) }) {
+                    Text("-")
+                }
+                Text(
+                    text = "$quantity",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.align(Alignment.CenterVertically)
+                )
+                TextButton(
+                    modifier = Modifier.width(40.dp),
+                    enabled = !loading,
+                    onClick = { setQuantity(quantity + 1) }
+                ) {
+                    Text("+")
+                }
+            }
         }
     }
 }
