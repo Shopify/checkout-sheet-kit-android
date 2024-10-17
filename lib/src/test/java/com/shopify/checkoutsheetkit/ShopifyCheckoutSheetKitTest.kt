@@ -77,6 +77,25 @@ class ShopifyCheckoutSheetKitTest {
     }
 
     @Test
+    fun `invalidate marks cache entry as stale meaning it will not be used when presenting`() {
+        Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
+            withPreloadingEnabled {
+                val url = "https://shopify.dev"
+                ShopifyCheckoutSheetKit.preload(url, activityController.get())
+                ShadowLooper.shadowMainLooper().runToEndOfTasks()
+
+                ShopifyCheckoutSheetKit.invalidate()
+                ShadowLooper.shadowMainLooper().runToEndOfTasks()
+
+                assertThat(CheckoutWebView.cacheEntry).isNotNull()
+                val entry = CheckoutWebView.cacheEntry!!
+
+                assertThat(entry.isStale).isTrue()
+            }
+        }
+    }
+
+    @Test
     fun `preload caches a new WebView, loads the URL, and destroys old view if cache is not empty`() {
         Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
             withPreloadingEnabled {
