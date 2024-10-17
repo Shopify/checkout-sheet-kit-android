@@ -194,6 +194,12 @@ ShopifyCheckoutSheetKit.configure {
 ShopifyCheckoutSheetKit.preload(checkoutUrl) // no-op
 ```
 
+#### Invalidation
+
+To invalidate a preloaded checkout, call `ShopifyCheckoutSheetKit.invalidate()`. This function will be a no-op if no checkout is preloaded.
+
+You may wish to do this if the buyer changes shortly before entering checkout, e.g. by changing cart quantity on a cart view.
+
 #### Lifecycle management for preloaded checkout
 
 Preloading renders a checkout in a background webview, which is brought to foreground when `ShopifyCheckoutSheetKit.present()` is called. The content of preloaded checkout reflects the state of the cart when `preload()` was initially called. If the cart is mutated after `preload()` is called, the application is responsible for invalidating the preloaded checkout to ensure that up-to-date checkout content is displayed to the buyer:

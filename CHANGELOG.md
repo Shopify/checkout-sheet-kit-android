@@ -3,6 +3,7 @@
 ## 3.1.2 October 15 2024
 
 - Prevent entering recovery mode for single-use multipass URLs.
+- Add invalidate() function to interface to allow invalidating preloaded checkouts when necessary.
 
 ## 3.1.1 October 2, 2024
 
