@@ -258,7 +258,7 @@ val processor = object : DefaultCheckoutEventProcessor(activity) {
         // See the MobileBuyIntegration sample's manifest for an example.
         // Queries reference - https://developer.android.com/guide/topics/manifest/queries-element
 
-        // If no app is found to deal with the link, the processor will log a warning:
+        // If no app can be queried to deal with the link, the processor will log a warning:
         // `Unrecognized scheme for link clicked in checkout` along with the uri.
     }
 
