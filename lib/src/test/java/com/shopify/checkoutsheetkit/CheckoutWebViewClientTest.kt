@@ -97,6 +97,18 @@ class CheckoutWebViewClientTest {
     }
 
     @Test
+    fun `does not override url loading to call event processor for about blank`() {
+        val mockRequest = mockWebRequest(Uri.parse("about:blank"))
+
+        val view = viewWithProcessor(activity)
+        val webViewClient = view.CheckoutWebViewClient()
+        val overridden = webViewClient.shouldOverrideUrlLoading(view, mockRequest)
+
+        assertThat(overridden).isFalse()
+        verify(mockEventProcessor, never()).onCheckoutLinkClicked(any())
+    }
+
+    @Test
     fun `does not override url loading to call event processor for web links`() {
         val mockRequest = mockWebRequest(Uri.parse("https://checkout-sdk.myshopify.com"))
 
