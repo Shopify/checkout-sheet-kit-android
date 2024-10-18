@@ -250,7 +250,16 @@ val processor = object : DefaultCheckoutEventProcessor(activity) {
         // - email address (`mailto:`)
         // - telephone number (`tel:`)
         // - web (http:)
+        // - deep link (e.g. myapp://checkout)
         // and is being directed outside the application.
+
+        // Note: to support deep links on Android 11+ using the `DefaultCheckoutEventProcessor`,
+        // the client app should add a queries element in its manifest declaring which apps it should interact with.
+        // See the MobileBuyIntegration sample's manifest for an example.
+        // Queries reference - https://developer.android.com/guide/topics/manifest/queries-element
+
+        // If no app can be queried to deal with the link, the processor will log a warning:
+        // `Unrecognized scheme for link clicked in checkout` along with the uri.
     }
 
     override fun onWebPixelEvent(event: PixelEvent) {

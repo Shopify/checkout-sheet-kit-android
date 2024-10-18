@@ -129,7 +129,11 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             view: WebView?,
             request: WebResourceRequest?
         ): Boolean {
-            if (request?.hasExternalAnnotation() == true || request?.url?.isContactLink() == true) {
+            if (
+                request?.hasExternalAnnotation() == true ||
+                request?.url?.isContactLink() == true ||
+                request?.url?.isDeepLink() == true
+            ) {
                 checkoutBridge.getEventProcessor().onCheckoutViewLinkClicked(request.trimmedUri())
                 return true
             }

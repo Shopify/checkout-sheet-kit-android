@@ -85,6 +85,18 @@ class CheckoutWebViewClientTest {
     }
 
     @Test
+    fun `overrides url loading to call event processor for deep links`() {
+        val mockRequest = mockWebRequest(Uri.parse("geo:40.712776,-74.005974?q=Statue+of+Liberty"))
+
+        val view = viewWithProcessor(activity)
+        val webViewClient = view.CheckoutWebViewClient()
+        val overridden = webViewClient.shouldOverrideUrlLoading(view, mockRequest)
+
+        assertThat(overridden).isTrue
+        verify(mockEventProcessor).onCheckoutLinkClicked(mockRequest.url)
+    }
+
+    @Test
     fun `does not override url loading to call event processor for web links`() {
         val mockRequest = mockWebRequest(Uri.parse("https://checkout-sdk.myshopify.com"))
 
