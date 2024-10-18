@@ -27,8 +27,9 @@ import android.net.Uri
 internal fun Uri?.isWebLink(): Boolean = setOf(Scheme.HTTP, Scheme.HTTPS).contains(this?.scheme)
 internal fun Uri?.isMailtoLink(): Boolean = this?.scheme == Scheme.MAILTO
 internal fun Uri?.isTelLink(): Boolean = this?.scheme == Scheme.TEL
+internal fun Uri?.isAboutScheme(): Boolean = this?.scheme == Scheme.ABOUT
 internal fun Uri?.isContactLink(): Boolean = this.isMailtoLink() || this.isTelLink()
-internal fun Uri?.isDeepLink(): Boolean = this != null && !this.isWebLink() && !this.isContactLink()
+internal fun Uri?.isDeepLink(): Boolean = this != null && !this.isWebLink() && !this.isContactLink() && !this.isAboutScheme()
 internal fun String.isOneTimeUse(): Boolean = this.contains("multipass")
 
 internal object Scheme {
@@ -36,4 +37,5 @@ internal object Scheme {
     const val HTTPS = "https"
     const val TEL = "tel"
     const val MAILTO = "mailto"
+    const val ABOUT = "about"
 }
