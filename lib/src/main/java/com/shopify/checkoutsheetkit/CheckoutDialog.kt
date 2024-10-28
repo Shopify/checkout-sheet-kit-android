@@ -150,6 +150,7 @@ internal class CheckoutDialog(
     }
 
     internal fun closeCheckoutDialogWithError(exception: CheckoutException) {
+        CheckoutWebView.markCacheEntryStale()
         checkoutEventProcessor.onCheckoutFailed(exception)
         if (!this.checkoutUrl.isOneTimeUse() &&
             ShopifyCheckoutSheetKit.configuration.errorRecovery.shouldRecoverFromError(exception)) {
