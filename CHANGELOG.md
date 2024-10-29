@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.2.1 October 29 2024
+
+- Fix: Ensure we clear the preload cache on error responses.
+
 ## 3.2.0 October 18 2024
 
 - Prevent entering recovery mode for single-use multipass URLs.
