@@ -156,6 +156,26 @@ class CheckoutDialogTest {
     }
 
     @Test
+    fun `closeCheckoutDialogWithError marks cache entry stale`() {
+        withPreloadingEnabled {
+            val mockEventProcessor = mock<DefaultCheckoutEventProcessor>()
+            ShopifyCheckoutSheetKit.preload("https://shopify.com", activity)
+            ShopifyCheckoutSheetKit.present("https://shopify.com", activity, mockEventProcessor)
+
+            assertThat(CheckoutWebView.cacheEntry).isNotNull()
+
+            val dialog = ShadowDialog.getLatestDialog()
+            val checkoutDialog = dialog as CheckoutDialog
+            val error = checkoutException(isRecoverable = false)
+
+            checkoutDialog.closeCheckoutDialogWithError(error)
+            shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+
+            assertThat(CheckoutWebView.cacheEntry).isNull()
+        }
+    }
+
+    @Test
     fun `calls onCheckoutFailed if closeCheckoutDialogWithError for non-recoverable error`() {
         val mockEventProcessor = mock<DefaultCheckoutEventProcessor>()
         ShopifyCheckoutSheetKit.present("https://shopify.com", activity, mockEventProcessor)

@@ -67,6 +67,7 @@ class MobileBuyEventProcessor(
         logger.log("Checkout failed", error)
 
         if (!error.isRecoverable) {
+            cartViewModel.clearCart()
             GlobalScope.launch(Dispatchers.Main) {
                 Toast.makeText(
                     context,
