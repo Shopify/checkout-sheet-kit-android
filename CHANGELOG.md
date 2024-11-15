@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.2.2 November 15 2024
+
+- Updates the proguard rules for the library to prevent minification of essential classes.
+- Removes redundant code.
+
 ## 3.2.1 October 29 2024
 
 - Fix: Ensure we clear the preload cache on error responses.

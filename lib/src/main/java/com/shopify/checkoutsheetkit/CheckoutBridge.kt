@@ -167,7 +167,7 @@ internal data class InstrumentationPayload(
 @Suppress("EnumEntryName", "EnumNaming")
 @Serializable
 internal enum class InstrumentationType {
-    histogram, incrementCounter
+    histogram
 }
 
 @Serializable
