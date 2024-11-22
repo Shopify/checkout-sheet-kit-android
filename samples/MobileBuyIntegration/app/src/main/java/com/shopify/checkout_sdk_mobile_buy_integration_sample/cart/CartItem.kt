@@ -22,50 +22,96 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.cart
 
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyAmount
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.QuantitySelector
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
 
 @Composable
 fun CartItem(
+    cartLine: CartLine,
     loading: Boolean,
-    title: String,
-    vendor: String,
-    quantity: Int,
     setQuantity: (Int) -> Unit,
-    modifier: Modifier
 ) {
-    Card(
-//        elevation = CardElevation.,
-        modifier = modifier
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(142.dp)
+            .padding(vertical = 10.dp)
     ) {
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier
-                .fillMaxWidth(.9f)
-                .padding(10.dp),
-        ) {
-            Column(
-                Modifier
-                    .weight(.9f)
-                    .align(Alignment.CenterVertically)
-            ) {
-                Text(title)
-                Text(vendor, fontSize = 10.sp)
-            }
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            RemoteImage(
+                url = cartLine.imageURL,
+                altText = cartLine.imageAltText,
+                modifier = Modifier
+                    .fillMaxWidth(0.3f)
+                    .fillMaxHeight()
+            )
 
-            QuantitySelector(enabled = !loading, quantity = quantity) { quantity ->
-                setQuantity(quantity)
+            Column(
+                verticalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth(.7f)
+            ) {
+                Column {
+                    Text(
+                        text = cartLine.title,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontSize = 18.sp,
+                        color = MaterialTheme.colorScheme.outline,
+                    )
+                    MoneyAmount(
+                        price = cartLine.pricePerQuantity,
+                        currency = cartLine.currencyPerQuantity,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.outline,
+                    )
+                }
+                QuantitySelector(enabled = !loading, quantity = cartLine.quantity) { quantity ->
+                    setQuantity(quantity)
+                }
+            }
+        }
+
+        Column(
+            Modifier.fillMaxHeight(),
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            MoneyAmount(
+                currency = cartLine.totalCurrency,
+                price = cartLine.totalPrice,
+                includeSuffix = false,
+            )
+            IconButton(
+                onClick = { /*TODO*/ },
+            ) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.trash_can),
+                    contentDescription = stringResource(id = R.string.cart_trash_content_description),
+                )
             }
         }
     }

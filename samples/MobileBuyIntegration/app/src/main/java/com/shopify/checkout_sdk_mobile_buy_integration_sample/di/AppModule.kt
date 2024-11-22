@@ -27,6 +27,7 @@ import androidx.room.Room
 import com.shopify.buy3.GraphClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.BuildConfig
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.collection.CollectionViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.LogDatabase
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
@@ -86,6 +87,7 @@ val appModules = module {
     // Compose view models
     viewModelOf(::CartViewModel)
     viewModelOf(::SettingsViewModel)
+    viewModelOf(::CollectionViewModel)
     viewModelOf(::ProductViewModel)
     viewModelOf(::ProductsViewModel)
     viewModelOf(::HomeViewModel)

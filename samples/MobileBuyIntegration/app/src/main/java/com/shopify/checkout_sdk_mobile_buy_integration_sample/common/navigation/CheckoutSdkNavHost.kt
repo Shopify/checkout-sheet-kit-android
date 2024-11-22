@@ -34,6 +34,7 @@ import androidx.navigation.compose.rememberNavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.AppBarState
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.collection.CollectionView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.MobileBuyEventProcessor
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.home.HomeView
@@ -49,6 +50,7 @@ sealed class Screen(val route: String) {
     data object Home : Screen("home")
     data object Product : Screen("product/{productId}")
     data object Products : Screen("product")
+    data object Collection : Screen("collection/{collectionHandle}")
     data object Cart : Screen("cart")
     data object Settings : Screen("settings")
     data object Logs : Screen("logs")
@@ -59,6 +61,7 @@ sealed class Screen(val route: String) {
                 Home.route -> Home
                 Product.route -> Product
                 Products.route -> Products
+                Collection.route -> Collection
                 Cart.route -> Cart
                 Settings.route -> Settings
                 Logs.route -> Logs
@@ -95,11 +98,15 @@ fun CheckoutSdkNavHost(
             ProductView(cartViewModel, backStackEntry.arguments?.getString("productId") ?: "")
         }
 
+        composable(Screen.Collection.route) { backStackEntry ->
+            CollectionView(navController, backStackEntry.arguments?.getString("collectionHandle") ?: "")
+        }
+
         composable(Screen.Cart.route) {
             val activity = LocalContext.current
             CartView(
                 cartViewModel = cartViewModel,
-                setAppBarState = setAppBarState,
+                navController = navController,
                 checkoutEventProcessor = MobileBuyEventProcessor(
                     cartViewModel,
                     navController,

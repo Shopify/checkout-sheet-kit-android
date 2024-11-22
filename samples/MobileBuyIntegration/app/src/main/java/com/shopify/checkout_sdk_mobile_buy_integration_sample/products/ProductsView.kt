@@ -37,10 +37,6 @@ fun ProductsView(
     navController: NavController,
     productsViewModel: ProductsViewModel = koinViewModel(),
 ) {
-    val verticalPadding: Dp = 30.dp
-    val verticalSpacing: Dp = 30.dp
-    val horizontalSpacing: Dp = 5.dp
-
     productsViewModel.fetchProducts()
     val productsUIState = productsViewModel.uiState.collectAsState().value
 
@@ -70,8 +66,8 @@ fun ProductsView(
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
                         modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(verticalSpacing),
-                        horizontalArrangement = Arrangement.spacedBy(horizontalSpacing)
+                        verticalArrangement = Arrangement.spacedBy(30.dp),
+                        horizontalArrangement = Arrangement.spacedBy(5.dp)
                     ) {
                         item(span = { GridItemSpan(maxCurrentLineSpan) }) {
                             Header2(

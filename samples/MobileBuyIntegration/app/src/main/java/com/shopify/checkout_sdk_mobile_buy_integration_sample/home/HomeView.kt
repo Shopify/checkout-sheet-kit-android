@@ -36,7 +36,6 @@ import androidx.navigation.NavHostController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
 import com.shopify.graphql.support.ID
 import org.koin.androidx.compose.koinViewModel
-import timber.log.Timber
 import java.net.URLEncoder
 
 @Composable
@@ -44,23 +43,7 @@ fun HomeView(
     navController: NavHostController,
     homeViewModel: HomeViewModel = koinViewModel()
 ) {
-
     val homeUiState = homeViewModel.uiState.collectAsState().value
-
-//    LaunchedEffect("Home") {
-//        setAppBarState(
-//            AppBarState(
-//                actions = {
-//                    IconButton(onClick = { Log.i("HomeView", "home icon clicked") }) {
-//                        Icon(
-//                            imageVector = Icons.Default.Home,
-//                            contentDescription = "Home",
-//                        )
-//                    }
-//                }
-//            )
-//        )
-//    }
 
     Column(
         modifier = Modifier
@@ -81,10 +64,12 @@ fun HomeView(
 
             is HomeUIState.Loaded -> {
                 Collections(
-                    homeUiState.collections,
+                    collections = homeUiState.collections,
+                    onClick = { collectionHandle ->
+                        navController.navigate(Screen.Collection.route.replace("{collectionHandle}", collectionHandle))
+                    }
                 )
                 Featured(homeUiState.collections.firstOrNull()?.products?.nodes ?: emptyList()) { productId: ID ->
-                    Timber.i("Navigate to $productId")
                     navController.navigate(Screen.Product.route.replace("{productId}", URLEncoder.encode(productId.toString(), "UTF-8")))
                 }
             }

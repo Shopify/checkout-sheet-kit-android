@@ -32,6 +32,7 @@ import com.shopify.buy3.Storefront.CartInput
 import com.shopify.buy3.Storefront.CartLineInput
 import com.shopify.buy3.Storefront.CartLineUpdateInput
 import com.shopify.buy3.Storefront.CartQuery
+import com.shopify.buy3.Storefront.CollectionQuery
 import com.shopify.buy3.Storefront.MutationQuery
 import com.shopify.buy3.Storefront.ProductQuery
 import com.shopify.buy3.Storefront.ProductVariantQuery
@@ -40,6 +41,20 @@ import com.shopify.graphql.support.ID
 import com.shopify.graphql.support.Input
 
 class StorefrontClient(private val client: GraphClient) {
+    fun fetchCollection(
+        handle: String,
+        numProducts: Int,
+        successCallback: (GraphResponse<Storefront.QueryRoot>) -> Unit,
+        failureCallback: ((GraphError) -> Unit)?,
+    ) {
+        val query = Storefront.query { query ->
+            query.collection({ it.handle(handle) }) { collection ->
+                collectionFragment(collection, numProducts)
+            }
+        }
+
+        executeQuery(query, successCallback, failureCallback)
+    }
 
     fun fetchHomePageData(
         numCollections: Int,
@@ -50,36 +65,7 @@ class StorefrontClient(private val client: GraphClient) {
         val query = Storefront.query { query ->
             query.collections({ it.first(numCollections) }) { collectionConnection ->
                 collectionConnection.nodes { collection ->
-                    collection.handle()
-                    collection.title()
-                    collection.description()
-                    collection.image { image ->
-                        image.url()
-                        image.altText()
-                        image.width()
-                        image.height()
-                    }
-                    collection.products({ it.first(numProducts) }) { productsConnection ->
-                        productsConnection.nodes { product ->
-                            product.title()
-                            product.priceRange { priceRange ->
-                                priceRange.maxVariantPrice { variantPrice ->
-                                    variantPrice.amount()
-                                    variantPrice.currencyCode()
-                                }
-                                priceRange.minVariantPrice { variantPrice ->
-                                    variantPrice.amount()
-                                    variantPrice.currencyCode()
-                                }
-                            }
-                            product.featuredImage {
-                                it.url()
-                                it.height()
-                                it.width()
-                                it.altText()
-                            }
-                        }
-                    }
+                    collectionFragment(collection, numProducts)
                 }
             }
         }
@@ -185,6 +171,39 @@ class StorefrontClient(private val client: GraphClient) {
         executeMutation(mutation, successCallback, failureCallback)
     }
 
+    private fun collectionFragment(collectionQuery: CollectionQuery, numProducts: Int): CollectionQuery {
+        return collectionQuery.handle()
+            .title()
+            .description()
+            .image { image ->
+                image.url()
+                image.altText()
+                image.width()
+                image.height()
+            }
+            .products({ it.first(numProducts) }) { productsConnection ->
+                productsConnection.nodes { product ->
+                    product.title()
+                    product.priceRange { priceRange ->
+                        priceRange.maxVariantPrice { variantPrice ->
+                            variantPrice.amount()
+                            variantPrice.currencyCode()
+                        }
+                        priceRange.minVariantPrice { variantPrice ->
+                            variantPrice.amount()
+                            variantPrice.currencyCode()
+                        }
+                    }
+                    product.featuredImage {
+                        it.url()
+                        it.height()
+                        it.width()
+                        it.altText()
+                    }
+                }
+            }
+    }
+
     private fun productFragment(productQuery: ProductQuery, numVariants: Int): ProductQuery {
         return productQuery
             .description()
@@ -216,11 +235,22 @@ class StorefrontClient(private val client: GraphClient) {
                     totalAmount.amount()
                     totalAmount.currencyCode()
                 }
+                costQuery.totalAmountEstimated()
             }
             .lines({ it.first(250) }) { lineQuery ->
                 lineQuery.nodes { line ->
                     line.id()
                     line.quantity()
+                    line.cost { cost ->
+                        cost.totalAmount { total ->
+                            total.amount()
+                            total.currencyCode()
+                        }
+                        cost.amountPerQuantity {
+                            it.amount()
+                            it.currencyCode()
+                        }
+                    }
                     line.merchandise { merchandise ->
                         merchandise.onProductVariant { variant ->
                             variant.price { price ->
@@ -233,6 +263,7 @@ class StorefrontClient(private val client: GraphClient) {
                                 product.vendor()
                                 product.featuredImage { image ->
                                     image.url()
+                                    image.altText()
                                 }
                             }
                         }

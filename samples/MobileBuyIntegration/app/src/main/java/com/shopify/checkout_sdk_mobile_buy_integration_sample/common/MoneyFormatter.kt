@@ -24,8 +24,12 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.common
 
 import java.util.Locale
 
-fun toDisplayText(currencyCode: String, price: Double, locale: Locale): String {
-    return "${currencyCode.toSymbol()}${price.toTwoDecimalString(locale)} $currencyCode"
+fun toDisplayText(currencyCode: String, price: Double, locale: Locale, includeSuffix: Boolean): String {
+    val displayText = "${currencyCode.toSymbol()}${price.toTwoDecimalString(locale)}"
+    if (includeSuffix) {
+        return "$displayText $currencyCode"
+    }
+    return displayText
 }
 
 private fun String.toSymbol(): String {

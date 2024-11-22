@@ -36,6 +36,7 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -114,8 +115,7 @@ fun CheckoutSdkAppRoot(
                         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.White),
                         title = {
                             Image(
-                                modifier = Modifier
-                                    .height(38.dp),
+                                modifier = Modifier.height(38.dp),
                                 contentScale = ContentScale.FillHeight,
                                 painter = painterResource(id = R.drawable.logo_vector),
                                 contentDescription = stringResource(id = R.string.logo_content_description)
@@ -127,7 +127,13 @@ fun CheckoutSdkAppRoot(
                             }) {
                                 BadgedBox(badge = {
                                     if (totalQuantity > 0) {
-                                        Badge(modifier = Modifier.offset(x = 12.5.dp, y = -(12.5.dp))) {
+                                        Badge(
+                                            containerColor = MaterialTheme.colorScheme.primary,
+                                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                                            modifier = Modifier.offset(
+                                                x = -(7.5.dp), y = 20.dp
+                                            )
+                                        ) {
                                             Text("$totalQuantity")
                                         }
                                     }

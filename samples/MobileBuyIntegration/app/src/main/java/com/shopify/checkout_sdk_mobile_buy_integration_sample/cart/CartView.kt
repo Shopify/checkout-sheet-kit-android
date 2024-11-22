@@ -23,6 +23,7 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.cart
 
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,10 +31,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -46,21 +47,27 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.AppBarState
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyAmount
+import androidx.navigation.NavController
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodySmall
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 import com.shopify.graphql.support.ID
 
 @Composable
 fun <T : DefaultCheckoutEventProcessor> CartView(
+    navController: NavController,
     cartViewModel: CartViewModel,
-    setAppBarState: (AppBarState) -> Unit,
     checkoutEventProcessor: T,
 ) {
     val state = cartViewModel.cartState.collectAsState().value
@@ -70,21 +77,6 @@ fun <T : DefaultCheckoutEventProcessor> CartView(
     var mutableQuantity by remember { mutableStateOf<Map<String, Int>>(mutableMapOf()) }
 
     LaunchedEffect(state) {
-//        setAppBarState(
-//            AppBarState(
-//                actions = {
-//                    if (state.totalQuantity > 0) {
-//                        IconButton(onClick = { cartViewModel.clearCart() }) {
-//                            Icon(
-//                                imageVector = Icons.Default.Delete,
-//                                contentDescription = "Empty cart",
-//                            )
-//                        }
-//                    }
-//                }
-//            )
-//        )
-
         if (state is CartState.Populated) {
             ShopifyCheckoutSheetKit.preload(state.checkoutUrl, activity)
         }
@@ -116,17 +108,104 @@ fun <T : DefaultCheckoutEventProcessor> CartView(
                     lines = state.cartLines,
                     loading = loading,
                     setQuantity = cartViewModel::updateCartQuantity,
-                    modifier = Modifier.weight(1f, false)
-                )
-                CheckoutButton(
-                    totalAmount = state.cartTotals.totalAmount,
-                    onClick = {
+                    continueShopping = { navController.navigate(Screen.Products.route) },
+                    checkout = {
                         cartViewModel.presentCheckout(
                             state.checkoutUrl,
                             activity,
                             checkoutEventProcessor
                         )
                     },
+                    totalAmount = state.cartTotals.totalAmount,
+                    modifier = Modifier.weight(1f, false),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun CartLines(
+    lines: List<CartLine>,
+    loading: Boolean,
+    totalAmount: Amount,
+    setQuantity: (ID, Int) -> Unit,
+    continueShopping: () -> Unit,
+    checkout: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(modifier) {
+        item {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 20.dp)
+            ) {
+                Header2(
+                    text = stringResource(id = R.string.cart_header)
+                )
+
+                BodySmall(
+                    text = stringResource(id = R.string.cart_continue_shopping),
+                    textDecoration = TextDecoration.Underline,
+                    modifier = Modifier
+                        .clickable {
+                            continueShopping()
+                        }
+                )
+            }
+        }
+        item {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(bottom = 20.dp)) {
+                Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = stringResource(id = R.string.cart_product_header),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                    Text(
+                        text = stringResource(id = R.string.cart_total_header),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                }
+                HorizontalDivider()
+            }
+        }
+        items(lines) { item ->
+            CartItem(
+                cartLine = item,
+                setQuantity = { quantity -> setQuantity(item.id, quantity) },
+                loading = loading,
+            )
+        }
+        item {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(20.dp), modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 20.dp)
+            ) {
+                HorizontalDivider()
+
+                Text(
+                    text = stringResource(id = R.string.cart_estimated_total),
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Text(
+                    text = stringResource(id = R.string.cart_taxes_included),
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.outline,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                CheckoutButton(
+                    onClick = { checkout() },
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
@@ -135,33 +214,7 @@ fun <T : DefaultCheckoutEventProcessor> CartView(
 }
 
 @Composable
-private fun CartLines(lines: List<CartLine>, loading: Boolean, setQuantity: (ID, Int) -> Unit, modifier: Modifier = Modifier) {
-    LazyColumn(modifier) {
-        items(lines) { item ->
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-            ) {
-                CartItem(
-                    title = item.title,
-                    vendor = item.vendor,
-                    quantity = item.quantity,
-                    setQuantity = { quantity -> setQuantity(item.id, quantity) },
-                    loading = loading,
-                    modifier = Modifier
-                        .fillMaxWidth(.9f)
-                        .align(alignment = Alignment.CenterVertically)
-                )
-            }
-        }
-    }
-}
-
-@Composable
 private fun CheckoutButton(
-    totalAmount: Amount,
     onClick: () -> Unit,
     modifier: Modifier
 ) {
@@ -170,17 +223,19 @@ private fun CheckoutButton(
         modifier = modifier
     ) {
         Button(
-            modifier = Modifier.fillMaxWidth(.7f),
+            shape = RectangleShape,
             onClick = onClick,
         ) {
             Column {
                 Text(
-                    "Checkout",
+                    stringResource(id = R.string.cart_checkout),
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontSize = 18.sp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
                 )
-
-                MoneyAmount(currency = totalAmount.currency, price = totalAmount.price)
             }
         }
     }

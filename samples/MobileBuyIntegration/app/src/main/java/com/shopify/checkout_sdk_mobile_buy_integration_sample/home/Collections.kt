@@ -22,12 +22,12 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header3
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
-import timber.log.Timber
 
 @Composable
 fun Collections(
     collections: List<Storefront.Collection>,
     modifier: Modifier = Modifier,
+    onClick: (String) -> Unit
 ) {
     Column(
         Modifier
@@ -45,9 +45,11 @@ fun Collections(
         } else {
             collections.forEach { collection ->
                 Collection(
+                    handle = collection.handle,
                     title = collection.title,
                     image = collection.image,
-                    modifier = modifier
+                    modifier = modifier,
+                    onClick = onClick
                 )
             }
         }
@@ -56,14 +58,16 @@ fun Collections(
 
 @Composable
 fun Collection(
+    handle: String,
     title: String,
     image: Storefront.Image,
     modifier: Modifier,
+    onClick: (String) -> Unit,
 ) {
     Column(modifier = Modifier
         .padding(bottom = 20.dp)
         .clickable {
-            Timber.i("Collection clicked $title")
+            onClick(handle)
         }) {
         RemoteImage(
             url = image.url,

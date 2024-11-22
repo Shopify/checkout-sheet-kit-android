@@ -136,9 +136,15 @@ class CartViewModel(
             (cartLine.merchandise as? Storefront.ProductVariant)?.let {
                 CartLine(
                     id = cartLineId,
+                    imageURL = it.product.featuredImage.url,
+                    imageAltText = it.product.featuredImage.altText ?: "",
                     title = it.product.title,
                     vendor = it.product.vendor,
-                    quantity = cartLine.quantity
+                    quantity = cartLine.quantity,
+                    pricePerQuantity = cartLine.cost.amountPerQuantity.amount.toDouble(),
+                    currencyPerQuantity = cartLine.cost.amountPerQuantity.currencyCode.name,
+                    totalPrice = cartLine.cost.totalAmount.amount.toDouble(),
+                    totalCurrency = cartLine.cost.totalAmount.currencyCode.name,
                 )
             }
         }

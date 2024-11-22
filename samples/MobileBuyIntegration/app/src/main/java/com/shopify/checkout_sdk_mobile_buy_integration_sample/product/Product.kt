@@ -5,13 +5,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.shopify.buy3.Storefront
@@ -25,9 +26,10 @@ fun FeaturedProduct(
     product: Storefront.Product,
     imageHeight: Dp,
     onProductClick: (id: ID) -> Unit,
+    textColor: Color = MaterialTheme.colorScheme.onPrimary,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier
-        .wrapContentWidth()
+        .fillMaxWidth(.49f)
         .clickable {
             onProductClick(product.id)
         }) {
@@ -36,15 +38,20 @@ fun FeaturedProduct(
             altText = product.featuredImage.altText ?: stringResource(id = R.string.featured_default_alt_text),
             modifier = Modifier
                 .height(imageHeight)
-                .fillMaxWidth(.49f)
-                .align(Alignment.CenterHorizontally)
+                .align(Alignment.CenterHorizontally),
         )
-        Text(product.title, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimary)
+        Text(
+            text = product.title,
+            style = MaterialTheme.typography.bodyMedium,
+            color = textColor,
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+        )
         MoneyAmount(
             currency = product.priceRange.maxVariantPrice.currencyCode.name,
             price = product.priceRange.maxVariantPrice.amount.toDouble(),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onPrimary,
+            color = textColor,
         )
     }
 }
