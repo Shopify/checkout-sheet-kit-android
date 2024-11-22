@@ -98,7 +98,7 @@ fun ProductView(
                     Column(
                         Modifier
                             .fillMaxSize()
-                            .padding(horizontal = 20.dp),
+                            .padding(20.dp),
                         verticalArrangement = Arrangement.spacedBy(15.dp)
                     ) {
                         Header2(

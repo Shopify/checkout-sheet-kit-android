@@ -74,6 +74,7 @@ class ProductViewModel(private val client: StorefrontClient) : ViewModel() {
         val variants = product.variants as Storefront.ProductVariantConnection
         val firstVariant = variants.nodes.first()
         return UIProduct(
+            id = product.id,
             title = product.title,
             vendor = product.vendor,
             description = product.description,
@@ -101,6 +102,7 @@ sealed class ProductUIState {
 }
 
 data class UIProduct(
+    val id: ID = ID(""),
     val title: String = "",
     val vendor: String = "",
     val description: String = "",

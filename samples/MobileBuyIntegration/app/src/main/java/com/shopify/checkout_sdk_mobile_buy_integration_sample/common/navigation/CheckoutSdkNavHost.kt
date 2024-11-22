@@ -40,6 +40,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.home.HomeView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.LogsView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.LogsViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.product.ProductView
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.ProductsView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsViewModel
 import org.koin.compose.koinInject
@@ -47,6 +48,7 @@ import org.koin.compose.koinInject
 sealed class Screen(val route: String) {
     data object Home : Screen("home")
     data object Product : Screen("product/{productId}")
+    data object Products : Screen("product")
     data object Cart : Screen("cart")
     data object Settings : Screen("settings")
     data object Logs : Screen("logs")
@@ -56,6 +58,7 @@ sealed class Screen(val route: String) {
             return when (route) {
                 Home.route -> Home
                 Product.route -> Product
+                Products.route -> Products
                 Cart.route -> Cart
                 Settings.route -> Settings
                 Logs.route -> Logs
@@ -82,6 +85,10 @@ fun CheckoutSdkNavHost(
 
         composable(Screen.Home.route) {
             HomeView(navController)
+        }
+
+        composable(Screen.Products.route) {
+            ProductsView(navController)
         }
 
         composable(Screen.Product.route) { backStackEntry ->

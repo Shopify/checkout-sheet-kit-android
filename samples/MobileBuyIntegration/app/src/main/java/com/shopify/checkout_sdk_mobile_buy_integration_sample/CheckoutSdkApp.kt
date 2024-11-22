@@ -66,7 +66,6 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsV
 import com.shopify.checkoutsheetkit.ColorScheme
 import org.koin.androidx.compose.KoinAndroidContext
 import org.koin.androidx.compose.koinViewModel
-import timber.log.Timber
 
 @Composable
 fun CheckoutSdkApp() {
@@ -124,7 +123,7 @@ fun CheckoutSdkAppRoot(
                         },
                         actions = {
                             IconButton(onClick = {
-                                Timber.i("TopAppBar cart clicked")
+                                navController.navigate(Screen.Cart.route)
                             }) {
                                 BadgedBox(badge = {
                                     if (totalQuantity > 0) {

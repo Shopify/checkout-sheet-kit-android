@@ -59,7 +59,7 @@ fun BottomAppBarWithNavigation(
             )
             NavigationItem(
                 navController,
-                Screen.Product,
+                Screen.Products,
                 ImageVector.vectorResource(R.drawable.product),
                 "Product",
                 currentScreen,

@@ -31,9 +31,10 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.Stor
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.LogDatabase
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.MIGRATION_1_2
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.home.HomeViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.LogsViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.product.ProductViewModel
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.home.HomeViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.ProductsViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -86,6 +87,7 @@ val appModules = module {
     viewModelOf(::CartViewModel)
     viewModelOf(::SettingsViewModel)
     viewModelOf(::ProductViewModel)
+    viewModelOf(::ProductsViewModel)
     viewModelOf(::HomeViewModel)
     viewModelOf(::LogsViewModel)
 }

@@ -18,4 +18,5 @@
     <string name="featured_title">Featured Plants</string>
     <string name="featured_default_alt_text">Featured plant image</string>
     <string name="product_taxes_included">Taxes included</string>
+    <string name="products_header">Products</string>
 </resources>
