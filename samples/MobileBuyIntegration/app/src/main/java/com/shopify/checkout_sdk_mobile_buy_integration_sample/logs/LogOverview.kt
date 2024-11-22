@@ -26,9 +26,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,11 +42,18 @@ fun LogOverview(log: PrettyLog, onClick: () -> Unit, modifier: Modifier) {
         Text(
             text = log.formattedDate,
             fontSize = OVERVIEW_FONT_SIZE,
-            color = MaterialTheme.colors.onSurface,
-            modifier = Modifier.weight(Logs.DATE_COLUMN_WEIGHT).fillMaxHeight().align(Alignment.CenterVertically)
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier
+                .weight(Logs.DATE_COLUMN_WEIGHT)
+                .fillMaxHeight()
+                .align(Alignment.CenterVertically)
         )
 
-        TextButton(onClick, Modifier.weight(Logs.MESSAGE_COLUMN_WEIGHT).fillMaxWidth().wrapContentHeight()) {
+        TextButton(onClick,
+            Modifier
+                .weight(Logs.MESSAGE_COLUMN_WEIGHT)
+                .fillMaxWidth()
+                .wrapContentHeight()) {
             Text(
                 text = log.message,
                 fontSize = OVERVIEW_FONT_SIZE,

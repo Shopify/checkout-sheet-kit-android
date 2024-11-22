@@ -29,64 +29,67 @@ import com.shopify.graphql.support.ID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import timber.log.Timber
 
 class ProductViewModel(private val client: StorefrontClient) : ViewModel() {
     private val _uiState = MutableStateFlow<ProductUIState>(ProductUIState.Loading)
     val uiState: StateFlow<ProductUIState> = _uiState.asStateFlow()
 
+    fun setAddQuantityAmount(quantity: Int) {
+        val currentState = _uiState.value
+        if (currentState is ProductUIState.Product) {
+            Timber.i("Updating state in setAddQuantityAmount(), setting quantity=$quantity")
+            _uiState.value = currentState.copy(addQuantityAmount = quantity)
+        }
+    }
+
     fun setIsAddingToCart(value: Boolean) {
         val currentState = _uiState.value
         if (currentState is ProductUIState.Product) {
+            Timber.i("Updating state in setIsAddingToCart(), setting isAddingToCart to $value")
             _uiState.value = currentState.copy(isAddingToCart = value)
         }
     }
 
-    fun refresh() {
-        fetchProducts()
-    }
-
-    private fun buildProducts(products: Storefront.ProductConnection): List<UIProduct> {
-        return products.nodes.map { product ->
-            val variants = product.variants as Storefront.ProductVariantConnection
-            val firstVariant = variants.nodes.first()
-            UIProduct(
-                title = product.title,
-                vendor = product.vendor,
-                description = product.description,
-                image = if (product.featuredImage == null) UIProductImage() else UIProductImage(
-                    width = product.featuredImage.width,
-                    height = product.featuredImage.height,
-                    url = product.featuredImage.url,
-                    altText = product.featuredImage.altText ?: "Product image",
-                ),
-                variants = mutableListOf(
-                    UIProductVariant(
-                        id = firstVariant.id,
-                        price = firstVariant.price.amount,
-                        currencyName = firstVariant.price.currencyCode.name,
-                    )
-                )
+    fun fetchProduct(productId: ID) {
+        if (_uiState.value is ProductUIState.Loading) {
+            client.fetchProduct(
+                productId = productId,
+                numVariants = 1,
+                successCallback = {
+                    val product = it.data?.product as Storefront.Product
+                    val uiProduct = buildProduct(product)
+                    Timber.i("Fetched product, setting in state $product")
+                    _uiState.value =
+                        ProductUIState.Product(product = uiProduct, isAddingToCart = false, addQuantityAmount = 1)
+                },
+                failureCallback = {
+                    _uiState.value = ProductUIState.Error(it.message ?: "Unknown error")
+                }
             )
         }
     }
 
-    init {
-        fetchProducts()
-    }
-
-    private fun fetchProducts() {
-        client.fetchFirstNProducts(
-            numProducts = 30,
-            numVariants = 1,
-            successCallback = {
-                val products = it.data?.products as Storefront.ProductConnection
-                val uiProducts = buildProducts(products)
-                _uiState.value =
-                    ProductUIState.Product(product = uiProducts.random(), isAddingToCart = false)
-            },
-            failureCallback = {
-                _uiState.value = ProductUIState.Error(it.message ?: "Unknown error")
-            }
+    private fun buildProduct(product: Storefront.Product): UIProduct {
+        val variants = product.variants as Storefront.ProductVariantConnection
+        val firstVariant = variants.nodes.first()
+        return UIProduct(
+            title = product.title,
+            vendor = product.vendor,
+            description = product.description,
+            image = if (product.featuredImage == null) UIProductImage() else UIProductImage(
+                width = product.featuredImage.width,
+                height = product.featuredImage.height,
+                url = product.featuredImage.url,
+                altText = product.featuredImage.altText ?: "Product image",
+            ),
+            variants = mutableListOf(
+                UIProductVariant(
+                    id = firstVariant.id,
+                    price = firstVariant.price.amount,
+                    currencyName = firstVariant.price.currencyCode.name,
+                )
+            )
         )
     }
 }
@@ -94,7 +97,7 @@ class ProductViewModel(private val client: StorefrontClient) : ViewModel() {
 sealed class ProductUIState {
     data object Loading : ProductUIState()
     data class Error(val error: String) : ProductUIState()
-    data class Product(val product: UIProduct, val isAddingToCart: Boolean) : ProductUIState()
+    data class Product(val product: UIProduct, val isAddingToCart: Boolean, val addQuantityAmount: Int) : ProductUIState()
 }
 
 data class UIProduct(

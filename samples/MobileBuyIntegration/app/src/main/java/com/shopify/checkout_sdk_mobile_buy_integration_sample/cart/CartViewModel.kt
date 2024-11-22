@@ -22,7 +22,6 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.cart
 
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -38,6 +37,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 typealias OnComplete = (Cart?) -> Unit
 
@@ -65,10 +65,10 @@ class CartViewModel(
         }
     }
 
-    fun addToCart(variant: ID, onComplete: OnComplete) {
+    fun addToCart(variant: ID, quantity: Int, onComplete: OnComplete) {
         when (val state = _cartState.value) {
-            is CartState.Empty -> performCartCreate(variant, onComplete)
-            is CartState.Populated -> performCartLinesAdd(state.cartID, variant, onComplete)
+            is CartState.Empty -> performCartCreate(variant, quantity, onComplete)
+            is CartState.Populated -> performCartLinesAdd(state.cartID, variant, quantity, onComplete)
         }
     }
 
@@ -83,7 +83,8 @@ class CartViewModel(
                     _loadingState.value = false
                 })
             }
-            is CartState.Empty -> Log.e("CartViewModel", "attempting to update the quantity on an empty cart")
+
+            is CartState.Empty -> Timber.e("attempting to update the quantity on an empty cart")
         }
     }
 
@@ -91,7 +92,7 @@ class CartViewModel(
         _cartState.value = CartState.Empty
     }
 
-    fun <T: DefaultCheckoutEventProcessor> presentCheckout(
+    fun <T : DefaultCheckoutEventProcessor> presentCheckout(
         url: String,
         activity: ComponentActivity,
         eventProcessor: T
@@ -99,15 +100,15 @@ class CartViewModel(
         ShopifyCheckoutSheetKit.present(url, activity, eventProcessor)
     }
 
-    private fun performCartLinesAdd(cartID: ID, variant: ID, onComplete: OnComplete) {
-        val line = CartLineInput(variant).setQuantity(1)
+    private fun performCartLinesAdd(cartID: ID, variant: ID, quantity: Int, onComplete: OnComplete) {
+        val line = CartLineInput(variant).setQuantity(quantity)
         client.cartLinesAdd(lines = listOf(line), cartId = cartID, {
             _cartState.value = it.data?.cartLinesAdd?.cart.toUiState()
             onComplete.invoke(it.data?.cartLinesAdd?.cart)
         })
     }
 
-    private fun performCartCreate(variant: ID, onComplete: OnComplete) {
+    private fun performCartCreate(variant: ID, quantity: Int, onComplete: OnComplete) {
         val buyerIdentity = if (demoBuyerIdentityEnabled) {
             DemoBuyerIdentity.value
         } else {
@@ -117,6 +118,7 @@ class CartViewModel(
         client.createCart(
             variant = Storefront.ProductVariant(variant),
             buyerIdentity = buyerIdentity,
+            quantity = quantity,
             successCallback = { response ->
                 val cart = response.data?.cartCreate?.cart
                 _cartState.value = cart.toUiState()

@@ -22,14 +22,16 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.common
 
-fun toDisplayText(currencyCode: String, price: Double): String {
-    return "${currencyCode.toSymbol()}${price.toTwoDecimalString()}"
+import java.util.Locale
+
+fun toDisplayText(currencyCode: String, price: Double, locale: Locale): String {
+    return "${currencyCode.toSymbol()}${price.toTwoDecimalString(locale)} $currencyCode"
 }
 
 private fun String.toSymbol(): String {
     return when (this) {
         "GBP" -> "£"
-        "USD" -> "$"
+        "USD", "CAD" -> "$"
         "EUR" -> "€"
         else -> {
             "$this "
@@ -37,4 +39,5 @@ private fun String.toSymbol(): String {
     }
 }
 
-private fun Double.toTwoDecimalString() = String.format("%,.2f", this)
+private fun Double.toTwoDecimalString(locale: Locale) =
+    String.format(locale, "%,.2f", this)

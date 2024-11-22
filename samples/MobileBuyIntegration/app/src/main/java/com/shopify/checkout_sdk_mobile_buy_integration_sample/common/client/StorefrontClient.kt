@@ -40,35 +40,79 @@ import com.shopify.graphql.support.Input
 
 class StorefrontClient(private val client: GraphClient) {
 
-    fun fetchFirstNProducts(
+    fun fetchHomePageData(
+        numCollections: Int,
         numProducts: Int,
+        successCallback: (GraphResponse<Storefront.QueryRoot>) -> Unit,
+        failureCallback: ((GraphError) -> Unit)? = {},
+    ) {
+        val query = Storefront.query { query ->
+            query.collections({ it.first(numCollections) }) { collectionConnection ->
+                collectionConnection.nodes { collection ->
+                    collection.handle()
+                    collection.title()
+                    collection.description()
+                    collection.image { image ->
+                        image.url()
+                        image.altText()
+                        image.width()
+                        image.height()
+                    }
+                    collection.products({ it.first(numProducts) }) { productsConnection ->
+                        productsConnection.nodes { product ->
+                            product.title()
+                            product.priceRange { priceRange ->
+                                priceRange.maxVariantPrice { variantPrice ->
+                                    variantPrice.amount()
+                                    variantPrice.currencyCode()
+                                }
+                                priceRange.minVariantPrice { variantPrice ->
+                                    variantPrice.amount()
+                                    variantPrice.currencyCode()
+                                }
+                            }
+                            product.featuredImage {
+                                it.url()
+                                it.height()
+                                it.width()
+                                it.altText()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        executeQuery(query, successCallback, failureCallback)
+    }
+
+    fun fetchProduct(
+        productId: ID,
         numVariants: Int,
         successCallback: (GraphResponse<Storefront.QueryRoot>) -> Unit,
         failureCallback: ((GraphError) -> Unit)? = {},
     ) {
         val query = Storefront.query { query ->
-            query.products({ it.first(numProducts) }) { productConnection ->
-                productConnection.nodes { product ->
-                    product
-                        .description()
-                        .title()
-                        .vendor()
-                        .featuredImage { image ->
-                            image.url()
-                            image.width()
-                            image.height()
-                            image.altText()
-                        }
-                        .variants({ it.first(numVariants) }) { productVariant ->
-                            productVariant.nodes { productVariantNode: ProductVariantQuery ->
-                                productVariantNode.price { price ->
-                                    price
-                                        .amount()
-                                        .currencyCode()
-                                }
+            query.product({ it.id(productId) }) { product ->
+                product
+                    .description()
+                    .title()
+                    .vendor()
+                    .featuredImage { image ->
+                        image.url()
+                        image.width()
+                        image.height()
+                        image.altText()
+                    }
+                    .variants({ it.first(numVariants) }) { productVariant ->
+                        productVariant.nodes { productVariantNode: ProductVariantQuery ->
+                            productVariantNode.price { price ->
+                                price
+                                    .amount()
+                                    .currencyCode()
                             }
                         }
-                }
+                    }
             }
         }
         executeQuery(query, successCallback, failureCallback)
@@ -83,7 +127,7 @@ class StorefrontClient(private val client: GraphClient) {
     ) {
         val lineUpdateInput = CartLineUpdateInput(lineItemID).setQuantity(quantity)
 
-        val mutation =  Storefront.mutation { mutation ->
+        val mutation = Storefront.mutation { mutation ->
             mutation.cartLinesUpdate(
                 cartId,
                 listOf(lineUpdateInput)
@@ -100,6 +144,7 @@ class StorefrontClient(private val client: GraphClient) {
     fun createCart(
         variant: Storefront.ProductVariant,
         buyerIdentity: CartBuyerIdentityInput?,
+        quantity: Int,
         successCallback: (GraphResponse<Storefront.Mutation>) -> Unit,
         failureCallback: ((GraphError) -> Unit)? = {},
     ) {
@@ -108,7 +153,7 @@ class StorefrontClient(private val client: GraphClient) {
                 cartCreate.input(
                     CartInput().setLinesInput(
                         Input.value(
-                            listOf(CartLineInput(variant.id))
+                            listOf(CartLineInput(variant.id).setQuantity(quantity))
                         )
                     ).setBuyerIdentityInput(
                         Input.value(buyerIdentity)

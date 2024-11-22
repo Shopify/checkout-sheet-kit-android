@@ -28,12 +28,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.LinearProgressIndicator
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -55,7 +55,6 @@ fun SettingsView(
     LaunchedEffect(key1 = true) {
         setAppBarState(
             AppBarState(
-                title = "Settings",
                 actions = {
                     IconButton(onClick = { navController.navigate(Screen.Logs.route) }) {
                         Icon(
@@ -81,7 +80,7 @@ fun SettingsView(
                     checked = uiState.settings.preloading.enabled,
                     onCheckedChange = settingsViewModel::setPreloadingEnabled,
                     modifier = Modifier
-                        .background(color = MaterialTheme.colors.background)
+                        .background(color = MaterialTheme.colorScheme.background)
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp, vertical = 5.dp)
                 )
@@ -90,7 +89,7 @@ fun SettingsView(
                     checked = uiState.settings.buyerIdentityDemoEnabled,
                     onCheckedChange = settingsViewModel::setBuyerIdentityDemoEnabled,
                     modifier = Modifier
-                        .background(color = MaterialTheme.colors.background)
+                        .background(color = MaterialTheme.colorScheme.background)
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp)
                 )
@@ -112,7 +111,7 @@ fun SettingsView(
                     title = "SDK Version",
                     version = uiState.sdkVersion,
                     modifier = Modifier
-                        .background(color = MaterialTheme.colors.background)
+                        .background(color = MaterialTheme.colorScheme.background)
                         .padding(horizontal = 20.dp, vertical = 20.dp)
                         .fillMaxWidth()
                 )
@@ -121,7 +120,7 @@ fun SettingsView(
                     title = "Sample App Version",
                     version = uiState.sampleAppVersion,
                     modifier = Modifier
-                        .background(color = MaterialTheme.colors.background)
+                        .background(color = MaterialTheme.colorScheme.background)
                         .padding(horizontal = 20.dp, vertical = 20.dp)
                         .fillMaxWidth()
                 )

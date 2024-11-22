@@ -30,12 +30,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -59,7 +59,6 @@ fun LogsView(
     LaunchedEffect(key1 = true) {
         setAppBarState(
             AppBarState(
-                title = "Logs",
                 actions = {
                     IconButton(onClick = { logsViewModel.clear() }) {
                         Icon(
@@ -84,6 +83,7 @@ fun LogsView(
         is LogState.Loading -> {
             Text("Logs loading")
         }
+
         is LogState.Populated -> {
             LazyColumn(
                 Modifier
@@ -91,18 +91,19 @@ fun LogsView(
                     .padding(PaddingValues(top = 0.dp, end = 0.dp, bottom = 12.dp, start = 0.dp))
             ) {
                 stickyHeader {
-                    LogOverviewHeader(Modifier
-                        .background(MaterialTheme.colors.background)
-                        .padding(horizontal = 8.dp, vertical = 8.dp)
+                    LogOverviewHeader(
+                        Modifier
+                            .background(MaterialTheme.colorScheme.background)
+                            .padding(horizontal = 8.dp, vertical = 8.dp)
                     )
                 }
-                itemsIndexed(logState.logs) {  index, line ->
+                itemsIndexed(logState.logs) { index, line ->
                     LogOverview(
                         log = line,
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(
-                                if (index % 2 == 0) MaterialTheme.colors.surface else MaterialTheme.colors.background
+                                if (index % 2 == 0) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background
                             )
                             .padding(horizontal = 8.dp),
                         onClick = {

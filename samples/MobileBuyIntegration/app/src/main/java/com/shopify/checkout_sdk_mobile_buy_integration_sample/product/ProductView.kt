@@ -22,51 +22,44 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.product
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.LinearProgressIndicator
-import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.AppBarState
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodyMedium
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodySmall
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyAmount
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.QuantitySelector
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
+import com.shopify.graphql.support.ID
 import org.koin.androidx.compose.koinViewModel
+import timber.log.Timber
 
 @Composable
 fun ProductView(
     cartViewModel: CartViewModel,
-    setAppBarState: (AppBarState) -> Unit,
+    productId: String,
     productViewModel: ProductViewModel = koinViewModel()
 ) {
 
+    productViewModel.fetchProduct(ID(productId))
     val productUIState = productViewModel.uiState.collectAsState().value
-
-    LaunchedEffect(productUIState) {
-        setAppBarState(
-            AppBarState(
-                title = "Browse",
-                actions = {
-                    IconButton(onClick = { productViewModel.refresh() }) {
-                        Icon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = "Refresh",
-                        )
-                    }
-                }
-            )
-        )
-    }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -86,42 +79,63 @@ fun ProductView(
             is ProductUIState.Product -> {
                 val product = productUIState.product
                 val selectedVariant = product.variants[product.selectedVariant]
-                Column {
+                Column(
+                    Modifier
+                        .wrapContentHeight()
+                        .verticalScroll(rememberScrollState())
+                        .weight(1f, false),
+                ) {
+                    if (productUIState.product.image.url != "") {
+                        RemoteImage(
+                            url = product.image.url,
+                            altText = product.image.altText,
+                            modifier = Modifier
+                                .wrapContentHeight()
+                                .fillMaxWidth()
+                                .padding(vertical = 20.dp, horizontal = 10.dp)
+                        )
+                    }
                     Column(
                         Modifier
-                            .fillMaxHeight()
-                            .weight(1f, false)
+                            .fillMaxSize()
+                            .padding(horizontal = 20.dp),
+                        verticalArrangement = Arrangement.spacedBy(15.dp)
                     ) {
-                        if (productUIState.product.image.url != "") {
-                            ProductImage(
-                                url = product.image.url,
-                                altText = product.image.altText,
-                                modifier = Modifier
-                                    .fillMaxHeight(0.6f)
-                                    .fillMaxWidth()
+                        Header2(
+                            text = product.title
+                        )
+
+                        Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                            // TODO deal with a variable amount of variants
+                            val variant = product.variants.first()
+                            MoneyAmount(variant.currencyName, variant.price.toDouble())
+                            BodySmall(
+                                stringResource(id = R.string.product_taxes_included)
                             )
                         }
 
-                        ProductInfo(
-                            title = product.title,
-                            vendor = product.vendor,
-                            description = product.description
-                        )
-                    }
-                    Column {
+                        Timber.i("state is now $productUIState")
+                        QuantitySelector(enabled = true, quantity = productUIState.addQuantityAmount) { quantity ->
+                            Timber.i("setting quantity to $quantity")
+                            productViewModel.setAddQuantityAmount(quantity)
+                        }
+
                         AddToCartButton(
-                            price = selectedVariant.price.toDouble(),
-                            currency = selectedVariant.currencyName,
                             loading = productUIState.isAddingToCart,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(20.dp)
+                            modifier = Modifier.fillMaxWidth()
                         ) {
+                            Timber.i("Adding to cart")
                             productViewModel.setIsAddingToCart(true)
-                            cartViewModel.addToCart(selectedVariant.id) {
+                            cartViewModel.addToCart(selectedVariant.id, productUIState.addQuantityAmount) {
+                                Timber.i("Finished adding to cart")
                                 productViewModel.setIsAddingToCart(false)
                             }
                         }
+
+                        BodyMedium(
+                            text = product.description,
+                            color = MaterialTheme.colorScheme.onBackground,
+                        )
                     }
                 }
             }

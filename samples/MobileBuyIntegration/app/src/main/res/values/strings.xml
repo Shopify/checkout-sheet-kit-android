@@ -7,4 +7,15 @@
     <string name="checkout_error" translatable="false">Checkout failed, please try again</string>
     <string name="checkout_web_view_title">Buy Now!</string>
     <string name="filechooser_title">Select or Capture Image</string>
+    <string name="logo_content_description">Store logo</string>
+    <string name="cart_icon_content_description">Go to cart icon</string>
+    <string name="hero_text">Stylish Plants for Modern Living</string>
+    <string name="hero_content_description">Image of living room with lots of plants</string>
+    <string name="hero_cta">Shop all</string>
+    <string name="collections_title">Collections</string>
+    <string name="collection_img_alt_default">Collection image</string>
+    <string name="collection_cta_content_description">View collection></string>
+    <string name="featured_title">Featured Plants</string>
+    <string name="featured_default_alt_text">Featured plant image</string>
+    <string name="product_taxes_included">Taxes included</string>
 </resources>

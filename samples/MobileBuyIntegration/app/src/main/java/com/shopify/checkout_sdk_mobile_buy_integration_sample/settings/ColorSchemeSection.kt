@@ -30,10 +30,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.material.Divider
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.RadioButton
-import androidx.compose.material.Text
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,7 +60,7 @@ fun ColorSchemeSection(
 
     Text(
         "Color Scheme".uppercase(),
-        color = MaterialTheme.colors.primaryVariant,
+        color = MaterialTheme.colorScheme.onBackground,
         fontSize = 12.sp,
         modifier = Modifier.padding(
             top = 18.dp,
@@ -73,7 +73,7 @@ fun ColorSchemeSection(
     Column(modifier = Modifier.selectableGroup()) {
 
         val optionModifier = Modifier
-            .background(color = MaterialTheme.colors.background)
+            .background(color = MaterialTheme.colorScheme.background)
             .fillMaxWidth()
             .padding(vertical = 14.dp, horizontal = horizontalPadding)
 
@@ -85,7 +85,7 @@ fun ColorSchemeSection(
             modifier = optionModifier,
         )
 
-        Divider(thickness = Dp.Hairline)
+        HorizontalDivider(thickness = Dp.Hairline)
 
         ColorSchemeOption(
             colorScheme = ColorScheme.Light(),
@@ -95,7 +95,7 @@ fun ColorSchemeSection(
             modifier = optionModifier
         )
 
-        Divider(thickness = Dp.Hairline)
+        HorizontalDivider(thickness = Dp.Hairline)
 
         ColorSchemeOption(
             colorScheme = ColorScheme.Dark(),
@@ -105,7 +105,7 @@ fun ColorSchemeSection(
             modifier = optionModifier,
         )
 
-        Divider(thickness = Dp.Hairline)
+        HorizontalDivider(thickness = Dp.Hairline)
 
         ColorSchemeOption(
             colorScheme = ColorScheme.Web(
@@ -126,7 +126,7 @@ fun ColorSchemeSection(
     Column(Modifier.padding(vertical = 8.dp, horizontal = horizontalPadding)) {
         Text(
             "NOTE: If preloading is enabled, color scheme changes may not be applied unless the cart is preloaded again.",
-            color = MaterialTheme.colors.primaryVariant,
+            color = MaterialTheme.colorScheme.onBackground,
             fontSize = 12.sp,
         )
     }
@@ -164,12 +164,13 @@ fun ColorSchemeOption(
     }
 }
 
-private val ColorScheme.name: Int @StringRes get() = when(this) {
-    is ColorScheme.Light -> R.string.color_scheme_light
-    is ColorScheme.Dark -> R.string.color_scheme_dark
-    is ColorScheme.Web -> R.string.color_scheme_web
-    is ColorScheme.Automatic -> R.string.color_scheme_automatic
-}
+private val ColorScheme.name: Int
+    @StringRes get() = when (this) {
+        is ColorScheme.Light -> R.string.color_scheme_light
+        is ColorScheme.Dark -> R.string.color_scheme_dark
+        is ColorScheme.Web -> R.string.color_scheme_web
+        is ColorScheme.Automatic -> R.string.color_scheme_automatic
+    }
 
 // kotlin stdlib capitalize is deprecated
 private fun String.capitalize() =

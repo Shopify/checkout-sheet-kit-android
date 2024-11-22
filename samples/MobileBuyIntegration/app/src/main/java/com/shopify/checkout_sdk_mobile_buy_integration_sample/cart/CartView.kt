@@ -33,14 +33,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Button
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.LinearProgressIndicator
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Button
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -56,13 +52,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.AppBarState
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.toDisplayText
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyAmount
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 import com.shopify.graphql.support.ID
 
 @Composable
-fun <T: DefaultCheckoutEventProcessor> CartView(
+fun <T : DefaultCheckoutEventProcessor> CartView(
     cartViewModel: CartViewModel,
     setAppBarState: (AppBarState) -> Unit,
     checkoutEventProcessor: T,
@@ -74,21 +70,20 @@ fun <T: DefaultCheckoutEventProcessor> CartView(
     var mutableQuantity by remember { mutableStateOf<Map<String, Int>>(mutableMapOf()) }
 
     LaunchedEffect(state) {
-        setAppBarState(
-            AppBarState(
-                title = "Cart",
-                actions = {
-                    if (state.totalQuantity > 0) {
-                        IconButton(onClick = { cartViewModel.clearCart() }) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = "Empty cart",
-                            )
-                        }
-                    }
-                }
-            )
-        )
+//        setAppBarState(
+//            AppBarState(
+//                actions = {
+//                    if (state.totalQuantity > 0) {
+//                        IconButton(onClick = { cartViewModel.clearCart() }) {
+//                            Icon(
+//                                imageVector = Icons.Default.Delete,
+//                                contentDescription = "Empty cart",
+//                            )
+//                        }
+//                    }
+//                }
+//            )
+//        )
 
         if (state is CartState.Populated) {
             ShopifyCheckoutSheetKit.preload(state.checkoutUrl, activity)
@@ -184,15 +179,8 @@ private fun CheckoutButton(
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    fontSize = 12.sp,
-                    textAlign = TextAlign.Center,
-                    text = toDisplayText(
-                        totalAmount.currency,
-                        totalAmount.price
-                    )
-                )
+
+                MoneyAmount(currency = totalAmount.currency, price = totalAmount.price)
             }
         }
     }
@@ -217,7 +205,7 @@ private fun EmptyCartMessage(
             )
             Text(
                 "Add products while you shop, so they'll be ready for checkout later.",
-                color = MaterialTheme.colors.primaryVariant,
+                color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Center,
                 fontSize = 13.sp,
             )

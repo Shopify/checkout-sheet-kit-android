@@ -24,8 +24,8 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
@@ -39,7 +39,7 @@ fun Version(
         Text(title)
         Text(
             version,
-            color = MaterialTheme.colors.primaryVariant,
+            color = MaterialTheme.colorScheme.onBackground,
         )
     }
 }

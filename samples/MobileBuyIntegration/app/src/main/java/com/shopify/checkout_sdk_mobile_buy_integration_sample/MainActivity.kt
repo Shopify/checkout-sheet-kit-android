@@ -34,6 +34,9 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import timber.log.Timber
+import timber.log.Timber.DebugTree
+
 
 class MainActivity : ComponentActivity() {
 
@@ -60,6 +63,10 @@ class MainActivity : ComponentActivity() {
         showFileChooserLauncher = registerForActivityResult(FileChooserResultContract()) { uri: Uri? ->
             filePathCallback?.onReceiveValue(if (uri != null) arrayOf(uri) else null)
             filePathCallback = null
+        }
+
+        if (BuildConfig.DEBUG) {
+            Timber.plant(DebugTree())
         }
     }
 

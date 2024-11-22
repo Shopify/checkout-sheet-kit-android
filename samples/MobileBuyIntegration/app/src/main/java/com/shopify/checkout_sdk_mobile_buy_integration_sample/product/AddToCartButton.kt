@@ -22,26 +22,25 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.product
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.Button
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Text
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.toDisplayText
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header3
 
 @Composable
 fun AddToCartButton(
-    price: Double,
-    currency: String,
     loading: Boolean,
     modifier: Modifier,
     onClick: () -> Unit
@@ -50,10 +49,13 @@ fun AddToCartButton(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Button(
-            modifier = Modifier.fillMaxWidth(.7f),
+        TextButton(
+            modifier = Modifier.fillMaxWidth(),
             enabled = !loading,
             onClick = onClick,
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
+            shape = RectangleShape
+
         ) {
             Box {
                 if (loading) {
@@ -63,17 +65,10 @@ fun AddToCartButton(
                             .offset(x = -(32.dp), y = 6.dp)
                     )
                 }
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        textAlign = TextAlign.Center,
-                        text = "Add to cart",
-                    )
-                    Text(
-                        fontSize = 12.sp,
-                        textAlign = TextAlign.Center,
-                        text = toDisplayText(currency, price)
-                    )
-                }
+                Header3(
+                    textAlign = TextAlign.Center,
+                    text = "Add to cart",
+                )
             }
         }
     }

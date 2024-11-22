@@ -36,16 +36,17 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.MobileBuyEventProcessor
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.home.HomeView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.LogsView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.LogsViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.product.ProductView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsViewModel
-import kotlinx.coroutines.DelicateCoroutinesApi
 import org.koin.compose.koinInject
 
 sealed class Screen(val route: String) {
-    data object Product : Screen("product")
+    data object Home : Screen("home")
+    data object Product : Screen("product/{productId}")
     data object Cart : Screen("cart")
     data object Settings : Screen("settings")
     data object Logs : Screen("logs")
@@ -53,6 +54,7 @@ sealed class Screen(val route: String) {
     companion object {
         fun fromRoute(route: String): Screen {
             return when (route) {
+                Home.route -> Home
                 Product.route -> Product
                 Cart.route -> Cart
                 Settings.route -> Settings
@@ -63,7 +65,6 @@ sealed class Screen(val route: String) {
     }
 }
 
-@OptIn(DelicateCoroutinesApi::class)
 @Composable
 fun CheckoutSdkNavHost(
     navController: NavHostController = rememberNavController(),
@@ -79,8 +80,12 @@ fun CheckoutSdkNavHost(
         startDestination = startDestination,
     ) {
 
-        composable(Screen.Product.route) {
-            ProductView(cartViewModel, setAppBarState)
+        composable(Screen.Home.route) {
+            HomeView(navController)
+        }
+
+        composable(Screen.Product.route) { backStackEntry ->
+            ProductView(cartViewModel, backStackEntry.arguments?.getString("productId") ?: "")
         }
 
         composable(Screen.Cart.route) {
