@@ -74,7 +74,7 @@ fun SettingsView(
             )
         }
 
-        is SettingsUiState.Populated -> {
+        is SettingsUiState.Loaded -> {
             Column {
                 PreloadingSwitch(
                     checked = uiState.settings.preloading.enabled,

@@ -51,7 +51,7 @@ data class CartLine(
     val totalCurrency: String,
 )
 
-data class CartTotals(val totalQuantity: Int, val totalAmount: Amount)
+data class CartTotals(val totalQuantity: Int, val totalAmount: Amount, val totalAmountEstimated: Boolean)
 data class Amount(val currency: String, val price: Double)
 
 val CartState.totalQuantity

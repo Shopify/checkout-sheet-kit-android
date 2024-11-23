@@ -49,7 +49,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -67,7 +66,9 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsV
 import com.shopify.checkoutsheetkit.ColorScheme
 import org.koin.androidx.compose.KoinAndroidContext
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.annotation.KoinExperimentalAPI
 
+@OptIn(KoinExperimentalAPI::class)
 @Composable
 fun CheckoutSdkApp() {
     KoinAndroidContext {
@@ -112,7 +113,9 @@ fun CheckoutSdkAppRoot(
                 topBar = {
                     CenterAlignedTopAppBar(
                         modifier = Modifier,
-                        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.White),
+                        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.background
+                        ),
                         title = {
                             Image(
                                 modifier = Modifier.height(38.dp),
@@ -176,7 +179,7 @@ data class AppBarState(
 
 private fun SettingsUiState.isDarkTheme(isSystemInDarkTheme: Boolean) = when (this) {
     is SettingsUiState.Loading -> isSystemInDarkTheme
-    is SettingsUiState.Populated -> {
+    is SettingsUiState.Loaded -> {
         when (settings.colorScheme) {
             is ColorScheme.Dark -> true
             is ColorScheme.Light, is ColorScheme.Web -> false

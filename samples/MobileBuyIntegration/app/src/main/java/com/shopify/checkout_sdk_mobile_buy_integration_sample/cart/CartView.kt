@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
@@ -47,6 +48,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -59,6 +61,7 @@ import androidx.navigation.NavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodySmall
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyText
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
@@ -66,8 +69,8 @@ import com.shopify.graphql.support.ID
 
 @Composable
 fun <T : DefaultCheckoutEventProcessor> CartView(
-    navController: NavController,
     cartViewModel: CartViewModel,
+    navController: NavController,
     checkoutEventProcessor: T,
 ) {
     val state = cartViewModel.cartState.collectAsState().value
@@ -117,6 +120,7 @@ fun <T : DefaultCheckoutEventProcessor> CartView(
                         )
                     },
                     totalAmount = state.cartTotals.totalAmount,
+                    totalAmountEstimated = state.cartTotals.totalAmountEstimated,
                     modifier = Modifier.weight(1f, false),
                 )
             }
@@ -129,6 +133,7 @@ private fun CartLines(
     lines: List<CartLine>,
     loading: Boolean,
     totalAmount: Amount,
+    totalAmountEstimated: Boolean,
     continueShopping: () -> Unit,
     modifyLineItem: (ID, Int?) -> Unit,
     checkout: () -> Unit,
@@ -189,12 +194,26 @@ private fun CartLines(
             ) {
                 HorizontalDivider()
 
-                Text(
-                    text = stringResource(id = R.string.cart_estimated_total),
-                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Row(
+                    Modifier
+                        .wrapContentHeight()
+                        .fillMaxWidth()
+                ) {
+                    val resourceId = if (totalAmountEstimated) R.string.cart_estimated_total else R.string.cart_total
+                    Text(
+                        text = stringResource(id = resourceId),
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                    )
+                    MoneyText(
+                        currency = totalAmount.currency,
+                        price = totalAmount.price,
+                        color = Color.White,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                    )
+                }
 
                 Text(
                     text = stringResource(id = R.string.cart_taxes_included),

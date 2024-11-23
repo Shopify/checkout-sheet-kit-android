@@ -166,6 +166,7 @@ class CartViewModel(
                     currency = cost.totalAmount.currencyCode.name,
                     price = cost.totalAmount.amount.toDouble(),
                 ),
+                totalAmountEstimated = cost.totalAmountEstimated,
                 totalQuantity = totalQuantity
             ),
             checkoutUrl = checkoutUrl,

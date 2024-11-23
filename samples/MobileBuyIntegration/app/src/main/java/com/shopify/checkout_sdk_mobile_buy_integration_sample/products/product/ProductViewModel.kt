@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkout_sdk_mobile_buy_integration_sample.product
+package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product
 
 import androidx.lifecycle.ViewModel
 import com.shopify.buy3.Storefront
@@ -37,7 +37,7 @@ class ProductViewModel(private val client: StorefrontClient) : ViewModel() {
 
     fun setAddQuantityAmount(quantity: Int) {
         val currentState = _uiState.value
-        if (currentState is ProductUIState.Product) {
+        if (currentState is ProductUIState.Loaded) {
             Timber.i("Updating state in setAddQuantityAmount(), setting quantity=$quantity")
             _uiState.value = currentState.copy(addQuantityAmount = quantity)
         }
@@ -45,29 +45,27 @@ class ProductViewModel(private val client: StorefrontClient) : ViewModel() {
 
     fun setIsAddingToCart(value: Boolean) {
         val currentState = _uiState.value
-        if (currentState is ProductUIState.Product) {
+        if (currentState is ProductUIState.Loaded) {
             Timber.i("Updating state in setIsAddingToCart(), setting isAddingToCart to $value")
             _uiState.value = currentState.copy(isAddingToCart = value)
         }
     }
 
     fun fetchProduct(productId: ID) {
-        if (_uiState.value is ProductUIState.Loading) {
-            client.fetchProduct(
-                productId = productId,
-                numVariants = 1,
-                successCallback = {
-                    val product = it.data?.product as Storefront.Product
-                    val uiProduct = buildProduct(product)
-                    Timber.i("Fetched product, setting in state $product")
-                    _uiState.value =
-                        ProductUIState.Product(product = uiProduct, isAddingToCart = false, addQuantityAmount = 1)
-                },
-                failureCallback = {
-                    _uiState.value = ProductUIState.Error(it.message ?: "Unknown error")
-                }
-            )
-        }
+        client.fetchProduct(
+            productId = productId,
+            numVariants = 1,
+            successCallback = {
+                val product = it.data?.product as Storefront.Product
+                val uiProduct = buildProduct(product)
+                Timber.i("Fetched product, setting in state $product")
+                _uiState.value =
+                    ProductUIState.Loaded(product = uiProduct, isAddingToCart = false, addQuantityAmount = 1)
+            },
+            failureCallback = {
+                _uiState.value = ProductUIState.Error(it.message ?: "Unknown error")
+            }
+        )
     }
 
     private fun buildProduct(product: Storefront.Product): UIProduct {
@@ -98,7 +96,7 @@ class ProductViewModel(private val client: StorefrontClient) : ViewModel() {
 sealed class ProductUIState {
     data object Loading : ProductUIState()
     data class Error(val error: String) : ProductUIState()
-    data class Product(val product: UIProduct, val isAddingToCart: Boolean, val addQuantityAmount: Int) : ProductUIState()
+    data class Loaded(val product: UIProduct, val isAddingToCart: Boolean, val addQuantityAmount: Int) : ProductUIState()
 }
 
 data class UIProduct(

@@ -22,11 +22,9 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation
 
-import android.content.Context
-import android.content.ContextWrapper
-import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -34,23 +32,43 @@ import androidx.navigation.compose.rememberNavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.AppBarState
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.collection.CollectionView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.MobileBuyEventProcessor
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.home.HomeView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.LogsView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.LogsViewModel
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.product.ProductView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.ProductsView
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.CollectionView
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.ProductView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsViewModel
 import org.koin.compose.koinInject
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 sealed class Screen(val route: String) {
     data object Home : Screen("home")
-    data object Product : Screen("product/{productId}")
+    data object Product : Screen("product/{productId}") {
+        fun productIdRouteVariable(backStackEntry: NavBackStackEntry): String {
+            return backStackEntry.arguments?.getString("productId") ?: ""
+        }
+
+        fun route(productId: String): String {
+            return route.replace("{productId}", URLEncoder.encode(productId, StandardCharsets.UTF_8.name()))
+        }
+    }
+
     data object Products : Screen("product")
-    data object Collection : Screen("collection/{collectionHandle}")
+    data object Collection : Screen("collection/{collectionHandle}") {
+        fun collectionHandleRouteVariable(backStackEntry: NavBackStackEntry): String {
+            return backStackEntry.arguments?.getString("collectionHandle") ?: ""
+        }
+
+        fun route(collectionHandle: String): String {
+            return route.replace("{collectionHandle}", URLEncoder.encode(collectionHandle, StandardCharsets.UTF_8.name()))
+        }
+    }
+
     data object Cart : Screen("cart")
     data object Settings : Screen("settings")
     data object Logs : Screen("logs")
@@ -59,9 +77,9 @@ sealed class Screen(val route: String) {
         fun fromRoute(route: String): Screen {
             return when (route) {
                 Home.route -> Home
+                Collection.route -> Collection
                 Product.route -> Product
                 Products.route -> Products
-                Collection.route -> Collection
                 Cart.route -> Cart
                 Settings.route -> Settings
                 Logs.route -> Logs
@@ -95,11 +113,11 @@ fun CheckoutSdkNavHost(
         }
 
         composable(Screen.Product.route) { backStackEntry ->
-            ProductView(cartViewModel, backStackEntry.arguments?.getString("productId") ?: "")
+            ProductView(Screen.Product.productIdRouteVariable(backStackEntry), cartViewModel)
         }
 
         composable(Screen.Collection.route) { backStackEntry ->
-            CollectionView(navController, backStackEntry.arguments?.getString("collectionHandle") ?: "")
+            CollectionView(navController, Screen.Collection.collectionHandleRouteVariable(backStackEntry))
         }
 
         composable(Screen.Cart.route) {
@@ -131,10 +149,4 @@ fun CheckoutSdkNavHost(
             )
         }
     }
-}
-
-fun Context.getActivity(): ComponentActivity? = when (this) {
-    is ComponentActivity -> this
-    is ContextWrapper -> baseContext.getActivity()
-    else -> null
 }

@@ -37,7 +37,6 @@ import androidx.core.content.ContextCompat
 import timber.log.Timber
 import timber.log.Timber.DebugTree
 
-
 class MainActivity : ComponentActivity() {
 
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>

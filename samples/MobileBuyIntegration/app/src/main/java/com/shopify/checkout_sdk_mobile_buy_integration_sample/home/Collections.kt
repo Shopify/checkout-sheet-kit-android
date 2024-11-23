@@ -48,8 +48,8 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.
 @Composable
 fun Collections(
     collections: List<Storefront.Collection>,
+    onClick: (String) -> Unit,
     modifier: Modifier = Modifier,
-    onClick: (String) -> Unit
 ) {
     Column(
         Modifier
@@ -58,12 +58,12 @@ fun Collections(
     ) {
         Header2(
             resourceId = R.string.collections_title,
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.padding(vertical = 20.dp),
-            color = MaterialTheme.colorScheme.onBackground
         )
 
         if (collections.isEmpty()) {
-            Text("")
+            Text(stringResource(id = R.string.collections_no_collections_configured))
         } else {
             collections.forEach { collection ->
                 Collection(
@@ -83,8 +83,8 @@ fun Collection(
     handle: String,
     title: String,
     image: Storefront.Image,
-    modifier: Modifier,
     onClick: (String) -> Unit,
+    modifier: Modifier,
 ) {
     Column(modifier = Modifier
         .padding(bottom = 20.dp)

@@ -45,7 +45,6 @@ fun BottomAppBarWithNavigation(
     currentScreen: Screen,
 ) {
     BottomAppBar {
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly

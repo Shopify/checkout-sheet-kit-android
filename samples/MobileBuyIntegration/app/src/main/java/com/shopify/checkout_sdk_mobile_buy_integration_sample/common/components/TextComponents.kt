@@ -146,7 +146,7 @@ fun BodySmall(
 }
 
 @Composable
-fun MoneyAmount(
+fun MoneyText(
     currency: String,
     price: Double,
     modifier: Modifier = Modifier,

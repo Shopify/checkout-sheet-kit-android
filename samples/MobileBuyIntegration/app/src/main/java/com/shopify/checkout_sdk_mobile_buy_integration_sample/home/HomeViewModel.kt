@@ -34,11 +34,7 @@ class HomeViewModel(private val client: StorefrontClient) : ViewModel() {
     private val _uiState = MutableStateFlow<HomeUIState>(HomeUIState.Loading)
     val uiState: StateFlow<HomeUIState> = _uiState.asStateFlow()
 
-    init {
-        fetchHomePageData()
-    }
-
-    private fun fetchHomePageData() {
+    fun fetchHomePageData() {
         client.fetchHomePageData(numCollections = NUM_COLLECTIONS, numProducts = NUM_PRODUCTS_PER_COLLECTION,
             { success ->
                 val collections = success.data?.collections?.nodes

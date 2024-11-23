@@ -44,10 +44,11 @@ import androidx.compose.ui.unit.sp
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header1
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.cooperBTFontFamily
-import timber.log.Timber
 
 @Composable
-fun Hero() {
+fun Hero(
+    onClickShopAll: () -> Unit,
+) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -70,9 +71,7 @@ fun Hero() {
                 )
 
                 TextButton(
-                    onClick = {
-                        Timber.i("Clicked shop all")
-                    },
+                    onClick = { onClickShopAll() },
                     modifier = Modifier
                         .border(width = 1.dp, color = White)
                         .padding(horizontal = 20.dp, vertical = 5.dp)

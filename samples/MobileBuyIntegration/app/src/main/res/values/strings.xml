@@ -15,6 +15,7 @@
     <string name="collections_title">Collections</string>
     <string name="collection_img_alt_default">Collection image</string>
     <string name="collection_cta_content_description">View collection></string>
+    <string name="collections_no_collections_configured">No collections configured</string>
     <string name="featured_title">Featured Plants</string>
     <string name="featured_default_alt_text">Featured plant image</string>
     <string name="product_taxes_included">Taxes included</string>
@@ -23,6 +24,7 @@
     <string name="cart_header">Your cart</string>
     <string name="cart_continue_shopping">Continue shopping</string>
     <string name="cart_estimated_total">Estimated total</string>
+    <string name="cart_total">Total</string>
     <string name="cart_taxes_included">Taxes included. Discounts and shipping calculated at checkout.</string>
     <string name="cart_product_header">PRODUCT</string>
     <string name="cart_total_header">TOTAL</string>

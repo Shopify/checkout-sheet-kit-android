@@ -26,9 +26,9 @@ import androidx.lifecycle.ViewModel
 import com.shopify.buy3.Storefront
 import com.shopify.buy3.Storefront.ProductConnection
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontClient
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.product.UIProduct
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.product.UIProductImage
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.product.UIProductVariant
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.UIProduct
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.UIProductImage
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.UIProductVariant
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -40,22 +40,20 @@ class ProductsViewModel(private val client: StorefrontClient) : ViewModel() {
 
     // TODO pagination
     fun fetchProducts() {
-        if (_uiState.value is ProductsUIState.Loading) {
-            client.fetchProducts(
-                numProducts = 20,
-                numVariants = 1,
-                successCallback = {
-                    val productConnection = it.data?.products as ProductConnection
-                    val uiProducts = buildProducts(productConnection)
-                    Timber.i("Fetched products")
-                    _uiState.value =
-                        ProductsUIState.Products(products = uiProducts)
-                },
-                failureCallback = {
-                    _uiState.value = ProductsUIState.Error(it.message ?: "Unknown error")
-                }
-            )
-        }
+        client.fetchProducts(
+            numProducts = 20,
+            numVariants = 1,
+            successCallback = {
+                val productConnection = it.data?.products as ProductConnection
+                val uiProducts = buildProducts(productConnection)
+                Timber.i("Fetched products")
+                _uiState.value =
+                    ProductsUIState.Loaded(products = uiProducts)
+            },
+            failureCallback = {
+                _uiState.value = ProductsUIState.Error(it.message ?: "Unknown error")
+            }
+        )
     }
 
     private fun buildProducts(productConnection: ProductConnection): List<UIProduct> {
@@ -88,5 +86,5 @@ class ProductsViewModel(private val client: StorefrontClient) : ViewModel() {
 sealed class ProductsUIState {
     data object Loading : ProductsUIState()
     data class Error(val error: String) : ProductsUIState()
-    data class Products(val products: List<UIProduct>) : ProductsUIState()
+    data class Loaded(val products: List<UIProduct>) : ProductsUIState()
 }

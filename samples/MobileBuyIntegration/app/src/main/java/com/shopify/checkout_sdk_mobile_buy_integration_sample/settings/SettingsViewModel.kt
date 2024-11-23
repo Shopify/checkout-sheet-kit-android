@@ -64,7 +64,7 @@ class SettingsViewModel(private val preferencesManager: PreferencesManager) : Vi
         preferencesManager.setBuyerIdentityDemoEnabled(enabled)
     }
 
-    private fun UserPreferences.asUiState() = SettingsUiState.Populated(
+    private fun UserPreferences.asUiState() = SettingsUiState.Loaded(
         settings = Settings(
             colorScheme = colorScheme,
             preloading = preloading,
@@ -77,7 +77,7 @@ class SettingsViewModel(private val preferencesManager: PreferencesManager) : Vi
 
 sealed class SettingsUiState {
     data object Loading : SettingsUiState()
-    data class Populated(
+    data class Loaded(
         val settings: Settings,
         val sdkVersion: String,
         val sampleAppVersion: String,

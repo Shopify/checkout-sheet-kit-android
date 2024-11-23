@@ -30,6 +30,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -43,6 +44,11 @@ fun HomeView(
     navController: NavHostController,
     homeViewModel: HomeViewModel = koinViewModel()
 ) {
+
+    LaunchedEffect(key1 = true) {
+        homeViewModel.fetchHomePageData()
+    }
+
     val homeUiState = homeViewModel.uiState.collectAsState().value
 
     Column(
@@ -50,12 +56,19 @@ fun HomeView(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        Hero()
+        if (homeUiState == HomeUIState.Loading) {
+            LinearProgressIndicator(
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        Hero(onClickShopAll = {
+            navController.navigate(Screen.Products.route)
+        })
+
         when (homeUiState) {
             is HomeUIState.Loading -> {
-                LinearProgressIndicator(
-                    modifier = Modifier.fillMaxWidth()
-                )
+                // Do nothing, Linear Progress Indicator appears above hero
             }
 
             is HomeUIState.Error -> {
@@ -66,7 +79,7 @@ fun HomeView(
                 Collections(
                     collections = homeUiState.collections,
                     onClick = { collectionHandle ->
-                        navController.navigate(Screen.Collection.route.replace("{collectionHandle}", collectionHandle))
+                        navController.navigate(Screen.Collection.route(collectionHandle))
                     }
                 )
                 Featured(homeUiState.collections.firstOrNull()?.products?.nodes ?: emptyList()) { productId: ID ->

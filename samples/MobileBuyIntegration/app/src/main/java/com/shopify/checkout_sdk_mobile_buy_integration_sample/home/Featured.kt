@@ -37,8 +37,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.shopify.buy3.Storefront
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.collection.CollectionProduct
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header3
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.CollectionProduct
 import com.shopify.graphql.support.ID
 
 @OptIn(ExperimentalLayoutApi::class)

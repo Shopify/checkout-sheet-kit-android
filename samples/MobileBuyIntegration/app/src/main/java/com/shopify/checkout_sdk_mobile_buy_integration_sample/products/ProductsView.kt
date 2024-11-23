@@ -37,6 +37,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,20 +47,22 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyAmount
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyText
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.product.UIProduct
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.UIProduct
 import com.shopify.graphql.support.ID
 import org.koin.androidx.compose.koinViewModel
-import java.net.URLEncoder
 
 @Composable
 fun ProductsView(
     navController: NavController,
     productsViewModel: ProductsViewModel = koinViewModel(),
 ) {
-    productsViewModel.fetchProducts()
+    LaunchedEffect(key1 = true) {
+        productsViewModel.fetchProducts()
+    }
+    
     val productsUIState = productsViewModel.uiState.collectAsState().value
 
     Column(
@@ -79,7 +82,7 @@ fun ProductsView(
                 Text(productsUIState.error)
             }
 
-            is ProductsUIState.Products -> {
+            is ProductsUIState.Loaded -> {
                 Column(
                     Modifier
                         .padding(start = 15.dp, end = 15.dp)
@@ -103,12 +106,7 @@ fun ProductsView(
                                 product = productsUIState.products[i],
                                 imageHeight = 250.dp,
                                 onProductClick = { productId ->
-                                    navController.navigate(
-                                        Screen.Product.route.replace(
-                                            "{productId}",
-                                            URLEncoder.encode(productId.toString(), "UTF-8")
-                                        )
-                                    )
+                                    navController.navigate(Screen.Product.route(productId.toString()))
                                 }
                             )
                         }
@@ -140,7 +138,7 @@ fun Product(
                 .align(Alignment.CenterHorizontally)
         )
         Text(product.title, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground)
-        MoneyAmount(
+        MoneyText(
             currency = product.variants.first().currencyName,
             price = product.variants.first().price.toDouble(),
             style = MaterialTheme.typography.bodyMedium,

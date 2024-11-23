@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkout_sdk_mobile_buy_integration_sample.collection
+package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.shopify.buy3.Storefront
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyAmount
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyText
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
 import com.shopify.graphql.support.ID
 
@@ -69,7 +69,7 @@ fun CollectionProduct(
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
         )
-        MoneyAmount(
+        MoneyText(
             currency = product.priceRange.maxVariantPrice.currencyCode.name,
             price = product.priceRange.maxVariantPrice.amount.toDouble(),
             style = MaterialTheme.typography.bodyMedium,

@@ -34,27 +34,22 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
+private val primaryColor = Color(
+    red = 37 / 255.0f,
+    green = 96 / 255.0f,
+    blue = 79 / 255.0f,
+    alpha = 1.0f
+)
+
 private val DarkColorPalette = darkColorScheme(
-    background = Color(red = 52 / 255.0f, green = 120 / 255.0f, blue = 246 / 255.0f, alpha = 1.0f),
-    onBackground = Color.White,
-    primary = Color(
-        red = 139 / 255.0f,
-        green = 139 / 255.0f,
-        blue = 143 / 255.0f,
-        alpha = 1.0f
-    ),
-    onPrimary = Color(red = 29 / 255.0f, green = 29 / 255.0f, blue = 31 / 255.0f, alpha = 1.0f)
+    primary = primaryColor,
+    onPrimary = Color.White
 )
 
 private val LightColorPalette = lightColorScheme(
     background = Color.White,
     onBackground = Color.Black,
-    primary = Color(
-        red = 37 / 255.0f,
-        green = 96 / 255.0f,
-        blue = 79 / 255.0f,
-        alpha = 1.0f
-    ),
+    primary = primaryColor,
     onPrimary = Color.White
 )
 
