@@ -77,6 +77,10 @@ fun ProductView(
             }
 
             is ProductUIState.Product -> {
+                if (productUIState.isAddingToCart) {
+                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                }
+
                 val product = productUIState.product
                 val selectedVariant = product.variants[product.selectedVariant]
                 Column(

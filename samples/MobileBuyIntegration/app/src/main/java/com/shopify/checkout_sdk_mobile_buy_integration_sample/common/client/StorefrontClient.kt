@@ -103,22 +103,27 @@ class StorefrontClient(private val client: GraphClient) {
         executeQuery(query, successCallback, failureCallback)
     }
 
-    fun cartLinesUpdate(
+    fun cartLinesModify(
         cartId: ID,
         lineItemID: ID,
-        quantity: Int,
+        quantity: Int?,
         successCallback: (GraphResponse<Storefront.Mutation>) -> Unit,
-        failureCallback: ((GraphError) -> Unit)? = {},
+        failureCallback: ((GraphError) -> Unit)?,
     ) {
-        val lineUpdateInput = CartLineUpdateInput(lineItemID).setQuantity(quantity)
-
-        val mutation = Storefront.mutation { mutation ->
-            mutation.cartLinesUpdate(
-                cartId,
-                listOf(lineUpdateInput)
-            ) { cartLinesUpdate ->
-                cartLinesUpdate.cart { cartQuery ->
-                    cartQueryFragment(cartQuery)
+        val mutation = if (quantity != null) {
+            Storefront.mutation { mutation ->
+                mutation.cartLinesUpdate(cartId, listOf(CartLineUpdateInput(lineItemID).setQuantity(quantity))) { cartLinesUpdate ->
+                    cartLinesUpdate.cart { cartQuery ->
+                        cartQueryFragment(cartQuery)
+                    }
+                }
+            }
+        } else {
+            Storefront.mutation { mutation ->
+                mutation.cartLinesRemove(cartId, listOf(lineItemID)) { cartLinesRemove ->
+                    cartLinesRemove.cart { cartQuery ->
+                        cartQueryFragment(cartQuery)
+                    }
                 }
             }
         }

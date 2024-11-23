@@ -107,7 +107,7 @@ fun <T : DefaultCheckoutEventProcessor> CartView(
                 CartLines(
                     lines = state.cartLines,
                     loading = loading,
-                    setQuantity = cartViewModel::updateCartQuantity,
+                    modifyLineItem = cartViewModel::modifyLineItem,
                     continueShopping = { navController.navigate(Screen.Products.route) },
                     checkout = {
                         cartViewModel.presentCheckout(
@@ -129,8 +129,8 @@ private fun CartLines(
     lines: List<CartLine>,
     loading: Boolean,
     totalAmount: Amount,
-    setQuantity: (ID, Int) -> Unit,
     continueShopping: () -> Unit,
+    modifyLineItem: (ID, Int?) -> Unit,
     checkout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -177,7 +177,7 @@ private fun CartLines(
         items(lines) { item ->
             CartItem(
                 cartLine = item,
-                setQuantity = { quantity -> setQuantity(item.id, quantity) },
+                modifyLineItem = modifyLineItem,
                 loading = loading,
             )
         }

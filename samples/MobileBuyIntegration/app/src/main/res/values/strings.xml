@@ -19,6 +19,7 @@
     <string name="featured_default_alt_text">Featured plant image</string>
     <string name="product_taxes_included">Taxes included</string>
     <string name="products_header">Products</string>
+    <string name="product_add_to_cart">Add to cart</string>
     <string name="cart_header">Your cart</string>
     <string name="cart_continue_shopping">Continue shopping</string>
     <string name="cart_estimated_total">Estimated total</string>

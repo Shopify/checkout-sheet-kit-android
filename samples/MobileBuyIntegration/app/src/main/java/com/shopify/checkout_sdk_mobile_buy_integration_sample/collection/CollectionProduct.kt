@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkout_sdk_mobile_buy_integration_sample.product
+package com.shopify.checkout_sdk_mobile_buy_integration_sample.collection
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -44,7 +44,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.
 import com.shopify.graphql.support.ID
 
 @Composable
-fun FeaturedProduct(
+fun CollectionProduct(
     product: Storefront.Product,
     imageHeight: Dp,
     onProductClick: (id: ID) -> Unit,

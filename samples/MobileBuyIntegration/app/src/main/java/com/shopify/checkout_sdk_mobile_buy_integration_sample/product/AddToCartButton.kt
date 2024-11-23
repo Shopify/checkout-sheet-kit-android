@@ -26,17 +26,16 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header3
 
 @Composable
@@ -58,16 +57,9 @@ fun AddToCartButton(
 
         ) {
             Box {
-                if (loading) {
-                    CircularProgressIndicator(
-                        Modifier
-                            .size(26.dp)
-                            .offset(x = -(32.dp), y = 6.dp)
-                    )
-                }
                 Header3(
                     textAlign = TextAlign.Center,
-                    text = "Add to cart",
+                    text = stringResource(id = R.string.product_add_to_cart),
                 )
             }
         }

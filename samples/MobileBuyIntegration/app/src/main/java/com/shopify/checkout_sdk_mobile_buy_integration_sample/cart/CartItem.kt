@@ -46,12 +46,13 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyAmount
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.QuantitySelector
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
+import com.shopify.graphql.support.ID
 
 @Composable
 fun CartItem(
     cartLine: CartLine,
     loading: Boolean,
-    setQuantity: (Int) -> Unit,
+    modifyLineItem: (ID, Int?) -> Unit,
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -90,7 +91,7 @@ fun CartItem(
                     )
                 }
                 QuantitySelector(enabled = !loading, quantity = cartLine.quantity) { quantity ->
-                    setQuantity(quantity)
+                    modifyLineItem(cartLine.id, quantity)
                 }
             }
         }
@@ -106,7 +107,7 @@ fun CartItem(
                 includeSuffix = false,
             )
             IconButton(
-                onClick = { /*TODO*/ },
+                onClick = { modifyLineItem(cartLine.id, null) },
             ) {
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.trash_can),

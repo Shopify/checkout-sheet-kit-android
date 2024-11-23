@@ -72,15 +72,20 @@ class CartViewModel(
         }
     }
 
-    fun updateCartQuantity(lineItemID: ID, quantity: Int) {
+    fun modifyLineItem(lineItemID: ID, quantity: Int?) {
         when (val state = _cartState.value) {
             is CartState.Populated -> {
                 _loadingState.value = true
-                client.cartLinesUpdate(state.cartID, lineItemID, quantity, {
+                client.cartLinesModify(state.cartID, lineItemID, quantity, {
                     // Invalidate any preload calls so checkout reflects latest quantity
                     ShopifyCheckoutSheetKit.invalidate()
-                    _cartState.value = it.data?.cartLinesUpdate?.cart.toUiState()
+                    if (quantity != null) _cartState.value = it.data?.cartLinesUpdate?.cart.toUiState()
+                    else _cartState.value = it.data?.cartLinesRemove?.cart.toUiState()
+
                     _loadingState.value = false
+                }, { error ->
+                    _loadingState.value = false
+                    Timber.e("Error updating cart $error")
                 })
             }
 

@@ -37,8 +37,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.shopify.buy3.Storefront
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.collection.CollectionProduct
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header3
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.product.FeaturedProduct
 import com.shopify.graphql.support.ID
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -75,7 +75,7 @@ fun Featured(
                 horizontalArrangement = Arrangement.spacedBy(horizontalSpacing)
             ) {
                 featured.forEach { featuredProduct ->
-                    FeaturedProduct(
+                    CollectionProduct(
                         product = featuredProduct,
                         imageHeight = imageHeight,
                         onProductClick = onProductClick

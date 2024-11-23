@@ -44,7 +44,6 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.product.FeaturedProduct
 import org.koin.androidx.compose.koinViewModel
 import java.net.URLEncoder
 
@@ -86,7 +85,6 @@ fun CollectionView(
                     val collection = collectionUIState.collection
                     Header2(text = collection.title)
                     BodyMedium(text = collection.description)
-                    // TODO alt
                     RemoteImage(url = collection.image.url, altText = collection.image.altText ?: "", modifier = Modifier)
 
                     FlowRow(
@@ -97,7 +95,7 @@ fun CollectionView(
                         horizontalArrangement = Arrangement.spacedBy(5.dp)
                     ) {
                         collection.products.nodes.forEach { collectionProduct ->
-                            FeaturedProduct(
+                            CollectionProduct(
                                 product = collectionProduct,
                                 imageHeight = 250.dp,
                                 textColor = MaterialTheme.colorScheme.onBackground,
