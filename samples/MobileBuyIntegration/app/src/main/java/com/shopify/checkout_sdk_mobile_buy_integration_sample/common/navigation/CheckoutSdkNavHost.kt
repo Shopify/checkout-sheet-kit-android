@@ -46,6 +46,7 @@ import org.koin.compose.koinInject
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
+
 sealed class Screen(val route: String) {
     data object Home : Screen("home")
     data object Product : Screen("product/{productId}") {

@@ -34,6 +34,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.TextUnit
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.toDisplayText
 
 @Composable
@@ -43,6 +44,7 @@ fun Header1(
     resourceId: Int? = null,
     color: Color = MaterialTheme.colorScheme.onBackground,
     textAlign: TextAlign = TextAlign.Start,
+    fontSize: TextUnit = MaterialTheme.typography.titleLarge.fontSize,
 ) {
     Header(
         text = text,
@@ -50,7 +52,8 @@ fun Header1(
         style = MaterialTheme.typography.titleLarge,
         modifier = modifier,
         color = color,
-        textAlign = textAlign
+        textAlign = textAlign,
+        fontSize = fontSize,
     )
 }
 
@@ -61,6 +64,7 @@ fun Header2(
     resourceId: Int? = null,
     color: Color = MaterialTheme.colorScheme.onBackground,
     textAlign: TextAlign = TextAlign.Start,
+    fontSize: TextUnit = MaterialTheme.typography.titleMedium.fontSize,
 ) {
     Header(
         text = text,
@@ -68,7 +72,8 @@ fun Header2(
         style = MaterialTheme.typography.titleMedium,
         modifier = modifier,
         color = color,
-        textAlign = textAlign
+        textAlign = textAlign,
+        fontSize = fontSize,
     )
 }
 
@@ -79,6 +84,7 @@ fun Header3(
     resourceId: Int? = null,
     color: Color = MaterialTheme.colorScheme.onBackground,
     textAlign: TextAlign = TextAlign.Start,
+    fontSize: TextUnit = MaterialTheme.typography.titleSmall.fontSize,
 ) {
     Header(
         text = text,
@@ -87,6 +93,7 @@ fun Header3(
         modifier = modifier,
         color = color,
         textAlign = textAlign,
+        fontSize = fontSize,
     )
 }
 
@@ -99,6 +106,7 @@ fun Header(
     Color = MaterialTheme.colorScheme.onBackground,
     style: TextStyle,
     textAlign: TextAlign,
+    fontSize: TextUnit
 ) {
     if (text == null && resourceId == null) {
         throw IllegalArgumentException("No text or resourceId passed to Header component")
@@ -135,6 +143,7 @@ fun BodySmall(
     modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.onBackground,
     textDecoration: TextDecoration = TextDecoration.None,
+    fontSize: TextUnit = MaterialTheme.typography.bodySmall.fontSize,
 ) {
     Text(
         text = text,
@@ -142,6 +151,7 @@ fun BodySmall(
         modifier = modifier,
         color = color,
         textDecoration = textDecoration,
+        fontSize = fontSize,
     )
 }
 

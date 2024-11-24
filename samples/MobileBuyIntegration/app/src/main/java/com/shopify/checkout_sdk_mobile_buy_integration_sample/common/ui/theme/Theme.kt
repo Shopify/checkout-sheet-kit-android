@@ -41,6 +41,13 @@ private val primaryColor = Color(
     alpha = 1.0f
 )
 
+private val secondaryColor = Color(
+    red = 37 / 255.0f,
+    green = 41 / 255.0f,
+    blue = 46 / 255.0f,
+    alpha = 1.0f
+)
+
 private val DarkColorPalette = darkColorScheme(
     primary = primaryColor,
     onPrimary = Color.White
@@ -50,7 +57,8 @@ private val LightColorPalette = lightColorScheme(
     background = Color.White,
     onBackground = Color.Black,
     primary = primaryColor,
-    onPrimary = Color.White
+    onPrimary = Color.White,
+    secondary = secondaryColor
 )
 
 @Composable

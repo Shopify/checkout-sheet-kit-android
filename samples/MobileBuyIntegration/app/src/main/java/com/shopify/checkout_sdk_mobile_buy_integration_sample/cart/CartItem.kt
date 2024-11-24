@@ -81,13 +81,13 @@ fun CartItem(
                         text = cartLine.title,
                         style = MaterialTheme.typography.bodyMedium,
                         fontSize = 18.sp,
-                        color = MaterialTheme.colorScheme.outline,
+                        color = MaterialTheme.colorScheme.secondary,
                     )
                     MoneyText(
                         price = cartLine.pricePerQuantity,
                         currency = cartLine.currencyPerQuantity,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.outline,
+                        color = MaterialTheme.colorScheme.secondary,
                     )
                 }
                 QuantitySelector(enabled = !loading, quantity = cartLine.quantity) { quantity ->
