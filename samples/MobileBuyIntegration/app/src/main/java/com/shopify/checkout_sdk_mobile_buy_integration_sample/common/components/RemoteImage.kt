@@ -46,6 +46,6 @@ fun RemoteImage(
         contentScale = ContentScale.Crop,
         alignment = Alignment.Center,
         contentDescription = altText,
-        modifier = modifier
+        modifier = modifier,
     )
 }

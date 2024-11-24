@@ -22,7 +22,9 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
@@ -45,7 +47,6 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsV
 import org.koin.compose.koinInject
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
-
 
 sealed class Screen(val route: String) {
     data object Home : Screen("home")
@@ -103,6 +104,7 @@ fun CheckoutSdkNavHost(
     NavHost(
         navController = navController,
         startDestination = startDestination,
+        modifier = Modifier.fillMaxSize(),
     ) {
 
         composable(Screen.Home.route) {

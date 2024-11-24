@@ -24,7 +24,6 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -83,7 +82,7 @@ fun ProductView(
             val product = productUIState.product
             Column(
                 Modifier
-                    .fillMaxHeight()
+                    .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
                 if (productUIState.product.image.url != "") {
