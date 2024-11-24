@@ -97,7 +97,7 @@ fun CheckoutSdkNavHost(
     settingsViewModel: SettingsViewModel,
     logsViewModel: LogsViewModel,
     setAppBarState: (AppBarState) -> Unit,
-    logger: Logger = koinInject<Logger>()
+    logger: Logger = koinInject<Logger>(),
 ) {
     NavHost(
         navController = navController,
@@ -113,7 +113,7 @@ fun CheckoutSdkNavHost(
         }
 
         composable(Screen.Product.route) { backStackEntry ->
-            ProductView(Screen.Product.productIdRouteVariable(backStackEntry), cartViewModel)
+            ProductView(Screen.Product.productIdRouteVariable(backStackEntry))
         }
 
         composable(Screen.Collection.route) { backStackEntry ->

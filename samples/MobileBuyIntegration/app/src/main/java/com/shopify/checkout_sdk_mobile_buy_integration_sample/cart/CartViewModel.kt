@@ -25,10 +25,12 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.cart
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.shopify.buy3.Storefront
 import com.shopify.buy3.Storefront.Cart
 import com.shopify.buy3.Storefront.CartLineInput
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontClient
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
@@ -45,6 +47,7 @@ class CartViewModel(
     private val client: StorefrontClient,
     private val preferencesManager: PreferencesManager,
 ) : ViewModel() {
+    
     private val _cartState = MutableStateFlow<CartState>(CartState.Empty)
     val cartState: StateFlow<CartState> = _cartState.asStateFlow()
 
@@ -66,6 +69,7 @@ class CartViewModel(
     }
 
     fun addToCart(variant: ID, quantity: Int, onComplete: OnComplete) {
+        Timber.i("Adding variant: $variant to cart with quantity: $quantity")
         when (val state = _cartState.value) {
             is CartState.Empty -> performCartCreate(variant, quantity, onComplete)
             is CartState.Populated -> performCartLinesAdd(state.cartID, variant, quantity, onComplete)
@@ -73,11 +77,13 @@ class CartViewModel(
     }
 
     fun modifyLineItem(lineItemID: ID, quantity: Int?) {
+        Timber.i("Updating or removing line item: $lineItemID, quantity: $quantity")
         when (val state = _cartState.value) {
             is CartState.Populated -> {
                 _loadingState.value = true
                 client.cartLinesModify(state.cartID, lineItemID, quantity, {
-                    // Invalidate any preload calls so checkout reflects latest quantity
+                    Timber.i("Cart modification complete")
+                    Timber.i("Invalidating previous preloads, so checkout reflects modified cart state")
                     ShopifyCheckoutSheetKit.invalidate()
                     if (quantity != null) _cartState.value = it.data?.cartLinesUpdate?.cart.toUiState()
                     else _cartState.value = it.data?.cartLinesRemove?.cart.toUiState()
@@ -102,18 +108,39 @@ class CartViewModel(
         activity: ComponentActivity,
         eventProcessor: T
     ) {
+        Timber.i("Presenting checkout with $url")
         ShopifyCheckoutSheetKit.present(url, activity, eventProcessor)
     }
 
+    fun preloadCheckout(
+        activity: ComponentActivity,
+    ) {
+        val state = _cartState.value
+        if (state is CartState.Populated) {
+            Timber.i("Preloading checkout with url ${state.checkoutUrl}")
+            ShopifyCheckoutSheetKit.preload(state.checkoutUrl, activity)
+        } else {
+            Timber.i("Skipping checkout preload, cart is empty")
+        }
+    }
+
+    fun continueShopping(navController: NavController) {
+        Timber.i("Continue shopping clicked, navigating to products")
+        navController.navigate(Screen.Products.route)
+    }
+
     private fun performCartLinesAdd(cartID: ID, variant: ID, quantity: Int, onComplete: OnComplete) {
+        Timber.i("Adding cart lines to existing cart: $cartID, variant: $variant, and $quantity")
         val line = CartLineInput(variant).setQuantity(quantity)
         client.cartLinesAdd(lines = listOf(line), cartId = cartID, {
+            Timber.i("Adding cart lines complete")
             _cartState.value = it.data?.cartLinesAdd?.cart.toUiState()
             onComplete.invoke(it.data?.cartLinesAdd?.cart)
         })
     }
 
     private fun performCartCreate(variant: ID, quantity: Int, onComplete: OnComplete) {
+        Timber.i("No existing cart, creating new")
         val buyerIdentity = if (demoBuyerIdentityEnabled) {
             DemoBuyerIdentity.value
         } else {
@@ -125,6 +152,7 @@ class CartViewModel(
             buyerIdentity = buyerIdentity,
             quantity = quantity,
             successCallback = { response ->
+                Timber.i("Cart created")
                 val cart = response.data?.cartCreate?.cart
                 _cartState.value = cart.toUiState()
                 onComplete.invoke(cart)

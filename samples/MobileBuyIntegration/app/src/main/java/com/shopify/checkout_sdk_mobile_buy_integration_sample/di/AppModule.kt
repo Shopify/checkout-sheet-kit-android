@@ -68,6 +68,14 @@ val appModules = module {
     }
 
     single {
+        // singleton instance of shared cart view model
+        CartViewModel(
+            get(),
+            get(),
+        )
+    }
+
+    single {
         Room.databaseBuilder(
             get(),
             LogDatabase::class.java,
@@ -85,7 +93,6 @@ val appModules = module {
     }
 
     // Compose view models
-    viewModelOf(::CartViewModel)
     viewModelOf(::SettingsViewModel)
     viewModelOf(::CollectionViewModel)
     viewModelOf(::ProductViewModel)

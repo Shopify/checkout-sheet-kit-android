@@ -35,6 +35,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,9 +44,7 @@ import androidx.navigation.NavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodyMedium
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
 import org.koin.androidx.compose.koinViewModel
-import java.net.URLEncoder
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -54,7 +53,10 @@ fun CollectionView(
     collectionHandle: String,
     collectionViewModel: CollectionViewModel = koinViewModel(),
 ) {
-    collectionViewModel.fetchCollection(collectionHandle)
+    LaunchedEffect(key1 = true) {
+        collectionViewModel.fetchCollection(collectionHandle)
+    }
+
     val collectionUIState = collectionViewModel.uiState.collectAsState().value
 
     Column(
@@ -99,10 +101,7 @@ fun CollectionView(
                                 product = collectionProduct,
                                 imageHeight = 250.dp,
                                 textColor = MaterialTheme.colorScheme.onBackground,
-                                onProductClick = { productId ->
-                                    val encodedId = URLEncoder.encode(productId.toString(), "UTF-8")
-                                    navController.navigate(Screen.Product.route.replace("{productId}", encodedId))
-                                }
+                                onProductClick = { productId -> collectionViewModel.productSelected(navController, productId) }
                             )
                         }
                     }

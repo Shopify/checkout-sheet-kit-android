@@ -33,15 +33,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
+import androidx.navigation.NavController
 import com.shopify.graphql.support.ID
 import org.koin.androidx.compose.koinViewModel
-import java.net.URLEncoder
 
 @Composable
 fun HomeView(
-    navController: NavHostController,
+    navController: NavController,
     homeViewModel: HomeViewModel = koinViewModel()
 ) {
 
@@ -62,9 +60,7 @@ fun HomeView(
             )
         }
 
-        Hero(onClickShopAll = {
-            navController.navigate(Screen.Products.route)
-        })
+        Hero(onClickShopAll = { homeViewModel.shopAll(navController) })
 
         when (homeUiState) {
             is HomeUIState.Loading -> {
@@ -78,12 +74,10 @@ fun HomeView(
             is HomeUIState.Loaded -> {
                 Collections(
                     collections = homeUiState.collections,
-                    onClick = { collectionHandle ->
-                        navController.navigate(Screen.Collection.route(collectionHandle))
-                    }
+                    onClick = { collectionHandle -> homeViewModel.collectionSelected(navController, collectionHandle) }
                 )
                 Featured(homeUiState.collections.firstOrNull()?.products?.nodes ?: emptyList()) { productId: ID ->
-                    navController.navigate(Screen.Product.route.replace("{productId}", URLEncoder.encode(productId.toString(), "UTF-8")))
+                    homeViewModel.productSelected(navController, productId)
                 }
             }
         }

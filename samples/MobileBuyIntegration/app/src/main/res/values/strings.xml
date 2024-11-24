@@ -29,5 +29,7 @@
     <string name="cart_product_header">PRODUCT</string>
     <string name="cart_total_header">TOTAL</string>
     <string name="cart_checkout">Check out</string>
+    <string name="cart_empty">Your cart is empty</string>
+    <string name="cart_emtpy_description">Add products while you shop, so they\'ll be ready for checkout later.</string>
     <string name="cart_trash_content_description">Delete line item</string>
 </resources>

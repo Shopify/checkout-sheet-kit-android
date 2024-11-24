@@ -23,29 +23,53 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.home
 
 import androidx.lifecycle.ViewModel
+import androidx.navigation.NavController
 import com.shopify.buy3.Storefront
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontClient
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
+import com.shopify.graphql.support.ID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import timber.log.Timber
 
-class HomeViewModel(private val client: StorefrontClient) : ViewModel() {
+class HomeViewModel(
+    private val client: StorefrontClient,
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow<HomeUIState>(HomeUIState.Loading)
     val uiState: StateFlow<HomeUIState> = _uiState.asStateFlow()
 
     fun fetchHomePageData() {
+        Timber.i("Fetching home page data")
         client.fetchHomePageData(numCollections = NUM_COLLECTIONS, numProducts = NUM_PRODUCTS_PER_COLLECTION,
             { success ->
                 val collections = success.data?.collections?.nodes
+                Timber.i("Home page data fetched, retrieved ${collections?.size ?: 0} collections")
                 _uiState.value = HomeUIState.Loaded(
                     collections = collections ?: emptyList(),
                 )
             },
             { failure ->
+                Timber.e("Failed to fetch collections $failure")
                 _uiState.value = HomeUIState.Error(failure.message ?: "Unknown")
             }
         )
+    }
+
+    fun shopAll(navController: NavController) {
+        Timber.i("Shop all clicked, navigating to products")
+        navController.navigate(Screen.Products.route)
+    }
+
+    fun collectionSelected(navController: NavController, collectionHandle: String) {
+        Timber.i("Collection selected, navigating to $collectionHandle")
+        navController.navigate(Screen.Collection.route(collectionHandle))
+    }
+
+    fun productSelected(navController: NavController, productId: ID) {
+        Timber.i("Product selected $productId, navigating to product page")
+        navController.navigate(Screen.Product.route(productId.toString()))
     }
 
     companion object {

@@ -23,27 +23,44 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection
 
 import androidx.lifecycle.ViewModel
+import androidx.navigation.NavController
 import com.shopify.buy3.Storefront
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontClient
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
+import com.shopify.graphql.support.ID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import timber.log.Timber
+import java.net.URLEncoder
 
-class CollectionViewModel(private val client: StorefrontClient) : ViewModel() {
+class CollectionViewModel(
+    private val client: StorefrontClient,
+) : ViewModel() {
     private val _uiState = MutableStateFlow<CollectionUIState>(CollectionUIState.Loading)
     val uiState: StateFlow<CollectionUIState> = _uiState.asStateFlow()
 
     fun fetchCollection(handle: String) {
+        Timber.i("Fetching collection with handle: $handle")
         client.fetchCollection(handle, numProducts = 10, successCallback = { result ->
             val collection = result.data?.collection
             if (collection != null) {
+                Timber.i("Fetching collection complete")
                 _uiState.value = CollectionUIState.Loaded(collection = collection)
             } else {
+                Timber.e("Fetching collection failed")
                 _uiState.value = CollectionUIState.Error("Failed to fetch collection")
             }
-        }, failureCallback = {
+        }, failureCallback = { error ->
+            Timber.e("Fetching collection failed $error")
             _uiState.value = CollectionUIState.Error("Failed to fetch collection")
         })
+    }
+
+    fun productSelected(navController: NavController, productId: ID) {
+        Timber.i("Product $productId selected, navigation to product page")
+        val encodedId = URLEncoder.encode(productId.toString(), "UTF-8")
+        navController.navigate(Screen.Product.route.replace("{productId}", encodedId))
     }
 }
 

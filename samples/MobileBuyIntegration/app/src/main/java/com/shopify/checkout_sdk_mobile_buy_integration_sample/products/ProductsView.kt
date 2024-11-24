@@ -49,7 +49,6 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyText
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.UIProduct
 import com.shopify.graphql.support.ID
 import org.koin.androidx.compose.koinViewModel
@@ -62,7 +61,7 @@ fun ProductsView(
     LaunchedEffect(key1 = true) {
         productsViewModel.fetchProducts()
     }
-    
+
     val productsUIState = productsViewModel.uiState.collectAsState().value
 
     Column(
@@ -106,7 +105,7 @@ fun ProductsView(
                                 product = productsUIState.products[i],
                                 imageHeight = 250.dp,
                                 onProductClick = { productId ->
-                                    navController.navigate(Screen.Product.route(productId.toString()))
+                                    productsViewModel.productClicked(navController, productId)
                                 }
                             )
                         }

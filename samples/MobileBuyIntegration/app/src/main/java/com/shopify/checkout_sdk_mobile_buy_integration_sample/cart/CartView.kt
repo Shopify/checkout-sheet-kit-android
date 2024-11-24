@@ -52,37 +52,34 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodyMedium
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodySmall
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyText
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
-import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 import com.shopify.graphql.support.ID
 
 @Composable
 fun <T : DefaultCheckoutEventProcessor> CartView(
-    cartViewModel: CartViewModel,
     navController: NavController,
     checkoutEventProcessor: T,
+    cartViewModel: CartViewModel,
 ) {
+
     val state = cartViewModel.cartState.collectAsState().value
     val loading = cartViewModel.loadingState.collectAsState().value
 
     val activity = LocalContext.current as ComponentActivity
     var mutableQuantity by remember { mutableStateOf<Map<String, Int>>(mutableMapOf()) }
 
-    LaunchedEffect(state) {
-        if (state is CartState.Populated) {
-            ShopifyCheckoutSheetKit.preload(state.checkoutUrl, activity)
-        }
+    LaunchedEffect(key1 = true) {
+        cartViewModel.preloadCheckout(activity)
     }
 
     if (loading) {
@@ -111,7 +108,7 @@ fun <T : DefaultCheckoutEventProcessor> CartView(
                     lines = state.cartLines,
                     loading = loading,
                     modifyLineItem = cartViewModel::modifyLineItem,
-                    continueShopping = { navController.navigate(Screen.Products.route) },
+                    continueShopping = { cartViewModel.continueShopping(navController) },
                     checkout = {
                         cartViewModel.presentCheckout(
                             state.checkoutUrl,
@@ -270,18 +267,15 @@ private fun EmptyCartMessage(
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(.7f),
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.spacedBy(10.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                "Your cart is empty",
-                fontWeight = FontWeight.SemiBold,
+            Header2(
+                text = stringResource(id = R.string.cart_empty),
             )
-            Text(
-                "Add products while you shop, so they'll be ready for checkout later.",
+            BodyMedium(
+                stringResource(id = R.string.cart_emtpy_description),
                 color = MaterialTheme.colorScheme.onBackground,
-                textAlign = TextAlign.Center,
-                fontSize = 13.sp,
             )
         }
     }

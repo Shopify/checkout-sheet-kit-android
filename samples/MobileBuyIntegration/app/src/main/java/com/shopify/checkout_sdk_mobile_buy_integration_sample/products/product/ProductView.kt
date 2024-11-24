@@ -41,7 +41,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodyMedium
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodySmall
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
@@ -55,8 +54,7 @@ import timber.log.Timber
 @Composable
 fun ProductView(
     productId: String,
-    cartViewModel: CartViewModel = koinViewModel(),
-    productViewModel: ProductViewModel = koinViewModel()
+    productViewModel: ProductViewModel = koinViewModel(),
 ) {
 
     LaunchedEffect(key1 = true) {
@@ -65,27 +63,28 @@ fun ProductView(
 
     when (val productUIState = productViewModel.uiState.collectAsState().value) {
         is ProductUIState.Loading -> {
+            Timber.i("Product loading showing progress indicator")
             LinearProgressIndicator(
                 modifier = Modifier.fillMaxWidth()
             )
         }
 
         is ProductUIState.Error -> {
+            Timber.i("Product loading failed showing error")
             Text(productUIState.error)
         }
 
         is ProductUIState.Loaded -> {
             if (productUIState.isAddingToCart) {
+                Timber.i("Product loaded, and adding to cart, showing progress indicator")
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
 
             val product = productUIState.product
-            val selectedVariant = product.variants[product.selectedVariant]
             Column(
                 Modifier
                     .fillMaxHeight()
                     .verticalScroll(rememberScrollState())
-//                    .weight(1f, false),
             ) {
                 if (productUIState.product.image.url != "") {
                     RemoteImage(
@@ -116,9 +115,7 @@ fun ProductView(
                         )
                     }
 
-                    Timber.i("state is now $productUIState")
                     QuantitySelector(enabled = true, quantity = productUIState.addQuantityAmount) { quantity ->
-                        Timber.i("setting quantity to $quantity")
                         productViewModel.setAddQuantityAmount(quantity)
                     }
 
@@ -126,12 +123,7 @@ fun ProductView(
                         loading = productUIState.isAddingToCart,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Timber.i("Adding to cart")
-                        productViewModel.setIsAddingToCart(true)
-                        cartViewModel.addToCart(selectedVariant.id, productUIState.addQuantityAmount) {
-                            Timber.i("Finished adding to cart")
-                            productViewModel.setIsAddingToCart(false)
-                        }
+                        productViewModel.addToCart()
                     }
 
                     BodyMedium(

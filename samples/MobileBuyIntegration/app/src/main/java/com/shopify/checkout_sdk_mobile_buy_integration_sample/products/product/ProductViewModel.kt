@@ -24,6 +24,7 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product
 
 import androidx.lifecycle.ViewModel
 import com.shopify.buy3.Storefront
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontClient
 import com.shopify.graphql.support.ID
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,41 +32,65 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import timber.log.Timber
 
-class ProductViewModel(private val client: StorefrontClient) : ViewModel() {
+class ProductViewModel(
+    private val cartViewModel: CartViewModel,
+    private val client: StorefrontClient,
+) : ViewModel() {
     private val _uiState = MutableStateFlow<ProductUIState>(ProductUIState.Loading)
     val uiState: StateFlow<ProductUIState> = _uiState.asStateFlow()
 
     fun setAddQuantityAmount(quantity: Int) {
         val currentState = _uiState.value
         if (currentState is ProductUIState.Loaded) {
-            Timber.i("Updating state in setAddQuantityAmount(), setting quantity=$quantity")
+            Timber.i("Updating addQuantityAmount to $quantity")
             _uiState.value = currentState.copy(addQuantityAmount = quantity)
         }
     }
 
-    fun setIsAddingToCart(value: Boolean) {
+    fun addToCart() {
+        val state = _uiState.value
+        if (state is ProductUIState.Loaded) {
+            val selectedVariantID = state.product.variants[state.product.selectedVariant].id
+            val quantity = state.addQuantityAmount
+            Timber.i("Adding variant $selectedVariantID to cart with quantity $quantity")
+            setIsAddingToCart(true)
+            cartViewModel.addToCart(selectedVariantID, quantity) {
+                Timber.i("Finished adding to cart")
+                setIsAddingToCart(false)
+            }
+        }
+    }
+
+    fun fetchProduct(productId: ID) {
+        Timber.i("Fetching product with id $productId")
+        client.fetchProduct(
+            productId = productId,
+            numVariants = 1,
+            successCallback = {
+                Timber.i("Fetching product complete")
+                val product = it.data?.product as Storefront.Product
+                val uiProduct = buildProduct(product)
+                Timber.i("Fetched product, setting in state ${product.id} $this")
+                _uiState.value = ProductUIState.Loaded(
+                    product = uiProduct,
+                    isAddingToCart = false,
+                    addQuantityAmount = 1
+                )
+                Timber.i("ui state value ${uiState.value}")
+            },
+            failureCallback = { error ->
+                Timber.e("Fetching product failed $error")
+                _uiState.value = ProductUIState.Error(error.message ?: "Unknown error")
+            }
+        )
+    }
+
+    private fun setIsAddingToCart(value: Boolean) {
         val currentState = _uiState.value
         if (currentState is ProductUIState.Loaded) {
             Timber.i("Updating state in setIsAddingToCart(), setting isAddingToCart to $value")
             _uiState.value = currentState.copy(isAddingToCart = value)
         }
-    }
-
-    fun fetchProduct(productId: ID) {
-        client.fetchProduct(
-            productId = productId,
-            numVariants = 1,
-            successCallback = {
-                val product = it.data?.product as Storefront.Product
-                val uiProduct = buildProduct(product)
-                Timber.i("Fetched product, setting in state $product")
-                _uiState.value =
-                    ProductUIState.Loaded(product = uiProduct, isAddingToCart = false, addQuantityAmount = 1)
-            },
-            failureCallback = {
-                _uiState.value = ProductUIState.Error(it.message ?: "Unknown error")
-            }
-        )
     }
 
     private fun buildProduct(product: Storefront.Product): UIProduct {
