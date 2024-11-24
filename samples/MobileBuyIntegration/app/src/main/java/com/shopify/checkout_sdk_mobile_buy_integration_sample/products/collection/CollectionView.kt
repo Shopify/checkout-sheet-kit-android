@@ -27,11 +27,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodyMedium
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.ProgressIndicator
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
 import org.koin.androidx.compose.koinViewModel
 
@@ -62,14 +61,12 @@ fun CollectionView(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 0.dp),
+            .padding(vertical = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         when (collectionUIState) {
             is CollectionUIState.Loading -> {
-                LinearProgressIndicator(
-                    modifier = Modifier.fillMaxWidth()
-                )
+                ProgressIndicator()
             }
 
             is CollectionUIState.Error -> {

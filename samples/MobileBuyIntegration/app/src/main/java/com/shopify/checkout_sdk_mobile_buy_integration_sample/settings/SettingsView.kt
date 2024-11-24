@@ -32,7 +32,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -41,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.AppBarState
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.ProgressIndicator
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
 
 @Composable
@@ -69,9 +69,7 @@ fun SettingsView(
 
     when (uiState) {
         is SettingsUiState.Loading -> {
-            LinearProgressIndicator(
-                modifier = Modifier.fillMaxWidth()
-            )
+            ProgressIndicator()
         }
 
         is SettingsUiState.Loaded -> {

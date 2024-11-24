@@ -40,7 +40,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -65,6 +64,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodySmall
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyText
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.ProgressIndicator
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.graphql.support.ID
 
@@ -86,15 +86,13 @@ fun <T : DefaultCheckoutEventProcessor> CartView(
     }
 
     if (loading) {
-        LinearProgressIndicator(
-            modifier = Modifier.fillMaxWidth(),
-        )
+        ProgressIndicator()
     }
 
     Column(
         Modifier
             .fillMaxSize()
-            .padding(20.dp),
+            .padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         when (state) {

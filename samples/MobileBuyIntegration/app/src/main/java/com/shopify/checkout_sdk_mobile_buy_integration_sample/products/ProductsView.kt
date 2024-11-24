@@ -33,7 +33,6 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,6 +47,7 @@ import androidx.navigation.NavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyText
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.ProgressIndicator
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.UIProduct
 import com.shopify.graphql.support.ID
@@ -72,9 +72,7 @@ fun ProductsView(
     ) {
         when (productsUIState) {
             is ProductsUIState.Loading -> {
-                LinearProgressIndicator(
-                    modifier = Modifier.fillMaxWidth()
-                )
+                ProgressIndicator()
             }
 
             is ProductsUIState.Error -> {

@@ -30,7 +30,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,6 +43,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodySmall
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyText
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.ProgressIndicator
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.QuantitySelector
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
 import com.shopify.graphql.support.ID
@@ -63,9 +63,7 @@ fun ProductView(
     when (val productUIState = productViewModel.uiState.collectAsState().value) {
         is ProductUIState.Loading -> {
             Timber.i("Product loading showing progress indicator")
-            LinearProgressIndicator(
-                modifier = Modifier.fillMaxWidth()
-            )
+            ProgressIndicator()
         }
 
         is ProductUIState.Error -> {
@@ -76,13 +74,14 @@ fun ProductView(
         is ProductUIState.Loaded -> {
             if (productUIState.isAddingToCart) {
                 Timber.i("Product loaded, and adding to cart, showing progress indicator")
-                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                ProgressIndicator()
             }
 
             val product = productUIState.product
             Column(
                 Modifier
                     .fillMaxSize()
+                    .padding(vertical = 20.dp)
                     .verticalScroll(rememberScrollState())
             ) {
                 if (productUIState.product.image.url != "") {
@@ -92,7 +91,7 @@ fun ProductView(
                         modifier = Modifier
                             .wrapContentHeight()
                             .fillMaxWidth()
-                            .padding(vertical = 20.dp, horizontal = 10.dp)
+                            .padding(horizontal = 10.dp)
                     )
                 }
                 Column(

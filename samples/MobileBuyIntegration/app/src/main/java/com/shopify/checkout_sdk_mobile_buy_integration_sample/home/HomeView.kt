@@ -24,16 +24,15 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.home
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.ProgressIndicator
 import com.shopify.graphql.support.ID
 import org.koin.androidx.compose.koinViewModel
 
@@ -55,9 +54,7 @@ fun HomeView(
             .verticalScroll(rememberScrollState())
     ) {
         if (homeUiState == HomeUIState.Loading) {
-            LinearProgressIndicator(
-                modifier = Modifier.fillMaxWidth()
-            )
+            ProgressIndicator()
         }
 
         Hero(onClickShopAll = { homeViewModel.shopAll(navController) })
