@@ -99,7 +99,6 @@ fun CheckoutSdkAppRoot(
         ) {
             val navController = rememberNavController()
             var currentScreen by remember { mutableStateOf<Screen>(Screen.Product) }
-            var appBarState by remember { mutableStateOf(AppBarState()) }
 
             LaunchedEffect(navController) {
                 navController.currentBackStackEntryFlow.collect { backStackEntry ->
@@ -164,7 +163,6 @@ fun CheckoutSdkAppRoot(
                         startDestination = Screen.Home.route,
                         cartViewModel = cartViewModel,
                         settingsViewModel = settingsViewModel,
-                        setAppBarState = { state -> appBarState = state },
                         logsViewModel = logsViewModel,
                     )
                 }

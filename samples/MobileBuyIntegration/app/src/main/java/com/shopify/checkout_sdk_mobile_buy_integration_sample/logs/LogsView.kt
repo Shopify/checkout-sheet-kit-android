@@ -24,15 +24,13 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.logs
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,34 +39,21 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.AppBarState
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodyMedium
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.horizontalPadding
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.verticalPadding
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.details.LogDetailModal
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun LogsView(
-    logsViewModel: LogsViewModel,
-    setAppBarState: (AppBarState) -> Unit,
-) {
+fun LogsView(logsViewModel: LogsViewModel) {
     val logDetailsDialogOpen = remember { mutableStateOf(false) }
     val logDetails = remember { mutableStateOf<PrettyLog?>(null) }
 
     LaunchedEffect(key1 = true) {
-        setAppBarState(
-            AppBarState(
-                actions = {
-                    IconButton(onClick = { logsViewModel.clear() }) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = "Clear logs",
-                        )
-                    }
-                }
-            )
-        )
         logsViewModel.readLogs(last = 100)
     }
 
@@ -85,32 +70,41 @@ fun LogsView(
         }
 
         is LogState.Populated -> {
-            LazyColumn(
+            Column(
                 Modifier
                     .fillMaxSize()
                     .padding(horizontal = horizontalPadding, vertical = verticalPadding)
             ) {
-                stickyHeader {
-                    LogOverviewHeader(
-                        Modifier
-                            .background(MaterialTheme.colorScheme.background)
-                            .padding(horizontal = 8.dp, vertical = 8.dp)
-                    )
+
+                Button({
+                    logsViewModel.clear()
+                }) {
+                    BodyMedium(text = stringResource(id = R.string.delete_logs))
                 }
-                itemsIndexed(logState.logs) { index, line ->
-                    LogOverview(
-                        log = line,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                if (index % 2 == 0) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background
-                            )
-                            .padding(horizontal = 8.dp),
-                        onClick = {
-                            logDetails.value = line
-                            logDetailsDialogOpen.value = true
-                        }
-                    )
+
+                LazyColumn(Modifier.fillMaxSize()) {
+                    stickyHeader {
+                        LogOverviewHeader(
+                            Modifier
+                                .background(MaterialTheme.colorScheme.background)
+                                .padding(horizontal = 8.dp, vertical = 8.dp)
+                        )
+                    }
+                    itemsIndexed(logState.logs) { index, line ->
+                        LogOverview(
+                            log = line,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    if (index % 2 == 0) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background
+                                )
+                                .padding(horizontal = 8.dp),
+                            onClick = {
+                                logDetails.value = line
+                                logDetailsDialogOpen.value = true
+                            }
+                        )
+                    }
                 }
             }
         }

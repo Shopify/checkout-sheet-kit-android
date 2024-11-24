@@ -29,7 +29,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.AppBarState
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.MobileBuyEventProcessor
@@ -96,7 +95,6 @@ fun CheckoutSdkNavHost(
     cartViewModel: CartViewModel,
     settingsViewModel: SettingsViewModel,
     logsViewModel: LogsViewModel,
-    setAppBarState: (AppBarState) -> Unit,
     logger: Logger = koinInject<Logger>(),
 ) {
     NavHost(
@@ -137,7 +135,6 @@ fun CheckoutSdkNavHost(
         composable(Screen.Settings.route) {
             SettingsView(
                 settingsViewModel = settingsViewModel,
-                setAppBarState = setAppBarState,
                 navController = navController
             )
         }
@@ -145,7 +142,6 @@ fun CheckoutSdkNavHost(
         composable(Screen.Logs.route) {
             LogsView(
                 logsViewModel = logsViewModel,
-                setAppBarState = setAppBarState,
             )
         }
     }

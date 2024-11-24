@@ -10,6 +10,7 @@
     <string name="sdk_version" translatable="false">SDK version</string>
     <string name="sample_app_version" translatable="false">Sample app version</string>
     <string name="view_logs" translatable="false">View logs</string>
+    <string name="delete_logs" translatable="false">Delete logs</string>
     <string name="checkout_error" translatable="false">Checkout failed, please try again</string>
     <string name="checkout_web_view_title">Buy Now!</string>
     <string name="filechooser_title">Select or Capture Image</string>

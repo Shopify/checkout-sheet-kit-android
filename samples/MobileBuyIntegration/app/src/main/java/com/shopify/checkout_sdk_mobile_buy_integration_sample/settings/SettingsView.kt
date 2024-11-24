@@ -38,7 +38,6 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.AppBarState
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodyMedium
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
@@ -51,7 +50,6 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.ve
 fun SettingsView(
     settingsViewModel: SettingsViewModel,
     navController: NavHostController,
-    setAppBarState: (AppBarState) -> Unit,
 ) {
 
     when (val uiState = settingsViewModel.uiState.collectAsState().value) {
