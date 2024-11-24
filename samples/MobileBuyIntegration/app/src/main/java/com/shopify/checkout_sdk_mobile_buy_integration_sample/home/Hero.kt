@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header1
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.cooperBTFontFamily
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.horizontalPadding
 
 @Composable
 fun Hero(
@@ -74,7 +75,7 @@ fun Hero(
                     onClick = { onClickShopAll() },
                     modifier = Modifier
                         .border(width = 1.dp, color = White)
-                        .padding(horizontal = 20.dp, vertical = 5.dp)
+                        .padding(horizontal = horizontalPadding, vertical = 5.dp)
                 ) {
                     Text(
                         stringResource(id = R.string.hero_cta),

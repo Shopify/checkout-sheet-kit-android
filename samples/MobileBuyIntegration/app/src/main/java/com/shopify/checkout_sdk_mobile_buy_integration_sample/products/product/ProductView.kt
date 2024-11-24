@@ -46,6 +46,8 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.ProgressIndicator
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.QuantitySelector
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.horizontalPadding
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.verticalPadding
 import com.shopify.graphql.support.ID
 import org.koin.androidx.compose.koinViewModel
 import timber.log.Timber
@@ -81,53 +83,54 @@ fun ProductView(
             Column(
                 Modifier
                     .fillMaxSize()
-                    .padding(vertical = 20.dp)
                     .verticalScroll(rememberScrollState())
             ) {
-                if (productUIState.product.image.url != "") {
-                    RemoteImage(
-                        url = product.image.url,
-                        altText = product.image.altText,
-                        modifier = Modifier
-                            .wrapContentHeight()
-                            .fillMaxWidth()
-                            .padding(horizontal = 10.dp)
-                    )
-                }
-                Column(
-                    Modifier
-                        .fillMaxSize()
-                        .padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(15.dp)
-                ) {
-                    Header2(
-                        text = product.title
-                    )
-
-                    Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                        // TODO deal with a variable amount of variants
-                        val variant = product.variants.first()
-                        MoneyText(variant.currencyName, variant.price.toDouble())
-                        BodySmall(
-                            stringResource(id = R.string.product_taxes_included)
+                Column(modifier = Modifier.padding(vertical = verticalPadding)) {
+                    if (productUIState.product.image.url != "") {
+                        RemoteImage(
+                            url = product.image.url,
+                            altText = product.image.altText,
+                            modifier = Modifier
+                                .wrapContentHeight()
+                                .fillMaxWidth()
+                                .padding(horizontal = 10.dp)
                         )
                     }
-
-                    QuantitySelector(enabled = true, quantity = productUIState.addQuantityAmount) { quantity ->
-                        productViewModel.setAddQuantityAmount(quantity)
-                    }
-
-                    AddToCartButton(
-                        loading = productUIState.isAddingToCart,
-                        modifier = Modifier.fillMaxWidth()
+                    Column(
+                        Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = horizontalPadding, vertical = 20.dp),
+                        verticalArrangement = Arrangement.spacedBy(15.dp)
                     ) {
-                        productViewModel.addToCart()
-                    }
+                        Header2(
+                            text = product.title
+                        )
 
-                    BodyMedium(
-                        text = product.description,
-                        color = MaterialTheme.colorScheme.onBackground,
-                    )
+                        Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                            // TODO deal with a variable amount of variants
+                            val variant = product.variants.first()
+                            MoneyText(variant.currencyName, variant.price.toDouble())
+                            BodySmall(
+                                stringResource(id = R.string.product_taxes_included)
+                            )
+                        }
+
+                        QuantitySelector(enabled = true, quantity = productUIState.addQuantityAmount) { quantity ->
+                            productViewModel.setAddQuantityAmount(quantity)
+                        }
+
+                        AddToCartButton(
+                            loading = productUIState.isAddingToCart,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            productViewModel.addToCart()
+                        }
+
+                        BodyMedium(
+                            text = product.description,
+                            color = MaterialTheme.colorScheme.onBackground,
+                        )
+                    }
                 }
             }
         }

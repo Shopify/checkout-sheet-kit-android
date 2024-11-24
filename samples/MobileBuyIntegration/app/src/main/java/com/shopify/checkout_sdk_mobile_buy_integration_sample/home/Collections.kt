@@ -44,6 +44,8 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header3
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.horizontalPadding
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.verticalPadding
 
 @Composable
 fun Collections(
@@ -54,12 +56,12 @@ fun Collections(
     Column(
         Modifier
             .fillMaxHeight()
-            .padding(horizontal = 15.dp)
+            .padding(horizontal = horizontalPadding)
     ) {
         Header2(
             resourceId = R.string.collections_title,
             color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.padding(vertical = 20.dp),
+            modifier = Modifier.padding(vertical = verticalPadding),
         )
 
         if (collections.isEmpty()) {
@@ -87,7 +89,7 @@ fun Collection(
     modifier: Modifier,
 ) {
     Column(modifier = Modifier
-        .padding(bottom = 20.dp)
+        .padding(bottom = verticalPadding)
         .clickable {
             onClick(handle)
         }) {

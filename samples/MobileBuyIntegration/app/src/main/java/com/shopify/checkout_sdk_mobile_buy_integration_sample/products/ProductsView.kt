@@ -49,6 +49,8 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyText
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.ProgressIndicator
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.horizontalPadding
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.verticalPadding
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.UIProduct
 import com.shopify.graphql.support.ID
 import org.koin.androidx.compose.koinViewModel
@@ -65,9 +67,7 @@ fun ProductsView(
     val productsUIState = productsViewModel.uiState.collectAsState().value
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 0.dp),
+        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         when (productsUIState) {
@@ -82,7 +82,7 @@ fun ProductsView(
             is ProductsUIState.Loaded -> {
                 Column(
                     Modifier
-                        .padding(start = 15.dp, end = 15.dp)
+                        .padding(horizontal = horizontalPadding)
                         .fillMaxSize()
                 ) {
                     LazyVerticalGrid(
@@ -93,7 +93,7 @@ fun ProductsView(
                     ) {
                         item(span = { GridItemSpan(maxCurrentLineSpan) }) {
                             Header2(
-                                modifier = Modifier.padding(top = 20.dp),
+                                modifier = Modifier.padding(top = verticalPadding),
                                 text = stringResource(id = R.string.products_header)
                             )
                         }

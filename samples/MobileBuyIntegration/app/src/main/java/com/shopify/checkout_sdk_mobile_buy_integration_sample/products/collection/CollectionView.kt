@@ -43,6 +43,8 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.ProgressIndicator
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.horizontalPadding
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.verticalPadding
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -61,7 +63,7 @@ fun CollectionView(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(vertical = 20.dp),
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         when (collectionUIState) {
@@ -76,15 +78,18 @@ fun CollectionView(
             is CollectionUIState.Loaded -> {
                 Column(
                     Modifier
-                        .padding(start = 15.dp, end = 15.dp)
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                        .padding(horizontal = horizontalPadding, vertical = verticalPadding)
+                        .fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(verticalPadding)
                 ) {
                     val collection = collectionUIState.collection
                     Header2(text = collection.title)
                     BodyMedium(text = collection.description)
-                    RemoteImage(url = collection.image.url, altText = collection.image.altText ?: "", modifier = Modifier)
+                    RemoteImage(
+                        url = collection.image.url,
+                        altText = collection.image.altText ?: "",
+                        modifier = Modifier
+                    )
 
                     FlowRow(
                         maxItemsInEachRow = 2,

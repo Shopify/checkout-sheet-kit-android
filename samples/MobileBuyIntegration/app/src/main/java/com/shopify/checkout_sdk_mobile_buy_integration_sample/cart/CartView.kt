@@ -65,6 +65,8 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyText
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.ProgressIndicator
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.horizontalPadding
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.verticalPadding
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.graphql.support.ID
 
@@ -92,7 +94,7 @@ fun <T : DefaultCheckoutEventProcessor> CartView(
     Column(
         Modifier
             .fillMaxSize()
-            .padding(horizontal = 20.dp),
+            .padding(horizontal = horizontalPadding),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         when (state) {
@@ -144,7 +146,7 @@ private fun CartLines(
                 verticalAlignment = Alignment.Bottom,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 20.dp)
+                    .padding(vertical = verticalPadding)
             ) {
                 Header2(
                     text = stringResource(id = R.string.cart_header),
@@ -163,7 +165,7 @@ private fun CartLines(
             }
         }
         item {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(bottom = 20.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.padding(bottom = verticalPadding)) {
                 Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                     Text(
                         text = stringResource(id = R.string.cart_product_header),
@@ -188,9 +190,10 @@ private fun CartLines(
         }
         item {
             Column(
-                verticalArrangement = Arrangement.spacedBy(20.dp), modifier = Modifier
+                verticalArrangement = Arrangement.spacedBy(verticalPadding),
+                modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 20.dp)
+                    .padding(vertical = verticalPadding)
             ) {
                 HorizontalDivider()
 

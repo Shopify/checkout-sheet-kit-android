@@ -32,7 +32,11 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
+
+val horizontalPadding = 15.dp
+val verticalPadding = 20.dp
 
 private val primaryColor = Color(
     red = 37 / 255.0f,
