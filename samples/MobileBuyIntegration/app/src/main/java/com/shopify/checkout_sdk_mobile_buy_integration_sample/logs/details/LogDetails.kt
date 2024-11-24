@@ -29,16 +29,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.Logs.OVERVIEW_FONT_SIZE
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodyMedium
 
 @Composable
 fun LogDetails(header: String, message: String, modifier: Modifier) {
     Row(modifier) {
         Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
-            Text(header, fontWeight = FontWeight.Medium, fontSize = OVERVIEW_FONT_SIZE)
+            BodyMedium(text = header)
             Text(message, fontSize = 10.sp, fontFamily = FontFamily.Monospace)
         }
     }

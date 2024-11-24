@@ -44,7 +44,9 @@ fun BottomAppBarWithNavigation(
     navController: NavHostController,
     currentScreen: Screen,
 ) {
-    BottomAppBar {
+    BottomAppBar(
+        containerColor = MaterialTheme.colorScheme.background,
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly

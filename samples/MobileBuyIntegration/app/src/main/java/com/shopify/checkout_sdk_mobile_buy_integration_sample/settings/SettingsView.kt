@@ -23,25 +23,29 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.AppBarState
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodyMedium
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.ProgressIndicator
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.horizontalPadding
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.verticalPadding
 
 @Composable
 fun SettingsView(
@@ -50,78 +54,63 @@ fun SettingsView(
     setAppBarState: (AppBarState) -> Unit,
 ) {
 
-    val uiState = settingsViewModel.uiState.collectAsState().value
-
-    LaunchedEffect(key1 = true) {
-        setAppBarState(
-            AppBarState(
-                actions = {
-                    IconButton(onClick = { navController.navigate(Screen.Logs.route) }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Default.List,
-                            contentDescription = "View Logs",
-                        )
-                    }
-                }
-            )
-        )
-    }
-
-    when (uiState) {
+    when (val uiState = settingsViewModel.uiState.collectAsState().value) {
         is SettingsUiState.Loading -> {
             ProgressIndicator()
         }
 
         is SettingsUiState.Loaded -> {
-            Column {
-                PreloadingSwitch(
-                    checked = uiState.settings.preloading.enabled,
-                    onCheckedChange = settingsViewModel::setPreloadingEnabled,
-                    modifier = Modifier
-                        .background(color = MaterialTheme.colorScheme.background)
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 5.dp)
-                )
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = horizontalPadding, vertical = verticalPadding)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                Header2(text = stringResource(id = R.string.settings))
 
-                BuyerIdentityDemoSwitch(
-                    checked = uiState.settings.buyerIdentityDemoEnabled,
-                    onCheckedChange = settingsViewModel::setBuyerIdentityDemoEnabled,
-                    modifier = Modifier
-                        .background(color = MaterialTheme.colorScheme.background)
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp)
-                )
+                Column {
+                    PreloadingSwitch(
+                        checked = uiState.settings.preloading.enabled,
+                        onCheckedChange = settingsViewModel::setPreloadingEnabled,
+                        modifier = Modifier
+                            .background(color = MaterialTheme.colorScheme.background)
+                            .fillMaxWidth()
+                    )
 
-                Spacer(
-                    Modifier.height(20.dp)
-                )
+                    BuyerIdentityDemoSwitch(
+                        checked = uiState.settings.buyerIdentityDemoEnabled,
+                        onCheckedChange = settingsViewModel::setBuyerIdentityDemoEnabled,
+                        modifier = Modifier
+                            .background(color = MaterialTheme.colorScheme.background)
+                            .fillMaxWidth()
+                    )
+                }
 
                 ColorSchemeSection(
                     selected = uiState.settings.colorScheme,
                     setSelected = settingsViewModel::setColorScheme
                 )
 
-                Spacer(
-                    Modifier.height(20.dp)
-                )
-
                 Version(
-                    title = "SDK Version",
+                    title = stringResource(id = R.string.sdk_version),
                     version = uiState.sdkVersion,
-                    modifier = Modifier
-                        .background(color = MaterialTheme.colorScheme.background)
-                        .padding(horizontal = 20.dp, vertical = 20.dp)
-                        .fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                 )
 
                 Version(
-                    title = "Sample App Version",
+                    title = stringResource(id = R.string.sample_app_version),
                     version = uiState.sampleAppVersion,
-                    modifier = Modifier
-                        .background(color = MaterialTheme.colorScheme.background)
-                        .padding(horizontal = 20.dp, vertical = 20.dp)
-                        .fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                 )
+                Button(
+                    onClick = { navController.navigate(Screen.Logs.route) },
+                    shape = RectangleShape,
+                ) {
+                    BodyMedium(
+                        text = stringResource(id = R.string.view_logs),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                    )
+                }
             }
         }
     }

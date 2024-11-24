@@ -24,16 +24,15 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings
 
 import android.support.annotation.StringRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,11 +40,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.intl.Locale
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodyMedium
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodySmall
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header3
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.verticalPadding
 import com.shopify.checkoutsheetkit.Color
 import com.shopify.checkoutsheetkit.ColorScheme
 import com.shopify.checkoutsheetkit.Colors
@@ -56,79 +56,65 @@ fun ColorSchemeSection(
     setSelected: (ColorScheme) -> Unit,
 ) {
 
-    val horizontalPadding = 20.dp
+    Column {
+        Header3(text = stringResource(id = R.string.color_scheme))
 
-    Text(
-        "Color Scheme".uppercase(),
-        color = MaterialTheme.colorScheme.onBackground,
-        fontSize = 12.sp,
-        modifier = Modifier.padding(
-            top = 18.dp,
-            bottom = 8.dp,
-            start = horizontalPadding,
-            end = horizontalPadding
-        ),
-    )
+        Column(
+            modifier = Modifier
+                .selectableGroup()
+                .padding(vertical = verticalPadding),
+            verticalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
 
-    Column(modifier = Modifier.selectableGroup()) {
+            val optionModifier = Modifier
+                .background(color = MaterialTheme.colorScheme.background)
+                .fillMaxWidth()
 
-        val optionModifier = Modifier
-            .background(color = MaterialTheme.colorScheme.background)
-            .fillMaxWidth()
-            .padding(vertical = 14.dp, horizontal = horizontalPadding)
+            ColorSchemeOption(
+                colorScheme = ColorScheme.Automatic(),
+                description = "Applies a color scheme in checkout based on device preferences",
+                selected = selected,
+                setSelected = setSelected,
+                modifier = optionModifier,
+            )
 
-        ColorSchemeOption(
-            colorScheme = ColorScheme.Automatic(),
-            description = "Applies a color scheme in checkout based on device preferences",
-            selected = selected,
-            setSelected = setSelected,
-            modifier = optionModifier,
-        )
+            ColorSchemeOption(
+                colorScheme = ColorScheme.Light(),
+                description = "Applies a light color scheme to checkout",
+                selected = selected,
+                setSelected = setSelected,
+                modifier = optionModifier
+            )
 
-        HorizontalDivider(thickness = Dp.Hairline)
+            ColorSchemeOption(
+                colorScheme = ColorScheme.Dark(),
+                selected = selected,
+                description = "Applies a dark color scheme to checkout",
+                setSelected = setSelected,
+                modifier = optionModifier,
+            )
 
-        ColorSchemeOption(
-            colorScheme = ColorScheme.Light(),
-            description = "Applies a light color scheme to checkout",
-            selected = selected,
-            setSelected = setSelected,
-            modifier = optionModifier
-        )
+            ColorSchemeOption(
+                colorScheme = ColorScheme.Web(
+                    colors = Colors(
+                        headerBackground = Color.ResourceId(R.color.header_bg),
+                        webViewBackground = Color.ResourceId(R.color.web_view_bg),
+                        headerFont = Color.ResourceId(R.color.header_font),
+                        progressIndicator = Color.ResourceId(R.color.bright_progress_indicator),
+                    )
+                ),
+                description = "Applies a color scheme in checkout based on the current checkout web configuration",
+                selected = selected,
+                setSelected = setSelected,
+                modifier = optionModifier,
+            )
+        }
 
-        HorizontalDivider(thickness = Dp.Hairline)
-
-        ColorSchemeOption(
-            colorScheme = ColorScheme.Dark(),
-            selected = selected,
-            description = "Applies a dark color scheme to checkout",
-            setSelected = setSelected,
-            modifier = optionModifier,
-        )
-
-        HorizontalDivider(thickness = Dp.Hairline)
-
-        ColorSchemeOption(
-            colorScheme = ColorScheme.Web(
-                colors = Colors(
-                    headerBackground = Color.ResourceId(R.color.header_bg),
-                    webViewBackground = Color.ResourceId(R.color.web_view_bg),
-                    headerFont = Color.ResourceId(R.color.header_font),
-                    progressIndicator = Color.ResourceId(R.color.bright_progress_indicator),
-                )
-            ),
-            description = "Applies a color scheme in checkout based on the current checkout web configuration",
-            selected = selected,
-            setSelected = setSelected,
-            modifier = optionModifier,
-        )
-    }
-
-    Column(Modifier.padding(vertical = 8.dp, horizontal = horizontalPadding)) {
-        Text(
-            "NOTE: If preloading is enabled, color scheme changes may not be applied unless the cart is preloaded again.",
-            color = MaterialTheme.colorScheme.onBackground,
-            fontSize = 12.sp,
-        )
+        Column(Modifier.padding(vertical = 8.dp)) {
+            BodySmall(
+                stringResource(R.string.preloading_note),
+            )
+        }
     }
 }
 
@@ -155,8 +141,8 @@ fun ColorSchemeOption(
             onClick = null,
             modifier = Modifier.semantics { contentDescription = description }
         )
-        Text(
-            stringResource(id = colorScheme.name).capitalize(),
+        BodyMedium(
+            stringResource(id = colorScheme.name),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 4.dp)
@@ -170,14 +156,4 @@ private val ColorScheme.name: Int
         is ColorScheme.Dark -> R.string.color_scheme_dark
         is ColorScheme.Web -> R.string.color_scheme_web
         is ColorScheme.Automatic -> R.string.color_scheme_automatic
-    }
-
-// kotlin stdlib capitalize is deprecated
-private fun String.capitalize() =
-    this.replaceFirstChar { char ->
-        if (char.isLowerCase()) char.titlecase(
-            java.util.Locale(
-                Locale.current.toLanguageTag()
-            )
-        ) else char.toString()
     }

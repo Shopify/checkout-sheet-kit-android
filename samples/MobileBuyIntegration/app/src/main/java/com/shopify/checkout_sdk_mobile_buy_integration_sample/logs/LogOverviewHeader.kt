@@ -23,15 +23,14 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.logs
 
 import androidx.compose.foundation.layout.Row
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header3
 
 @Composable
 fun LogOverviewHeader(modifier: Modifier) {
     Row(modifier) {
-        Text(text = "Date", color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(Logs.DATE_COLUMN_WEIGHT))
-        Text(text = "Type", color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(Logs.MESSAGE_COLUMN_WEIGHT))
+        Header3(text = "Date", modifier = Modifier.weight(Logs.DATE_COLUMN_WEIGHT))
+        Header3(text = "Type", modifier = Modifier.weight(Logs.MESSAGE_COLUMN_WEIGHT))
     }
 }

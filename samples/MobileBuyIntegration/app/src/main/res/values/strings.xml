@@ -1,35 +1,41 @@
 <resources>
     <string name="app_name" translatable="false">Checkout SDK Mobile Buy Integration Sample</string>
+    <string name="settings" translatable="false">Settings</string>
+    <string name="color_scheme" translatable="false">Color Scheme</string>
     <string name="color_scheme_light" translatable="false">Light</string>
     <string name="color_scheme_dark" translatable="false">Dark</string>
     <string name="color_scheme_web" translatable="false">Web</string>
     <string name="color_scheme_automatic" translatable="false">Automatic</string>
+    <string name="preloading_note" translatable="false">NOTE: If preloading is enabled, color scheme changes may not be applied unless the cart is preloaded again.</string>
+    <string name="sdk_version" translatable="false">SDK version</string>
+    <string name="sample_app_version" translatable="false">Sample app version</string>
+    <string name="view_logs" translatable="false">View logs</string>
     <string name="checkout_error" translatable="false">Checkout failed, please try again</string>
     <string name="checkout_web_view_title">Buy Now!</string>
     <string name="filechooser_title">Select or Capture Image</string>
-    <string name="logo_content_description">Store logo</string>
-    <string name="cart_icon_content_description">Go to cart icon</string>
-    <string name="hero_text">Stylish Plants for Modern Living</string>
-    <string name="hero_content_description">Image of living room with lots of plants</string>
-    <string name="hero_cta">Shop all</string>
-    <string name="collections_title">Collections</string>
-    <string name="collection_img_alt_default">Collection image</string>
-    <string name="collection_cta_content_description">View collection></string>
-    <string name="collections_no_collections_configured">No collections configured</string>
-    <string name="featured_title">Featured Plants</string>
-    <string name="featured_default_alt_text">Featured plant image</string>
-    <string name="product_taxes_included">Taxes included</string>
-    <string name="products_header">Products</string>
-    <string name="product_add_to_cart">Add to cart</string>
-    <string name="cart_header">Your cart</string>
-    <string name="cart_continue_shopping">Continue shopping</string>
-    <string name="cart_estimated_total">Estimated total</string>
-    <string name="cart_total">Total</string>
-    <string name="cart_taxes_included">Taxes included. Discounts and shipping calculated at checkout.</string>
-    <string name="cart_product_header">PRODUCT</string>
-    <string name="cart_total_header">TOTAL</string>
-    <string name="cart_checkout">Check out</string>
-    <string name="cart_empty">Your cart is empty</string>
-    <string name="cart_emtpy_description">Add products while you shop, so they\'ll be ready for checkout later.</string>
-    <string name="cart_trash_content_description">Delete line item</string>
+    <string name="logo_content_description" translatable="false">Store logo</string>
+    <string name="cart_icon_content_description" translatable="false">Go to cart icon</string>
+    <string name="hero_text" translatable="false">Stylish Plants for Modern Living</string>
+    <string name="hero_content_description" translatable="false">Image of living room with lots of plants</string>
+    <string name="hero_cta" translatable="false">Shop all</string>
+    <string name="collections_title" translatable="false">Collections</string>
+    <string name="collection_img_alt_default" translatable="false">Collection image</string>
+    <string name="collection_cta_content_description" translatable="false">View collection></string>
+    <string name="collections_no_collections_configured" translatable="false">No collections configured</string>
+    <string name="featured_title" translatable="false">Featured Plants</string>
+    <string name="featured_default_alt_text" translatable="false">Featured plant image</string>
+    <string name="product_taxes_included" translatable="false">Taxes included</string>
+    <string name="products_header" translatable="false">Products</string>
+    <string name="product_add_to_cart" translatable="false">Add to cart</string>
+    <string name="cart_header" translatable="false">Your cart</string>
+    <string name="cart_continue_shopping" translatable="false">Continue shopping</string>
+    <string name="cart_estimated_total" translatable="false">Estimated total</string>
+    <string name="cart_total" translatable="false">Total</string>
+    <string name="cart_taxes_included" translatable="false">Taxes included. Discounts and shipping calculated at checkout.</string>
+    <string name="cart_product_header" translatable="false">PRODUCT</string>
+    <string name="cart_total_header" translatable="false">TOTAL</string>
+    <string name="cart_checkout" translatable="false">Check out</string>
+    <string name="cart_empty" translatable="false">Your cart is empty</string>
+    <string name="cart_emtpy_description" translatable="false">Add products while you shop, so they\'ll be ready for checkout later.</string>
+    <string name="cart_trash_content_description" translatable="false">Delete line item</string>
 </resources>

@@ -24,7 +24,6 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.logs
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -43,8 +42,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.AppBarState
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.horizontalPadding
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.verticalPadding
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.details.LogDetailModal
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -88,7 +88,7 @@ fun LogsView(
             LazyColumn(
                 Modifier
                     .fillMaxSize()
-                    .padding(PaddingValues(top = 0.dp, end = 0.dp, bottom = 12.dp, start = 0.dp))
+                    .padding(horizontal = horizontalPadding, vertical = verticalPadding)
             ) {
                 stickyHeader {
                     LogOverviewHeader(
@@ -121,5 +121,4 @@ object Logs {
     const val DATE_FORMAT = "dd/MM/yy HH:mm:ss"
     const val DATE_COLUMN_WEIGHT = 0.25f
     const val MESSAGE_COLUMN_WEIGHT = 0.75f
-    val OVERVIEW_FONT_SIZE = 12.sp
 }
