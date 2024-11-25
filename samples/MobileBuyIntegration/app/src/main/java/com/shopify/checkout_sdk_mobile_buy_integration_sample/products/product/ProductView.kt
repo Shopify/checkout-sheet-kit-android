@@ -83,6 +83,7 @@ fun ProductView(
             Column(
                 Modifier
                     .fillMaxSize()
+                    .padding(top = 4.dp)
                     .verticalScroll(rememberScrollState())
             ) {
                 Column(modifier = Modifier.padding(vertical = verticalPadding)) {

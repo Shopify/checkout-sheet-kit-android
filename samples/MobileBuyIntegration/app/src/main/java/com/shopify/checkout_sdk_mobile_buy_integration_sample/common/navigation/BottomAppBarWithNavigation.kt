@@ -68,7 +68,7 @@ fun BottomAppBarWithNavigation(
             NavigationItem(
                 navController,
                 Screen.Settings,
-                ImageVector.vectorResource(R.drawable.settings),
+                ImageVector.vectorResource(R.drawable.profile),
                 "Settings",
                 currentScreen,
             )

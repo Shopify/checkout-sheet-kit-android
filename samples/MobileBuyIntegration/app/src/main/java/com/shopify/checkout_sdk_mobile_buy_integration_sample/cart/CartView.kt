@@ -107,22 +107,24 @@ fun <T : DefaultCheckoutEventProcessor> CartView(
                     it.title to it.quantity
                 }
 
-                CartLines(
-                    lines = state.cartLines,
-                    loading = loading,
-                    modifyLineItem = cartViewModel::modifyLineItem,
-                    continueShopping = { cartViewModel.continueShopping(navController) },
-                    checkout = {
-                        cartViewModel.presentCheckout(
-                            state.checkoutUrl,
-                            activity,
-                            checkoutEventProcessor
-                        )
-                    },
-                    totalAmount = state.cartTotals.totalAmount,
-                    totalAmountEstimated = state.cartTotals.totalAmountEstimated,
-                    modifier = Modifier.weight(1f, false),
-                )
+                Column(modifier = Modifier.padding(top = 4.dp)) {
+                    CartLines(
+                        lines = state.cartLines,
+                        loading = loading,
+                        modifyLineItem = cartViewModel::modifyLineItem,
+                        continueShopping = { cartViewModel.continueShopping(navController) },
+                        checkout = {
+                            cartViewModel.presentCheckout(
+                                state.checkoutUrl,
+                                activity,
+                                checkoutEventProcessor
+                            )
+                        },
+                        totalAmount = state.cartTotals.totalAmount,
+                        totalAmountEstimated = state.cartTotals.totalAmountEstimated,
+                        modifier = Modifier.weight(1f, false),
+                    )
+                }
             }
         }
     }
