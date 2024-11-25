@@ -23,8 +23,11 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.di
 
 import android.app.Application
+import android.util.LruCache
 import androidx.room.Room
+import com.shopify.buy3.GraphCallResult
 import com.shopify.buy3.GraphClient
+import com.shopify.buy3.Storefront
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.BuildConfig
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontClient
@@ -65,6 +68,11 @@ val appModules = module {
             accessToken = BuildConfig.storefrontAccessToken,
             shopDomain = BuildConfig.storefrontDomain
         )
+    }
+
+    single {
+        val maxEntries = 100
+        LruCache<String, GraphCallResult.Success<Storefront.QueryRoot>>(maxEntries)
     }
 
     single {

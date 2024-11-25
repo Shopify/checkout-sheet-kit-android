@@ -24,82 +24,20 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.products
 
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
-import com.shopify.buy3.Storefront
-import com.shopify.buy3.Storefront.ProductConnection
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.ProductPagingSource
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.UIProduct
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.UIProductImage
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.UIProductVariant
 import com.shopify.graphql.support.ID
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import timber.log.Timber
 
 class ProductsViewModel(
-    private val client: StorefrontClient
+    client: StorefrontClient
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<ProductsUIState>(ProductsUIState.Loading)
-    val uiState: StateFlow<ProductsUIState> = _uiState.asStateFlow()
-
-    // TODO pagination
-    fun fetchProducts() {
-        Timber.i("Fetching products")
-        client.fetchProducts(
-            numProducts = 20,
-            numVariants = 1,
-            successCallback = {
-                Timber.i("Fetching products complete")
-                val productConnection = it.data?.products as ProductConnection
-                val uiProducts = buildProducts(productConnection)
-                Timber.i("Fetched products")
-                _uiState.value =
-                    ProductsUIState.Loaded(products = uiProducts)
-            },
-            failureCallback = { error ->
-                Timber.e("Fetching products failed $error")
-                _uiState.value = ProductsUIState.Error(error.message ?: "Unknown error")
-            }
-        )
-    }
+    val pagingSource = ProductPagingSource(client)
 
     fun productClicked(navController: NavController, productId: ID) {
         Timber.i("Navigation to product description page for $productId")
         navController.navigate(Screen.Product.route(productId.toString()))
     }
-
-    private fun buildProducts(productConnection: ProductConnection): List<UIProduct> {
-        Timber.i("Mapping ${productConnection.nodes.size} fetched products")
-        return productConnection.nodes.map { product ->
-            val variants = product.variants as Storefront.ProductVariantConnection
-            val firstVariant = variants.nodes.first()
-            UIProduct(
-                id = product.id,
-                title = product.title,
-                vendor = product.vendor,
-                description = product.description,
-                image = if (product.featuredImage == null) UIProductImage() else UIProductImage(
-                    width = product.featuredImage.width,
-                    height = product.featuredImage.height,
-                    url = product.featuredImage.url,
-                    altText = product.featuredImage.altText ?: "Product image",
-                ),
-                variants = mutableListOf(
-                    UIProductVariant(
-                        id = firstVariant.id,
-                        price = firstVariant.price.amount,
-                        currencyName = firstVariant.price.currencyCode.name,
-                    )
-                )
-            )
-        }
-    }
-}
-
-sealed class ProductsUIState {
-    data object Loading : ProductsUIState()
-    data class Error(val error: String) : ProductsUIState()
-    data class Loaded(val products: List<UIProduct>) : ProductsUIState()
 }

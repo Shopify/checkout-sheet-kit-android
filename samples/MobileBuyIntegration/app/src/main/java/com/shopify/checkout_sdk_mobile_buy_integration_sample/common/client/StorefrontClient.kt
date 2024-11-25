@@ -22,6 +22,7 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client
 
+import android.util.LruCache
 import com.shopify.buy3.GraphCallResult
 import com.shopify.buy3.GraphClient
 import com.shopify.buy3.GraphError
@@ -39,8 +40,13 @@ import com.shopify.buy3.Storefront.ProductVariantQuery
 import com.shopify.buy3.Storefront.QueryRootQuery
 import com.shopify.graphql.support.ID
 import com.shopify.graphql.support.Input
+import timber.log.Timber
+import java.security.MessageDigest
 
-class StorefrontClient(private val client: GraphClient) {
+class StorefrontClient(
+    private val client: GraphClient,
+    private val lruCache: LruCache<String, GraphCallResult.Success<Storefront.QueryRoot>>,
+) {
     fun fetchCollection(
         handle: String,
         numProducts: Int,
@@ -90,13 +96,20 @@ class StorefrontClient(private val client: GraphClient) {
     fun fetchProducts(
         numProducts: Int,
         numVariants: Int,
+        cursor: String? = null,
         successCallback: (GraphResponse<Storefront.QueryRoot>) -> Unit,
         failureCallback: ((GraphError) -> Unit)? = {},
     ) {
         val query = Storefront.query { query ->
-            query.products({ it.first(numProducts) }) { productConnection ->
-                productConnection.nodes { product ->
-                    productFragment(product, numVariants)
+            query.products({ it.first(numProducts).after(cursor) }) { productConnection ->
+                productConnection.edges { edges ->
+                    edges.node { product ->
+                        productFragment(product, numVariants)
+                    }
+                }
+                productConnection.pageInfo { pageInfo ->
+                    pageInfo.startCursor()
+                    pageInfo.endCursor()
                 }
             }
         }
@@ -282,14 +295,23 @@ class StorefrontClient(private val client: GraphClient) {
         successCallback: (GraphResponse<Storefront.QueryRoot>) -> Unit,
         failureCallback: ((GraphError) -> Unit)?,
     ) {
-        client.queryGraph(query).enqueue { it: GraphCallResult<Storefront.QueryRoot> ->
-            when (it) {
-                is GraphCallResult.Success -> {
-                    successCallback(it.response)
-                }
 
-                is GraphCallResult.Failure -> {
-                    failureCallback?.invoke(it.error)
+        val cachedResponse = lruCache.get(query.cacheKey())
+        if (cachedResponse != null) {
+            Timber.i("Returning cached response")
+            successCallback(cachedResponse.response)
+        } else {
+            Timber.i("No cached response, sending new request")
+            client.queryGraph(query).enqueue { it: GraphCallResult<Storefront.QueryRoot> ->
+                when (it) {
+                    is GraphCallResult.Success -> {
+                        lruCache.put(query.cacheKey(), it)
+                        successCallback(it.response)
+                    }
+
+                    is GraphCallResult.Failure -> {
+                        failureCallback?.invoke(it.error)
+                    }
                 }
             }
         }
@@ -311,5 +333,12 @@ class StorefrontClient(private val client: GraphClient) {
                 }
             }
         }
+    }
+
+    @OptIn(ExperimentalStdlibApi::class)
+    private fun QueryRootQuery.cacheKey(): String {
+        val md = MessageDigest.getInstance("MD5")
+        val digest = md.digest(this.toString().toByteArray())
+        return digest.toHexString()
     }
 }
