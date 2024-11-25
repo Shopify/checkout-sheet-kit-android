@@ -37,6 +37,9 @@ import androidx.core.view.WindowCompat
 
 val horizontalPadding = 15.dp
 val verticalPadding = 20.dp
+val largeScreenBreakpoint = 600.dp
+val defaultProductImageHeight = 250.dp
+val defaultProductImageHeightLg = 500.dp
 
 private val primaryColor = Color(
     red = 37 / 255.0f,

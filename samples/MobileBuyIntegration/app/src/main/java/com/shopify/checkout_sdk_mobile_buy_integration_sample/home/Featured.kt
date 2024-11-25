@@ -38,6 +38,8 @@ import androidx.compose.ui.unit.dp
 import com.shopify.buy3.Storefront
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header3
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.defaultProductImageHeight
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.defaultProductImageHeightLg
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.CollectionProduct
 import com.shopify.graphql.support.ID
 
@@ -45,7 +47,8 @@ import com.shopify.graphql.support.ID
 @Composable
 fun Featured(
     featured: List<Storefront.Product>,
-    imageHeight: Dp = 250.dp,
+    imageHeight: Dp = defaultProductImageHeight,
+    imageHeightLg: Dp = defaultProductImageHeightLg,
     verticalPadding: Dp = 30.dp,
     verticalSpacing: Dp = 30.dp,
     horizontalSpacing: Dp = 5.dp,
@@ -78,6 +81,7 @@ fun Featured(
                     CollectionProduct(
                         product = featuredProduct,
                         imageHeight = imageHeight,
+                        imageHeightLg = imageHeightLg,
                         onProductClick = onProductClick
                     )
                 }

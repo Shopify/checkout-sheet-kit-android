@@ -24,6 +24,7 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.products
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -49,7 +50,10 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyText
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.ProgressIndicator
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.defaultProductImageHeight
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.defaultProductImageHeightLg
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.horizontalPadding
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.largeScreenBreakpoint
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.verticalPadding
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.UIProduct
 import com.shopify.graphql.support.ID
@@ -85,32 +89,38 @@ fun ProductsView(
                         .padding(horizontal = horizontalPadding)
                         .fillMaxSize()
                 ) {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(30.dp),
-                        horizontalArrangement = Arrangement.spacedBy(5.dp)
-                    ) {
-                        item(span = { GridItemSpan(maxCurrentLineSpan) }) {
-                            Header2(
-                                modifier = Modifier.padding(top = verticalPadding),
-                                text = stringResource(id = R.string.products_header)
-                            )
-                        }
+                    BoxWithConstraints {
+                        val largeScreen = maxWidth >= largeScreenBreakpoint
 
-                        items(productsUIState.products.size) { i ->
-                            Product(
-                                product = productsUIState.products[i],
-                                imageHeight = 250.dp,
-                                onProductClick = { productId ->
-                                    productsViewModel.productClicked(navController, productId)
-                                }
-                            )
+
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(2),
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.spacedBy(30.dp),
+                            horizontalArrangement = Arrangement.spacedBy(5.dp)
+                        ) {
+                            item(span = { GridItemSpan(maxCurrentLineSpan) }) {
+                                Header2(
+                                    modifier = Modifier.padding(top = verticalPadding),
+                                    text = stringResource(id = R.string.products_header)
+                                )
+                            }
+
+                            items(productsUIState.products.size) { i ->
+                                Product(
+                                    product = productsUIState.products[i],
+                                    imageHeight = if (largeScreen) defaultProductImageHeightLg else defaultProductImageHeight,
+                                    onProductClick = { productId ->
+                                        productsViewModel.productClicked(navController, productId)
+                                    }
+                                )
+                            }
                         }
                     }
                 }
             }
         }
+
     }
 }
 
@@ -142,4 +152,5 @@ fun Product(
             color = MaterialTheme.colorScheme.onBackground,
         )
     }
+
 }

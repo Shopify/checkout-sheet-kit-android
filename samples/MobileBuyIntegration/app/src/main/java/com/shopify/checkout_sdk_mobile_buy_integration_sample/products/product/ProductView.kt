@@ -23,6 +23,7 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,6 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -47,6 +49,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.QuantitySelector
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.horizontalPadding
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.largeScreenBreakpoint
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.verticalPadding
 import com.shopify.graphql.support.ID
 import org.koin.androidx.compose.koinViewModel
@@ -88,14 +91,23 @@ fun ProductView(
             ) {
                 Column(modifier = Modifier.padding(vertical = verticalPadding)) {
                     if (productUIState.product.image.url != "") {
-                        RemoteImage(
-                            url = product.image.url,
-                            altText = product.image.altText,
-                            modifier = Modifier
+                        BoxWithConstraints(
+                            Modifier.align(Alignment.CenterHorizontally)
+                        ) {
+                            val modifier = Modifier
                                 .wrapContentHeight()
-                                .fillMaxWidth()
                                 .padding(horizontal = 10.dp)
-                        )
+                            RemoteImage(
+                                url = product.image.url,
+                                altText = product.image.altText,
+                                modifier = if (maxWidth < largeScreenBreakpoint) {
+                                    modifier.fillMaxWidth()
+                                } else {
+                                    modifier.fillMaxWidth(.7f)
+                                }
+                            )
+                        }
+
                     }
                     Column(
                         Modifier

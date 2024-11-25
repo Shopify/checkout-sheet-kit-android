@@ -24,6 +24,7 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.cart
 
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -46,6 +47,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyText
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.QuantitySelector
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.largeScreenBreakpoint
 import com.shopify.graphql.support.ID
 
 @Composable
@@ -54,27 +56,27 @@ fun CartItem(
     loading: Boolean,
     modifyLineItem: (ID, Int?) -> Unit,
 ) {
-    Row(
-        horizontalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(142.dp)
-            .padding(vertical = 10.dp)
-    ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+    BoxWithConstraints {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(if (maxWidth < largeScreenBreakpoint) 142.dp else 300.dp)
+                .padding(vertical = 10.dp)
+        ) {
             RemoteImage(
                 url = cartLine.imageURL,
                 altText = cartLine.imageAltText,
                 modifier = Modifier
-                    .fillMaxWidth(0.3f)
-                    .fillMaxHeight()
+                    .weight(1f)
+                    .fillMaxHeight(.95f)
             )
 
             Column(
                 verticalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
                     .fillMaxHeight()
-                    .fillMaxWidth(.7f)
+                    .padding(horizontal = 20.dp)
+                    .weight(2f)
             ) {
                 Column {
                     Text(
@@ -94,25 +96,27 @@ fun CartItem(
                     modifyLineItem(cartLine.id, quantity)
                 }
             }
-        }
 
-        Column(
-            Modifier.fillMaxHeight(),
-            horizontalAlignment = Alignment.End,
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            MoneyText(
-                currency = cartLine.totalCurrency,
-                price = cartLine.totalPrice,
-                includeSuffix = false,
-            )
-            IconButton(
-                onClick = { modifyLineItem(cartLine.id, null) },
+            Column(
+                Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.trash_can),
-                    contentDescription = stringResource(id = R.string.cart_trash_content_description),
+                MoneyText(
+                    currency = cartLine.totalCurrency,
+                    price = cartLine.totalPrice,
+                    includeSuffix = false,
                 )
+                IconButton(
+                    onClick = { modifyLineItem(cartLine.id, null) },
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.trash_can),
+                        contentDescription = stringResource(id = R.string.cart_trash_content_description),
+                    )
+                }
             }
         }
     }

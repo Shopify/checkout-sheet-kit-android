@@ -24,6 +24,7 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collecti
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -41,39 +42,48 @@ import com.shopify.buy3.Storefront
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyText
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.defaultProductImageHeight
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.defaultProductImageHeightLg
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.largeScreenBreakpoint
 import com.shopify.graphql.support.ID
 
 @Composable
 fun CollectionProduct(
     product: Storefront.Product,
-    imageHeight: Dp,
     onProductClick: (id: ID) -> Unit,
     textColor: Color = MaterialTheme.colorScheme.onPrimary,
+    imageHeight: Dp = defaultProductImageHeight,
+    imageHeightLg: Dp = defaultProductImageHeightLg,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier
-        .fillMaxWidth(.49f)
-        .clickable {
-            onProductClick(product.id)
-        }) {
-        RemoteImage(
-            url = product.featuredImage.url,
-            altText = product.featuredImage.altText ?: stringResource(id = R.string.featured_default_alt_text),
-            modifier = Modifier
-                .height(imageHeight)
-                .align(Alignment.CenterHorizontally),
-        )
-        Text(
-            text = product.title,
-            style = MaterialTheme.typography.bodyMedium,
-            color = textColor,
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 1,
-        )
-        MoneyText(
-            currency = product.priceRange.maxVariantPrice.currencyCode.name,
-            price = product.priceRange.maxVariantPrice.amount.toDouble(),
-            style = MaterialTheme.typography.bodyMedium,
-            color = textColor,
-        )
+    BoxWithConstraints {
+        val largeScreen = maxWidth >= largeScreenBreakpoint
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier
+            .fillMaxWidth(.49f)
+            .clickable {
+                onProductClick(product.id)
+            }) {
+
+            RemoteImage(
+                url = product.featuredImage.url,
+                altText = product.featuredImage.altText ?: stringResource(id = R.string.featured_default_alt_text),
+                modifier = Modifier
+                    .height(if (largeScreen) imageHeightLg else imageHeight)
+                    .align(Alignment.CenterHorizontally),
+            )
+
+            Text(
+                text = product.title,
+                style = MaterialTheme.typography.bodyMedium,
+                color = textColor,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
+            )
+            MoneyText(
+                currency = product.priceRange.maxVariantPrice.currencyCode.name,
+                price = product.priceRange.maxVariantPrice.amount.toDouble(),
+                style = MaterialTheme.typography.bodyMedium,
+                color = textColor,
+            )
+        }
     }
 }

@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -61,16 +62,14 @@ fun CollectionView(
     LaunchedEffect(key1 = true) {
         collectionViewModel.fetchCollection(collectionHandle)
     }
-
-    val collectionUIState = collectionViewModel.uiState.collectAsState().value
-
+    
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        when (collectionUIState) {
+        when (val collectionUIState = collectionViewModel.uiState.collectAsState().value) {
             is CollectionUIState.Loading -> {
                 ProgressIndicator()
             }
@@ -93,7 +92,7 @@ fun CollectionView(
                         RemoteImage(
                             url = collection.image.url,
                             altText = collection.image.altText ?: "",
-                            modifier = Modifier
+                            modifier = Modifier.fillMaxWidth()
                         )
                     } else {
                         Image(
@@ -112,7 +111,6 @@ fun CollectionView(
                         collection.products.nodes.forEach { collectionProduct ->
                             CollectionProduct(
                                 product = collectionProduct,
-                                imageHeight = 250.dp,
                                 textColor = MaterialTheme.colorScheme.onBackground,
                                 onProductClick = { productId -> collectionViewModel.productSelected(navController, productId) }
                             )
@@ -122,5 +120,4 @@ fun CollectionView(
             }
         }
     }
-
 }

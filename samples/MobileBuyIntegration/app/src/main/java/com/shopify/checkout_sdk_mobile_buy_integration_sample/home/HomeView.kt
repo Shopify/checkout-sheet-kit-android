@@ -61,7 +61,7 @@ fun HomeView(
 
         when (homeUiState) {
             is HomeUIState.Loading -> {
-                // Do nothing, Linear Progress Indicator appears above hero
+                // Do nothing, ProgressIndicator appears above hero
             }
 
             is HomeUIState.Error -> {
