@@ -44,7 +44,7 @@ fun QuantitySelector(
         TextButton(
             modifier = Modifier.width(40.dp),
             enabled = enabled,
-            onClick = { setQuantity(quantity - 1) }) {
+            onClick = { if (quantity > 1) setQuantity(quantity - 1) }) {
             Text("-")
         }
         Text(
