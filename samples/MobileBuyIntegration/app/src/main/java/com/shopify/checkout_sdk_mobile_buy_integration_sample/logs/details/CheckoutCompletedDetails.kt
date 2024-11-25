@@ -24,7 +24,7 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.details
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
@@ -41,7 +41,7 @@ fun CheckoutCompletedDetails(
         message = prettyJson.encodeDataToString(event),
         modifier = Modifier
             .fillMaxWidth()
-            .background(color = MaterialTheme.colors.surface)
+            .background(color = MaterialTheme.colorScheme.surface)
     )
 }
 

@@ -22,16 +22,25 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -40,9 +49,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.totalQuantity
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.BottomAppBarWithNavigation
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.CheckoutSdkNavHost
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
@@ -53,7 +66,9 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsV
 import com.shopify.checkoutsheetkit.ColorScheme
 import org.koin.androidx.compose.KoinAndroidContext
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.annotation.KoinExperimentalAPI
 
+@OptIn(KoinExperimentalAPI::class)
 @Composable
 fun CheckoutSdkApp() {
     KoinAndroidContext {
@@ -65,6 +80,7 @@ fun CheckoutSdkApp() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CheckoutSdkAppRoot(
     settingsViewModel: SettingsViewModel,
@@ -74,13 +90,15 @@ fun CheckoutSdkAppRoot(
     val useDarkTheme = settingsViewModel.uiState.collectAsState().value
         .isDarkTheme(isSystemInDarkTheme())
 
+    val cartState = cartViewModel.cartState.collectAsState()
+    val totalQuantity = cartState.value.totalQuantity
+
     CheckoutSdkSampleTheme(darkTheme = useDarkTheme) {
         Surface(
             modifier = Modifier.fillMaxSize(),
         ) {
             val navController = rememberNavController()
             var currentScreen by remember { mutableStateOf<Screen>(Screen.Product) }
-            var appBarState by remember { mutableStateOf(AppBarState()) }
 
             LaunchedEffect(navController) {
                 navController.currentBackStackEntryFlow.collect { backStackEntry ->
@@ -92,13 +110,43 @@ fun CheckoutSdkAppRoot(
 
             Scaffold(
                 topBar = {
-                    TopAppBar(
-                        backgroundColor = MaterialTheme.colors.background,
+                    CenterAlignedTopAppBar(
+                        modifier = Modifier,
+                        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.background
+                        ),
                         title = {
-                            Text(appBarState.title, fontWeight = FontWeight.SemiBold)
+                            Image(
+                                modifier = Modifier.height(38.dp),
+                                contentScale = ContentScale.FillHeight,
+                                painter = painterResource(id = R.drawable.logo_vector),
+                                contentDescription = stringResource(id = R.string.logo_content_description)
+                            )
                         },
                         actions = {
-                            appBarState.actions.invoke(this)
+                            IconButton(onClick = {
+                                navController.navigate(Screen.Cart.route)
+                            }) {
+                                BadgedBox(badge = {
+                                    if (totalQuantity > 0) {
+                                        Badge(
+                                            containerColor = MaterialTheme.colorScheme.primary,
+                                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                                            modifier = Modifier.offset(
+                                                x = -(7.5.dp), y = 20.dp
+                                            )
+                                        ) {
+                                            Text("$totalQuantity")
+                                        }
+                                    }
+                                }) {
+                                    Icon(
+                                        modifier = Modifier.height(48.dp),
+                                        painter = painterResource(id = R.drawable.cart),
+                                        contentDescription = stringResource(id = R.string.cart_icon_content_description),
+                                    )
+                                }
+                            }
                         },
                     )
                 },
@@ -106,17 +154,15 @@ fun CheckoutSdkAppRoot(
                     BottomAppBarWithNavigation(
                         navController,
                         currentScreen,
-                        cartViewModel,
                     )
                 }
             ) {
                 Column(Modifier.padding(paddingValues = it)) {
                     CheckoutSdkNavHost(
                         navController = navController,
-                        startDestination = Screen.Product.route,
+                        startDestination = Screen.Home.route,
                         cartViewModel = cartViewModel,
                         settingsViewModel = settingsViewModel,
-                        setAppBarState = { state -> appBarState = state },
                         logsViewModel = logsViewModel,
                     )
                 }
@@ -126,13 +172,12 @@ fun CheckoutSdkAppRoot(
 }
 
 data class AppBarState(
-    val title: String = "",
     val actions: @Composable RowScope.() -> Unit = {},
 )
 
 private fun SettingsUiState.isDarkTheme(isSystemInDarkTheme: Boolean) = when (this) {
     is SettingsUiState.Loading -> isSystemInDarkTheme
-    is SettingsUiState.Populated -> {
+    is SettingsUiState.Loaded -> {
         when (settings.colorScheme) {
             is ColorScheme.Dark -> true
             is ColorScheme.Light, is ColorScheme.Web -> false

@@ -22,30 +22,52 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation
 
-import android.content.Context
-import android.content.ContextWrapper
-import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.AppBarState
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.MobileBuyEventProcessor
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.home.HomeView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.LogsView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.LogsViewModel
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.product.ProductView
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.ProductsView
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.CollectionView
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.ProductView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsViewModel
-import kotlinx.coroutines.DelicateCoroutinesApi
 import org.koin.compose.koinInject
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 sealed class Screen(val route: String) {
-    data object Product : Screen("product")
+    data object Home : Screen("home")
+    data object Product : Screen("product/{productId}") {
+        fun productIdRouteVariable(backStackEntry: NavBackStackEntry): String {
+            return backStackEntry.arguments?.getString("productId") ?: ""
+        }
+
+        fun route(productId: String): String {
+            return route.replace("{productId}", URLEncoder.encode(productId, StandardCharsets.UTF_8.name()))
+        }
+    }
+
+    data object Products : Screen("product")
+    data object Collection : Screen("collection/{collectionHandle}") {
+        fun collectionHandleRouteVariable(backStackEntry: NavBackStackEntry): String {
+            return backStackEntry.arguments?.getString("collectionHandle") ?: ""
+        }
+
+        fun route(collectionHandle: String): String {
+            return route.replace("{collectionHandle}", URLEncoder.encode(collectionHandle, StandardCharsets.UTF_8.name()))
+        }
+    }
+
     data object Cart : Screen("cart")
     data object Settings : Screen("settings")
     data object Logs : Screen("logs")
@@ -53,7 +75,10 @@ sealed class Screen(val route: String) {
     companion object {
         fun fromRoute(route: String): Screen {
             return when (route) {
+                Home.route -> Home
+                Collection.route -> Collection
                 Product.route -> Product
+                Products.route -> Products
                 Cart.route -> Cart
                 Settings.route -> Settings
                 Logs.route -> Logs
@@ -63,7 +88,6 @@ sealed class Screen(val route: String) {
     }
 }
 
-@OptIn(DelicateCoroutinesApi::class)
 @Composable
 fun CheckoutSdkNavHost(
     navController: NavHostController = rememberNavController(),
@@ -71,23 +95,34 @@ fun CheckoutSdkNavHost(
     cartViewModel: CartViewModel,
     settingsViewModel: SettingsViewModel,
     logsViewModel: LogsViewModel,
-    setAppBarState: (AppBarState) -> Unit,
-    logger: Logger = koinInject<Logger>()
+    logger: Logger = koinInject<Logger>(),
 ) {
     NavHost(
         navController = navController,
         startDestination = startDestination,
     ) {
 
-        composable(Screen.Product.route) {
-            ProductView(cartViewModel, setAppBarState)
+        composable(Screen.Home.route) {
+            HomeView(navController)
+        }
+
+        composable(Screen.Products.route) {
+            ProductsView(navController)
+        }
+
+        composable(Screen.Product.route) { backStackEntry ->
+            ProductView(Screen.Product.productIdRouteVariable(backStackEntry))
+        }
+
+        composable(Screen.Collection.route) { backStackEntry ->
+            CollectionView(navController, Screen.Collection.collectionHandleRouteVariable(backStackEntry))
         }
 
         composable(Screen.Cart.route) {
             val activity = LocalContext.current
             CartView(
                 cartViewModel = cartViewModel,
-                setAppBarState = setAppBarState,
+                navController = navController,
                 checkoutEventProcessor = MobileBuyEventProcessor(
                     cartViewModel,
                     navController,
@@ -100,7 +135,6 @@ fun CheckoutSdkNavHost(
         composable(Screen.Settings.route) {
             SettingsView(
                 settingsViewModel = settingsViewModel,
-                setAppBarState = setAppBarState,
                 navController = navController
             )
         }
@@ -108,14 +142,7 @@ fun CheckoutSdkNavHost(
         composable(Screen.Logs.route) {
             LogsView(
                 logsViewModel = logsViewModel,
-                setAppBarState = setAppBarState,
             )
         }
     }
-}
-
-fun Context.getActivity(): ComponentActivity? = when (this) {
-    is ComponentActivity -> this
-    is ContextWrapper -> baseContext.getActivity()
-    else -> null
 }

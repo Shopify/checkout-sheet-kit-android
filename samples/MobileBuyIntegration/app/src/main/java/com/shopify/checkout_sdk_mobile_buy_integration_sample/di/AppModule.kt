@@ -31,8 +31,11 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.Stor
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.LogDatabase
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.MIGRATION_1_2
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.home.HomeViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.LogsViewModel
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.product.ProductViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.ProductsViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.CollectionViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.ProductViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -65,6 +68,14 @@ val appModules = module {
     }
 
     single {
+        // singleton instance of shared cart view model
+        CartViewModel(
+            get(),
+            get(),
+        )
+    }
+
+    single {
         Room.databaseBuilder(
             get(),
             LogDatabase::class.java,
@@ -82,8 +93,10 @@ val appModules = module {
     }
 
     // Compose view models
-    viewModelOf(::CartViewModel)
     viewModelOf(::SettingsViewModel)
+    viewModelOf(::CollectionViewModel)
     viewModelOf(::ProductViewModel)
+    viewModelOf(::ProductsViewModel)
+    viewModelOf(::HomeViewModel)
     viewModelOf(::LogsViewModel)
 }

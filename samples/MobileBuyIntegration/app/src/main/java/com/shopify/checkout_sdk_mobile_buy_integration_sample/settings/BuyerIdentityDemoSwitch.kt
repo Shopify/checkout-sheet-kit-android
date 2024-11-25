@@ -24,11 +24,11 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.material.Switch
-import androidx.compose.material.Text
+import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodyMedium
 
 @Composable
 fun BuyerIdentityDemoSwitch(
@@ -41,7 +41,7 @@ fun BuyerIdentityDemoSwitch(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
     ) {
-        Text("Prefill buyer information")
+        BodyMedium("Prefill buyer information")
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange

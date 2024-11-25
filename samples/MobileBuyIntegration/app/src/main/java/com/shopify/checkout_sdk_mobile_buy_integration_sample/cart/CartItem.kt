@@ -22,62 +22,100 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.cart
 
+
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.Card
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyText
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.QuantitySelector
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.largeScreenBreakpoint
+import com.shopify.graphql.support.ID
 
 @Composable
 fun CartItem(
+    cartLine: CartLine,
     loading: Boolean,
-    title: String,
-    vendor: String,
-    quantity: Int,
-    setQuantity: (Int) -> Unit,
-    modifier: Modifier
+    modifyLineItem: (ID, Int?) -> Unit,
 ) {
-    Card(
-        elevation = 0.dp,
-        modifier = modifier
-    ) {
+    BoxWithConstraints {
         Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth(.9f).padding(10.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(if (maxWidth < largeScreenBreakpoint) 142.dp else 300.dp)
+                .padding(vertical = 10.dp)
         ) {
-            Column(Modifier.weight(.9f).align(Alignment.CenterVertically)) {
-                Text(title)
-                Text(vendor, fontSize = 10.sp)
+            RemoteImage(
+                url = cartLine.imageURL,
+                altText = cartLine.imageAltText,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight(.95f)
+            )
+
+            Column(
+                verticalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(horizontal = 20.dp)
+                    .weight(2f)
+            ) {
+                Column {
+                    Text(
+                        text = cartLine.title,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontSize = 18.sp,
+                        color = MaterialTheme.colorScheme.secondary,
+                    )
+                    MoneyText(
+                        price = cartLine.pricePerQuantity,
+                        currency = cartLine.currencyPerQuantity,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.secondary,
+                    )
+                }
+                QuantitySelector(enabled = !loading, quantity = cartLine.quantity) { quantity ->
+                    modifyLineItem(cartLine.id, quantity)
+                }
             }
 
-            Row {
-                TextButton(
-                    modifier = Modifier.width(40.dp),
-                    enabled = !loading,
-                    onClick = { setQuantity(quantity - 1) }) {
-                    Text("-")
-                }
-                Text(
-                    text = "$quantity",
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.align(Alignment.CenterVertically)
+            Column(
+                Modifier
+                    .weight(1f)
+                    .fillMaxHeight(),
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                MoneyText(
+                    currency = cartLine.totalCurrency,
+                    price = cartLine.totalPrice,
+                    includeSuffix = false,
                 )
-                TextButton(
-                    modifier = Modifier.width(40.dp),
-                    enabled = !loading,
-                    onClick = { setQuantity(quantity + 1) }
+                IconButton(
+                    onClick = { modifyLineItem(cartLine.id, null) },
                 ) {
-                    Text("+")
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.trash_can),
+                        contentDescription = stringResource(id = R.string.cart_trash_content_description),
+                    )
                 }
             }
         }

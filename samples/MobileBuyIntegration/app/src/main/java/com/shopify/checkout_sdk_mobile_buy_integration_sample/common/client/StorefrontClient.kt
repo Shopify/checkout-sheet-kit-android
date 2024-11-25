@@ -32,15 +32,62 @@ import com.shopify.buy3.Storefront.CartInput
 import com.shopify.buy3.Storefront.CartLineInput
 import com.shopify.buy3.Storefront.CartLineUpdateInput
 import com.shopify.buy3.Storefront.CartQuery
+import com.shopify.buy3.Storefront.CollectionQuery
 import com.shopify.buy3.Storefront.MutationQuery
+import com.shopify.buy3.Storefront.ProductQuery
 import com.shopify.buy3.Storefront.ProductVariantQuery
 import com.shopify.buy3.Storefront.QueryRootQuery
 import com.shopify.graphql.support.ID
 import com.shopify.graphql.support.Input
 
 class StorefrontClient(private val client: GraphClient) {
+    fun fetchCollection(
+        handle: String,
+        numProducts: Int,
+        successCallback: (GraphResponse<Storefront.QueryRoot>) -> Unit,
+        failureCallback: ((GraphError) -> Unit)?,
+    ) {
+        val query = Storefront.query { query ->
+            query.collection({ it.handle(handle) }) { collection ->
+                collectionFragment(collection, numProducts)
+            }
+        }
 
-    fun fetchFirstNProducts(
+        executeQuery(query, successCallback, failureCallback)
+    }
+
+    fun fetchHomePageData(
+        numCollections: Int,
+        numProducts: Int,
+        successCallback: (GraphResponse<Storefront.QueryRoot>) -> Unit,
+        failureCallback: ((GraphError) -> Unit)? = {},
+    ) {
+        val query = Storefront.query { query ->
+            query.collections({ it.first(numCollections) }) { collectionConnection ->
+                collectionConnection.nodes { collection ->
+                    collectionFragment(collection, numProducts)
+                }
+            }
+        }
+
+        executeQuery(query, successCallback, failureCallback)
+    }
+
+    fun fetchProduct(
+        productId: ID,
+        numVariants: Int,
+        successCallback: (GraphResponse<Storefront.QueryRoot>) -> Unit,
+        failureCallback: ((GraphError) -> Unit)? = {},
+    ) {
+        val query = Storefront.query { query ->
+            query.product({ it.id(productId) }) { product ->
+                productFragment(product, numVariants)
+            }
+        }
+        executeQuery(query, successCallback, failureCallback)
+    }
+
+    fun fetchProducts(
         numProducts: Int,
         numVariants: Int,
         successCallback: (GraphResponse<Storefront.QueryRoot>) -> Unit,
@@ -49,47 +96,34 @@ class StorefrontClient(private val client: GraphClient) {
         val query = Storefront.query { query ->
             query.products({ it.first(numProducts) }) { productConnection ->
                 productConnection.nodes { product ->
-                    product
-                        .description()
-                        .title()
-                        .vendor()
-                        .featuredImage { image ->
-                            image.url()
-                            image.width()
-                            image.height()
-                            image.altText()
-                        }
-                        .variants({ it.first(numVariants) }) { productVariant ->
-                            productVariant.nodes { productVariantNode: ProductVariantQuery ->
-                                productVariantNode.price { price ->
-                                    price
-                                        .amount()
-                                        .currencyCode()
-                                }
-                            }
-                        }
+                    productFragment(product, numVariants)
                 }
             }
         }
         executeQuery(query, successCallback, failureCallback)
     }
 
-    fun cartLinesUpdate(
+    fun cartLinesModify(
         cartId: ID,
         lineItemID: ID,
-        quantity: Int,
+        quantity: Int?,
         successCallback: (GraphResponse<Storefront.Mutation>) -> Unit,
-        failureCallback: ((GraphError) -> Unit)? = {},
+        failureCallback: ((GraphError) -> Unit)?,
     ) {
-        val lineUpdateInput = CartLineUpdateInput(lineItemID).setQuantity(quantity)
-
-        val mutation =  Storefront.mutation { mutation ->
-            mutation.cartLinesUpdate(
-                cartId,
-                listOf(lineUpdateInput)
-            ) { cartLinesUpdate ->
-                cartLinesUpdate.cart { cartQuery ->
-                    cartQueryFragment(cartQuery)
+        val mutation = if (quantity != null) {
+            Storefront.mutation { mutation ->
+                mutation.cartLinesUpdate(cartId, listOf(CartLineUpdateInput(lineItemID).setQuantity(quantity))) { cartLinesUpdate ->
+                    cartLinesUpdate.cart { cartQuery ->
+                        cartQueryFragment(cartQuery)
+                    }
+                }
+            }
+        } else {
+            Storefront.mutation { mutation ->
+                mutation.cartLinesRemove(cartId, listOf(lineItemID)) { cartLinesRemove ->
+                    cartLinesRemove.cart { cartQuery ->
+                        cartQueryFragment(cartQuery)
+                    }
                 }
             }
         }
@@ -100,6 +134,7 @@ class StorefrontClient(private val client: GraphClient) {
     fun createCart(
         variant: Storefront.ProductVariant,
         buyerIdentity: CartBuyerIdentityInput?,
+        quantity: Int,
         successCallback: (GraphResponse<Storefront.Mutation>) -> Unit,
         failureCallback: ((GraphError) -> Unit)? = {},
     ) {
@@ -108,7 +143,7 @@ class StorefrontClient(private val client: GraphClient) {
                 cartCreate.input(
                     CartInput().setLinesInput(
                         Input.value(
-                            listOf(CartLineInput(variant.id))
+                            listOf(CartLineInput(variant.id).setQuantity(quantity))
                         )
                     ).setBuyerIdentityInput(
                         Input.value(buyerIdentity)
@@ -141,6 +176,61 @@ class StorefrontClient(private val client: GraphClient) {
         executeMutation(mutation, successCallback, failureCallback)
     }
 
+    private fun collectionFragment(collectionQuery: CollectionQuery, numProducts: Int): CollectionQuery {
+        return collectionQuery.handle()
+            .title()
+            .description()
+            .image { image ->
+                image.url()
+                image.altText()
+                image.width()
+                image.height()
+            }
+            .products({ it.first(numProducts) }) { productsConnection ->
+                productsConnection.nodes { product ->
+                    product.title()
+                    product.priceRange { priceRange ->
+                        priceRange.maxVariantPrice { variantPrice ->
+                            variantPrice.amount()
+                            variantPrice.currencyCode()
+                        }
+                        priceRange.minVariantPrice { variantPrice ->
+                            variantPrice.amount()
+                            variantPrice.currencyCode()
+                        }
+                    }
+                    product.featuredImage {
+                        it.url()
+                        it.height()
+                        it.width()
+                        it.altText()
+                    }
+                }
+            }
+    }
+
+    private fun productFragment(productQuery: ProductQuery, numVariants: Int): ProductQuery {
+        return productQuery
+            .description()
+            .title()
+            .vendor()
+            .featuredImage { image ->
+                image.url()
+                image.width()
+                image.height()
+                image.altText()
+            }
+            .variants({ it.first(numVariants) }) { productVariant ->
+                productVariant.nodes { productVariantNode: ProductVariantQuery ->
+                    productVariantNode.price { price ->
+                        price
+                            .amount()
+                            .currencyCode()
+                    }
+                }
+            }
+    }
+
     private fun cartQueryFragment(cartQuery: CartQuery): CartQuery {
         return cartQuery
             .checkoutUrl()
@@ -150,11 +240,22 @@ class StorefrontClient(private val client: GraphClient) {
                     totalAmount.amount()
                     totalAmount.currencyCode()
                 }
+                costQuery.totalAmountEstimated()
             }
             .lines({ it.first(250) }) { lineQuery ->
                 lineQuery.nodes { line ->
                     line.id()
                     line.quantity()
+                    line.cost { cost ->
+                        cost.totalAmount { total ->
+                            total.amount()
+                            total.currencyCode()
+                        }
+                        cost.amountPerQuantity {
+                            it.amount()
+                            it.currencyCode()
+                        }
+                    }
                     line.merchandise { merchandise ->
                         merchandise.onProductVariant { variant ->
                             variant.price { price ->
@@ -167,6 +268,7 @@ class StorefrontClient(private val client: GraphClient) {
                                 product.vendor()
                                 product.featuredImage { image ->
                                     image.url()
+                                    image.altText()
                                 }
                             }
                         }

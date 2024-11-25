@@ -24,37 +24,48 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme
 
 import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.darkColors
-import androidx.compose.material.lightColors
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 
-private val DarkColorPalette = darkColors(
-    primary = Color(red = 52 / 255.0f, green = 120 / 255.0f, blue = 246 / 255.0f, alpha = 1.0f),
-    onPrimary = Color.White,
-    primaryVariant = Color(
-        red = 139 / 255.0f,
-        green = 139 / 255.0f,
-        blue = 143 / 255.0f,
-        alpha = 1.0f
-    ),
-    background = Color(red = 29 / 255.0f, green = 29 / 255.0f, blue = 31 / 255.0f, alpha = 1.0f)
+val horizontalPadding = 15.dp
+val verticalPadding = 20.dp
+val largeScreenBreakpoint = 600.dp
+val defaultProductImageHeight = 250.dp
+val defaultProductImageHeightLg = 500.dp
+
+private val primaryColor = Color(
+    red = 37 / 255.0f,
+    green = 96 / 255.0f,
+    blue = 79 / 255.0f,
+    alpha = 1.0f
 )
 
-private val LightColorPalette = lightColors(
-    primary = Color(red = 52 / 255.0f, green = 120 / 255.0f, blue = 246 / 255.0f, alpha = 1.0f),
-    primaryVariant = Color(
-        red = 139 / 255.0f,
-        green = 139 / 255.0f,
-        blue = 143 / 255.0f,
-        alpha = 1.0f
-    ),
-    background = Color(red = 242 / 255.0f, green = 242 / 255.0f, blue = 247 / 255.0f, alpha = 1.0f),
+private val secondaryColor = Color(
+    red = 37 / 255.0f,
+    green = 41 / 255.0f,
+    blue = 46 / 255.0f,
+    alpha = 1.0f
+)
+
+private val DarkColorPalette = darkColorScheme(
+    primary = primaryColor,
+    onPrimary = Color.White
+)
+
+private val LightColorPalette = lightColorScheme(
+    background = Color.White,
+    onBackground = Color.Black,
+    primary = primaryColor,
+    onPrimary = Color.White,
+    secondary = secondaryColor
 )
 
 @Composable
@@ -80,7 +91,7 @@ fun CheckoutSdkSampleTheme(
     }
 
     MaterialTheme(
-        colors = colors,
+        colorScheme = colors,
         typography = typography,
         shapes = shapes,
         content = content,

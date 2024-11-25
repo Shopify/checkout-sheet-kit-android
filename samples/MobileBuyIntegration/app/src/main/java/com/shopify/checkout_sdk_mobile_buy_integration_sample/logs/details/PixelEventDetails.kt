@@ -24,7 +24,7 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.details
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.shopify.checkoutsheetkit.pixelevents.Context
@@ -40,8 +40,12 @@ fun PixelEventDetails(
     event: PixelEvent?,
     prettyJson: Json,
 ) {
-    val evenModifier = Modifier.fillMaxWidth().background(color = MaterialTheme.colors.surface)
-    val oddModifier = Modifier.fillMaxWidth().background(color = MaterialTheme.colors.background)
+    val evenModifier = Modifier
+        .fillMaxWidth()
+        .background(color = MaterialTheme.colorScheme.surface)
+    val oddModifier = Modifier
+        .fillMaxWidth()
+        .background(color = MaterialTheme.colorScheme.background)
 
     LogDetails(header = "Event Name", message = event?.name ?: "", evenModifier)
     LogDetails(header = "Timestamp", message = event?.timestamp ?: "", oddModifier)
@@ -57,6 +61,7 @@ fun PixelEventDetails(
             )
             LogDetails(header = "Context", message = prettyJson.encodeDataToString<Context>(event.context), oddModifier)
         }
+
         is CustomPixelEvent -> {
             LogDetails(
                 header = "Custom Data",
@@ -65,6 +70,7 @@ fun PixelEventDetails(
             )
             LogDetails(header = "Context", message = prettyJson.encodeDataToString<Context>(event.context), oddModifier)
         }
+
         else -> {}
     }
 }
