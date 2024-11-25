@@ -22,6 +22,7 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -37,8 +38,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodyMedium
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.ProgressIndicator
@@ -85,11 +89,18 @@ fun CollectionView(
                     val collection = collectionUIState.collection
                     Header2(text = collection.title)
                     BodyMedium(text = collection.description)
-                    RemoteImage(
-                        url = collection.image.url,
-                        altText = collection.image.altText ?: "",
-                        modifier = Modifier
-                    )
+                    if (collection.image?.url != null) {
+                        RemoteImage(
+                            url = collection.image.url,
+                            altText = collection.image.altText ?: "",
+                            modifier = Modifier
+                        )
+                    } else {
+                        Image(
+                            painterResource(id = R.drawable.placeholder),
+                            contentDescription = stringResource(id = R.string.collection_img_alt_default),
+                        )
+                    }
 
                     FlowRow(
                         maxItemsInEachRow = 2,

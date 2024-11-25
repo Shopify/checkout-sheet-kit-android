@@ -22,6 +22,7 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.home
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.shopify.buy3.Storefront
@@ -71,7 +73,7 @@ fun Collections(
                 Collection(
                     handle = collection.handle,
                     title = collection.title,
-                    image = collection.image,
+                    image = collection.image ?: Storefront.Image(),
                     modifier = modifier,
                     onClick = onClick
                 )
@@ -93,13 +95,23 @@ fun Collection(
         .clickable {
             onClick(handle)
         }) {
-        RemoteImage(
-            url = image.url,
-            altText = image.altText ?: stringResource(id = R.string.collection_img_alt_default),
-            modifier = modifier
-                .defaultMinSize(minWidth = 345.dp, minHeight = 345.dp)
-                .fillMaxWidth()
-        )
+        if (image.url != null) {
+            RemoteImage(
+                url = image.url,
+                altText = image.altText ?: stringResource(id = R.string.collection_img_alt_default),
+                modifier = modifier
+                    .defaultMinSize(minWidth = 345.dp, minHeight = 345.dp)
+                    .fillMaxWidth(),
+            )
+        } else {
+            Image(
+                painter = painterResource(id = R.drawable.placeholder),
+                contentDescription = stringResource(id = R.string.collection_img_alt_default),
+                modifier = modifier
+                    .defaultMinSize(minWidth = 345.dp, minHeight = 345.dp)
+                    .fillMaxWidth(),
+            )
+        }
         Row(verticalAlignment = Alignment.CenterVertically) {
             Header3(
                 text = title,
