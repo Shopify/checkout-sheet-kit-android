@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name" translatable="false">Checkout SDK Mobile Buy Integration Sample</string>
+    <string name="navigation_home" translatable="false">Home</string>
+    <string name="navigation_shop" translatable="false">Shop</string>
+    <string name="navigation_log_in" translatable="false">Log in</string>
     <string name="settings" translatable="false">Settings</string>
     <string name="color_scheme" translatable="false">Color Scheme</string>
     <string name="color_scheme_light" translatable="false">Light</string>
@@ -23,7 +26,7 @@
     <string name="collection_img_alt_default" translatable="false">Collection image</string>
     <string name="collection_cta_content_description" translatable="false">View collection></string>
     <string name="collections_no_collections_configured" translatable="false">No collections configured</string>
-    <string name="featured_title" translatable="false">Featured Plants</string>
+    <string name="featured_title" translatable="false">Featured Products</string>
     <string name="featured_default_alt_text" translatable="false">Featured plant image</string>
     <string name="product_taxes_included" translatable="false">Taxes included</string>
     <string name="products_header" translatable="false">Products</string>
