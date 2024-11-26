@@ -54,7 +54,6 @@ fun AddToCartButton(
             onClick = onClick,
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
             shape = RectangleShape
-
         ) {
             Box {
                 Header3(

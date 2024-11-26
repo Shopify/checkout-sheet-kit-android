@@ -23,6 +23,7 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.logs
 
 import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header3
@@ -30,7 +31,15 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.
 @Composable
 fun LogOverviewHeader(modifier: Modifier) {
     Row(modifier) {
-        Header3(text = "Date", modifier = Modifier.weight(Logs.DATE_COLUMN_WEIGHT))
-        Header3(text = "Type", modifier = Modifier.weight(Logs.MESSAGE_COLUMN_WEIGHT))
+        Header3(
+            text = "Date",
+            fontSize = MaterialTheme.typography.bodyMedium.fontSize,
+            modifier = Modifier.weight(Logs.DATE_COLUMN_WEIGHT),
+        )
+        Header3(
+            text = "Type",
+            fontSize = MaterialTheme.typography.bodyMedium.fontSize,
+            modifier = Modifier.weight(Logs.MESSAGE_COLUMN_WEIGHT),
+        )
     }
 }

@@ -118,6 +118,7 @@ fun Header(
         color = color,
         overflow = TextOverflow.Ellipsis,
         textAlign = textAlign,
+        fontSize = fontSize,
     )
 }
 
