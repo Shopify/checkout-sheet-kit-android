@@ -23,19 +23,27 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
@@ -52,6 +60,10 @@ fun SettingsView(
     navController: NavHostController,
 ) {
 
+    LaunchedEffect(key1 = true) {
+        settingsViewModel.observeSettings()
+    }
+
     when (val uiState = settingsViewModel.uiState.collectAsState().value) {
         is SettingsUiState.Loading -> {
             ProgressIndicator()
@@ -64,9 +76,45 @@ fun SettingsView(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                Header2(text = stringResource(id = R.string.settings))
-
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Header2(text = stringResource(id = R.string.settings))
+                    if (uiState.isAuthenticated) {
+                        BodyMedium(
+                            text = stringResource(id = R.string.logout),
+                            color = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier.clickable { settingsViewModel.logout() },
+                            textDecoration = TextDecoration.Underline,
+                        )
+                    } else {
+                        BodyMedium(
+                            text = stringResource(id = R.string.login),
+                            color = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier.clickable {
+                                navController.navigate(Screen.Login.route)
+                            },
+                            textDecoration = TextDecoration.Underline,
+                        )
+                    }
+                }
                 Column {
+                    if (uiState.isAuthenticated) {
+                        TextButton(
+                            contentPadding = PaddingValues(0.dp),
+                            onClick = { navController.navigate(Screen.Account.route) },
+                            shape = RectangleShape
+                        ) {
+                            BodyMedium(
+                                text = stringResource(id = R.string.settings_account_details),
+                                color = Color.Blue,
+                                textDecoration = TextDecoration.Underline
+                            )
+                        }
+                    }
+
                     PreloadingSwitch(
                         checked = uiState.settings.preloading.enabled,
                         onCheckedChange = settingsViewModel::setPreloadingEnabled,
@@ -100,6 +148,7 @@ fun SettingsView(
                     version = uiState.sampleAppVersion,
                     modifier = Modifier.fillMaxWidth()
                 )
+
                 Button(
                     onClick = { navController.navigate(Screen.Logs.route) },
                     shape = RectangleShape,

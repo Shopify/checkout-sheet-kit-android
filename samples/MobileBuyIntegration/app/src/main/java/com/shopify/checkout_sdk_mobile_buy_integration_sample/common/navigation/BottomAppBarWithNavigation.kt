@@ -34,7 +34,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
@@ -94,7 +93,7 @@ fun NavigationItem(
     val color = if (isActiveScreen) {
         MaterialTheme.colorScheme.primary
     } else {
-        Color.Unspecified
+        MaterialTheme.colorScheme.outline
     }
 
     Column {

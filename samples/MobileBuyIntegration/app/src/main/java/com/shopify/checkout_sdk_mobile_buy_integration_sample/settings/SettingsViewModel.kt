@@ -25,6 +25,9 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.BuildConfig
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.CustomerRepository
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.data.Settings
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.data.SettingsRepository
 import com.shopify.checkoutsheetkit.ColorScheme
 import com.shopify.checkoutsheetkit.Preloading
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
@@ -33,16 +36,22 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-
-class SettingsViewModel(private val preferencesManager: PreferencesManager) : ViewModel() {
+class SettingsViewModel(
+    private val settingsRepository: SettingsRepository,
+    private val customerRepository: CustomerRepository,
+) : ViewModel() {
     private val _uiState = MutableStateFlow<SettingsUiState>(SettingsUiState.Loading)
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
-    init {
-        viewModelScope.launch {
-            preferencesManager.userPreferencesFlow.collect { preferences ->
-                _uiState.value = preferences.asUiState()
-            }
+    fun observeSettings() = viewModelScope.launch {
+        settingsRepository.observeSettings().collect { settings ->
+            val tokens = customerRepository.getCustomerAccessToken()
+            _uiState.value = SettingsUiState.Loaded(
+                settings = settings,
+                sdkVersion = ShopifyCheckoutSheetKit.version,
+                sampleAppVersion = BuildConfig.VERSION_NAME,
+                isAuthenticated = tokens != null
+            )
         }
     }
 
@@ -50,29 +59,27 @@ class SettingsViewModel(private val preferencesManager: PreferencesManager) : Vi
         ShopifyCheckoutSheetKit.configure {
             it.colorScheme = colorScheme
         }
-        preferencesManager.setColorScheme(colorScheme)
+        settingsRepository.setColorScheme(colorScheme)
     }
 
     fun setPreloadingEnabled(enabled: Boolean) = viewModelScope.launch {
         ShopifyCheckoutSheetKit.configure {
             it.preloading = Preloading(enabled = enabled)
         }
-        preferencesManager.setPreloadingEnabled(enabled)
+        settingsRepository.setPreloadingEnabled(enabled)
     }
 
     fun setBuyerIdentityDemoEnabled(enabled: Boolean) = viewModelScope.launch {
-        preferencesManager.setBuyerIdentityDemoEnabled(enabled)
+        settingsRepository.setBuyerIdentityDemoEnabled(enabled)
     }
 
-    private fun UserPreferences.asUiState() = SettingsUiState.Loaded(
-        settings = Settings(
-            colorScheme = colorScheme,
-            preloading = preloading,
-            buyerIdentityDemoEnabled = buyerIdentityDemoEnabled,
-        ),
-        sdkVersion = ShopifyCheckoutSheetKit.version,
-        sampleAppVersion = BuildConfig.VERSION_NAME,
-    )
+    fun logout() = viewModelScope.launch {
+        val state = _uiState.value
+        if (state is SettingsUiState.Loaded) {
+            customerRepository.logout()
+            _uiState.value = state.copy(isAuthenticated = false)
+        }
+    }
 }
 
 sealed class SettingsUiState {
@@ -81,11 +88,6 @@ sealed class SettingsUiState {
         val settings: Settings,
         val sdkVersion: String,
         val sampleAppVersion: String,
+        val isAuthenticated: Boolean,
     ) : SettingsUiState()
 }
-
-data class Settings(
-    val preloading: Preloading,
-    val colorScheme: ColorScheme,
-    val buyerIdentityDemoEnabled: Boolean
-)

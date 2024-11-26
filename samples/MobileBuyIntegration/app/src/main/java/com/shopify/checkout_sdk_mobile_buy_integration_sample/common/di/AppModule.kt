@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkout_sdk_mobile_buy_integration_sample.di
+package com.shopify.checkout_sdk_mobile_buy_integration_sample.common.di
 
 import android.app.Application
 import android.util.LruCache
@@ -47,8 +47,19 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.d
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.source.network.ProductsStorefrontApiClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.account.AccountViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.LoginViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.CustomerRepository
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.local.CustomerAccessTokenStore
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.network.CustomerAccountsApiGraphQLClient
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.network.CustomerAccountsApiRestClient
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.utils.AuthenticationHelper
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.data.SettingsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.serialization.json.Json
+import okhttp3.OkHttpClient
+import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.viewmodel.dsl.viewModelOf
@@ -68,10 +79,45 @@ val appModules = module {
     // App-wide components
     singleOf(::PreferencesManager)
 
+    // Serialization
+    single { Json { ignoreUnknownKeys = true } }
+
+    // Storage for customer access tokens
+    single {
+        CustomerAccessTokenStore(
+            appContext = androidApplication().applicationContext,
+            scope = CoroutineScope(Dispatchers.Default),
+        )
+    }
+
+    // Logs
+    single { Logger(logDb = get(), coroutineScope = CoroutineScope(Dispatchers.IO)) }
+    single {
+        Room.databaseBuilder(get(), LogDatabase::class.java, "log-db")
+            .addMigrations(MIGRATION_1_2)
+            .build()
+    }
+
     // API Clients
     singleOf(::CartStorefrontApiClient)
     singleOf(::ProductsStorefrontApiClient)
     singleOf(::ProductCollectionsStorefrontApiClient)
+    single {
+        CustomerAccountsApiRestClient(
+            client = OkHttpClient(),
+            json = get(),
+            helper = get(),
+            redirectUri = BuildConfig.customerAccountsApiRedirectUri,
+            clientId = BuildConfig.customerAccountsApiClientId
+        )
+    }
+    single {
+        CustomerAccountsApiGraphQLClient(
+            client = OkHttpClient(),
+            json = get(),
+            baseUrl = "https://shopify.com/${BuildConfig.shopId}/account/customer/api/${BuildConfig.apiVersion}/graphql",
+        )
+    }
     single {
         val maxCacheEntries = 100
 
@@ -84,32 +130,17 @@ val appModules = module {
             )
         )
     }
+
     single {
-        val maxEntries = 100
-        LruCache<String, GraphCallResult.Success<Storefront.QueryRoot>>(maxEntries)
+        AuthenticationHelper(baseUrl = "https://shopify.com/authentication/${BuildConfig.shopId}")
     }
 
     // Repositories
     singleOf(::CartRepository)
     singleOf(::ProductRepository)
     singleOf(::ProductCollectionRepository)
-
-    single {
-        Room.databaseBuilder(
-            get(),
-            LogDatabase::class.java,
-            "log-db"
-        )
-            .addMigrations(MIGRATION_1_2)
-            .build()
-    }
-
-    single {
-        Logger(
-            logDb = get(),
-            coroutineScope = CoroutineScope(Dispatchers.IO),
-        )
-    }
+    singleOf(::CustomerRepository)
+    singleOf(::SettingsRepository)
 
     // Compose view models
     viewModelOf(::SettingsViewModel)
@@ -118,11 +149,10 @@ val appModules = module {
     viewModelOf(::ProductsViewModel)
     viewModelOf(::HomeViewModel)
     viewModelOf(::LogsViewModel)
+    viewModelOf(::LoginViewModel)
+    viewModelOf(::AccountViewModel)
     single {
         // singleton instance of shared cart view model
-        CartViewModel(
-            get(),
-            get(),
-        )
+        CartViewModel(get(), get(), get())
     }
 }

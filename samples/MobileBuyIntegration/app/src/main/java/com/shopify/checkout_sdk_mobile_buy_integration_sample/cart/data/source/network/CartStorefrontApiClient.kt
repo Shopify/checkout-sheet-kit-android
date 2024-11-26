@@ -58,6 +58,10 @@ class CartStorefrontApiClient(
                 mutation.cartLinesRemove(cartId, listOf(lineItemId)) { cartLinesRemove ->
                     cartLinesRemove.cart { cartQuery ->
                         cartQueryFragment(cartQuery)
+                    }.userErrors { errors ->
+                        errors.message()
+                        errors.code()
+                        errors.field()
                     }
                 }
             }
@@ -87,6 +91,10 @@ class CartStorefrontApiClient(
             }) { createCart ->
                 createCart.cart { cartQuery ->
                     cartQueryFragment(cartQuery)
+                }.userErrors { errors ->
+                    errors.message()
+                    errors.code()
+                    errors.field()
                 }
             }
         }
@@ -104,6 +112,10 @@ class CartStorefrontApiClient(
             mutation.cartLinesAdd(lines, cartId) { cartLinesAddPayload ->
                 cartLinesAddPayload.cart { cartQuery ->
                     cartQueryFragment(cartQuery)
+                }.userErrors { errors ->
+                    errors.message()
+                    errors.code()
+                    errors.field()
                 }
             }
         }
