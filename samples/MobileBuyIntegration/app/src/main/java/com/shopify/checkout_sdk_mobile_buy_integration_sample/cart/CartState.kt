@@ -23,14 +23,13 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.cart
 
 import androidx.compose.runtime.Stable
-import com.shopify.graphql.support.ID
 
 sealed class CartState {
     data object Empty : CartState()
 
     @Stable
-    data class Populated(
-        val cartID: ID,
+    data class UICart(
+        val cartID: String,
         val cartLines: List<CartLine>,
         val cartTotals: CartTotals,
         val checkoutUrl: String,
@@ -39,7 +38,7 @@ sealed class CartState {
 }
 
 data class CartLine(
-    val id: ID,
+    val id: String,
     val title: String,
     val vendor: String,
     val quantity: Int,
@@ -57,5 +56,5 @@ data class Amount(val currency: String, val price: Double)
 val CartState.totalQuantity
     get() = when (this) {
         is CartState.Empty -> 0
-        is CartState.Populated -> cartTotals.totalQuantity
+        is CartState.UICart -> cartTotals.totalQuantity
     }

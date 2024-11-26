@@ -31,11 +31,43 @@ fun toDisplayText(context: Context, currencyCode: String, price: Double, locale:
         return context.resources.getString(R.string.free)
     }
 
-    val displayText = "${currencyCode.toSymbol()}${price.toTwoDecimalString(locale)}"
-    if (includeSuffix) {
-        return "$displayText $currencyCode"
+    return price.toTwoDecimalPlaceString(context, locale, currencyCode, includeSuffix)
+}
+
+fun toDisplayText(
+    context: Context,
+    fromPrice: Double,
+    fromCurrencyCode: String,
+    toPrice: Double,
+    toCurrencyCode: String,
+    locale: Locale,
+    includeSuffix: Boolean
+): String {
+    if (fromPrice == toPrice && fromCurrencyCode == toCurrencyCode) {
+        return toDisplayText(context, toCurrencyCode, toPrice, locale, includeSuffix)
     }
-    return displayText
+
+    val fromPriceString = fromPrice.toTwoDecimalPlaceString(context, locale, fromCurrencyCode, includeSuffix)
+    val toPriceString = toPrice.toTwoDecimalPlaceString(context, locale, toCurrencyCode, includeSuffix)
+
+    return "$fromPriceString - $toPriceString"
+}
+
+private fun Double.toTwoDecimalPlaceString(
+    context: Context,
+    locale: Locale,
+    currencyCode: String,
+    includeSuffix: Boolean,
+): String {
+    if (this == 0.0) {
+        return context.resources.getString(R.string.free)
+    } else {
+        val displayText = "${currencyCode.toSymbol()}${this.toTwoDecimalString(locale)}"
+        if (includeSuffix) {
+            return "$displayText $currencyCode"
+        }
+        return displayText
+    }
 }
 
 private fun String.toSymbol(): String {

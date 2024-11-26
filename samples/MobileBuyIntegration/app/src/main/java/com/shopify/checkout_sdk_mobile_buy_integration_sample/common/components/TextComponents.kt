@@ -187,3 +187,38 @@ fun MoneyText(
         )
     )
 }
+
+@Composable
+fun MoneyRangeText(
+    fromPrice: Double,
+    fromCurrencyCode: String,
+    toPrice: Double,
+    toCurrencyCode: String,
+    modifier: Modifier = Modifier,
+    style: TextStyle = MaterialTheme.typography.bodyMedium,
+    color: Color = MaterialTheme.colorScheme.onBackground,
+    textAlign: TextAlign = TextAlign.Start,
+    includeSuffix: Boolean = true,
+) {
+    val locale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        LocalConfiguration.current.locales.get(0)
+    } else {
+        LocalConfiguration.current.locale
+    }
+
+    Text(
+        modifier = modifier,
+        style = style,
+        color = color,
+        textAlign = textAlign,
+        text = toDisplayText(
+            LocalContext.current,
+            fromPrice,
+            fromCurrencyCode,
+            toPrice,
+            toCurrencyCode,
+            locale,
+            includeSuffix,
+        )
+    )
+}

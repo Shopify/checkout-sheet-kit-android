@@ -35,24 +35,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.shopify.buy3.Storefront
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header3
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.defaultProductImageHeight
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.defaultProductImageHeightLg
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.CollectionProduct
-import com.shopify.graphql.support.ID
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.UIProduct
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun Featured(
-    featured: List<Storefront.Product>,
+    featured: List<UIProduct>,
     imageHeight: Dp = defaultProductImageHeight,
     imageHeightLg: Dp = defaultProductImageHeightLg,
     verticalPadding: Dp = 30.dp,
     verticalSpacing: Dp = 30.dp,
     horizontalSpacing: Dp = 5.dp,
-    onProductClick: (id: ID) -> Unit,
+    onProductClick: (id: String) -> Unit,
 ) {
     if (featured.isEmpty()) {
         Text("No products configured for this collection")

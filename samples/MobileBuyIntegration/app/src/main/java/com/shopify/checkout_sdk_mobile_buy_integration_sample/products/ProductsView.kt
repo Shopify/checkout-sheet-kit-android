@@ -52,7 +52,7 @@ import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyText
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyRangeText
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.ProgressIndicator
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.defaultProductImageHeight
@@ -61,7 +61,6 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.ho
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.largeScreenBreakpoint
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.verticalPadding
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.UIProduct
-import com.shopify.graphql.support.ID
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -136,7 +135,7 @@ fun ProductsView(
 fun Product(
     product: UIProduct,
     imageHeight: Dp,
-    onProductClick: (id: ID) -> Unit,
+    onProductClick: (id: String) -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier
         .wrapContentWidth()
@@ -144,17 +143,21 @@ fun Product(
             onProductClick(product.id)
         }) {
         RemoteImage(
-            url = product.image.url,
-            altText = product.image.altText,
+            url = product.image?.url,
+            altText = product.image?.altText ?: stringResource(id = R.string.product_alt_text_default),
             modifier = Modifier
                 .height(imageHeight)
                 .fillMaxWidth()
-                .align(Alignment.CenterHorizontally)
+                .align(Alignment.CenterHorizontally),
         )
+
         Text(product.title, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground)
-        MoneyText(
-            currency = product.variants.first().currencyName,
-            price = product.variants.first().price.toDouble(),
+
+        MoneyRangeText(
+            fromPrice = product.priceRange.minVariantPrice.amount,
+            fromCurrencyCode = product.priceRange.minVariantPrice.currencyCode,
+            toPrice = product.priceRange.maxVariantPrice.amount,
+            toCurrencyCode = product.priceRange.maxVariantPrice.currencyCode,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onBackground,
         )

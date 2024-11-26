@@ -22,7 +22,6 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -39,7 +38,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -62,7 +60,7 @@ fun CollectionView(
     LaunchedEffect(key1 = true) {
         collectionViewModel.fetchCollection(collectionHandle)
     }
-    
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -86,20 +84,16 @@ fun CollectionView(
                     verticalArrangement = Arrangement.spacedBy(verticalPadding)
                 ) {
                     val collection = collectionUIState.collection
+
                     Header2(text = collection.title)
+
                     BodyMedium(text = collection.description)
-                    if (collection.image?.url != null) {
-                        RemoteImage(
-                            url = collection.image.url,
-                            altText = collection.image.altText ?: "",
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    } else {
-                        Image(
-                            painterResource(id = R.drawable.placeholder),
-                            contentDescription = stringResource(id = R.string.collection_img_alt_default),
-                        )
-                    }
+
+                    RemoteImage(
+                        url = collection.image.url,
+                        altText = collection.image.altText ?: stringResource(id = R.string.collection_img_alt_default),
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
                     FlowRow(
                         maxItemsInEachRow = 2,
@@ -108,7 +102,7 @@ fun CollectionView(
                         verticalArrangement = Arrangement.spacedBy(30.dp),
                         horizontalArrangement = Arrangement.spacedBy(5.dp)
                     ) {
-                        collection.products.nodes.forEach { collectionProduct ->
+                        collection.products.forEach { collectionProduct ->
                             CollectionProduct(
                                 product = collectionProduct,
                                 textColor = MaterialTheme.colorScheme.onBackground,

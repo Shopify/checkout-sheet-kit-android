@@ -20,9 +20,8 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkout_sdk_mobile_buy_integration_sample.home
+package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,10 +37,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.shopify.buy3.Storefront
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header3
@@ -51,7 +48,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.ve
 
 @Composable
 fun Collections(
-    collections: List<Storefront.Collection>,
+    collections: List<UICollection>,
     onClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -73,7 +70,7 @@ fun Collections(
                 Collection(
                     handle = collection.handle,
                     title = collection.title,
-                    image = collection.image ?: Storefront.Image(),
+                    image = collection.image,
                     modifier = modifier,
                     onClick = onClick
                 )
@@ -86,7 +83,7 @@ fun Collections(
 fun Collection(
     handle: String,
     title: String,
-    image: Storefront.Image,
+    image: CollectionImage,
     onClick: (String) -> Unit,
     modifier: Modifier,
 ) {
@@ -95,23 +92,15 @@ fun Collection(
         .clickable {
             onClick(handle)
         }) {
-        if (image.url != null) {
-            RemoteImage(
-                url = image.url,
-                altText = image.altText ?: stringResource(id = R.string.collection_img_alt_default),
-                modifier = modifier
-                    .defaultMinSize(minWidth = 345.dp, minHeight = 345.dp)
-                    .fillMaxWidth(),
-            )
-        } else {
-            Image(
-                painter = painterResource(id = R.drawable.placeholder),
-                contentDescription = stringResource(id = R.string.collection_img_alt_default),
-                modifier = modifier
-                    .defaultMinSize(minWidth = 345.dp, minHeight = 345.dp)
-                    .fillMaxWidth(),
-            )
-        }
+
+        RemoteImage(
+            url = image.url,
+            altText = image.altText ?: stringResource(R.string.collection_img_alt_default),
+            modifier = modifier
+                .defaultMinSize(minWidth = 345.dp, minHeight = 345.dp)
+                .fillMaxWidth(),
+        )
+
         Row(verticalAlignment = Alignment.CenterVertically) {
             Header3(
                 text = title,
