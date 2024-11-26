@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
@@ -48,13 +49,12 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.QuantitySelector
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.largeScreenBreakpoint
-import com.shopify.graphql.support.ID
 
 @Composable
 fun CartItem(
     cartLine: CartLine,
     loading: Boolean,
-    modifyLineItem: (ID, Int?) -> Unit,
+    modifyLineItem: (String, Int?) -> Unit,
 ) {
     BoxWithConstraints {
         Row(
@@ -84,6 +84,8 @@ fun CartItem(
                         style = MaterialTheme.typography.bodyMedium,
                         fontSize = 18.sp,
                         color = MaterialTheme.colorScheme.secondary,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
                     )
                     MoneyText(
                         price = cartLine.pricePerQuantity,

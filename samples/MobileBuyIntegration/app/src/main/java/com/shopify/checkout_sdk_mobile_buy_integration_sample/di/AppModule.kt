@@ -29,16 +29,22 @@ import com.shopify.buy3.GraphCallResult
 import com.shopify.buy3.GraphClient
 import com.shopify.buy3.Storefront
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.BuildConfig
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartRepository
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartStorefrontApiClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontClient
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontRequestExecutor
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.LogDatabase
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.MIGRATION_1_2
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.home.HomeViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.LogsViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.ProductsViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.CollectionRepository
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.CollectionViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.CollectionsStorefrontApiClient
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.ProductRepository
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.ProductViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.ProductsStorefrontApiClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -61,19 +67,26 @@ fun setupDI(application: Application) {
 val appModules = module {
     // App-wide components
     singleOf(::PreferencesManager)
-    singleOf(::StorefrontClient)
+    singleOf(::CartStorefrontApiClient)
     single {
-        GraphClient.build(
-            context = get(),
-            accessToken = BuildConfig.storefrontAccessToken,
-            shopDomain = BuildConfig.storefrontDomain
+        val maxCacheEntries = 100
+
+        StorefrontRequestExecutor(
+            lruCache = LruCache<String, GraphCallResult.Success<Storefront.QueryRoot>>(maxCacheEntries),
+            client = GraphClient.build(
+                context = get(),
+                accessToken = BuildConfig.storefrontAccessToken,
+                shopDomain = BuildConfig.storefrontDomain
+            )
         )
     }
 
-    single {
-        val maxEntries = 100
-        LruCache<String, GraphCallResult.Success<Storefront.QueryRoot>>(maxEntries)
-    }
+    singleOf(::CollectionRepository)
+    singleOf(::CollectionsStorefrontApiClient)
+    singleOf(::ProductRepository)
+    singleOf(::ProductsStorefrontApiClient)
+    singleOf(::CartRepository)
+    singleOf(::CartStorefrontApiClient)
 
     single {
         // singleton instance of shared cart view model

@@ -24,20 +24,19 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.products
 
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.ProductPagingSource
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
-import com.shopify.graphql.support.ID
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.ProductPagingSource
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.ProductRepository
 import timber.log.Timber
 
 class ProductsViewModel(
-    client: StorefrontClient
+    productRepository: ProductRepository,
 ) : ViewModel() {
 
-    val pagingSource = ProductPagingSource(client)
+    val pagingSource = ProductPagingSource(productRepository)
 
-    fun productClicked(navController: NavController, productId: ID) {
+    fun productClicked(navController: NavController, productId: String) {
         Timber.i("Navigation to product description page for $productId")
-        navController.navigate(Screen.Product.route(productId.toString()))
+        navController.navigate(Screen.Product.route(productId))
     }
 }

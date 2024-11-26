@@ -31,6 +31,7 @@
     <string name="product_taxes_included" translatable="false">Taxes included</string>
     <string name="products_header" translatable="false">Products</string>
     <string name="product_add_to_cart" translatable="false">Add to cart</string>
+    <string name="product_alt_text_default" translatable="false">Product image</string>
     <string name="cart_header" translatable="false">Your cart</string>
     <string name="cart_continue_shopping" translatable="false">Continue shopping</string>
     <string name="cart_estimated_total" translatable="false">Estimated total</string>
