@@ -90,6 +90,13 @@ fun NavigationItem(
     label: String,
     currentScreen: Screen,
 ) {
+    val isActiveScreen = currentScreen == screen
+    val color = if (isActiveScreen) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        Color.Unspecified
+    }
+
     Column {
         IconButton(
             onClick = { navController.navigate(screen.route) },
@@ -97,17 +104,12 @@ fun NavigationItem(
                 this.contentDescription = "$label icon"
             }
         ) {
-            val tint = if (currentScreen == screen) {
-                MaterialTheme.colorScheme.primary
-            } else {
-                Color.Unspecified
-            }
-
-            Icon(imageVector = icon, contentDescription = label, tint = tint)
+            Icon(imageVector = icon, contentDescription = label, tint = color)
         }
 
         BodySmall(
             text = label,
+            color = color,
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .offset(0.dp, (-7.5).dp)
