@@ -37,14 +37,19 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.paging.LoadState
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemContentType
+import androidx.paging.compose.itemKey
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyText
@@ -64,66 +69,68 @@ fun ProductsView(
     navController: NavController,
     productsViewModel: ProductsViewModel = koinViewModel(),
 ) {
-    LaunchedEffect(key1 = true) {
-        productsViewModel.fetchProducts()
-    }
 
-    val productsUIState = productsViewModel.uiState.collectAsState().value
+    val pager = remember {
+        Pager(PagingConfig(pageSize = 10)) {
+            productsViewModel.pagingSource
+        }
+    }
+    val lazyPagingItems = pager.flow.collectAsLazyPagingItems()
 
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        when (productsUIState) {
-            is ProductsUIState.Loading -> {
-                ProgressIndicator()
-            }
+        Column(
+            Modifier
+                .padding(horizontal = horizontalPadding)
+                .fillMaxSize()
+        ) {
+            BoxWithConstraints {
+                val largeScreen = maxWidth >= largeScreenBreakpoint
 
-            is ProductsUIState.Error -> {
-                Text(productsUIState.error)
-            }
-
-            is ProductsUIState.Loaded -> {
-                Column(
-                    Modifier
-                        .padding(horizontal = horizontalPadding)
-                        .fillMaxSize()
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(30.dp),
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
-                    BoxWithConstraints {
-                        val largeScreen = maxWidth >= largeScreenBreakpoint
+                    item(span = { GridItemSpan(maxCurrentLineSpan) }) {
+                        Header2(
+                            modifier = Modifier.padding(top = verticalPadding),
+                            text = stringResource(id = R.string.products_header)
+                        )
+                    }
 
+                    items(
+                        count = lazyPagingItems.itemCount,
+                        key = lazyPagingItems.itemKey { item ->
+                            item.id
+                        },
+                        contentType = lazyPagingItems.itemContentType { "Products" }
+                    ) { index ->
+                        val product = lazyPagingItems[index]
+                        if (product != null) {
+                            Product(
+                                product = product,
+                                imageHeight = if (largeScreen) defaultProductImageHeightLg else defaultProductImageHeight,
+                                onProductClick = { productId ->
+                                    productsViewModel.productClicked(navController, productId)
+                                }
+                            )
+                        }
+                    }
 
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(2),
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(30.dp),
-                            horizontalArrangement = Arrangement.spacedBy(5.dp)
-                        ) {
-                            item(span = { GridItemSpan(maxCurrentLineSpan) }) {
-                                Header2(
-                                    modifier = Modifier.padding(top = verticalPadding),
-                                    text = stringResource(id = R.string.products_header)
-                                )
-                            }
-
-                            items(productsUIState.products.size) { i ->
-                                Product(
-                                    product = productsUIState.products[i],
-                                    imageHeight = if (largeScreen) defaultProductImageHeightLg else defaultProductImageHeight,
-                                    onProductClick = { productId ->
-                                        productsViewModel.productClicked(navController, productId)
-                                    }
-                                )
-                            }
+                    if (lazyPagingItems.loadState.append == LoadState.Loading) {
+                        item {
+                            ProgressIndicator()
                         }
                     }
                 }
             }
         }
-
     }
 }
-
 
 @Composable
 fun Product(
@@ -152,5 +159,4 @@ fun Product(
             color = MaterialTheme.colorScheme.onBackground,
         )
     }
-
 }

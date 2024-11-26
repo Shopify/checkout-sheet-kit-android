@@ -22,9 +22,15 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.common
 
+import android.content.Context
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import java.util.Locale
 
-fun toDisplayText(currencyCode: String, price: Double, locale: Locale, includeSuffix: Boolean): String {
+fun toDisplayText(context: Context, currencyCode: String, price: Double, locale: Locale, includeSuffix: Boolean): String {
+    if (price == 0.0) {
+        return context.resources.getString(R.string.free)
+    }
+
     val displayText = "${currencyCode.toSymbol()}${price.toTwoDecimalString(locale)}"
     if (includeSuffix) {
         return "$displayText $currencyCode"

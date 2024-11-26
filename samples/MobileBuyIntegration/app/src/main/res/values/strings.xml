@@ -7,7 +7,7 @@
     <string name="color_scheme_web" translatable="false">Web</string>
     <string name="color_scheme_automatic" translatable="false">Automatic</string>
     <string name="preloading_note" translatable="false">NOTE: If preloading is enabled, color scheme changes may not be applied unless the cart is preloaded again.</string>
-    <string name="sdk_version" translatable="false">SDK version</string>
+    <string name="sdk_version" translatable="false">Checkout Sheet Kit version</string>
     <string name="sample_app_version" translatable="false">Sample app version</string>
     <string name="view_logs" translatable="false">View logs</string>
     <string name="delete_logs" translatable="false">Delete logs</string>
@@ -39,4 +39,5 @@
     <string name="cart_empty" translatable="false">Your cart is empty</string>
     <string name="cart_emtpy_description" translatable="false">Add products while you shop, so they\'ll be ready for checkout later.</string>
     <string name="cart_trash_content_description" translatable="false">Delete line item</string>
+    <string name="free" translatable="false">Free</string>
 </resources>

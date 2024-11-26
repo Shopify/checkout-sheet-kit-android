@@ -39,6 +39,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
@@ -76,10 +77,13 @@ fun LogsView(logsViewModel: LogsViewModel) {
                     .padding(horizontal = horizontalPadding, vertical = verticalPadding)
             ) {
 
-                Button({
+                Button(shape = RectangleShape, onClick = {
                     logsViewModel.clear()
                 }) {
-                    BodyMedium(text = stringResource(id = R.string.delete_logs))
+                    BodyMedium(
+                        text = stringResource(id = R.string.delete_logs),
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
                 }
 
                 LazyColumn(Modifier.fillMaxSize()) {
@@ -98,7 +102,7 @@ fun LogsView(logsViewModel: LogsViewModel) {
                                 .background(
                                     if (index % 2 == 0) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.background
                                 )
-                                .padding(horizontal = 8.dp),
+                                .padding(horizontal = 8.dp, vertical = 4.dp),
                             onClick = {
                                 logDetails.value = line
                                 logDetailsDialogOpen.value = true
