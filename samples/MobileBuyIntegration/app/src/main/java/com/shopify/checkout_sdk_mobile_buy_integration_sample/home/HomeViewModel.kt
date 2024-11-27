@@ -25,13 +25,15 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarController
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarEvent
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.Collection
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.CollectionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -42,23 +44,21 @@ class HomeViewModel(
     private val _uiState = MutableStateFlow<HomeUIState>(HomeUIState.Loading)
     val uiState: StateFlow<HomeUIState> = _uiState.asStateFlow()
 
-    fun fetchHomePageData() {
-        Timber.i("Fetching home page data")
-        viewModelScope.launch {
-            collectionRepository.getCollections(
+    fun fetchHomePageData() = viewModelScope.launch {
+        try {
+            Timber.i("Fetching home page data")
+            val collections = collectionRepository.getCollections(
                 numberOfCollections = NUM_COLLECTIONS,
                 numberOfProductsPerCollection = NUM_PRODUCTS_PER_COLLECTION
             )
-                .catch { exception ->
-                    Timber.e("Failed to fetch collections $exception")
-                    _uiState.value = HomeUIState.Error(exception.message ?: "Unknown")
-                }
-                .collect { collections ->
-                    Timber.i("Home page data fetched, retrieved ${collections.size} collections")
-                    _uiState.value = HomeUIState.Loaded(
-                        collections = collections,
-                    )
-                }
+            Timber.i("Home page data fetched, retrieved ${collections.size} collections")
+            _uiState.value = HomeUIState.Loaded(
+                collections = collections,
+            )
+        } catch (e: Exception) {
+            Timber.e("Failed to fetch collections $e")
+            SnackbarController.sendEvent(SnackbarEvent(R.string.collections_failed_to_load))
+            _uiState.value = HomeUIState.Error(e.message ?: "Unknown")
         }
     }
 

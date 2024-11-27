@@ -24,8 +24,9 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.single
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarController
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarEvent
 import timber.log.Timber
 
 class ProductPagingSource(
@@ -37,15 +38,15 @@ class ProductPagingSource(
         try {
             val cursor = params.key
             Timber.i("Fetching page of ${params.loadSize} products with cursor $cursor")
-            return repository.getProducts(params.loadSize, 10, cursor).map { res ->
-                LoadResult.Page(
-                    data = res.products,
-                    prevKey = null,
-                    nextKey = res.pageInfo.endCursor
-                )
-            }.single()
+            val products = repository.getProducts(params.loadSize, 10, cursor)
+            return LoadResult.Page(
+                data = products.products,
+                prevKey = null,
+                nextKey = products.pageInfo.endCursor
+            )
         } catch (e: Exception) {
             Timber.e("Error when paging through data $e")
+            SnackbarController.sendEvent(SnackbarEvent(R.string.products_failed_to_load))
             return LoadResult.Error(e)
         }
     }
