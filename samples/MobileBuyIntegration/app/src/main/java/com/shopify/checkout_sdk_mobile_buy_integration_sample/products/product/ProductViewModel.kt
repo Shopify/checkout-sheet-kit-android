@@ -25,6 +25,8 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.Product
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductRepository
 import com.shopify.graphql.support.ID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -50,12 +52,11 @@ class ProductViewModel(
 
     fun addToCart() {
         val state = _uiState.value
-        if (state is ProductUIState.Loaded) {
-            // TODO
-            val selectedVariantID = state.product.variants!![state.product.selectedVariant!!].id
+        if (state is ProductUIState.Loaded && state.product.variants != null && state.product.selectedVariant != null) {
+            val selectedVariantId = state.product.variants[state.product.selectedVariant].id
             val quantity = state.addQuantityAmount
             setIsAddingToCart(true)
-            cartViewModel.addToCart(selectedVariantID, quantity) { cart ->
+            cartViewModel.addToCart(selectedVariantId, quantity) { cart ->
                 Timber.i("Finished adding to cart, $cart")
                 setIsAddingToCart(false)
             }
@@ -93,5 +94,5 @@ class ProductViewModel(
 sealed class ProductUIState {
     data object Loading : ProductUIState()
     data class Error(val error: String) : ProductUIState()
-    data class Loaded(val product: UIProduct, val isAddingToCart: Boolean, val addQuantityAmount: Int) : ProductUIState()
+    data class Loaded(val product: Product, val isAddingToCart: Boolean, val addQuantityAmount: Int) : ProductUIState()
 }

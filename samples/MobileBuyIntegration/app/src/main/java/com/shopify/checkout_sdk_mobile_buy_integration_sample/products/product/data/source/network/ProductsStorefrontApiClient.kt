@@ -1,15 +1,15 @@
-package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product
+package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.source.network
 
 import com.shopify.buy3.GraphError
 import com.shopify.buy3.GraphResponse
 import com.shopify.buy3.Storefront
 import com.shopify.buy3.Storefront.ProductQuery
 import com.shopify.buy3.Storefront.ProductVariantQuery
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontRequestExecutor
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontApiRequestExecutor
 import com.shopify.graphql.support.ID
 
 class ProductsStorefrontApiClient(
-    private val executor: StorefrontRequestExecutor,
+    private val executor: StorefrontApiRequestExecutor,
 ) {
 
     fun fetchProduct(

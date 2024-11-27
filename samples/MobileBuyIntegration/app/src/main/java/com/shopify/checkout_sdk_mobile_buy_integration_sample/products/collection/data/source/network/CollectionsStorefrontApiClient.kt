@@ -1,13 +1,13 @@
-package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection
+package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.source.network
 
 import com.shopify.buy3.GraphError
 import com.shopify.buy3.GraphResponse
 import com.shopify.buy3.Storefront
 import com.shopify.buy3.Storefront.CollectionQuery
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontRequestExecutor
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontApiRequestExecutor
 
 class CollectionsStorefrontApiClient(
-    private val executor: StorefrontRequestExecutor,
+    private val executor: StorefrontApiRequestExecutor,
 ) {
     fun fetchCollection(
         handle: String,

@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product
+package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
@@ -30,10 +30,10 @@ import timber.log.Timber
 
 class ProductPagingSource(
     private val repository: ProductRepository,
-) : PagingSource<String, UIProduct>() {
+) : PagingSource<String, Product>() {
     override suspend fun load(
         params: LoadParams<String>
-    ): LoadResult<String, UIProduct> {
+    ): LoadResult<String, Product> {
         try {
             val cursor = params.key
             Timber.i("Fetching page of ${params.loadSize} products with cursor $cursor")
@@ -50,7 +50,7 @@ class ProductPagingSource(
         }
     }
 
-    override fun getRefreshKey(state: PagingState<String, UIProduct>): String? {
+    override fun getRefreshKey(state: PagingState<String, Product>): String? {
         return state.anchorPosition?.let { position ->
             state.closestPageToPosition(position)?.prevKey
         }

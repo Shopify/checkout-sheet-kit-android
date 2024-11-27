@@ -22,21 +22,17 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components
 
-import android.os.Build
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.toDisplayText
 
 @Composable
 fun Header1(
@@ -154,71 +150,5 @@ fun BodySmall(
         color = color,
         textDecoration = textDecoration,
         fontSize = fontSize,
-    )
-}
-
-@Composable
-fun MoneyText(
-    currency: String,
-    price: Double,
-    modifier: Modifier = Modifier,
-    style: TextStyle = MaterialTheme.typography.bodyMedium,
-    color: Color = MaterialTheme.colorScheme.onBackground,
-    textAlign: TextAlign = TextAlign.Start,
-    includeSuffix: Boolean = true,
-) {
-    val locale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        LocalConfiguration.current.locales.get(0)
-    } else {
-        LocalConfiguration.current.locale
-    }
-
-    Text(
-        modifier = modifier,
-        style = style,
-        color = color,
-        textAlign = textAlign,
-        text = toDisplayText(
-            LocalContext.current,
-            currency,
-            price,
-            locale,
-            includeSuffix,
-        )
-    )
-}
-
-@Composable
-fun MoneyRangeText(
-    fromPrice: Double,
-    fromCurrencyCode: String,
-    toPrice: Double,
-    toCurrencyCode: String,
-    modifier: Modifier = Modifier,
-    style: TextStyle = MaterialTheme.typography.bodyMedium,
-    color: Color = MaterialTheme.colorScheme.onBackground,
-    textAlign: TextAlign = TextAlign.Start,
-    includeSuffix: Boolean = true,
-) {
-    val locale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        LocalConfiguration.current.locales.get(0)
-    } else {
-        LocalConfiguration.current.locale
-    }
-
-    Text(
-        modifier = modifier,
-        style = style,
-        color = color,
-        textAlign = textAlign,
-        text = toDisplayText(
-            LocalContext.current,
-            fromPrice,
-            fromCurrencyCode,
-            toPrice,
-            toCurrencyCode,
-            locale,
-            includeSuffix,
-        )
     )
 }

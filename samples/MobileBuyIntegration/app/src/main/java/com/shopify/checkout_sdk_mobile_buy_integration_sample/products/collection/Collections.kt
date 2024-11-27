@@ -45,10 +45,12 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.horizontalPadding
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.verticalPadding
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.Collection
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.CollectionImage
 
 @Composable
 fun Collections(
-    collections: List<UICollection>,
+    collections: List<Collection>,
     onClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {

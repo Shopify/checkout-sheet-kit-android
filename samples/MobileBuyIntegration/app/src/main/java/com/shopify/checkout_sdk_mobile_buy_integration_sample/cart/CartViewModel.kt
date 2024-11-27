@@ -26,6 +26,8 @@ import androidx.activity.ComponentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartRepository
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartState
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
@@ -37,7 +39,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-typealias OnComplete = (CartState.UICart?) -> Unit
+typealias OnComplete = (CartState.Cart?) -> Unit
 
 class CartViewModel(
     private val cartRepository: CartRepository,
@@ -68,13 +70,13 @@ class CartViewModel(
         Timber.i("Adding variant: $variantId to cart with quantity: $quantity")
         when (val state = _cartState.value) {
             is CartState.Empty -> performCartCreate(variantId, quantity, onComplete)
-            is CartState.UICart -> performCartLinesAdd(state.cartID, variantId, quantity, onComplete)
+            is CartState.Cart -> performCartLinesAdd(state.cartID, variantId, quantity, onComplete)
         }
     }
 
     fun modifyLineItem(lineItemId: String, quantity: Int?) {
         when (val state = _cartState.value) {
-            is CartState.UICart -> {
+            is CartState.Cart -> {
                 viewModelScope.launch {
                     Timber.i("Updating or removing line item: $lineItemId, quantity: $quantity")
                     _loadingState.value = true
@@ -114,7 +116,7 @@ class CartViewModel(
         activity: ComponentActivity,
     ) {
         val state = _cartState.value
-        if (state is CartState.UICart) {
+        if (state is CartState.Cart) {
             Timber.i("Preloading checkout with url ${state.checkoutUrl}")
             ShopifyCheckoutSheetKit.preload(state.checkoutUrl, activity)
         } else {

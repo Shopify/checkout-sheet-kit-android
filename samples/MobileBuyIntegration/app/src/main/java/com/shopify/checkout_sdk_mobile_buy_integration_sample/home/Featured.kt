@@ -40,12 +40,12 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.defaultProductImageHeight
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.defaultProductImageHeightLg
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.CollectionProduct
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.UIProduct
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.Product
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun Featured(
-    featured: List<UIProduct>,
+    featured: List<Product>,
     imageHeight: Dp = defaultProductImageHeight,
     imageHeightLg: Dp = defaultProductImageHeightLg,
     verticalPadding: Dp = 30.dp,
