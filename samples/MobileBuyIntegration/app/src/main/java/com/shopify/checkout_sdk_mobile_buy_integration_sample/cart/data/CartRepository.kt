@@ -4,15 +4,13 @@ import com.shopify.buy3.Storefront
 import com.shopify.buy3.Storefront.CartLineInput
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.source.network.CartStorefrontApiClient
 import com.shopify.graphql.support.ID
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import kotlin.coroutines.suspendCoroutine
 
 class CartRepository(
     private val cartStorefrontApiClient: CartStorefrontApiClient,
 ) {
 
-    suspend fun createCart(variantId: String, quantity: Int, demoBuyerIdentityEnabled: Boolean): Flow<CartState.Cart> {
+    suspend fun createCart(variantId: String, quantity: Int, demoBuyerIdentityEnabled: Boolean): CartState.Cart {
         return suspendCoroutine { continuation ->
             val buyerIdentity = if (demoBuyerIdentityEnabled) {
                 DemoBuyerIdentity.value
@@ -29,7 +27,7 @@ class CartRepository(
                     if (cartCreateResponse == null) {
                         continuation.resumeWith(Result.failure(RuntimeException("Failed to create cart")))
                     } else {
-                        continuation.resumeWith(Result.success(flowOf(cartCreateResponse.cart.toLocal())))
+                        continuation.resumeWith(Result.success(cartCreateResponse.cart.toLocal()))
                     }
                 },
                 failureCallback = { exception ->
@@ -39,7 +37,7 @@ class CartRepository(
         }
     }
 
-    suspend fun addCartLine(cartId: String, variantId: String, quantity: Int): Flow<CartState.Cart> {
+    suspend fun addCartLine(cartId: String, variantId: String, quantity: Int): CartState.Cart {
         val line = CartLineInput(ID(variantId)).setQuantity(quantity)
         return suspendCoroutine { continuation ->
             cartStorefrontApiClient.cartLinesAdd(
@@ -50,7 +48,7 @@ class CartRepository(
                     if (cartLinesAddResponse == null) {
                         continuation.resumeWith(Result.failure(RuntimeException("Failed to add cart line")))
                     } else {
-                        continuation.resumeWith(Result.success(flowOf(cartLinesAddResponse.cart.toLocal())))
+                        continuation.resumeWith(Result.success(cartLinesAddResponse.cart.toLocal()))
                     }
                 },
                 failureCallback = { exception ->
@@ -59,7 +57,7 @@ class CartRepository(
         }
     }
 
-    suspend fun modifyCartLine(cartId: String, lineItemId: String, quantity: Int?): Flow<CartState.Cart> {
+    suspend fun modifyCartLine(cartId: String, lineItemId: String, quantity: Int?): CartState.Cart {
         return suspendCoroutine { continuation ->
             cartStorefrontApiClient.cartLinesModify(
                 cartId = ID(cartId),
@@ -73,7 +71,7 @@ class CartRepository(
                     if (cartResult == null) {
                         continuation.resumeWith(Result.failure(RuntimeException("Failed to modify cart")))
                     } else {
-                        continuation.resumeWith(Result.success(flowOf(cartResult.toLocal())))
+                        continuation.resumeWith(Result.success(cartResult.toLocal()))
                     }
                 },
                 failureCallback = { exception ->

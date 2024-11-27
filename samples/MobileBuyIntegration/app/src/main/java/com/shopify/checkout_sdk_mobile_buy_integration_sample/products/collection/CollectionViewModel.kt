@@ -25,13 +25,15 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collecti
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarController
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarEvent
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.Collection
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.CollectionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.net.URLEncoder
@@ -42,20 +44,18 @@ class CollectionViewModel(
     private val _uiState = MutableStateFlow<CollectionUIState>(CollectionUIState.Loading)
     val uiState: StateFlow<CollectionUIState> = _uiState.asStateFlow()
 
-    fun fetchCollection(handle: String) {
+    fun fetchCollection(handle: String) = viewModelScope.launch {
         Timber.i("Fetching collection with handle: $handle")
-        viewModelScope.launch {
-            collectionRepository.getCollection(handle, numberOfProducts = 10)
-                .catch { exception ->
-                    Timber.e("Fetching collection failed $exception")
-                    _uiState.value = CollectionUIState.Error("Failed to fetch collection")
-                }
-                .collect { collection ->
-                    Timber.i("Fetching collection complete")
-                    _uiState.value = CollectionUIState.Loaded(collection = collection)
-                }
-        }
+        try {
+            val collection = collectionRepository.getCollection(handle, numberOfProducts = 10)
 
+            Timber.i("Fetching collection complete")
+            _uiState.value = CollectionUIState.Loaded(collection = collection)
+        } catch (e: Exception) {
+            Timber.e("Fetching collection failed $e")
+            SnackbarController.sendEvent(SnackbarEvent(R.string.collection_failed_to_load))
+            _uiState.value = CollectionUIState.Error("Failed to fetch collection")
+        }
     }
 
     fun productSelected(navController: NavController, productId: String) {

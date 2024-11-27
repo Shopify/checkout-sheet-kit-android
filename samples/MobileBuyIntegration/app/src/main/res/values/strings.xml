@@ -22,6 +22,8 @@
     <string name="hero_text" translatable="false">Stylish Plants for Modern Living</string>
     <string name="hero_content_description" translatable="false">Image of living room with lots of plants</string>
     <string name="hero_cta" translatable="false">Shop all</string>
+    <string name="collection_failed_to_load" translatable="false">Failed to load collection</string>
+    <string name="collections_failed_to_load" translatable="false">Failed to load collections</string>
     <string name="collections_title" translatable="false">Collections</string>
     <string name="collection_img_alt_default" translatable="false">Collection image</string>
     <string name="collection_cta_content_description" translatable="false">View collection></string>
@@ -32,6 +34,7 @@
     <string name="products_header" translatable="false">Products</string>
     <string name="product_add_to_cart" translatable="false">Add to cart</string>
     <string name="product_alt_text_default" translatable="false">Product image</string>
+    <string name="products_failed_to_load" translatable="false">Failed to load products</string>
     <string name="cart_header" translatable="false">Your cart</string>
     <string name="cart_continue_shopping" translatable="false">Continue shopping</string>
     <string name="cart_estimated_total" translatable="false">Estimated total</string>
@@ -43,5 +46,7 @@
     <string name="cart_empty" translatable="false">Your cart is empty</string>
     <string name="cart_emtpy_description" translatable="false">Add products while you shop, so they\'ll be ready for checkout later.</string>
     <string name="cart_trash_content_description" translatable="false">Delete line item</string>
+    <string name="cart_error_creating" translatable="false">Failed to create cart</string>
+    <string name="cart_error_updating" translatable="false">Failed to update cart</string>
     <string name="free" translatable="false">Free</string>
 </resources>

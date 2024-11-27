@@ -31,7 +31,6 @@ import com.shopify.graphql.support.ID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -56,29 +55,25 @@ class ProductViewModel(
             val selectedVariantId = state.product.variants[state.product.selectedVariant].id
             val quantity = state.addQuantityAmount
             setIsAddingToCart(true)
-            cartViewModel.addToCart(selectedVariantId, quantity) { cart ->
-                Timber.i("Finished adding to cart, $cart")
+            cartViewModel.addToCart(selectedVariantId, quantity) {
                 setIsAddingToCart(false)
             }
         }
     }
 
-    fun fetchProduct(productId: ID) {
-        viewModelScope.launch {
-            Timber.i("Fetching product with id $productId")
-            productRepository.getProduct(productId)
-                .catch { exception ->
-                    Timber.e("Fetching product failed $exception")
-                    _uiState.value = ProductUIState.Error(exception.message ?: "Unknown error")
-                }
-                .collect { product ->
-                    Timber.i("Fetching product complete $product")
-                    _uiState.value = ProductUIState.Loaded(
-                        product = product,
-                        isAddingToCart = false,
-                        addQuantityAmount = 1
-                    )
-                }
+    fun fetchProduct(productId: ID) = viewModelScope.launch {
+        Timber.i("Fetching product with id $productId")
+        try {
+            val product = productRepository.getProduct(productId)
+            Timber.i("Fetching product complete $product")
+            _uiState.value = ProductUIState.Loaded(
+                product = product,
+                isAddingToCart = false,
+                addQuantityAmount = 1
+            )
+        } catch (e: Exception) {
+            Timber.e("Fetching product failed $e")
+            _uiState.value = ProductUIState.Error(e.message ?: "Unknown error")
         }
     }
 
