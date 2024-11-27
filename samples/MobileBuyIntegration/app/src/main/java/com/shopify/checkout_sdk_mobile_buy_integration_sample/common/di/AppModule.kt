@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkout_sdk_mobile_buy_integration_sample.di
+package com.shopify.checkout_sdk_mobile_buy_integration_sample.common.di
 
 import android.app.Application
 import android.util.LruCache
@@ -30,7 +30,9 @@ import com.shopify.buy3.GraphClient
 import com.shopify.buy3.Storefront
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.BuildConfig
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontClient
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartRepository
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.source.network.CartStorefrontApiClient
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontApiRequestExecutor
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.LogDatabase
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.MIGRATION_1_2
@@ -38,7 +40,11 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.home.HomeViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.LogsViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.ProductsViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.CollectionViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.CollectionRepository
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.source.network.CollectionsStorefrontApiClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.ProductViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductRepository
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.source.network.ProductsStorefrontApiClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -61,19 +67,26 @@ fun setupDI(application: Application) {
 val appModules = module {
     // App-wide components
     singleOf(::PreferencesManager)
-    singleOf(::StorefrontClient)
+    singleOf(::CartStorefrontApiClient)
     single {
-        GraphClient.build(
-            context = get(),
-            accessToken = BuildConfig.storefrontAccessToken,
-            shopDomain = BuildConfig.storefrontDomain
+        val maxCacheEntries = 100
+
+        StorefrontApiRequestExecutor(
+            lruCache = LruCache<String, GraphCallResult.Success<Storefront.QueryRoot>>(maxCacheEntries),
+            client = GraphClient.build(
+                context = get(),
+                accessToken = BuildConfig.storefrontAccessToken,
+                shopDomain = BuildConfig.storefrontDomain
+            )
         )
     }
 
-    single {
-        val maxEntries = 100
-        LruCache<String, GraphCallResult.Success<Storefront.QueryRoot>>(maxEntries)
-    }
+    singleOf(::CollectionRepository)
+    singleOf(::CollectionsStorefrontApiClient)
+    singleOf(::ProductRepository)
+    singleOf(::ProductsStorefrontApiClient)
+    singleOf(::CartRepository)
+    singleOf(::CartStorefrontApiClient)
 
     single {
         // singleton instance of shared cart view model

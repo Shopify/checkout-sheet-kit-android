@@ -23,43 +23,44 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
-import com.shopify.buy3.Storefront
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontClient
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarController
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarEvent
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
-import com.shopify.graphql.support.ID
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.Collection
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.CollectionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.net.URLEncoder
 
 class CollectionViewModel(
-    private val client: StorefrontClient,
+    private val collectionRepository: CollectionRepository,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<CollectionUIState>(CollectionUIState.Loading)
     val uiState: StateFlow<CollectionUIState> = _uiState.asStateFlow()
 
-    fun fetchCollection(handle: String) {
+    fun fetchCollection(handle: String) = viewModelScope.launch {
         Timber.i("Fetching collection with handle: $handle")
-        client.fetchCollection(handle, numProducts = 10, successCallback = { result ->
-            val collection = result.data?.collection
-            if (collection != null) {
-                Timber.i("Fetching collection complete")
-                _uiState.value = CollectionUIState.Loaded(collection = collection)
-            } else {
-                Timber.e("Fetching collection failed")
-                _uiState.value = CollectionUIState.Error("Failed to fetch collection")
-            }
-        }, failureCallback = { error ->
-            Timber.e("Fetching collection failed $error")
+        try {
+            val collection = collectionRepository.getCollection(handle, numberOfProducts = 10)
+
+            Timber.i("Fetching collection complete")
+            _uiState.value = CollectionUIState.Loaded(collection = collection)
+        } catch (e: Exception) {
+            Timber.e("Fetching collection failed $e")
+            SnackbarController.sendEvent(SnackbarEvent(R.string.collection_failed_to_load))
             _uiState.value = CollectionUIState.Error("Failed to fetch collection")
-        })
+        }
     }
 
-    fun productSelected(navController: NavController, productId: ID) {
+    fun productSelected(navController: NavController, productId: String) {
         Timber.i("Product $productId selected, navigation to product page")
-        val encodedId = URLEncoder.encode(productId.toString(), "UTF-8")
+        val encodedId = URLEncoder.encode(productId, "UTF-8")
         navController.navigate(Screen.Product.route.replace("{productId}", encodedId))
     }
 }
@@ -67,5 +68,5 @@ class CollectionViewModel(
 sealed class CollectionUIState {
     data object Loading : CollectionUIState()
     data class Error(val error: String) : CollectionUIState()
-    data class Loaded(val collection: Storefront.Collection) : CollectionUIState()
+    data class Loaded(val collection: Collection) : CollectionUIState()
 }

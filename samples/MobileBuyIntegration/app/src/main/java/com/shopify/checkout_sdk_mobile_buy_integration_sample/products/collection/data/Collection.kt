@@ -20,23 +20,20 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkout_sdk_mobile_buy_integration_sample.products
+package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data
 
-import androidx.lifecycle.ViewModel
-import androidx.navigation.NavController
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductPagingSource
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductRepository
-import timber.log.Timber
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.Product
 
-class ProductsViewModel(
-    productRepository: ProductRepository,
-) : ViewModel() {
+data class Collection(
+    val id: String = "",
+    val handle: String = "",
+    val title: String = "",
+    val description: String = "",
+    val image: CollectionImage = CollectionImage(),
+    val products: List<Product> = mutableListOf()
+)
 
-    val pagingSource = ProductPagingSource(productRepository)
-
-    fun productClicked(navController: NavController, productId: String) {
-        Timber.i("Navigation to product description page for $productId")
-        navController.navigate(Screen.Product.route(productId))
-    }
-}
+data class CollectionImage(
+    val url: String? = null,
+    val altText: String? = null,
+)

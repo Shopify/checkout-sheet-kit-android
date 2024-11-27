@@ -23,38 +23,43 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.home
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
-import com.shopify.buy3.Storefront
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontClient
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarController
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarEvent
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
-import com.shopify.graphql.support.ID
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.Collection
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.CollectionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class HomeViewModel(
-    private val client: StorefrontClient,
+    private val collectionRepository: CollectionRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<HomeUIState>(HomeUIState.Loading)
     val uiState: StateFlow<HomeUIState> = _uiState.asStateFlow()
 
-    fun fetchHomePageData() {
-        Timber.i("Fetching home page data")
-        client.fetchHomePageData(numCollections = NUM_COLLECTIONS, numProducts = NUM_PRODUCTS_PER_COLLECTION,
-            { success ->
-                val collections = success.data?.collections?.nodes
-                Timber.i("Home page data fetched, retrieved ${collections?.size ?: 0} collections")
-                _uiState.value = HomeUIState.Loaded(
-                    collections = collections ?: emptyList(),
-                )
-            },
-            { failure ->
-                Timber.e("Failed to fetch collections $failure")
-                _uiState.value = HomeUIState.Error(failure.message ?: "Unknown")
-            }
-        )
+    fun fetchHomePageData() = viewModelScope.launch {
+        try {
+            Timber.i("Fetching home page data")
+            val collections = collectionRepository.getCollections(
+                numberOfCollections = NUM_COLLECTIONS,
+                numberOfProductsPerCollection = NUM_PRODUCTS_PER_COLLECTION
+            )
+            Timber.i("Home page data fetched, retrieved ${collections.size} collections")
+            _uiState.value = HomeUIState.Loaded(
+                collections = collections,
+            )
+        } catch (e: Exception) {
+            Timber.e("Failed to fetch collections $e")
+            SnackbarController.sendEvent(SnackbarEvent(R.string.collections_failed_to_load))
+            _uiState.value = HomeUIState.Error(e.message ?: "Unknown")
+        }
     }
 
     fun shopAll(navController: NavController) {
@@ -67,7 +72,7 @@ class HomeViewModel(
         navController.navigate(Screen.Collection.route(collectionHandle))
     }
 
-    fun productSelected(navController: NavController, productId: ID) {
+    fun productSelected(navController: NavController, productId: String) {
         Timber.i("Product selected $productId, navigating to product page")
         navController.navigate(Screen.Product.route(productId.toString()))
     }
@@ -82,6 +87,6 @@ sealed class HomeUIState {
     data object Loading : HomeUIState()
     data class Error(val error: String) : HomeUIState()
     data class Loaded(
-        val collections: List<Storefront.Collection>,
+        val collections: List<Collection>,
     ) : HomeUIState()
 }
