@@ -44,11 +44,11 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.defaultProductImageHeight
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.defaultProductImageHeightLg
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.largeScreenBreakpoint
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.UIProduct
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.Product
 
 @Composable
 fun CollectionProduct(
-    product: UIProduct,
+    product: Product,
     onProductClick: (id: String) -> Unit,
     textColor: Color = MaterialTheme.colorScheme.onPrimary,
     imageHeight: Dp = defaultProductImageHeight,

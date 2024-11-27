@@ -26,8 +26,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.CollectionRepository
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.UICollection
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.Collection
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.CollectionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -87,6 +87,6 @@ sealed class HomeUIState {
     data object Loading : HomeUIState()
     data class Error(val error: String) : HomeUIState()
     data class Loaded(
-        val collections: List<UICollection>,
+        val collections: List<Collection>,
     ) : HomeUIState()
 }

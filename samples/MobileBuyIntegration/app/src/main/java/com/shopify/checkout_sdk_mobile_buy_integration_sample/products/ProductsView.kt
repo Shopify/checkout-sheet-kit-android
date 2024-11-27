@@ -60,7 +60,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.de
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.horizontalPadding
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.largeScreenBreakpoint
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.verticalPadding
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.UIProduct
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.Product
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -133,7 +133,7 @@ fun ProductsView(
 
 @Composable
 fun Product(
-    product: UIProduct,
+    product: Product,
     imageHeight: Dp,
     onProductClick: (id: String) -> Unit,
 ) {

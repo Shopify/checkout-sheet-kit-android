@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkout_sdk_mobile_buy_integration_sample.cart
+package com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.source.network
 
 import com.shopify.buy3.GraphError
 import com.shopify.buy3.GraphResponse
@@ -30,12 +30,12 @@ import com.shopify.buy3.Storefront.CartInput
 import com.shopify.buy3.Storefront.CartLineInput
 import com.shopify.buy3.Storefront.CartLineUpdateInput
 import com.shopify.buy3.Storefront.CartQuery
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontRequestExecutor
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontApiRequestExecutor
 import com.shopify.graphql.support.ID
 import com.shopify.graphql.support.Input
 
 class CartStorefrontApiClient(
-    private val executor: StorefrontRequestExecutor,
+    private val executor: StorefrontApiRequestExecutor,
 ) {
 
     fun cartLinesModify(

@@ -25,8 +25,8 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.products
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.ProductPagingSource
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.ProductRepository
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductPagingSource
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductRepository
 import timber.log.Timber
 
 class ProductsViewModel(

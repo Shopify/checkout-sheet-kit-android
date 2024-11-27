@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkout_sdk_mobile_buy_integration_sample.cart
+package com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data
 
 import androidx.compose.runtime.Stable
 
@@ -28,7 +28,7 @@ sealed class CartState {
     data object Empty : CartState()
 
     @Stable
-    data class UICart(
+    data class Cart(
         val cartID: String,
         val cartLines: List<CartLine>,
         val cartTotals: CartTotals,
@@ -50,11 +50,19 @@ data class CartLine(
     val totalCurrency: String,
 )
 
-data class CartTotals(val totalQuantity: Int, val totalAmount: Amount, val totalAmountEstimated: Boolean)
-data class Amount(val currency: String, val price: Double)
+data class CartTotals(
+    val totalQuantity: Int,
+    val totalAmount: CartAmount,
+    val totalAmountEstimated: Boolean,
+)
+
+data class CartAmount(
+    val currency: String,
+    val price: Double,
+)
 
 val CartState.totalQuantity
     get() = when (this) {
         is CartState.Empty -> 0
-        is CartState.UICart -> cartTotals.totalQuantity
+        is CartState.Cart -> cartTotals.totalQuantity
     }

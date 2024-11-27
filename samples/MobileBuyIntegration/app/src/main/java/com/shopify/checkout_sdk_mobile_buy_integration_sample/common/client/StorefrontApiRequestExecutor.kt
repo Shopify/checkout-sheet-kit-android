@@ -11,7 +11,7 @@ import com.shopify.buy3.Storefront.QueryRootQuery
 import timber.log.Timber
 import java.security.MessageDigest
 
-class StorefrontRequestExecutor(
+class StorefrontApiRequestExecutor(
     private val client: GraphClient,
     private val lruCache: LruCache<String, GraphCallResult.Success<Storefront.QueryRoot>>,
 ) {

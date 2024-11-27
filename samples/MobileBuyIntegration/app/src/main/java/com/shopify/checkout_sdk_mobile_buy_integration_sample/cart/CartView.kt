@@ -60,6 +60,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartAmount
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartLine
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartState
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodyMedium
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodySmall
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
@@ -101,7 +104,7 @@ fun <T : DefaultCheckoutEventProcessor> CartView(
                 EmptyCartMessage(Modifier.fillMaxSize())
             }
 
-            is CartState.UICart -> {
+            is CartState.Cart -> {
                 mutableQuantity = state.cartLines.associate {
                     it.title to it.quantity
                 }
@@ -133,7 +136,7 @@ fun <T : DefaultCheckoutEventProcessor> CartView(
 private fun CartLines(
     lines: List<CartLine>,
     loading: Boolean,
-    totalAmount: Amount,
+    totalAmount: CartAmount,
     totalAmountEstimated: Boolean,
     continueShopping: () -> Unit,
     modifyLineItem: (String, Int?) -> Unit,

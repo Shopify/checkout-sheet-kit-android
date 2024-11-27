@@ -1,7 +1,8 @@
-package com.shopify.checkout_sdk_mobile_buy_integration_sample.cart
+package com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data
 
 import com.shopify.buy3.Storefront
 import com.shopify.buy3.Storefront.CartLineInput
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.source.network.CartStorefrontApiClient
 import com.shopify.graphql.support.ID
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -11,7 +12,7 @@ class CartRepository(
     private val cartStorefrontApiClient: CartStorefrontApiClient,
 ) {
 
-    suspend fun createCart(variantId: String, quantity: Int, demoBuyerIdentityEnabled: Boolean): Flow<CartState.UICart> {
+    suspend fun createCart(variantId: String, quantity: Int, demoBuyerIdentityEnabled: Boolean): Flow<CartState.Cart> {
         return suspendCoroutine { continuation ->
             val buyerIdentity = if (demoBuyerIdentityEnabled) {
                 DemoBuyerIdentity.value
@@ -28,7 +29,7 @@ class CartRepository(
                     if (cartCreateResponse == null) {
                         continuation.resumeWith(Result.failure(RuntimeException("Failed to create cart")))
                     } else {
-                        continuation.resumeWith(Result.success(flowOf(cartCreateResponse.cart.toUICart())))
+                        continuation.resumeWith(Result.success(flowOf(cartCreateResponse.cart.toLocal())))
                     }
                 },
                 failureCallback = { exception ->
@@ -38,7 +39,7 @@ class CartRepository(
         }
     }
 
-    suspend fun addCartLine(cartId: String, variantId: String, quantity: Int): Flow<CartState.UICart> {
+    suspend fun addCartLine(cartId: String, variantId: String, quantity: Int): Flow<CartState.Cart> {
         val line = CartLineInput(ID(variantId)).setQuantity(quantity)
         return suspendCoroutine { continuation ->
             cartStorefrontApiClient.cartLinesAdd(
@@ -49,7 +50,7 @@ class CartRepository(
                     if (cartLinesAddResponse == null) {
                         continuation.resumeWith(Result.failure(RuntimeException("Failed to add cart line")))
                     } else {
-                        continuation.resumeWith(Result.success(flowOf(cartLinesAddResponse.cart.toUICart())))
+                        continuation.resumeWith(Result.success(flowOf(cartLinesAddResponse.cart.toLocal())))
                     }
                 },
                 failureCallback = { exception ->
@@ -58,7 +59,7 @@ class CartRepository(
         }
     }
 
-    suspend fun modifyCartLine(cartId: String, lineItemId: String, quantity: Int?): Flow<CartState.UICart> {
+    suspend fun modifyCartLine(cartId: String, lineItemId: String, quantity: Int?): Flow<CartState.Cart> {
         return suspendCoroutine { continuation ->
             cartStorefrontApiClient.cartLinesModify(
                 cartId = ID(cartId),
@@ -72,45 +73,12 @@ class CartRepository(
                     if (cartResult == null) {
                         continuation.resumeWith(Result.failure(RuntimeException("Failed to modify cart")))
                     } else {
-                        continuation.resumeWith(Result.success(flowOf(cartResult.toUICart())))
+                        continuation.resumeWith(Result.success(flowOf(cartResult.toLocal())))
                     }
                 },
                 failureCallback = { exception ->
                     continuation.resumeWith(Result.failure(RuntimeException("Failed to modify cart", exception)))
                 })
-        }
-    }
-
-    private fun Storefront.Cart.toUICart(): CartState.UICart {
-        return CartState.UICart(
-            cartID = id.toString(),
-            cartLines = this.lines.nodes.mapNotNull { cartLine -> cartLine.toUICartLine() },
-            cartTotals = CartTotals(
-                totalAmount = Amount(
-                    currency = cost.totalAmount.currencyCode.name,
-                    price = cost.totalAmount.amount.toDouble(),
-                ),
-                totalAmountEstimated = cost.totalAmountEstimated,
-                totalQuantity = totalQuantity
-            ),
-            checkoutUrl = checkoutUrl,
-        )
-    }
-
-    private fun Storefront.BaseCartLine.toUICartLine(): CartLine? {
-        return (this.merchandise as? Storefront.ProductVariant)?.let {
-            CartLine(
-                id = this.id.toString(),
-                imageURL = it.product.featuredImage.url,
-                imageAltText = it.product.featuredImage.altText ?: "",
-                title = it.product.title,
-                vendor = it.product.vendor,
-                quantity = this.quantity,
-                pricePerQuantity = this.cost.amountPerQuantity.amount.toDouble(),
-                currencyPerQuantity = this.cost.amountPerQuantity.currencyCode.name,
-                totalPrice = this.cost.totalAmount.amount.toDouble(),
-                totalCurrency = this.cost.totalAmount.currencyCode.name,
-            )
         }
     }
 }
