@@ -30,6 +30,10 @@
     <string name="view_logs" translatable="false">View logs</string>
     <string name="delete_logs" translatable="false">Delete logs</string>
 
+    <string name="login" translatable="false">Login</string>
+    <string name="logout" translatable="false">Log out</string>
+    <string name="login_retry" translatable="false">Retry</string>
+
     <!-- Errors -->
     <string name="checkout_error" translatable="false">Checkout failed, please try again</string>
     <string name="collection_failed_to_load" translatable="false">Failed to load collection</string>
@@ -37,6 +41,7 @@
     <string name="products_failed_to_load" translatable="false">Failed to load products</string>
     <string name="cart_error_creating" translatable="false">Failed to create cart</string>
     <string name="cart_error_updating" translatable="false">Failed to update cart</string>
+    <string name="login_error" translatable="false">An error occurred when completing log in</string>
 
     <!-- File chooser title - if an app is installed that requires media upload -->
     <string name="filechooser_title">Select or Capture Image</string>

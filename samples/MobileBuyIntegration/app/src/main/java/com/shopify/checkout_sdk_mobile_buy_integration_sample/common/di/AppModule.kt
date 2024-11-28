@@ -32,6 +32,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.BuildConfig
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartRepository
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.source.network.CartStorefrontApiClient
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.IPAddressDetails
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontApiRequestExecutor
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.LogDatabase
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
@@ -47,8 +48,15 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.d
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.source.network.ProductsStorefrontApiClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.login.LoginViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.login.data.TokenRepository
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.login.data.source.local.TokenStore
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.login.data.source.network.CustomerAccountsApiClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.serialization.json.Json
+import okhttp3.OkHttpClient
+import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.viewmodel.dsl.viewModelOf
@@ -66,10 +74,18 @@ fun setupDI(application: Application) {
 
 val appModules = module {
     // App-wide components
+    single {
+        IPAddressDetails(
+            get()
+        )
+    }
+
     singleOf(::PreferencesManager)
     singleOf(::CartStorefrontApiClient)
+    singleOf(::IPAddressDetails)
     single {
         val maxCacheEntries = 100
+        val ipAddressDetails: IPAddressDetails = get()
 
         StorefrontApiRequestExecutor(
             lruCache = LruCache<String, GraphCallResult.Success<Storefront.QueryRoot>>(maxCacheEntries),
@@ -77,7 +93,33 @@ val appModules = module {
                 context = get(),
                 accessToken = BuildConfig.storefrontAccessToken,
                 shopDomain = BuildConfig.storefrontDomain
-            )
+            ) {
+                // Modify HTTP Client to allow adding an IP header
+                this.httpClient = this.httpClient.newBuilder()
+                    .addInterceptor { chain ->
+                        val original = chain.request()
+                        ipAddressDetails.ipAddress()?.let { ipAddress ->
+                            val builder = original
+                                .newBuilder()
+                                .method(original.method, original.body)
+                                .header("Shopify-Storefront-Buyer-IP", ipAddress)
+                            chain.proceed(builder.build())
+                        }
+                        chain.proceed(chain.request())
+                    }
+                    .build()
+            }
+        )
+    }
+
+    single {
+        CustomerAccountsApiClient(
+            client = OkHttpClient(),
+            json = Json { ignoreUnknownKeys = true },
+            restBaseUrl = "https://shopify.com/authentication/${BuildConfig.shopId}",
+            graphQLBaseUrl = "https://shopify.com/${BuildConfig.shopId}/account/customer/api/2024-07/graphql",
+            redirectUri = BuildConfig.customerAccountsApiRedirectUri,
+            clientId = BuildConfig.customerAccountsApiClientId
         )
     }
 
@@ -87,10 +129,18 @@ val appModules = module {
     singleOf(::ProductsStorefrontApiClient)
     singleOf(::CartRepository)
     singleOf(::CartStorefrontApiClient)
+    singleOf(::TokenRepository)
+    single {
+        TokenStore(
+            appContext = androidApplication().applicationContext,
+            scope = CoroutineScope(Dispatchers.Default),
+        )
+    }
 
     single {
         // singleton instance of shared cart view model
         CartViewModel(
+            get(),
             get(),
             get(),
         )
@@ -120,4 +170,5 @@ val appModules = module {
     viewModelOf(::ProductsViewModel)
     viewModelOf(::HomeViewModel)
     viewModelOf(::LogsViewModel)
+    viewModelOf(::LoginViewModel)
 }

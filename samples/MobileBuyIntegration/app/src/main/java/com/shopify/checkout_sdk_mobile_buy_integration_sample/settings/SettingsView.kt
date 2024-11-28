@@ -100,12 +100,22 @@ fun SettingsView(
                     version = uiState.sampleAppVersion,
                     modifier = Modifier.fillMaxWidth()
                 )
+
                 Button(
                     onClick = { navController.navigate(Screen.Logs.route) },
                     shape = RectangleShape,
                 ) {
                     BodyMedium(
                         text = stringResource(id = R.string.view_logs),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                    )
+                }
+                Button(
+                    onClick = { navController.navigate(Screen.Login.route) },
+                    shape = RectangleShape,
+                ) {
+                    BodyMedium(
+                        text = stringResource(id = R.string.login),
                         color = MaterialTheme.colorScheme.onPrimary,
                     )
                 }

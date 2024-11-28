@@ -41,6 +41,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collectio
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.ProductView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.login.LoginView
 import org.koin.compose.koinInject
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -71,6 +72,7 @@ sealed class Screen(val route: String) {
     data object Cart : Screen("cart")
     data object Settings : Screen("settings")
     data object Logs : Screen("logs")
+    data object Login : Screen("login")
 
     companion object {
         fun fromRoute(route: String): Screen {
@@ -82,6 +84,7 @@ sealed class Screen(val route: String) {
                 Cart.route -> Cart
                 Settings.route -> Settings
                 Logs.route -> Logs
+                Login.route -> Login
                 else -> throw RuntimeException("Unknown route")
             }
         }
@@ -143,6 +146,10 @@ fun CheckoutSdkNavHost(
             LogsView(
                 logsViewModel = logsViewModel,
             )
+        }
+
+        composable(Screen.Login.route) {
+            LoginView()
         }
     }
 }

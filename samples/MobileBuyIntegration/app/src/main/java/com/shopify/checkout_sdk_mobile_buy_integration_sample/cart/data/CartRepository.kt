@@ -28,16 +28,24 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.source.n
 import com.shopify.graphql.support.ID
 import kotlin.coroutines.suspendCoroutine
 
-class CartRepository(
-    private val cartStorefrontApiClient: CartStorefrontApiClient,
-) {
+class CartRepository(private val cartStorefrontApiClient: CartStorefrontApiClient) {
 
-    suspend fun createCart(variantId: String, quantity: Int, demoBuyerIdentityEnabled: Boolean): CartState.Cart {
+    suspend fun createCart(
+        variantId: String,
+        quantity: Int,
+        demoBuyerIdentityEnabled: Boolean,
+        customerAccessToken: String?,
+    ): CartState.Cart {
         return suspendCoroutine { continuation ->
-            val buyerIdentity = if (demoBuyerIdentityEnabled) {
+            var buyerIdentity = if (demoBuyerIdentityEnabled) {
                 DemoBuyerIdentity.value
             } else {
-                Storefront.CartBuyerIdentityInput().setCountryCode(Storefront.CountryCode.CA)
+                Storefront.CartBuyerIdentityInput()
+                    .setCountryCode(Storefront.CountryCode.CA)
+            }
+
+            customerAccessToken?.let {
+                buyerIdentity = buyerIdentity.setCustomerAccessToken(customerAccessToken)
             }
 
             cartStorefrontApiClient.createCart(
