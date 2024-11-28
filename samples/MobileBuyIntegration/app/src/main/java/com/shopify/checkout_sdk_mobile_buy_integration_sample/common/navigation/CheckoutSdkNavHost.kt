@@ -41,7 +41,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collectio
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.ProductView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsViewModel
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.login.LoginView
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.AuthenticationView
 import org.koin.compose.koinInject
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -72,7 +72,19 @@ sealed class Screen(val route: String) {
     data object Cart : Screen("cart")
     data object Settings : Screen("settings")
     data object Logs : Screen("logs")
-    data object Login : Screen("login")
+    data object Authentication : Screen("authentication/{action}") {
+        fun authenticationActionVariable(backStackEntry: NavBackStackEntry): String {
+            return backStackEntry.arguments?.getString("action") ?: ""
+        }
+
+        fun route(action: Action): String {
+            return route.replace("{action}", action.name)
+        }
+
+        enum class Action {
+            LOGIN, LOGOUT
+        }
+    }
 
     companion object {
         fun fromRoute(route: String): Screen {
@@ -84,7 +96,7 @@ sealed class Screen(val route: String) {
                 Cart.route -> Cart
                 Settings.route -> Settings
                 Logs.route -> Logs
-                Login.route -> Login
+                Authentication.route -> Authentication
                 else -> throw RuntimeException("Unknown route")
             }
         }
@@ -138,7 +150,7 @@ fun CheckoutSdkNavHost(
         composable(Screen.Settings.route) {
             SettingsView(
                 settingsViewModel = settingsViewModel,
-                navController = navController
+                navController = navController,
             )
         }
 
@@ -148,8 +160,13 @@ fun CheckoutSdkNavHost(
             )
         }
 
-        composable(Screen.Login.route) {
-            LoginView()
+        composable(Screen.Authentication.route) { backStackEntry ->
+            AuthenticationView(
+                action = Screen.Authentication.Action.valueOf(
+                    Screen.Authentication.authenticationActionVariable(backStackEntry)
+                ),
+                navController = navController,
+            )
         }
     }
 }

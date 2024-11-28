@@ -1,11 +1,11 @@
-package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.login.data.source.local
+package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.local
 
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.login.data.Tokens
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.Tokens
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers

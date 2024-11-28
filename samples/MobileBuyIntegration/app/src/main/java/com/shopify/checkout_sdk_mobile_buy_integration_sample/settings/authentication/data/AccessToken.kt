@@ -1,4 +1,4 @@
-package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.login.data
+package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

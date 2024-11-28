@@ -48,10 +48,10 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.d
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.source.network.ProductsStorefrontApiClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsViewModel
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.login.LoginViewModel
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.login.data.TokenRepository
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.login.data.source.local.TokenStore
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.login.data.source.network.CustomerAccountsApiClient
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.LoginViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.TokenRepository
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.local.TokenStore
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.network.CustomerAccountsApiClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
@@ -74,15 +74,15 @@ fun setupDI(application: Application) {
 
 val appModules = module {
     // App-wide components
+
     single {
         IPAddressDetails(
-            get()
+            OkHttpClient()
         )
     }
 
     singleOf(::PreferencesManager)
     singleOf(::CartStorefrontApiClient)
-    singleOf(::IPAddressDetails)
     single {
         val maxCacheEntries = 100
         val ipAddressDetails: IPAddressDetails = get()
@@ -98,14 +98,11 @@ val appModules = module {
                 this.httpClient = this.httpClient.newBuilder()
                     .addInterceptor { chain ->
                         val original = chain.request()
-                        ipAddressDetails.ipAddress()?.let { ipAddress ->
-                            val builder = original
-                                .newBuilder()
-                                .method(original.method, original.body)
-                                .header("Shopify-Storefront-Buyer-IP", ipAddress)
-                            chain.proceed(builder.build())
-                        }
-                        chain.proceed(chain.request())
+                        val builder = original
+                            .newBuilder()
+                            .method(original.method, original.body)
+                            .header("Shopify-Storefront-Buyer-IP", ipAddressDetails.ipAddress() ?: "")
+                        chain.proceed(builder.build())
                     }
                     .build()
             }

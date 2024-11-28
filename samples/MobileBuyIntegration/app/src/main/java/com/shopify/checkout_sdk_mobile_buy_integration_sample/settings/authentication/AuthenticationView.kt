@@ -1,4 +1,4 @@
-package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.login
+package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,22 +15,29 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodyMedium
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.ProgressIndicator
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
 import org.koin.androidx.compose.koinViewModel
 import timber.log.Timber
 
 @Composable
-fun LoginView(
+fun AuthenticationView(
+    action: Screen.Authentication.Action,
+    navController: NavController,
     loginViewModel: LoginViewModel = koinViewModel(),
 ) {
 
     val uiState = loginViewModel.uiState.collectAsState().value
 
     LaunchedEffect(key1 = true) {
-        loginViewModel.checkLoginState(Locale.current)
+        if (action == Screen.Authentication.Action.LOGIN) {
+            loginViewModel.checkLoginState(Locale.current)
+        } else if (action == Screen.Authentication.Action.LOGOUT) {
+            loginViewModel.logout()
+        }
     }
 
     Column {
@@ -49,28 +56,17 @@ fun LoginView(
             }
 
             is Status.LoggedIn -> {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(20.dp),
-                    modifier = Modifier
-                        .padding(horizontal = 15.dp, vertical = 20.dp)
-                        .fillMaxWidth(),
-                ) {
-                    // TODO externalise as string resource
-                    Header2(text = "Hi ${uiState.email}")
-                    Button(onClick = { loginViewModel.logout() }) {
-                        BodyMedium(text = stringResource(id = R.string.logout), color = MaterialTheme.colorScheme.onPrimary)
-                    }
-                }
+                navController.navigate(Screen.Settings.route)
             }
 
             is Status.LoggingOut -> {
                 ProgressIndicator()
+                BodyMedium(text = "Logging out...")
                 AuthenticationWebView(
                     url = uiState.status.logoutUrl,
                     modifier = Modifier.alpha(0.0f),
                     onPageComplete = {
-                        loginViewModel.loggedOut(Locale.current)
+                        navController.navigate(Screen.Settings.route)
                     }
                 )
             }

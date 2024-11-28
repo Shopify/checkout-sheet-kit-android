@@ -1,4 +1,4 @@
-package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.login.utils
+package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.utils
 
 import android.net.Uri
 import android.util.Base64

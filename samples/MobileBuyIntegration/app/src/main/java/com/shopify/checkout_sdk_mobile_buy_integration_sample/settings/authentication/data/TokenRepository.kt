@@ -1,10 +1,10 @@
-package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.login.data
+package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data
 
 import com.auth0.android.jwt.JWT
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.login.data.source.local.TokenStore
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.login.data.source.network.CustomerAccountsApiClient
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.login.data.source.network.OAuthTokenResult
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.login.data.source.network.StorefrontExchangeResult
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.local.TokenStore
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.network.CustomerAccountsApiClient
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.network.OAuthTokenResult
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.network.StorefrontExchangeResult
 import timber.log.Timber
 import java.time.Duration
 import java.time.Instant

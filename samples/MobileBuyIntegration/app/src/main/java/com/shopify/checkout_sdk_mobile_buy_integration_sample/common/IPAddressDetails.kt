@@ -7,7 +7,7 @@ class IPAddressDetails(
     private val okHttpClient: OkHttpClient,
 ) {
     private val ipAddress: String? = null
-
+    
     fun ipAddress(): String? {
         if (ipAddress != null) {
             return ipAddress

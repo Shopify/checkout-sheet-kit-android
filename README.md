@@ -244,6 +244,7 @@ val processor = object : DefaultCheckoutEventProcessor(activity) {
         /**
          * Called when the checkout encountered an error and has been aborted.
          */
+    }
 
     override fun onCheckoutLinkClicked(uri: Uri) {
         // Called when the buyer clicks a link within the checkout experience:
@@ -479,9 +480,8 @@ checkout sessions.
 
 #### Customer Account API
 
-We are working on a library to provide buyer sign-in and authentication powered by the
-[new Customer Account API](https://www.shopify.com/partners/blog/introducing-customer-account-api-for-headless-stores)
-—stay tuned.
+The Customer Account API allows you to authenticate buyers and provide a personalized checkout experience. 
+For detailed implementation instructions, see our [Customer Account API Authentication Guide](docs/authentication.md).
 
 ---
 

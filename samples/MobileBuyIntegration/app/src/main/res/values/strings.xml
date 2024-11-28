@@ -30,7 +30,7 @@
     <string name="view_logs" translatable="false">View logs</string>
     <string name="delete_logs" translatable="false">Delete logs</string>
 
-    <string name="login" translatable="false">Login</string>
+    <string name="login" translatable="false">Log in</string>
     <string name="logout" translatable="false">Log out</string>
     <string name="login_retry" translatable="false">Retry</string>
 

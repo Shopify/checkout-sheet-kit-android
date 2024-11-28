@@ -1,6 +1,6 @@
-package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.login.data.source.network
+package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.network
 
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.login.data.AccessToken
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.AccessToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable

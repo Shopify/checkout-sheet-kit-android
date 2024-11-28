@@ -74,7 +74,7 @@ class HomeViewModel(
 
     fun productSelected(navController: NavController, productId: String) {
         Timber.i("Product selected $productId, navigating to product page")
-        navController.navigate(Screen.Product.route(productId.toString()))
+        navController.navigate(Screen.Product.route(productId))
     }
 
     companion object {

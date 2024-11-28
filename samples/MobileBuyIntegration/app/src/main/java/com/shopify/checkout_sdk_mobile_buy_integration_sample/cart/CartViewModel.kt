@@ -33,7 +33,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarCon
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarEvent
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.login.data.TokenRepository
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.TokenRepository
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 import kotlinx.coroutines.flow.MutableStateFlow
