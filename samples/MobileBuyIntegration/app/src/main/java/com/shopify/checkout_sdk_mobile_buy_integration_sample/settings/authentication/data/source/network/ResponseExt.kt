@@ -3,11 +3,9 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authenti
 import okhttp3.Response
 import java.io.IOException
 
-fun Response.bodyOrThrow(): String {
-    return this.body.use {
-        if (it == null) {
-            throw IOException("Unexpected empty response body")
-        }
-        it.string()
+fun Response.bodyOrThrow() = this.body.use {
+    if (it == null) {
+        throw IOException("Unexpected empty response body")
     }
+    it.string()
 }

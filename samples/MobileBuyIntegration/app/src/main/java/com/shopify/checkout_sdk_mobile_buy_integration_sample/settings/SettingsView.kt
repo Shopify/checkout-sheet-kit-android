@@ -26,6 +26,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -33,11 +34,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
@@ -82,7 +85,7 @@ fun SettingsView(
                     if (uiState.isAuthenticated) {
                         BodyMedium(
                             text = stringResource(id = R.string.logout),
-                            color = MaterialTheme.colorScheme.onPrimary,
+                            color = MaterialTheme.colorScheme.onBackground,
                             modifier = Modifier.clickable {
                                 navController.navigate(Screen.Authentication.route(Screen.Authentication.Action.LOGOUT))
                             },
@@ -91,7 +94,7 @@ fun SettingsView(
                     } else {
                         BodyMedium(
                             text = stringResource(id = R.string.login),
-                            color = MaterialTheme.colorScheme.onPrimary,
+                            color = MaterialTheme.colorScheme.onBackground,
                             modifier = Modifier.clickable {
                                 navController.navigate(Screen.Authentication.route(Screen.Authentication.Action.LOGIN))
                             },
@@ -100,6 +103,20 @@ fun SettingsView(
                     }
                 }
                 Column {
+                    if (uiState.isAuthenticated) {
+                        TextButton(
+                            contentPadding = PaddingValues(0.dp),
+                            onClick = { navController.navigate(Screen.Customer.route) },
+                            shape = RectangleShape
+                        ) {
+                            BodyMedium(
+                                text = stringResource(id = R.string.settings_account_details),
+                                color = Color.Blue,
+                                textDecoration = TextDecoration.Underline
+                            )
+                        }
+                    }
+
                     PreloadingSwitch(
                         checked = uiState.settings.preloading.enabled,
                         onCheckedChange = settingsViewModel::setPreloadingEnabled,

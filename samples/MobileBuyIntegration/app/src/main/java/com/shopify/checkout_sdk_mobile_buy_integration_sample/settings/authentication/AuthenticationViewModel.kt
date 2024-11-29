@@ -3,7 +3,7 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authenti
 import androidx.compose.ui.text.intl.Locale
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.CustomerAccessTokenRepository
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.CustomerRepository
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.utils.AuthenticationHelpers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,9 +12,9 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class LoginViewModel(
-    private val customerAccessTokenRepository: CustomerAccessTokenRepository,
+    private val customerRepository: CustomerRepository,
 ) : ViewModel() {
-    
+
     private val _uiState = MutableStateFlow(LoginUIState(status = Status.Loading))
     val uiState: StateFlow<LoginUIState> = _uiState.asStateFlow()
 
@@ -24,7 +24,7 @@ class LoginViewModel(
      */
     fun checkLoginState(locale: Locale) = viewModelScope.launch {
         Timber.i("Checking logged in state")
-        val tokens = customerAccessTokenRepository.getTokens()
+        val tokens = customerRepository.getCustomerAccessTokens()
         if (tokens == null) {
             Timber.i("Not yet logged in")
             val codeVerifier = AuthenticationHelpers.createCodeVerifier()
@@ -51,7 +51,7 @@ class LoginViewModel(
      */
     fun codeParamIntercepted(code: String) = viewModelScope.launch {
         Timber.i("Code intercepted")
-        val customerAccessTokens = customerAccessTokenRepository.createTokens(code, _uiState.value.codeVerifier)
+        val customerAccessTokens = customerRepository.createCustomerAccessTokens(code, _uiState.value.codeVerifier)
         if (customerAccessTokens != null) {
             _uiState.value = _uiState.value.copy(status = Status.LoggedIn)
         } else {
@@ -67,13 +67,13 @@ class LoginViewModel(
      */
     fun logout() = viewModelScope.launch {
         Timber.i("Log out clicked")
-        val customerAccessTokens = customerAccessTokenRepository.getTokens()
+        val customerAccessTokens = customerRepository.getCustomerAccessTokens()
         if (customerAccessTokens != null) {
-            customerAccessTokenRepository.deleteToken()
+            customerRepository.deleteCustomerAccessTokens()
             _uiState.value = _uiState.value.copy(
                 status = Status.LoggingOut(
                     AuthenticationHelpers.buildLogoutPageUrl(
-                        customerAccessTokens.customerApiToken.idToken
+                        customerAccessTokens.customerApiToken.idToken ?: ""
                     )
                 )
             )

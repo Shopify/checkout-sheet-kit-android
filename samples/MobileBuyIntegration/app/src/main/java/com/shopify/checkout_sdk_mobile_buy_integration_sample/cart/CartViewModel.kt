@@ -33,7 +33,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarCon
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarEvent
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.CustomerAccessTokenRepository
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.CustomerRepository
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,7 +47,7 @@ typealias OnComplete = (Result<CartState.Cart>) -> Unit
 class CartViewModel(
     private val cartRepository: CartRepository,
     private val preferencesManager: PreferencesManager,
-    private val customerAccessTokenRepository: CustomerAccessTokenRepository,
+    private val customerRepository: CustomerRepository,
 ) : ViewModel() {
 
     private val _cartState = MutableStateFlow<CartState>(CartState.Empty)
@@ -146,7 +146,7 @@ class CartViewModel(
 
     private fun performCartCreate(variantId: String, quantity: Int, onComplete: OnComplete) = viewModelScope.launch {
         Timber.i("No existing cart, creating new")
-        val customerAccessToken = customerAccessTokenRepository.getTokens()?.storefrontApiToken
+        val customerAccessToken = customerRepository.getCustomerAccessTokens()?.storefrontApiToken
         try {
             val cart = cartRepository.createCart(
                 variantId,

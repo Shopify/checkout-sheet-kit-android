@@ -32,7 +32,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.BuildConfig
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartRepository
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.source.network.CartStorefrontApiClient
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.IPAddressDetails
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.StorefrontBuyerIPInterceptorProvider
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontApiRequestExecutor
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.LogDatabase
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
@@ -49,10 +49,11 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.d
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.LoginViewModel
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.CustomerAccessTokenRepository
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.CustomerRepository
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.local.CustomerAccessTokenStore
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.network.CustomerAccountsApiGraphQLClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.network.CustomerAccountsApiRestClient
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.customer.CustomerViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
@@ -77,8 +78,9 @@ val appModules = module {
     // App-wide components
 
     single {
-        IPAddressDetails(
-            OkHttpClient()
+        StorefrontBuyerIPInterceptorProvider(
+            url = "https://api64.ipify.org/",
+            client = OkHttpClient(),
         )
     }
 
@@ -91,7 +93,7 @@ val appModules = module {
 
     single {
         val maxCacheEntries = 100
-        val ipAddressDetails: IPAddressDetails = get()
+        val interceptorProvider: StorefrontBuyerIPInterceptorProvider = get()
 
         StorefrontApiRequestExecutor(
             lruCache = LruCache<String, GraphCallResult.Success<Storefront.QueryRoot>>(maxCacheEntries),
@@ -100,16 +102,9 @@ val appModules = module {
                 accessToken = BuildConfig.storefrontAccessToken,
                 shopDomain = BuildConfig.storefrontDomain
             ) {
-                // Modify HTTP Client to allow adding an IP header
+                // Add interceptor to set the Shopify-Storefront-Buyer-IP header
                 this.httpClient = this.httpClient.newBuilder()
-                    .addInterceptor { chain ->
-                        val original = chain.request()
-                        val builder = original
-                            .newBuilder()
-                            .method(original.method, original.body)
-                            .header("Shopify-Storefront-Buyer-IP", ipAddressDetails.ipAddress() ?: "")
-                        chain.proceed(builder.build())
-                    }
+                    .addInterceptor(interceptorProvider::interceptor)
                     .build()
             }
         )
@@ -119,7 +114,7 @@ val appModules = module {
         CustomerAccountsApiRestClient(
             client = OkHttpClient(),
             json = get(),
-            restBaseUrl = "https://shopify.com/authentication/${BuildConfig.shopId}",
+            baseUrl = "https://shopify.com/authentication/${BuildConfig.shopId}",
             redirectUri = BuildConfig.customerAccountsApiRedirectUri,
             clientId = BuildConfig.customerAccountsApiClientId
         )
@@ -129,7 +124,7 @@ val appModules = module {
         CustomerAccountsApiGraphQLClient(
             client = OkHttpClient(),
             json = get(),
-            graphQLBaseUrl = "https://shopify.com/${BuildConfig.shopId}/account/customer/api/2024-07/graphql",
+            baseUrl = "https://shopify.com/${BuildConfig.shopId}/account/customer/api/2024-07/graphql",
         )
     }
 
@@ -139,7 +134,7 @@ val appModules = module {
     singleOf(::ProductsStorefrontApiClient)
     singleOf(::CartRepository)
     singleOf(::CartStorefrontApiClient)
-    singleOf(::CustomerAccessTokenRepository)
+    singleOf(::CustomerRepository)
 
     single {
         CustomerAccessTokenStore(
@@ -182,4 +177,5 @@ val appModules = module {
     viewModelOf(::HomeViewModel)
     viewModelOf(::LogsViewModel)
     viewModelOf(::LoginViewModel)
+    viewModelOf(::CustomerViewModel)
 }

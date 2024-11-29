@@ -22,7 +22,7 @@ data class AccessToken(
     val expiresIn: Long,
 
     @SerialName("id_token")
-    val idToken: String,
+    val idToken: String? = null,
 )
 
 /**
@@ -39,3 +39,41 @@ data class CustomerAccessTokens(
         return storedTokenExpiry.isBefore(Instant.now())
     }
 }
+
+@Serializable
+data class Customer(
+    val id: String,
+    val imageUrl: String,
+    val displayName: String,
+    val phoneNumber: CustomerPhoneNumber?,
+    val emailAddress: CustomerEmailAddress?,
+    val defaultAddress: CustomerAddress?,
+)
+
+@Serializable
+data class CustomerEmailAddress(
+    val emailAddress: String,
+    val marketingState: String,
+)
+
+@Serializable
+data class CustomerPhoneNumber(
+    val phoneNumber: String,
+    val marketingState: String,
+)
+
+@Serializable
+data class CustomerAddress(
+    val id: String,
+    val address1: String?,
+    val address2: String?,
+    val city: String?,
+    val country: String?,
+    val province: String?,
+    val zoneCode: String?,
+    val zip: String?,
+    val firstName: String?,
+    val lastName: String?,
+    val name: String?,
+    val phoneNumber: String?,
+)

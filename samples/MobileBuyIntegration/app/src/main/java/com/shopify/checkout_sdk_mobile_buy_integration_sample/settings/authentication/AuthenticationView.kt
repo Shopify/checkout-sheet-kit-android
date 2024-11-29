@@ -80,8 +80,8 @@ fun AuthenticationView(
                         .fillMaxWidth(),
                 ) {
                     BodyMedium(text = stringResource(id = R.string.login_error))
+                    // TODO implement a retry mechanism
                     Button(onClick = {
-                        // TODO
                         Timber.i("Retry clicked")
                     }) {
                         BodyMedium(

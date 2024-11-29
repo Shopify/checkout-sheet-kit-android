@@ -1,6 +1,7 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.network
 
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.AccessToken
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.Customer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
@@ -10,7 +11,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
-import java.io.IOException
 
 /**
  * GraphQL client for interacting with Customer Account API
@@ -18,10 +18,10 @@ import java.io.IOException
 class CustomerAccountsApiGraphQLClient(
     private val client: OkHttpClient,
     private val json: Json,
-    private val graphQLBaseUrl: String,
+    private val baseUrl: String,
 ) {
 
-    suspend fun exchangeForStorefrontApiToken(accessToken: AccessToken): StorefrontExchangeResult {
+    suspend fun exchangeForStorefrontApiToken(accessToken: AccessToken): StorefrontAccessTokenResponse {
         val mutation = """
             mutation {
                 storefrontCustomerAccessTokenCreate {
@@ -42,7 +42,7 @@ class CustomerAccountsApiGraphQLClient(
             .toRequestBody("application/json; charset=utf-8".toMediaType())
 
         val request = Request.Builder()
-            .url(graphQLBaseUrl)
+            .url(baseUrl)
             .post(requestBody)
             .addHeader("Content-Type", "application/json")
             .addHeader("Authorization", accessToken.accessToken)
@@ -51,7 +51,75 @@ class CustomerAccountsApiGraphQLClient(
         return executeStorefrontExchangeRequest(request)
     }
 
-    private suspend fun executeStorefrontExchangeRequest(request: Request): StorefrontExchangeResult {
+    suspend fun getCustomer(accessToken: AccessToken): CustomerResponse {
+        val query = """
+            query {
+                customer {
+                    id
+                    displayName
+                    imageUrl
+                    defaultAddress {
+                        id,
+                        address1
+                        address2
+                        city
+                        country
+                        province
+                        zoneCode
+                        zip
+                        firstName
+                        lastName
+                        name
+                        phoneNumber
+                        formatted
+                    }
+                    phoneNumber {
+                        phoneNumber
+                        marketingState
+                    }
+                    emailAddress {
+                        emailAddress
+                        marketingState
+                    }
+                }
+            }
+        """
+
+        val jsonBody = JSONObject().apply {
+            put("operationName", "Customer")
+            put("query", query)
+        }
+
+        val requestBody = jsonBody.toString()
+            .toRequestBody("application/json; charset=utf-8".toMediaType())
+
+        val request = Request.Builder()
+            .url(baseUrl)
+            .post(requestBody)
+            .addHeader("Content-Type", "application/json")
+            .addHeader("Authorization", accessToken.accessToken)
+            .build()
+
+        return withContext(Dispatchers.IO) {
+            try {
+                client.newCall(request).execute().use { response ->
+                    if (response.isSuccessful) {
+                        val customerResponse = json.decodeFromString<CustomerResponseObj>(
+                            response.bodyOrThrow()
+                        )
+                        CustomerResponse.Success(customerResponse.data.customer)
+                    } else {
+                        val errorResponse = json.decodeFromString<ErrorResponse>(response.bodyOrThrow())
+                        CustomerResponse.Error(errorResponse.errors.joinToString())
+                    }
+                }
+            } catch (e: Exception) {
+                CustomerResponse.Error(e.message ?: "Unknown error")
+            }
+        }
+    }
+
+    private suspend fun executeStorefrontExchangeRequest(request: Request): StorefrontAccessTokenResponse {
         return withContext(Dispatchers.IO) {
             try {
                 client.newCall(request).execute().use { response ->
@@ -59,28 +127,34 @@ class CustomerAccountsApiGraphQLClient(
                         val tokenResponse = json.decodeFromString<StorefrontCustomerAccessTokenResponse>(
                             response.bodyOrThrow()
                         )
-                        StorefrontExchangeResult.Success(tokenResponse.data.storefrontCustomerAccessTokenCreate.customerAccessToken)
+                        StorefrontAccessTokenResponse.Success(tokenResponse.data.storefrontCustomerAccessTokenCreate.customerAccessToken)
                     } else {
                         val errorResponse = json.decodeFromString<ErrorResponse>(response.bodyOrThrow())
                         if (errorResponse.errors.any { it.message.contains("invalid token", ignoreCase = true) }) {
-                            StorefrontExchangeResult.InvalidToken
+                            StorefrontAccessTokenResponse.InvalidToken
                         } else {
-                            StorefrontExchangeResult.NetworkError(errorResponse.errors.joinToString())
+                            StorefrontAccessTokenResponse.Error(errorResponse.errors.joinToString())
                         }
                     }
                 }
-            } catch (e: IOException) {
-                StorefrontExchangeResult.NetworkError(e.message ?: "Unknown error")
+            } catch (e: Exception) {
+                StorefrontAccessTokenResponse.Error(e.message ?: "Unknown error")
             }
         }
     }
 }
 
-sealed class StorefrontExchangeResult {
-    data class Success(val token: String) : StorefrontExchangeResult()
-    data class NetworkError(val message: String) : StorefrontExchangeResult()
-    data object InvalidToken : StorefrontExchangeResult()
+sealed class StorefrontAccessTokenResponse {
+    data class Success(val token: String) : StorefrontAccessTokenResponse()
+    data class Error(val message: String) : StorefrontAccessTokenResponse()
+    data object InvalidToken : StorefrontAccessTokenResponse()
 }
+
+sealed class CustomerResponse {
+    data class Success(val customer: Customer) : CustomerResponse()
+    data class Error(val message: String) : CustomerResponse()
+}
+
 
 @Serializable
 data class StorefrontCustomerAccessTokenResponse(
@@ -105,4 +179,14 @@ data class ErrorResponse(
 @Serializable
 data class Error(
     val message: String,
+)
+
+@Serializable
+data class CustomerResponseObj(
+    val data: CustomerWrapper,
+)
+
+@Serializable
+data class CustomerWrapper(
+    val customer: Customer
 )

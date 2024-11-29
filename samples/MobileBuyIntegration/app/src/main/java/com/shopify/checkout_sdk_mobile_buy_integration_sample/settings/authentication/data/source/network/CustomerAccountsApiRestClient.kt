@@ -16,12 +16,12 @@ import java.io.IOException
 class CustomerAccountsApiRestClient(
     private val client: OkHttpClient,
     private val json: Json,
-    private val restBaseUrl: String,
+    private val baseUrl: String,
     private val clientId: String,
     private val redirectUri: String,
 ) {
 
-    suspend fun obtainAccessToken(code: String, codeVerifier: String): OAuthTokenResult {
+    suspend fun fetchAccessToken(code: String, codeVerifier: String): OAuthTokenResult {
         val requestBody = FormBody.Builder()
             .add("grant_type", "authorization_code")
             .add("client_id", clientId)
@@ -31,7 +31,7 @@ class CustomerAccountsApiRestClient(
             .build()
 
         val request = Request.Builder()
-            .url("$restBaseUrl/oauth/token")
+            .url("$baseUrl/oauth/token")
             .post(requestBody)
             .addHeader("Content-Type", "application/x-www-form-urlencoded")
             .build()
@@ -47,7 +47,7 @@ class CustomerAccountsApiRestClient(
             .build()
 
         val request = Request.Builder()
-            .url("$restBaseUrl/oauth/token")
+            .url("$baseUrl/oauth/token")
             .post(requestBody)
             .addHeader("Content-Type", "application/x-www-form-urlencoded")
             .build()
