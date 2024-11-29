@@ -3,7 +3,7 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authenti
 import androidx.compose.ui.text.intl.Locale
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.TokenRepository
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.CustomerAccessTokenRepository
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.utils.AuthenticationHelpers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,18 +12,19 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class LoginViewModel(
-    private val tokenRepository: TokenRepository,
+    private val customerAccessTokenRepository: CustomerAccessTokenRepository,
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(
-        LoginUIState(
-            status = Status.Loading
-        )
-    )
+    
+    private val _uiState = MutableStateFlow(LoginUIState(status = Status.Loading))
     val uiState: StateFlow<LoginUIState> = _uiState.asStateFlow()
 
+    /**
+     * Updates state (e.g. from Loading) to LoggedOut if the customer has not yet authenticated
+     * or LoggedIn if already authenticated
+     */
     fun checkLoginState(locale: Locale) = viewModelScope.launch {
         Timber.i("Checking logged in state")
-        val tokens = tokenRepository.getTokens()
+        val tokens = customerAccessTokenRepository.getTokens()
         if (tokens == null) {
             Timber.i("Not yet logged in")
             val codeVerifier = AuthenticationHelpers.createCodeVerifier()
@@ -44,37 +45,41 @@ class LoginViewModel(
         }
     }
 
-    fun codeParamIntercepted(code: String) {
+    /**
+     * When the customer completes login, an authorization code param is intercepted on the redirect
+     * and must be exchanged for an access token along with the code verifier
+     */
+    fun codeParamIntercepted(code: String) = viewModelScope.launch {
         Timber.i("Code intercepted")
-        exchangeCodeForTokens(code, _uiState.value.codeVerifier)
+        val customerAccessTokens = customerAccessTokenRepository.createTokens(code, _uiState.value.codeVerifier)
+        if (customerAccessTokens != null) {
+            _uiState.value = _uiState.value.copy(status = Status.LoggedIn)
+        } else {
+            _uiState.value = _uiState.value.copy(status = Status.Error("Failed to create tokens"))
+        }
     }
 
+    /**
+     * To log out, locally stored tokens should be removed, and the login WebView should open the logout URL,
+     * which will remove any existing auth related cookies from the CookieManager.
+     *
+     * Existing carts should also be updated at this point to reset buyer identity
+     */
     fun logout() = viewModelScope.launch {
         Timber.i("Log out clicked")
-        val tokens = tokenRepository.getTokens()
-        if (tokens != null) {
-            val idToken = tokens.customerApiToken.idToken
-            val logoutUrl = AuthenticationHelpers.buildLogoutPageUrl(idToken)
-            tokenRepository.deleteToken()
+        val customerAccessTokens = customerAccessTokenRepository.getTokens()
+        if (customerAccessTokens != null) {
+            customerAccessTokenRepository.deleteToken()
             _uiState.value = _uiState.value.copy(
-                status = Status.LoggingOut(logoutUrl)
+                status = Status.LoggingOut(
+                    AuthenticationHelpers.buildLogoutPageUrl(
+                        customerAccessTokens.customerApiToken.idToken
+                    )
+                )
             )
         } else {
             _uiState.value = _uiState.value.copy(
                 status = Status.Error("Invalid state - logout clicked, but not tokens are stored")
-            )
-        }
-    }
-
-    private fun exchangeCodeForTokens(code: String, codeVerifier: String) = viewModelScope.launch {
-        val tokens = tokenRepository.createTokens(code, codeVerifier)
-        if (tokens != null) {
-            _uiState.value = _uiState.value.copy(
-                status = Status.LoggedIn,
-            )
-        } else {
-            _uiState.value = _uiState.value.copy(
-                status = Status.Error("Failed to create tokens"),
             )
         }
     }

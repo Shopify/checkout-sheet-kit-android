@@ -25,7 +25,7 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.BuildConfig
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.TokenRepository
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.CustomerAccessTokenRepository
 import com.shopify.checkoutsheetkit.ColorScheme
 import com.shopify.checkoutsheetkit.Preloading
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
@@ -37,13 +37,13 @@ import kotlinx.coroutines.launch
 
 class SettingsViewModel(
     private val preferencesManager: PreferencesManager,
-    private val tokenRepository: TokenRepository,
+    private val customerAccessTokenRepository: CustomerAccessTokenRepository,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<SettingsUiState>(SettingsUiState.Loading)
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
     fun checkSettings() = viewModelScope.launch {
-        val tokens = tokenRepository.getTokens()
+        val tokens = customerAccessTokenRepository.getTokens()
         preferencesManager.userPreferencesFlow.collect { preferences ->
             _uiState.value = toUiState(
                 userPreferences = preferences,

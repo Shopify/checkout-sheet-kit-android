@@ -4,6 +4,9 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import java.time.Instant
 
+/**
+ * Customer API Access Token
+ */
 @Serializable
 data class AccessToken(
     @SerialName("access_token")
@@ -22,15 +25,11 @@ data class AccessToken(
     val idToken: String,
 )
 
+/**
+ * Groups Customer API access token and Storefront API access token
+ */
 @Serializable
-data class IdTokenDetails(
-    val subject: String,
-    val email: String,
-    val emailVerified: Boolean,
-)
-
-@Serializable
-data class Tokens(
+data class CustomerAccessTokens(
     val customerApiToken: AccessToken,
     val storefrontApiToken: String,
     val expiresAt: Long,

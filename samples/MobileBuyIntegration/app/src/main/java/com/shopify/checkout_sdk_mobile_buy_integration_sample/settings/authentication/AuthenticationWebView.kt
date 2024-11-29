@@ -12,6 +12,9 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.BuildConfig
 import timber.log.Timber
 
+/**
+ * WebView used to display the login and logout pages and intercept authorization code param redirects
+ */
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun AuthenticationWebView(
@@ -37,10 +40,7 @@ fun AuthenticationWebView(
                 )
             }
         },
-        update = {
-            Timber.i("url $url")
-            it.loadUrl(url)
-        },
+        update = { it.loadUrl(url) },
         modifier = modifier,
     )
 }

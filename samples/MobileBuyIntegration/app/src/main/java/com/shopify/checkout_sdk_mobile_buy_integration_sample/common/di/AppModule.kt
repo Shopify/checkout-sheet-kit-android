@@ -49,9 +49,10 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.d
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.LoginViewModel
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.TokenRepository
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.local.TokenStore
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.network.CustomerAccountsApiClient
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.CustomerAccessTokenRepository
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.local.CustomerAccessTokenStore
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.network.CustomerAccountsApiGraphQLClient
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.network.CustomerAccountsApiRestClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
@@ -83,6 +84,11 @@ val appModules = module {
 
     singleOf(::PreferencesManager)
     singleOf(::CartStorefrontApiClient)
+
+    single {
+        Json { ignoreUnknownKeys = true }
+    }
+
     single {
         val maxCacheEntries = 100
         val ipAddressDetails: IPAddressDetails = get()
@@ -110,13 +116,20 @@ val appModules = module {
     }
 
     single {
-        CustomerAccountsApiClient(
+        CustomerAccountsApiRestClient(
             client = OkHttpClient(),
-            json = Json { ignoreUnknownKeys = true },
+            json = get(),
             restBaseUrl = "https://shopify.com/authentication/${BuildConfig.shopId}",
-            graphQLBaseUrl = "https://shopify.com/${BuildConfig.shopId}/account/customer/api/2024-07/graphql",
             redirectUri = BuildConfig.customerAccountsApiRedirectUri,
             clientId = BuildConfig.customerAccountsApiClientId
+        )
+    }
+
+    single {
+        CustomerAccountsApiGraphQLClient(
+            client = OkHttpClient(),
+            json = get(),
+            graphQLBaseUrl = "https://shopify.com/${BuildConfig.shopId}/account/customer/api/2024-07/graphql",
         )
     }
 
@@ -126,9 +139,10 @@ val appModules = module {
     singleOf(::ProductsStorefrontApiClient)
     singleOf(::CartRepository)
     singleOf(::CartStorefrontApiClient)
-    singleOf(::TokenRepository)
+    singleOf(::CustomerAccessTokenRepository)
+
     single {
-        TokenStore(
+        CustomerAccessTokenStore(
             appContext = androidApplication().applicationContext,
             scope = CoroutineScope(Dispatchers.Default),
         )

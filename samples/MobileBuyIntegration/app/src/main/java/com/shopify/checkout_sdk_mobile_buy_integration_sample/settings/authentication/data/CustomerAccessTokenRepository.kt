@@ -1,8 +1,8 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data
 
-import com.auth0.android.jwt.JWT
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.local.TokenStore
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.network.CustomerAccountsApiClient
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.local.CustomerAccessTokenStore
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.network.CustomerAccountsApiGraphQLClient
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.network.CustomerAccountsApiRestClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.network.OAuthTokenResult
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.network.StorefrontExchangeResult
 import timber.log.Timber
@@ -10,18 +10,21 @@ import java.time.Duration
 import java.time.Instant
 
 /**
+ * Repository for customer access tokens
+ *
  * Implementation always fetches both a customerAccessToken and storefrontApiToken
  * Both are needed to authenticate checkout
  */
-class TokenRepository(
-    private val remoteStore: CustomerAccountsApiClient,
-    private val localStore: TokenStore,
+class CustomerAccessTokenRepository(
+    private val restClient: CustomerAccountsApiRestClient,
+    private val graphQLClient: CustomerAccountsApiGraphQLClient,
+    private val localStore: CustomerAccessTokenStore,
 ) {
-    suspend fun getTokens(): Tokens? {
+    suspend fun getTokens(): CustomerAccessTokens? {
         return localStore.getTokens()
     }
 
-    suspend fun createTokens(code: String, codeVerifier: String): Tokens? {
+    suspend fun createTokens(code: String, codeVerifier: String): CustomerAccessTokens? {
         val tokens = localStore.getTokens()
         if (tokens != null) {
             Timber.i("Locally stored token found")
@@ -30,12 +33,12 @@ class TokenRepository(
                 return tokens
             } else {
                 Timber.i("Locally stored token expired, refreshing")
-                return fetchTokens { remoteStore.refreshAccessToken(tokens.customerApiToken) }
+                return fetchTokens { restClient.refreshAccessToken(tokens.customerApiToken) }
             }
         }
 
         Timber.i("No locally stored token found, fetching remote token")
-        return fetchTokens { remoteStore.obtainAccessToken(code, codeVerifier) }
+        return fetchTokens { restClient.obtainAccessToken(code, codeVerifier) }
     }
 
     suspend fun deleteToken() {
@@ -43,20 +46,11 @@ class TokenRepository(
         localStore.clearTokens()
     }
 
-    fun decodeIdToken(accessToken: AccessToken): IdTokenDetails {
-        val jwt = JWT(accessToken.idToken)
-        return IdTokenDetails(
-            subject = jwt.subject ?: "",
-            email = jwt.getClaim("email").asString() ?: "",
-            emailVerified = jwt.getClaim("email_verified").asBoolean() ?: false
-        )
-    }
-
-    private suspend fun fetchTokens(operation: suspend () -> OAuthTokenResult): Tokens? {
+    private suspend fun fetchTokens(operation: suspend () -> OAuthTokenResult): CustomerAccessTokens? {
         return when (val tokenResult = operation.invoke()) {
             is OAuthTokenResult.Success -> {
                 Timber.i("Customer Account API token retrieved, fetching storefront API token")
-                when (val exchangeResult = remoteStore.exchangeForStorefrontApiToken(tokenResult.token)) {
+                when (val exchangeResult = graphQLClient.exchangeForStorefrontApiToken(tokenResult.token)) {
                     is StorefrontExchangeResult.Success -> {
                         Timber.i("Storefront API token retrieved, storing tokens")
                         val tokens = tokens(tokenResult.token, exchangeResult.token)
@@ -84,8 +78,8 @@ class TokenRepository(
         }
     }
 
-    private fun tokens(accessToken: AccessToken, storefrontToken: String): Tokens {
-        return Tokens(
+    private fun tokens(accessToken: AccessToken, storefrontToken: String): CustomerAccessTokens {
+        return CustomerAccessTokens(
             customerApiToken = accessToken,
             storefrontApiToken = storefrontToken,
             expiresAt = Instant.now()
