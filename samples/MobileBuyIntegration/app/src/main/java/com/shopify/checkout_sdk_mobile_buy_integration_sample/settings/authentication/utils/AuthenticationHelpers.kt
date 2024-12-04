@@ -17,13 +17,13 @@ object AuthenticationHelpers {
     )
     private const val DEFAULT_LANGUAGE = "en"
 
-    fun buildLoginPageUrl(
+    fun buildAuthorizationURL(
         codeVerifier: String,
         locale: Locale,
     ): String {
         Timber.i("Building login URL")
         val codeChallenge = codeChallenge(codeVerifier)
-        return Uri.parse("${BASE_PATH}/oauth/authorize").buildUpon()
+        return Uri.parse("$BASE_PATH/oauth/authorize").buildUpon()
             .appendQueryParameter("scope", "openid email customer-account-api:full")
             .appendQueryParameter("client_id", BuildConfig.customerAccountsApiClientId)
             .appendQueryParameter("response_type", "code")

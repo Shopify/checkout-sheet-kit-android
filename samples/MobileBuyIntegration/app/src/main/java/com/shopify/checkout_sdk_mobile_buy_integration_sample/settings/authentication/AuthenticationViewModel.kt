@@ -30,7 +30,7 @@ class LoginViewModel(
             val codeVerifier = AuthenticationHelpers.createCodeVerifier()
             _uiState.value = _uiState.value.copy(
                 status = Status.LoggedOut(
-                    loginUrl = AuthenticationHelpers.buildLoginPageUrl(
+                    loginUrl = AuthenticationHelpers.buildAuthorizationURL(
                         codeVerifier = codeVerifier,
                         locale = locale
                     )

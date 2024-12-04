@@ -32,8 +32,8 @@ internal fun Storefront.Collection.toLocal(): Collection {
         title = title,
         description = description,
         image = CollectionImage(
-            image.url,
-            image.altText
+            image?.url,
+            image?.altText
         ),
         products = products.edges.map { it.node.toLocal() }
     )
