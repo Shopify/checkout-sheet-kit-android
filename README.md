@@ -8,6 +8,33 @@
 
 **Shopify's Checkout Sheet Kit for Android** is a library that enables Android apps to provide the world's highest converting, customizable, one-page checkout within an app. The presented experience is a fully-featured checkout that preserves all of the store customizations: Checkout UI extensions, Functions, Web Pixels, and more. It also provides idiomatic defaults such as support for light and dark mode, and convenient developer APIs to embed, customize and follow the lifecycle of the checkout experience. Check out our developer blog to [learn how Checkout Sheet Kit is built](https://www.shopify.com/partners/blog/mobile-checkout-sdks-for-ios-and-android).
 
+## Table of Contents
+
+1. [Requirements](#requirements)
+2. [Getting Started](#getting-started)
+   - [Gradle](#gradle)
+   - [Maven](#maven)
+3. [Basic Usage](#basic-usage)
+4. [Configuration](#configuration)
+   - [Color Scheme](#color-scheme)
+   - [Checkout Dialog Title](#checkout-dialog-title)
+   - [Preloading](#preloading)
+   - [Invalidation](#invalidation)
+   - [Lifecycle Management for Preloaded Checkout](#lifecycle-management-for-preloaded-checkout)
+   - [Additional Considerations for Preloaded Checkout](#additional-considerations-for-preloaded-checkout)
+5. [Monitoring the Lifecycle of a Checkout Session](#monitoring-the-lifecycle-of-a-checkout-session)
+6. [Error Handling](#error-handling)
+   - [CheckoutException](#checkoutexception)
+   - [Exception Hierarchy](#exception-hierarchy)
+7. [Integrating with Web Pixels, Monitoring Behavioral Data](#integrating-with-web-pixels-monitoring-behavioral-data)
+8. [Integrating Identity & Customer Accounts](#integrating-identity--customer-accounts)
+   - [Cart: Buyer Bag, Identity, and Preferences](#cart-buyer-bag-identity-and-preferences)
+   - [Multipass](#multipass)
+   - [Shop Pay](#shop-pay)
+   - [Customer Account API](#customer-account-api)
+9. [Contributing](#contributing)
+10. [License](#license)
+
 ### Requirements
 
 - JDK 17+
