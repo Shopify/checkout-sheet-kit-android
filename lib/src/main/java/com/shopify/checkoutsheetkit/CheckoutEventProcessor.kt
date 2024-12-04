@@ -26,6 +26,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.webkit.GeolocationPermissions
 import android.webkit.PermissionRequest
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
@@ -83,6 +84,12 @@ public interface CheckoutEventProcessor {
         filePathCallback: ValueCallback<Array<Uri>>,
         fileChooserParams: WebChromeClient.FileChooserParams,
     ): Boolean
+
+    /**
+     * Called when the client should show a location permissions prompt. For example when using 'Use my location' for
+     * pickup points in checkout
+     */
+    public fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback)
 }
 
 internal class NoopEventProcessor : CheckoutEventProcessor {
@@ -110,6 +117,9 @@ internal class NoopEventProcessor : CheckoutEventProcessor {
     }
 
     override fun onPermissionRequest(permissionRequest: PermissionRequest) {/* noop */
+    }
+
+    override fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {/* noop */
     }
 }
 
@@ -146,6 +156,10 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
         fileChooserParams: WebChromeClient.FileChooserParams,
     ): Boolean {
         return false
+    }
+
+    override fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {
+        // no-op override to implement
     }
 
     private fun Context.launchEmailApp(to: String) {

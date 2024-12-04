@@ -33,6 +33,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.webkit.GeolocationPermissions
 import android.webkit.PermissionRequest
 import android.webkit.RenderProcessGoneDetail
 import android.webkit.ValueCallback
@@ -70,6 +71,11 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
                 super.onProgressChanged(view, newProgress)
                 getEventProcessor().updateProgressBar(newProgress)
             }
+
+            override fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {
+                getEventProcessor().onGeolocationPermissionsShowPrompt(origin, callback)
+            }
+
             override fun onPermissionRequest(request: PermissionRequest) {
                 getEventProcessor().onPermissionRequest(request)
             }

@@ -26,6 +26,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.webkit.GeolocationPermissions
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient.FileChooserParams
 import android.webkit.WebView.setWebContentsDebuggingEnabled
@@ -38,19 +39,34 @@ import timber.log.Timber
 import timber.log.Timber.DebugTree
 
 class MainActivity : ComponentActivity() {
-
+    // Launchers
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
     private lateinit var showFileChooserLauncher: ActivityResultLauncher<FileChooserParams>
+    private lateinit var geolocationLauncher: ActivityResultLauncher<String>
 
+    // State related to file chooser requests (e.g. for using a file chooser/camera for proving identity)
     private var filePathCallback: ValueCallback<Array<Uri>>? = null
     private var fileChooserParams: FileChooserParams? = null
 
+    // State related to geolocation requests (e.g. for pickup points - use my location)
+    private var geolocationPermissionCallback: GeolocationPermissions.Callback? = null
+    private var geolocationOrigin: String? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Allow debugging the WebView via chrome://inspect
         setWebContentsDebuggingEnabled(true)
+
+        // Setup logging in debug build
+        if (BuildConfig.DEBUG) {
+            Timber.plant(DebugTree())
+        }
+
         setContent {
             CheckoutSdkApp()
         }
+
         requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             val fileChooserParams = this.fileChooserParams
             if (isGranted && fileChooserParams != null) {
@@ -59,28 +75,55 @@ class MainActivity : ComponentActivity() {
             }
             // N.B. a file chooser intent (without camera) could be launched here if the permission was denied
         }
+
         showFileChooserLauncher = registerForActivityResult(FileChooserResultContract()) { uri: Uri? ->
+            // invoke the callback with the selected file
             filePathCallback?.onReceiveValue(if (uri != null) arrayOf(uri) else null)
+
+            // reset fileChooser state
             filePathCallback = null
+            fileChooserParams = null
         }
 
-        if (BuildConfig.DEBUG) {
-            Timber.plant(DebugTree())
+        geolocationLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            // invoke the callback with the permission result
+            geolocationPermissionCallback?.invoke(geolocationOrigin, isGranted, false)
+
+            // reset geolocation state
+            geolocationPermissionCallback = null
+            geolocationOrigin = null
         }
     }
 
     // Show a file chooser when prompted by the event processor
     fun onShowFileChooser(filePathCallback: ValueCallback<Array<Uri>>, fileChooserParams: FileChooserParams): Boolean {
         this.filePathCallback = filePathCallback
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            // Permissions not yet granted, request before launching chooser
-            this.fileChooserParams = fileChooserParams
-            requestPermissionLauncher.launch(Manifest.permission.CAMERA)
-        } else {
-            // Permissions already granted, launch chooser
+        if (permissionAlreadyGranted(Manifest.permission.CAMERA)) {
+            // Permissions already granted, launch chooser immediately
             showFileChooserLauncher.launch(fileChooserParams)
             this.fileChooserParams = null
+        } else {
+            // Permissions not yet granted, request permission before launching chooser
+            this.fileChooserParams = fileChooserParams
+            requestPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
         return true
+    }
+
+    // Deal with requests from Checkout to show the geolocation permissions prompt
+    fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {
+        if (permissionAlreadyGranted(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+            // Permission already granted, invoke callback immediately
+            callback(origin, true, true)
+        } else {
+            //  Permissions not yet granted, request permission before invoking callback
+            geolocationPermissionCallback = callback
+            geolocationOrigin = origin
+            geolocationLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+        }
+    }
+
+    private fun permissionAlreadyGranted(permission: String): Boolean {
+        return ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
     }
 }

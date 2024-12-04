@@ -24,6 +24,7 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.common
 
 import android.content.Context
 import android.net.Uri
+import android.webkit.GeolocationPermissions
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebView
@@ -53,7 +54,7 @@ class MobileBuyEventProcessor(
     private val navController: NavController,
     private val logger: Logger,
     private val context: Context
-): DefaultCheckoutEventProcessor(context) {
+) : DefaultCheckoutEventProcessor(context) {
     override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {
         logger.log(checkoutCompletedEvent)
 
@@ -81,6 +82,10 @@ class MobileBuyEventProcessor(
     override fun onCheckoutCanceled() {
         // optionally respond to checkout being canceled/closed
         logger.log("Checkout canceled")
+    }
+
+    override fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {
+        return (context as MainActivity).onGeolocationPermissionsShowPrompt(origin, callback)
     }
 
     override fun onShowFileChooser(
