@@ -116,7 +116,7 @@ class MainActivity : ComponentActivity() {
             // Permission already granted, invoke callback immediately
             callback(origin, true, true)
         } else {
-            //  Permissions not yet granted, request permission before invoking callback
+            // Permission not yet granted, request permission before invoking callback
             geolocationPermissionCallback = callback
             geolocationOrigin = origin
             geolocationLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)

@@ -2,7 +2,7 @@
 
 ## 3.3.0 December 4, 2024
 
-- Expose `onGeolocationPermissionsShowPrompt()` and `onGeolocationPermissionsHidePrompt()`, allowing them to be implemented by clients to allow customers to use `Use my location` to find nearby pickup points.
+- Expose [onGeolocationPermissionsShowPrompt()](<https://developer.android.com/reference/android/webkit/WebChromeClient#onGeolocationPermissionsShowPrompt(java.lang.String,%20android.webkit.GeolocationPermissions.Callback)>) and [onGeolocationPermissionsHidePrompt()](<https://developer.android.com/reference/android/webkit/WebChromeClient#onGeolocationPermissionsHidePrompt()>), allowing them to be implemented so customers can use the `Use my location` functionality to find nearby pickup points.
 
 ## 3.2.2 November 15 2024
 
