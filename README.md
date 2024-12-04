@@ -50,7 +50,7 @@ your project:
 #### Gradle
 
 ```groovy
-implementation "com.shopify:checkout-sheet-kit:3.2.2"
+implementation "com.shopify:checkout-sheet-kit:3.3.0"
 ```
 
 #### Maven
@@ -60,7 +60,7 @@ implementation "com.shopify:checkout-sheet-kit:3.2.2"
 <dependency>
    <groupId>com.shopify</groupId>
    <artifactId>checkout-sheet-kit</artifactId>
-   <version>3.2.2</version>
+   <version>3.3.0</version>
 </dependency>
 ```
 
@@ -302,6 +302,17 @@ val processor = object : DefaultCheckoutEventProcessor(activity) {
         // Called to tell the client to show a file chooser. This is called to handle HTML forms with 'file' input type,
         // in response to the user pressing the "Select File" button.
         // To cancel the request, call filePathCallback.onReceiveValue(null) and return true.
+    }
+
+
+    override fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {
+        // Called to tell the client to show a geolocation permissions prompt as a geolocation permissions
+        // request has been made.
+        // Invoked for example if a customer uses `Use my location` for pickup points
+    }
+
+       override fun onGeolocationPermissionsHidePrompt() {
+        // Called to tell the client to hide the geolocation permissions prompt, e.g. as the request has been cancelled
     }
 
     override fun onPermissionRequest(permissionRequest: PermissionRequest) {

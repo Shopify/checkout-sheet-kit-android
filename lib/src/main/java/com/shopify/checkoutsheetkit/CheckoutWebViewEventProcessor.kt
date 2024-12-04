@@ -27,6 +27,7 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
+import android.webkit.GeolocationPermissions
 import android.webkit.PermissionRequest
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient.FileChooserParams
@@ -64,6 +65,14 @@ internal class CheckoutWebViewEventProcessor(
         onMainThread {
             closeCheckoutDialogWithError(error)
         }
+    }
+
+    fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {
+        return eventProcessor.onGeolocationPermissionsShowPrompt(origin, callback)
+    }
+
+    fun onGeolocationPermissionsHidePrompt() {
+        return eventProcessor.onGeolocationPermissionsHidePrompt()
     }
 
     fun onShowFileChooser(
