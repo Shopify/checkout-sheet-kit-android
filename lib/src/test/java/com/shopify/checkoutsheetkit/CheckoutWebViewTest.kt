@@ -27,6 +27,7 @@ import android.net.Uri
 import android.os.Looper
 import android.view.View.VISIBLE
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.webkit.GeolocationPermissions
 import android.webkit.PermissionRequest
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient.FileChooserParams
@@ -270,6 +271,22 @@ class CheckoutWebViewTest {
         shadow.webChromeClient.onShowFileChooser(view, filePathCallback, fileChooserParams)
 
         verify(webViewEventProcessor).onShowFileChooser(view, filePathCallback, fileChooserParams)
+    }
+
+    @Test
+    fun `calls processors onGeolocationPermissionsShowPrompt when called on webChromeClient`() {
+        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
+        val webViewEventProcessor = mock<CheckoutWebViewEventProcessor>()
+        view.setEventProcessor(webViewEventProcessor)
+
+        val shadow = shadowOf(view)
+
+        val callback = mock<GeolocationPermissions.Callback>()
+        val origin = "origin"
+
+        shadow.webChromeClient.onGeolocationPermissionsShowPrompt(origin, callback)
+
+        verify(webViewEventProcessor).onGeolocationPermissionsShowPrompt(origin, callback)
     }
 
     @Test
