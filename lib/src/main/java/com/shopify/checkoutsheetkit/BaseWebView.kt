@@ -76,6 +76,10 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
                 getEventProcessor().onGeolocationPermissionsShowPrompt(origin, callback)
             }
 
+            override fun onGeolocationPermissionsHidePrompt() {
+                getEventProcessor().onGeolocationPermissionsHidePrompt()
+            }
+
             override fun onPermissionRequest(request: PermissionRequest) {
                 getEventProcessor().onPermissionRequest(request)
             }

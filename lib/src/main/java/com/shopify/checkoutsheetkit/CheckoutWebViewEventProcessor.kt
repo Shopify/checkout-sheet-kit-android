@@ -71,6 +71,10 @@ internal class CheckoutWebViewEventProcessor(
         return eventProcessor.onGeolocationPermissionsShowPrompt(origin, callback)
     }
 
+    fun onGeolocationPermissionsHidePrompt() {
+        return eventProcessor.onGeolocationPermissionsHidePrompt()
+    }
+
     fun onShowFileChooser(
         webView: WebView,
         filePathCallback: ValueCallback<Array<Uri>>,

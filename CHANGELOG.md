@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.3.0 December 4, 2024
+
+- Expose `onGeolocationPermissionsShowPrompt()` and `onGeolocationPermissionsHidePrompt()`, allowing them to be implemented by clients to allow customers to use `Use my location` to find nearby pickup points.
+
 ## 3.2.2 November 15 2024
 
 - Updates the proguard rules for the library to prevent minification of essential classes.

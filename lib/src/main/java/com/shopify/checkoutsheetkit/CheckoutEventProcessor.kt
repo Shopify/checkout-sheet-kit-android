@@ -90,6 +90,11 @@ public interface CheckoutEventProcessor {
      * pickup points in checkout
      */
     public fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback)
+
+    /**
+     * Called when the client should hide the location permissions prompt, e.g. if th request is cancelled
+     */
+    public fun onGeolocationPermissionsHidePrompt()
 }
 
 internal class NoopEventProcessor : CheckoutEventProcessor {
@@ -120,6 +125,9 @@ internal class NoopEventProcessor : CheckoutEventProcessor {
     }
 
     override fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {/* noop */
+    }
+
+    override fun onGeolocationPermissionsHidePrompt() {/* noop */
     }
 }
 
@@ -159,6 +167,10 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
     }
 
     override fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {
+        // no-op override to implement
+    }
+
+    override fun onGeolocationPermissionsHidePrompt() {
         // no-op override to implement
     }
 

@@ -56,7 +56,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         // Allow debugging the WebView via chrome://inspect
-        setWebContentsDebuggingEnabled(true)
+        setWebContentsDebuggingEnabled(BuildConfig.DEBUG)
 
         // Setup logging in debug build
         if (BuildConfig.DEBUG) {
