@@ -44,8 +44,8 @@ internal fun Storefront.BaseCartLine.toLocal(): CartLine? {
     return (this.merchandise as? Storefront.ProductVariant)?.let {
         CartLine(
             id = this.id.toString(),
-            imageURL = it.product.featuredImage.url,
-            imageAltText = it.product.featuredImage.altText ?: "",
+            imageURL = it.product?.featuredImage?.url,
+            imageAltText = it.product?.featuredImage?.altText,
             title = it.product.title,
             vendor = it.product.vendor,
             quantity = this.quantity,

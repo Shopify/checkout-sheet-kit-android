@@ -54,7 +54,7 @@ class CartRepository(private val cartStorefrontApiClient: CartStorefrontApiClien
                 quantity = quantity,
                 successCallback = { response ->
                     val cartCreateResponse = response.data?.cartCreate
-                    if (cartCreateResponse == null) {
+                    if (cartCreateResponse?.cart == null) {
                         continuation.resumeWith(Result.failure(RuntimeException("Failed to create cart")))
                     } else {
                         continuation.resumeWith(Result.success(cartCreateResponse.cart.toLocal()))
