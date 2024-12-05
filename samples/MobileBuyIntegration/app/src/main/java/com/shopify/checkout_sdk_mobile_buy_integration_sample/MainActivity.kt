@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
     // Launchers
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
     private lateinit var showFileChooserLauncher: ActivityResultLauncher<FileChooserParams>
-    private lateinit var geolocationLauncher: ActivityResultLauncher<String>
+    private lateinit var geolocationLauncher: ActivityResultLauncher<Array<String>>
 
     // State related to file chooser requests (e.g. for using a file chooser/camera for proving identity)
     private var filePathCallback: ValueCallback<Array<Uri>>? = null
@@ -85,7 +85,8 @@ class MainActivity : ComponentActivity() {
             fileChooserParams = null
         }
 
-        geolocationLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        geolocationLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
+            val isGranted = result.any { it.value }
             // invoke the callback with the permission result
             geolocationPermissionCallback?.invoke(geolocationOrigin, isGranted, false)
 
@@ -112,14 +113,14 @@ class MainActivity : ComponentActivity() {
 
     // Deal with requests from Checkout to show the geolocation permissions prompt
     fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {
-        if (permissionAlreadyGranted(Manifest.permission.ACCESS_COARSE_LOCATION)) {
-            // Permission already granted, invoke callback immediately
+        if (permissionAlreadyGranted(Manifest.permission.ACCESS_FINE_LOCATION) && permissionAlreadyGranted(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+            // Permissions already granted, invoke callback immediately
             callback(origin, true, true)
         } else {
-            // Permission not yet granted, request permission before invoking callback
+            // Permissions not yet granted, request permissions before invoking callback
             geolocationPermissionCallback = callback
             geolocationOrigin = origin
-            geolocationLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION)
+            geolocationLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
         }
     }
 
