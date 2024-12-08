@@ -109,3 +109,14 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_ui_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_ui_version"
 }
+
+task generateAndroidManifestFromTemplate {
+    doLast {
+        def templateFile = file('src/main/AndroidManifest.template.xml')
+        def outputFile = file('src/main/AndroidManifest.xml')
+        def content = templateFile.getText('UTF-8').replace('{{STOREFRONT_DOMAIN}}', "$storefrontDomain")
+        outputFile.write(content, 'UTF-8')
+    }
+}
+
+preBuild.dependsOn(generateAndroidManifestFromTemplate)
