@@ -1,18 +1,18 @@
 /*
  * MIT License
- * 
+ *
  * Copyright 2023-present, Shopify Inc.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,6 +23,7 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
@@ -94,6 +95,33 @@ class MainActivity : ComponentActivity() {
             geolocationPermissionCallback = null
             geolocationOrigin = null
         }
+
+        handleIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        Timber.d("[INTENT] NEW INTENT")
+        handleIntent(intent)
+    }
+
+    private fun handleIntent(intent: Intent) {
+        Timber.d("[INTENT] HANDLING INTENT")
+        if (intent.action == Intent.ACTION_VIEW) {
+            intent.data?.let { uri ->
+                if (uri.path == "/cart") {
+                    Timber.d("Navigating to Cart")
+                    // Logic to navigate to the cart screen
+                    navigateToCart()
+                }
+            }
+        }
+    }
+
+    private fun navigateToCart() {
+        // Replace this with actual navigation logic to your cart feature
+        Timber.d("Cart path received, launching cart UI")
+        // Example: startActivity(Intent(this, CartActivity::class.java))
     }
 
     // Show a file chooser when prompted by the event processor
