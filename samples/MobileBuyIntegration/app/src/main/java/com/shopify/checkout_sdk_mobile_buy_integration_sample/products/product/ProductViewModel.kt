@@ -131,7 +131,11 @@ data class UIProduct(
     val description: String = "",
     val image: UIProductImage = UIProductImage(),
     val selectedVariant: Int = 0,
-    val variants: MutableList<UIProductVariant> = mutableListOf(UIProductVariant())
+    val priceRange: ProductPriceRange = ProductPriceRange(
+        minVariantPrice = ProductPriceAmount(),
+        maxVariantPrice = ProductPriceAmount()
+    ),
+    val variants: MutableList<UIProductVariant> = mutableListOf(UIProductVariant()),
 )
 
 data class UIProductVariant(
@@ -145,4 +149,14 @@ data class UIProductImage(
     val height: Int = 0,
     val altText: String = "",
     val url: String = "",
+)
+
+data class ProductPriceRange(
+    val maxVariantPrice: ProductPriceAmount,
+    val minVariantPrice: ProductPriceAmount,
+)
+
+data class ProductPriceAmount(
+    val currencyCode: String = "",
+    val amount: Double = 0.0,
 )
