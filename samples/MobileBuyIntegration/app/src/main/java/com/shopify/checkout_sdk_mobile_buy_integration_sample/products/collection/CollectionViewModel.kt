@@ -25,8 +25,8 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collecti
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.shopify.buy3.Storefront
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.source.network.ProductCollectionsStorefrontApiClient
 import com.shopify.graphql.support.ID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,7 +35,7 @@ import timber.log.Timber
 import java.net.URLEncoder
 
 class CollectionViewModel(
-    private val client: StorefrontClient,
+    private val client: ProductCollectionsStorefrontApiClient,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<CollectionUIState>(CollectionUIState.Loading)
     val uiState: StateFlow<CollectionUIState> = _uiState.asStateFlow()

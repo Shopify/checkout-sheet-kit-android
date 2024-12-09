@@ -25,8 +25,8 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.home
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import com.shopify.buy3.Storefront
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.source.network.ProductCollectionsStorefrontApiClient
 import com.shopify.graphql.support.ID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,7 +34,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import timber.log.Timber
 
 class HomeViewModel(
-    private val client: StorefrontClient,
+    private val client: ProductCollectionsStorefrontApiClient,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<HomeUIState>(HomeUIState.Loading)
@@ -42,7 +42,7 @@ class HomeViewModel(
 
     fun fetchHomePageData() {
         Timber.i("Fetching home page data")
-        client.fetchHomePageData(numCollections = NUM_COLLECTIONS, numProducts = NUM_PRODUCTS_PER_COLLECTION,
+        client.fetchCollections(numCollections = NUM_COLLECTIONS, numProducts = NUM_PRODUCTS_PER_COLLECTION,
             { success ->
                 val collections = success.data?.collections?.nodes
                 Timber.i("Home page data fetched, retrieved ${collections?.size ?: 0} collections")
