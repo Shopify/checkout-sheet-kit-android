@@ -29,11 +29,12 @@ import com.shopify.buy3.Storefront.Product
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.UIProduct
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.UIProductImage
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.UIProductVariant
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.source.network.ProductsStorefrontApiClient
 import timber.log.Timber
 import kotlin.coroutines.suspendCoroutine
 
 class ProductPagingSource(
-    private val backend: StorefrontClient,
+    private val backend: ProductsStorefrontApiClient,
 ) : PagingSource<String, UIProduct>() {
     override suspend fun load(
         params: LoadParams<String>

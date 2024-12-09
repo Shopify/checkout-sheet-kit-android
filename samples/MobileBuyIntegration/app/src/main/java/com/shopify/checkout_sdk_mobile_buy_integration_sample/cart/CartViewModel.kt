@@ -30,9 +30,9 @@ import com.shopify.buy3.Storefront
 import com.shopify.buy3.Storefront.Cart
 import com.shopify.buy3.Storefront.CartLineInput
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.source.network.CartStorefrontApiClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarEvent
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
@@ -47,7 +47,7 @@ import timber.log.Timber
 typealias OnComplete = (Cart?) -> Unit
 
 class CartViewModel(
-    private val client: StorefrontClient,
+    private val client: CartStorefrontApiClient,
     private val preferencesManager: PreferencesManager,
 ) : ViewModel() {
 

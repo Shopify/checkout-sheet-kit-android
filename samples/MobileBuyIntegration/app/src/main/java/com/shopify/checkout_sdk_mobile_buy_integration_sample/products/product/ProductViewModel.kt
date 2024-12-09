@@ -25,7 +25,7 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product
 import androidx.lifecycle.ViewModel
 import com.shopify.buy3.Storefront
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontClient
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.source.network.ProductsStorefrontApiClient
 import com.shopify.graphql.support.ID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,7 +34,7 @@ import timber.log.Timber
 
 class ProductViewModel(
     private val cartViewModel: CartViewModel,
-    private val client: StorefrontClient,
+    private val client: ProductsStorefrontApiClient,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<ProductUIState>(ProductUIState.Loading)
     val uiState: StateFlow<ProductUIState> = _uiState.asStateFlow()
