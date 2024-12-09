@@ -34,26 +34,26 @@ import kotlinx.coroutines.flow.asStateFlow
 import timber.log.Timber
 import java.net.URLEncoder
 
-class CollectionViewModel(
+class ProductCollectionViewModel(
     private val client: ProductCollectionsStorefrontApiClient,
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow<CollectionUIState>(CollectionUIState.Loading)
-    val uiState: StateFlow<CollectionUIState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow<ProductCollectionUIState>(ProductCollectionUIState.Loading)
+    val uiState: StateFlow<ProductCollectionUIState> = _uiState.asStateFlow()
 
-    fun fetchCollection(handle: String) {
+    fun fetchProductCollection(handle: String) {
         Timber.i("Fetching collection with handle: $handle")
-        client.fetchCollection(handle, numProducts = 10, successCallback = { result ->
-            val collection = result.data?.collection
-            if (collection != null) {
+        client.fetchProductCollection(handle, numProducts = 10, successCallback = { result ->
+            val productCollection = result.data?.collection
+            if (productCollection != null) {
                 Timber.i("Fetching collection complete")
-                _uiState.value = CollectionUIState.Loaded(collection = collection)
+                _uiState.value = ProductCollectionUIState.Loaded(productCollection = productCollection)
             } else {
                 Timber.e("Fetching collection failed")
-                _uiState.value = CollectionUIState.Error("Failed to fetch collection")
+                _uiState.value = ProductCollectionUIState.Error("Failed to fetch collection")
             }
         }, failureCallback = { error ->
             Timber.e("Fetching collection failed $error")
-            _uiState.value = CollectionUIState.Error("Failed to fetch collection")
+            _uiState.value = ProductCollectionUIState.Error("Failed to fetch collection")
         })
     }
 
@@ -64,8 +64,8 @@ class CollectionViewModel(
     }
 }
 
-sealed class CollectionUIState {
-    data object Loading : CollectionUIState()
-    data class Error(val error: String) : CollectionUIState()
-    data class Loaded(val collection: Storefront.Collection) : CollectionUIState()
+sealed class ProductCollectionUIState {
+    data object Loading : ProductCollectionUIState()
+    data class Error(val error: String) : ProductCollectionUIState()
+    data class Loaded(val productCollection: Storefront.Collection) : ProductCollectionUIState()
 }

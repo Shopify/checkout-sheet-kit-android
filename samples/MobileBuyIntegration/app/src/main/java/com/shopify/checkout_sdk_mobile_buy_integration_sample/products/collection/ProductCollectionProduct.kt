@@ -48,7 +48,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.la
 import com.shopify.graphql.support.ID
 
 @Composable
-fun CollectionProduct(
+fun ProductCollectionProduct(
     product: Storefront.Product,
     onProductClick: (id: ID) -> Unit,
     textColor: Color = MaterialTheme.colorScheme.onPrimary,

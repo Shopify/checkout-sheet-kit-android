@@ -69,11 +69,11 @@ fun HomeView(
             }
 
             is HomeUIState.Loaded -> {
-                Collections(
-                    collections = homeUiState.collections,
-                    onClick = { collectionHandle -> homeViewModel.collectionSelected(navController, collectionHandle) }
+                ProductCollections(
+                    productCollections = homeUiState.productCollections,
+                    onClick = { collectionHandle -> homeViewModel.productCollectionSelected(navController, collectionHandle) }
                 )
-                Featured(homeUiState.collections.firstOrNull()?.products?.nodes ?: emptyList()) { productId: ID ->
+                Featured(homeUiState.productCollections.firstOrNull()?.products?.nodes ?: emptyList()) { productId: ID ->
                     homeViewModel.productSelected(navController, productId)
                 }
             }
