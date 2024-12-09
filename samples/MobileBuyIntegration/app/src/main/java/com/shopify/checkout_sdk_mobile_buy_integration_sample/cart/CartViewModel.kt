@@ -29,6 +29,9 @@ import androidx.navigation.NavController
 import com.shopify.buy3.Storefront
 import com.shopify.buy3.Storefront.Cart
 import com.shopify.buy3.Storefront.CartLineInput
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarController
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarEvent
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
@@ -47,7 +50,7 @@ class CartViewModel(
     private val client: StorefrontClient,
     private val preferencesManager: PreferencesManager,
 ) : ViewModel() {
-    
+
     private val _cartState = MutableStateFlow<CartState>(CartState.Empty)
     val cartState: StateFlow<CartState> = _cartState.asStateFlow()
 
@@ -68,7 +71,7 @@ class CartViewModel(
         }
     }
 
-    fun addToCart(variant: ID, quantity: Int, onComplete: OnComplete) {
+    fun addToCart(variant: ID, quantity: Int, onComplete: OnComplete) = viewModelScope.launch {
         Timber.i("Adding variant: $variant to cart with quantity: $quantity")
         when (val state = _cartState.value) {
             is CartState.Empty -> performCartCreate(variant, quantity, onComplete)
@@ -129,14 +132,33 @@ class CartViewModel(
         navController.navigate(Screen.Products.route)
     }
 
+    private fun showSnackbar(resourceId: Int) = viewModelScope.launch {
+        SnackbarController.sendEvent(SnackbarEvent(resourceId))
+    }
+
     private fun performCartLinesAdd(cartID: ID, variant: ID, quantity: Int, onComplete: OnComplete) {
         Timber.i("Adding cart lines to existing cart: $cartID, variant: $variant, and $quantity")
-        val line = CartLineInput(variant).setQuantity(quantity)
-        client.cartLinesAdd(lines = listOf(line), cartId = cartID, {
-            Timber.i("Adding cart lines complete")
-            _cartState.value = it.data?.cartLinesAdd?.cart.toUiState()
-            onComplete.invoke(it.data?.cartLinesAdd?.cart)
-        })
+        val line = CartLineInput(ID("12123")).setQuantity(quantity)
+
+        val onFail = {
+            showSnackbar(R.string.cart_error_updating)
+            onComplete(null)
+        }
+
+        client.cartLinesAdd(
+            lines = listOf(line),
+            cartId = cartID,
+            successCallback = {
+                if (it.data != null) {
+                    Timber.i("Adding cart lines complete")
+                    _cartState.value = it.data?.cartLinesAdd?.cart.toUiState()
+                    onComplete(it.data?.cartLinesAdd?.cart)
+                } else {
+                    onFail()
+                }
+            },
+            failureCallback = { onFail() }
+        )
     }
 
     private fun performCartCreate(variant: ID, quantity: Int, onComplete: OnComplete) {
@@ -147,16 +169,26 @@ class CartViewModel(
             Storefront.CartBuyerIdentityInput().setCountryCode(Storefront.CountryCode.CA)
         }
 
+        val onFail = {
+            showSnackbar(R.string.cart_error_creating)
+            onComplete(null)
+        }
+
         client.createCart(
             variant = Storefront.ProductVariant(variant),
             buyerIdentity = buyerIdentity,
             quantity = quantity,
             successCallback = { response ->
-                Timber.i("Cart created")
-                val cart = response.data?.cartCreate?.cart
-                _cartState.value = cart.toUiState()
-                onComplete.invoke(cart)
-            }
+                if (response.data != null) {
+                    Timber.i("Cart created")
+                    val cart = response.data?.cartCreate?.cart
+                    _cartState.value = cart.toUiState()
+                    onComplete(cart)
+                } else {
+                    onFail()
+                }
+            },
+            failureCallback = { onFail() }
         )
     }
 
