@@ -37,7 +37,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.home.HomeView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.LogsView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.LogsViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.ProductsView
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.CollectionView
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.ProductCollectionView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.ProductView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsViewModel
@@ -58,7 +58,7 @@ sealed class Screen(val route: String) {
     }
 
     data object Products : Screen("product")
-    data object Collection : Screen("collection/{collectionHandle}") {
+    data object ProductCollection : Screen("collection/{collectionHandle}") {
         fun collectionHandleRouteVariable(backStackEntry: NavBackStackEntry): String {
             return backStackEntry.arguments?.getString("collectionHandle") ?: ""
         }
@@ -76,7 +76,7 @@ sealed class Screen(val route: String) {
         fun fromRoute(route: String): Screen {
             return when (route) {
                 Home.route -> Home
-                Collection.route -> Collection
+                ProductCollection.route -> ProductCollection
                 Product.route -> Product
                 Products.route -> Products
                 Cart.route -> Cart
@@ -114,8 +114,8 @@ fun CheckoutSdkNavHost(
             ProductView(Screen.Product.productIdRouteVariable(backStackEntry))
         }
 
-        composable(Screen.Collection.route) { backStackEntry ->
-            CollectionView(navController, Screen.Collection.collectionHandleRouteVariable(backStackEntry))
+        composable(Screen.ProductCollection.route) { backStackEntry ->
+            ProductCollectionView(navController, Screen.ProductCollection.collectionHandleRouteVariable(backStackEntry))
         }
 
         composable(Screen.Cart.route) {

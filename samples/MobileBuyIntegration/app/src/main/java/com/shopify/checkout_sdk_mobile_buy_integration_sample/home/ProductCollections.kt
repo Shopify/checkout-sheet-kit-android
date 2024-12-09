@@ -22,7 +22,6 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.home
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,7 +37,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.shopify.buy3.Storefront
@@ -50,8 +48,8 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.ho
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.verticalPadding
 
 @Composable
-fun Collections(
-    collections: List<Storefront.Collection>,
+fun ProductCollections(
+    productCollections: List<Storefront.Collection>,
     onClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -66,14 +64,14 @@ fun Collections(
             modifier = Modifier.padding(vertical = verticalPadding),
         )
 
-        if (collections.isEmpty()) {
+        if (productCollections.isEmpty()) {
             Text(stringResource(id = R.string.collections_no_collections_configured))
         } else {
-            collections.forEach { collection ->
-                Collection(
-                    handle = collection.handle,
-                    title = collection.title,
-                    image = collection.image ?: Storefront.Image(),
+            productCollections.forEach { productCollection ->
+                ProductCollection(
+                    handle = productCollection.handle,
+                    title = productCollection.title,
+                    image = productCollection.image ?: Storefront.Image(),
                     modifier = modifier,
                     onClick = onClick
                 )
@@ -83,7 +81,7 @@ fun Collections(
 }
 
 @Composable
-fun Collection(
+fun ProductCollection(
     handle: String,
     title: String,
     image: Storefront.Image,
@@ -102,7 +100,7 @@ fun Collection(
                 .defaultMinSize(minWidth = 345.dp, minHeight = 345.dp)
                 .fillMaxWidth(),
         )
-        
+
         Row(verticalAlignment = Alignment.CenterVertically) {
             Header3(
                 text = title,

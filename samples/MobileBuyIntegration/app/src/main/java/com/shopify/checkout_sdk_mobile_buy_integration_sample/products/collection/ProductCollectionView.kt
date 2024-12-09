@@ -50,13 +50,13 @@ import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun CollectionView(
+fun ProductCollectionView(
     navController: NavController,
     collectionHandle: String,
-    collectionViewModel: CollectionViewModel = koinViewModel(),
+    productCollectionViewModel: ProductCollectionViewModel = koinViewModel(),
 ) {
     LaunchedEffect(key1 = true) {
-        collectionViewModel.fetchCollection(collectionHandle)
+        productCollectionViewModel.fetchProductCollection(collectionHandle)
     }
 
     Column(
@@ -65,28 +65,28 @@ fun CollectionView(
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        when (val collectionUIState = collectionViewModel.uiState.collectAsState().value) {
-            is CollectionUIState.Loading -> {
+        when (val productCollectionUIState = productCollectionViewModel.uiState.collectAsState().value) {
+            is ProductCollectionUIState.Loading -> {
                 ProgressIndicator()
             }
 
-            is CollectionUIState.Error -> {
-                Text(collectionUIState.error)
+            is ProductCollectionUIState.Error -> {
+                Text(productCollectionUIState.error)
             }
 
-            is CollectionUIState.Loaded -> {
+            is ProductCollectionUIState.Loaded -> {
                 Column(
                     Modifier
                         .padding(horizontal = horizontalPadding, vertical = verticalPadding)
                         .fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(verticalPadding)
                 ) {
-                    val collection = collectionUIState.collection
-                    Header2(text = collection.title)
-                    BodyMedium(text = collection.description)
+                    val productCollection = productCollectionUIState.productCollection
+                    Header2(text = productCollection.title)
+                    BodyMedium(text = productCollection.description)
                     RemoteImage(
-                        url = collection.image.url,
-                        altText = collection.image.altText ?: "",
+                        url = productCollection.image.url,
+                        altText = productCollection.image.altText ?: "",
                         modifier = Modifier.fillMaxWidth()
                     )
 
@@ -97,11 +97,11 @@ fun CollectionView(
                         verticalArrangement = Arrangement.spacedBy(30.dp),
                         horizontalArrangement = Arrangement.spacedBy(5.dp)
                     ) {
-                        collection.products.edges.forEach { collectionProduct ->
-                            CollectionProduct(
+                        productCollection.products.edges.forEach { collectionProduct ->
+                            ProductCollectionProduct(
                                 product = collectionProduct.node,
                                 textColor = MaterialTheme.colorScheme.onBackground,
-                                onProductClick = { productId -> collectionViewModel.productSelected(navController, productId) }
+                                onProductClick = { productId -> productCollectionViewModel.productSelected(navController, productId) }
                             )
                         }
                     }
