@@ -8,7 +8,6 @@
 
 **Shopify's Checkout Sheet Kit for Android** is a library that enables Android apps to provide the world's highest converting, customizable, one-page checkout within an app. The presented experience is a fully-featured checkout that preserves all of the store customizations: Checkout UI extensions, Functions, Web Pixels, and more. It also provides idiomatic defaults such as support for light and dark mode, and convenient developer APIs to embed, customize and follow the lifecycle of the checkout experience. Check out our developer blog to [learn how Checkout Sheet Kit is built](https://www.shopify.com/partners/blog/mobile-checkout-sdks-for-ios-and-android).
 
-
 - [Requirements](#requirements)
 - [Getting Started](#getting-started)
   - [Gradle](#gradle)
@@ -23,6 +22,7 @@
   - [When to preload](#when-to-preload)
   - [Cache invalidation](#cache-invalidation)
   - [Lifecycle management for preloaded checkout](#lifecycle-management-for-preloaded-checkout)
+    - [Additional considerations for preloaded checkout](#additional-considerations-for-preloaded-checkout)
 - [Monitoring the lifecycle of a checkout session](#monitoring-the-lifecycle-of-a-checkout-session)
   - [Error handling](#error-handling)
     - [`CheckoutException`](#checkoutexception)
@@ -271,6 +271,15 @@ The library will automatically invalidate/abort preload under the following cond
 - When `ShopifyCheckoutSheet.configure` is called (e.g. with theming changes).
 
 A preloaded checkout _is not_ automatically invalidated when checkout is closed. For example, if a buyer loads the checkout then exists, the preloaded checkout is retained and should be updated when cart contents change.
+
+#### Additional considerations for preloaded checkout
+
+1. Preloading is a hint, not a guarantee. The library may debounce or ignore
+   calls depending on various conditions; the preload may not complete before
+   `present(checkoutUrl)` is called, in which case the buyer may still see a progress/loading indicator while the checkout session is finalized.
+2. Preloading results in background network requests and additional CPU/memory utilization
+   for the client, and should be used responsibly. For example, conditionally based on the state of the client and when there is a high likelihood that the buyer will soon
+   request to checkout.
 
 ## Monitoring the lifecycle of a checkout session
 
