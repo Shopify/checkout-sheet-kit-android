@@ -52,7 +52,7 @@ import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyText
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyRangeText
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.ProgressIndicator
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.defaultProductImageHeight
@@ -152,9 +152,11 @@ fun Product(
                 .align(Alignment.CenterHorizontally)
         )
         Text(product.title, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground)
-        MoneyText(
-            currency = product.variants.first().currencyName,
-            price = product.variants.first().price.toDouble(),
+        MoneyRangeText(
+            fromPrice = product.priceRange.minVariantPrice.amount,
+            fromCurrencyCode = product.priceRange.minVariantPrice.currencyCode,
+            toPrice = product.priceRange.maxVariantPrice.amount,
+            toCurrencyCode = product.priceRange.maxVariantPrice.currencyCode,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onBackground,
         )
