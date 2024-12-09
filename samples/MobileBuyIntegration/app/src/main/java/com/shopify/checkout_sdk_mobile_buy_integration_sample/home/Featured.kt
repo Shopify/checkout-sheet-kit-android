@@ -35,18 +35,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.shopify.buy3.Storefront
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header3
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.defaultProductImageHeight
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.defaultProductImageHeightLg
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.ProductCollectionProduct
-import com.shopify.graphql.support.ID
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.Product
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun Featured(
-    featured: List<Storefront.Product>,
+    featured: List<Product>,
     imageHeight: Dp = defaultProductImageHeight,
     imageHeightLg: Dp = defaultProductImageHeightLg,
     verticalPadding: Dp = 30.dp,

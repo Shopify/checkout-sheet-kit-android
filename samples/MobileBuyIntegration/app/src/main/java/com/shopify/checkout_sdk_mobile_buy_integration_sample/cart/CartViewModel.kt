@@ -26,28 +26,26 @@ import androidx.activity.ComponentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
-import com.shopify.buy3.Storefront
-import com.shopify.buy3.Storefront.Cart
-import com.shopify.buy3.Storefront.CartLineInput
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.source.network.CartStorefrontApiClient
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartRepository
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartState
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarEvent
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
-import com.shopify.graphql.support.ID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-typealias OnComplete = (Cart?) -> Unit
+typealias OnComplete = (Result<CartState.Cart>) -> Unit
 
 class CartViewModel(
-    private val client: CartStorefrontApiClient,
+    private val cartRepository: CartRepository,
     private val preferencesManager: PreferencesManager,
 ) : ViewModel() {
 
@@ -71,31 +69,31 @@ class CartViewModel(
         }
     }
 
-    fun addToCart(variant: ID, quantity: Int, onComplete: OnComplete) = viewModelScope.launch {
-        Timber.i("Adding variant: $variant to cart with quantity: $quantity")
+    fun addToCart(variantId: ID, quantity: Int, onComplete: OnComplete) {
+        Timber.i("Adding variant: $variantId to cart with quantity: $quantity")
         when (val state = _cartState.value) {
-            is CartState.Empty -> performCartCreate(variant, quantity, onComplete)
-            is CartState.Populated -> performCartLinesAdd(state.cartID, variant, quantity, onComplete)
+            is CartState.Empty -> performCartCreate(variantId, quantity, onComplete)
+            is CartState.Cart -> performCartLinesAdd(state.cartID, variantId, quantity, onComplete)
         }
     }
 
-    fun modifyLineItem(lineItemID: ID, quantity: Int?) {
-        Timber.i("Updating or removing line item: $lineItemID, quantity: $quantity")
+    fun modifyLineItem(lineItemId: ID, quantity: Int?) = viewModelScope.launch {
         when (val state = _cartState.value) {
-            is CartState.Populated -> {
+            is CartState.Cart -> {
+                Timber.i("Updating or removing line item: $lineItemId, quantity: $quantity")
                 _loadingState.value = true
-                client.cartLinesModify(state.cartID, lineItemID, quantity, {
+                try {
+                    val cart = cartRepository.modifyCartLine(state.cartID, lineItemId, quantity)
                     Timber.i("Cart modification complete")
                     Timber.i("Invalidating previous preloads, so checkout reflects modified cart state")
                     ShopifyCheckoutSheetKit.invalidate()
-                    if (quantity != null) _cartState.value = it.data?.cartLinesUpdate?.cart.toUiState()
-                    else _cartState.value = it.data?.cartLinesRemove?.cart.toUiState()
-
+                    _cartState.value = if (cart.cartTotals.totalQuantity == 0) CartState.Empty else cart
                     _loadingState.value = false
-                }, { error ->
+                } catch (e: Exception) {
+                    Timber.e("Error updating cart $e")
+                    SnackbarController.sendEvent(SnackbarEvent(R.string.cart_error_updating))
                     _loadingState.value = false
-                    Timber.e("Error updating cart $error")
-                })
+                }
             }
 
             is CartState.Empty -> Timber.e("attempting to update the quantity on an empty cart")
@@ -119,7 +117,7 @@ class CartViewModel(
         activity: ComponentActivity,
     ) {
         val state = _cartState.value
-        if (state is CartState.Populated) {
+        if (state is CartState.Cart) {
             Timber.i("Preloading checkout with url ${state.checkoutUrl}")
             ShopifyCheckoutSheetKit.preload(state.checkoutUrl, activity)
         } else {
@@ -132,104 +130,30 @@ class CartViewModel(
         navController.navigate(Screen.Products.route)
     }
 
-    private fun showSnackbar(resourceId: Int) = viewModelScope.launch {
-        SnackbarController.sendEvent(SnackbarEvent(resourceId))
-    }
-
-    private fun performCartLinesAdd(cartID: ID, variant: ID, quantity: Int, onComplete: OnComplete) {
-        Timber.i("Adding cart lines to existing cart: $cartID, variant: $variant, and $quantity")
-        val line = CartLineInput(ID("12123")).setQuantity(quantity)
-
-        val onFail = {
-            showSnackbar(R.string.cart_error_updating)
-            onComplete(null)
+    private fun performCartLinesAdd(cartId: ID, variantId: ID, quantity: Int, onComplete: OnComplete) = viewModelScope.launch {
+        Timber.i("Adding cart lines to existing cart: $cartId, variant: $variantId, and $quantity")
+        try {
+            val cart = cartRepository.addCartLine(cartId, variantId, quantity)
+            _cartState.value = cart
+            onComplete(Result.success(cart))
+        } catch (e: Exception) {
+            Timber.e("Couldn't add cart line $e")
+            SnackbarController.sendEvent(SnackbarEvent(R.string.cart_error_updating))
+            onComplete(Result.failure(e))
         }
-
-        client.cartLinesAdd(
-            lines = listOf(line),
-            cartId = cartID,
-            successCallback = {
-                if (it.data != null) {
-                    Timber.i("Adding cart lines complete")
-                    _cartState.value = it.data?.cartLinesAdd?.cart.toUiState()
-                    onComplete(it.data?.cartLinesAdd?.cart)
-                } else {
-                    onFail()
-                }
-            },
-            failureCallback = { onFail() }
-        )
     }
 
-    private fun performCartCreate(variant: ID, quantity: Int, onComplete: OnComplete) {
+    private fun performCartCreate(variantId: ID, quantity: Int, onComplete: OnComplete) = viewModelScope.launch {
         Timber.i("No existing cart, creating new")
-        val buyerIdentity = if (demoBuyerIdentityEnabled) {
-            DemoBuyerIdentity.value
-        } else {
-            Storefront.CartBuyerIdentityInput().setCountryCode(Storefront.CountryCode.CA)
+        try {
+            val cart = cartRepository.createCart(variantId, quantity, demoBuyerIdentityEnabled)
+            Timber.i("Cart created $cart")
+            _cartState.value = cart
+            onComplete(Result.success(cart))
+        } catch (e: Exception) {
+            Timber.e("Couldn't create cart $e")
+            SnackbarController.sendEvent(SnackbarEvent(R.string.cart_error_creating))
+            onComplete(Result.failure(e))
         }
-
-        val onFail = {
-            showSnackbar(R.string.cart_error_creating)
-            onComplete(null)
-        }
-
-        client.createCart(
-            variant = Storefront.ProductVariant(variant),
-            buyerIdentity = buyerIdentity,
-            quantity = quantity,
-            successCallback = { response ->
-                if (response.data != null) {
-                    Timber.i("Cart created")
-                    val cart = response.data?.cartCreate?.cart
-                    _cartState.value = cart.toUiState()
-                    onComplete(cart)
-                } else {
-                    onFail()
-                }
-            },
-            failureCallback = { onFail() }
-        )
-    }
-
-    private fun Cart?.toUiState(): CartState {
-        if (this == null) {
-            return CartState.Empty
-        }
-        val cartLines = lines.nodes.mapNotNull { cartLine ->
-            val cartLineId = cartLine.id
-            (cartLine.merchandise as? Storefront.ProductVariant)?.let {
-                CartLine(
-                    id = cartLineId,
-                    imageURL = it.product.featuredImage.url,
-                    imageAltText = it.product.featuredImage.altText ?: "",
-                    title = it.product.title,
-                    vendor = it.product.vendor,
-                    quantity = cartLine.quantity,
-                    pricePerQuantity = cartLine.cost.amountPerQuantity.amount.toDouble(),
-                    currencyPerQuantity = cartLine.cost.amountPerQuantity.currencyCode.name,
-                    totalPrice = cartLine.cost.totalAmount.amount.toDouble(),
-                    totalCurrency = cartLine.cost.totalAmount.currencyCode.name,
-                )
-            }
-        }
-
-        if (cartLines.isEmpty()) {
-            return CartState.Empty
-        }
-
-        return CartState.Populated(
-            cartID = id,
-            cartLines = cartLines,
-            cartTotals = CartTotals(
-                totalAmount = Amount(
-                    currency = cost.totalAmount.currencyCode.name,
-                    price = cost.totalAmount.amount.toDouble(),
-                ),
-                totalAmountEstimated = cost.totalAmountEstimated,
-                totalQuantity = totalQuantity
-            ),
-            checkoutUrl = checkoutUrl,
-        )
     }
 }

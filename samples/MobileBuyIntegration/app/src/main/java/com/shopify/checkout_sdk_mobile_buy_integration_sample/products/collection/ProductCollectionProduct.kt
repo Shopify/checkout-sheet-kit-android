@@ -38,18 +38,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.shopify.buy3.Storefront
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyText
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.defaultProductImageHeight
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.defaultProductImageHeightLg
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.largeScreenBreakpoint
-import com.shopify.graphql.support.ID
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.Product
 
 @Composable
 fun ProductCollectionProduct(
-    product: Storefront.Product,
+    product: Product,
     onProductClick: (id: ID) -> Unit,
     textColor: Color = MaterialTheme.colorScheme.onPrimary,
     imageHeight: Dp = defaultProductImageHeight,
@@ -64,8 +64,8 @@ fun ProductCollectionProduct(
             }) {
 
             RemoteImage(
-                url = product.featuredImage.url,
-                altText = product.featuredImage.altText ?: stringResource(id = R.string.featured_default_alt_text),
+                url = product.image?.url,
+                altText = product.image?.altText ?: stringResource(id = R.string.featured_default_alt_text),
                 modifier = Modifier
                     .height(if (largeScreen) imageHeightLg else imageHeight)
                     .align(Alignment.CenterHorizontally),
@@ -78,9 +78,10 @@ fun ProductCollectionProduct(
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,
             )
+
             MoneyText(
-                currency = product.priceRange.maxVariantPrice.currencyCode.name,
-                price = product.priceRange.maxVariantPrice.amount.toDouble(),
+                currency = product.priceRange.maxVariantPrice.currencyCode,
+                price = product.priceRange.maxVariantPrice.amount,
                 style = MaterialTheme.typography.bodyMedium,
                 color = textColor,
             )
