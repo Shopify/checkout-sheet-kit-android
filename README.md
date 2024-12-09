@@ -8,6 +8,7 @@
 
 **Shopify's Checkout Sheet Kit for Android** is a library that enables Android apps to provide the world's highest converting, customizable, one-page checkout within an app. The presented experience is a fully-featured checkout that preserves all of the store customizations: Checkout UI extensions, Functions, Web Pixels, and more. It also provides idiomatic defaults such as support for light and dark mode, and convenient developer APIs to embed, customize and follow the lifecycle of the checkout experience. Check out our developer blog to [learn how Checkout Sheet Kit is built](https://www.shopify.com/partners/blog/mobile-checkout-sdks-for-ios-and-android).
 
+
 - [Requirements](#requirements)
 - [Getting Started](#getting-started)
   - [Gradle](#gradle)
@@ -18,21 +19,20 @@
     - [Checkout Dialog Title](#checkout-dialog-title)
 - [Preloading](#preloading)
   - [Important considerations](#important-considerations)
-    - [Flash Sales](#flash-sales)
-    - [When to preload](#when-to-preload)
-    - [Cache invalidation](#cache-invalidation)
+  - [Flash Sales](#flash-sales)
+  - [When to preload](#when-to-preload)
+  - [Cache invalidation](#cache-invalidation)
   - [Lifecycle management for preloaded checkout](#lifecycle-management-for-preloaded-checkout)
-    - [Additional considerations for preloaded checkout](#additional-considerations-for-preloaded-checkout)
 - [Monitoring the lifecycle of a checkout session](#monitoring-the-lifecycle-of-a-checkout-session)
-- [Error handling](#error-handling)
-  - [`CheckoutException`](#checkoutexception)
-  - [Exception Hierarchy](#exception-hierarchy)
-- [Integrating with Web Pixels, monitoring behavioral data](#integrating-with-web-pixels-monitoring-behavioral-data)
+  - [Error handling](#error-handling)
+    - [`CheckoutException`](#checkoutexception)
+    - [Exception Hierarchy](#exception-hierarchy)
+  - [Integrating with Web Pixels, monitoring behavioral data](#integrating-with-web-pixels-monitoring-behavioral-data)
 - [Integrating identity \& customer accounts](#integrating-identity--customer-accounts)
-- [Cart: buyer bag, identity, and preferences](#cart-buyer-bag-identity-and-preferences)
-- [Multipass](#multipass)
-- [Shop Pay](#shop-pay)
-- [Customer Account API](#customer-account-api)
+  - [Cart: buyer bag, identity, and preferences](#cart-buyer-bag-identity-and-preferences)
+  - [Multipass](#multipass)
+  - [Shop Pay](#shop-pay)
+  - [Customer Account API](#customer-account-api)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -239,19 +239,19 @@ ShopifyCheckoutSheetKit.preload(checkoutUrl) // no-op
    case the buyer may still see a spinner while the checkout session is
    finalized.
 
-#### Flash Sales
+### Flash Sales
 
 It is important to note that during Flash Sales or periods of high amounts of traffic, buyers may be entered into a queue system.
 
 **Calls to preload which result in a buyer being enqueued will be rejected.** This means that a buyer will never enter the queue without their knowledge.
 
-#### When to preload
+### When to preload
 
 Calling `preload()` each time an item is added to a buyer's cart can put significant strain on Shopify systems, which in return can result in rejected requests. Rejected requests will not result in a visual error shown to users, but will degrade the experience since they will need to load checkout from scratch.
 
 Instead, a better approach is to call `preload()` when you have a strong enough signal that the buyer intends to check out. In some cases this might mean a buyer has navigated to a "cart" screen.
 
-#### Cache invalidation
+### Cache invalidation
 
 Should you wish to manually clear the preload cache, there is a `ShopifyCheckoutSheetKit.invalidate()` helper function to do so. This function will be a no-op if no checkout is preloaded.
 
@@ -271,15 +271,6 @@ The library will automatically invalidate/abort preload under the following cond
 - When `ShopifyCheckoutSheet.configure` is called (e.g. with theming changes).
 
 A preloaded checkout _is not_ automatically invalidated when checkout is closed. For example, if a buyer loads the checkout then exists, the preloaded checkout is retained and should be updated when cart contents change.
-
-#### Additional considerations for preloaded checkout
-
-1. Preloading is a hint, not a guarantee. The library may debounce or ignore
-   calls depending on various conditions; the preload may not complete before
-   `present(checkoutUrl)` is called, in which case the buyer may still see a progress/loading indicator while the checkout session is finalized.
-2. Preloading results in background network requests and additional CPU/memory utilization
-   for the client, and should be used responsibly. For example, conditionally based on the state of the client and when there is a high likelihood that the buyer will soon
-   request to checkout.
 
 ## Monitoring the lifecycle of a checkout session
 
@@ -355,7 +346,7 @@ val processor = object : DefaultCheckoutEventProcessor(activity) {
 > [!Note]
 > The `DefaultCheckoutEventProcessor` provides default implementations for current and future callback functions (such as `onLinkClicked()`), which can be overridden by clients wanting to change default behavior.
 
-## Error handling
+### Error handling
 
 In the event of a checkout error occurring, the Checkout Sheet Kit _may_ attempt to retry to recover from the error. Recovery will happen in the background by discarding the failed WebView and creating a new "recovery" instance. Recovery will be attempted in the following scenarios:
 
@@ -390,7 +381,7 @@ ShopifyCheckoutSheetKit.configure {
 }
 ```
 
-### `CheckoutException`
+#### `CheckoutException`
 
 | Exception Class                | Error Code                     | Description                                                                   | Recommendation                                                                                    |
 | ------------------------------ | ------------------------------ | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
@@ -408,7 +399,7 @@ ShopifyCheckoutSheetKit.configure {
 | `ClientException`              | 'client_error'                 | An unhandled client error was encountered.                                    | Show checkout in a fallback WebView.                                                              |
 | `CheckoutUnavailableException` | 'unknown'                      | Checkout is unavailable for another reason, see error details for more info.  | Show checkout in a fallback WebView.                                                              |
 
-### Exception Hierarchy
+#### Exception Hierarchy
 
 ```mermaid
 ---
@@ -448,7 +439,7 @@ classDiagram
     }
 ```
 
-## Integrating with Web Pixels, monitoring behavioral data
+### Integrating with Web Pixels, monitoring behavioral data
 
 App developers can use [lifecycle events](#monitoring-the-lifecycle-of-a-checkout-session) to
 monitor and log the status of a checkout session.
@@ -498,7 +489,7 @@ of the buyer (guest or signed-in), knowledge of buyer preferences, or account/id
 application can use on of the following methods to initialize personalized and contextualized buyer
 experience.
 
-## Cart: buyer bag, identity, and preferences
+### Cart: buyer bag, identity, and preferences
 
 In addition to specifying the line items, the Cart can include buyer identity (name, email, address,
 etc.), and delivery and payment preferences:
@@ -506,7 +497,7 @@ see [guide](https://shopify.dev/docs/custom-storefronts/building-with-the-storef
 Included information will be used to present pre-filled and pre-selected choices to the buyer within
 checkout.
 
-## Multipass
+### Multipass
 
 [Shopify Plus](https://help.shopify.com/en/manual/intro-to-shopify/pricing-plans/plans-features/shopify-plus-plan)
 merchants
@@ -537,7 +528,7 @@ and initialize a buyer-aware checkout session.
 > Multipass errors are not "recoverable" (See [Error Handling](#error-handling)) due to their one-time nature. Failed requests containing multipass URLs
 > will require re-generating new tokens.
 
-## Shop Pay
+### Shop Pay
 
 To initialize accelerated Shop Pay checkout, the cart can set a
 [walletPreference](https://shopify.dev/docs/api/storefront/latest/mutations/cartBuyerIdentityUpdate#field-cartbuyeridentityinput-walletpreferences)
@@ -545,7 +536,7 @@ to 'shop_pay'. The sign-in state of the buyer is app-local and the buyer will be
 to their Shop account on their first checkout, and their sign-in state will be remembered for future
 checkout sessions.
 
-## Customer Account API
+### Customer Account API
 
 We are working on a library to provide buyer sign-in and authentication powered by the
 [new Customer Account API](https://www.shopify.com/partners/blog/introducing-customer-account-api-for-headless-stores)
