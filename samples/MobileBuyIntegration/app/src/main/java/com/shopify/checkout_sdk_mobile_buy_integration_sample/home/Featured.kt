@@ -40,7 +40,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header3
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.defaultProductImageHeight
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.defaultProductImageHeightLg
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.CollectionProduct
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.ProductCollectionProduct
 import com.shopify.graphql.support.ID
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -78,7 +78,7 @@ fun Featured(
                 horizontalArrangement = Arrangement.spacedBy(horizontalSpacing)
             ) {
                 featured.forEach { featuredProduct ->
-                    CollectionProduct(
+                    ProductCollectionProduct(
                         product = featuredProduct,
                         imageHeight = imageHeight,
                         imageHeightLg = imageHeightLg,

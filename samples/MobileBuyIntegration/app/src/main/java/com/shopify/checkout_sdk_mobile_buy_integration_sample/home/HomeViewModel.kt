@@ -42,16 +42,16 @@ class HomeViewModel(
 
     fun fetchHomePageData() {
         Timber.i("Fetching home page data")
-        client.fetchCollections(numCollections = NUM_COLLECTIONS, numProducts = NUM_PRODUCTS_PER_COLLECTION,
+        client.fetchProductCollections(numCollections = NUM_COLLECTIONS, numProducts = NUM_PRODUCTS_PER_COLLECTION,
             { success ->
-                val collections = success.data?.collections?.nodes
-                Timber.i("Home page data fetched, retrieved ${collections?.size ?: 0} collections")
+                val productCollections = success.data?.collections?.nodes
+                Timber.i("Home page data fetched, retrieved ${productCollections?.size ?: 0} product collections")
                 _uiState.value = HomeUIState.Loaded(
-                    collections = collections ?: emptyList(),
+                    productCollections = productCollections ?: emptyList(),
                 )
             },
             { failure ->
-                Timber.e("Failed to fetch collections $failure")
+                Timber.e("Failed to fetch product collections $failure")
                 _uiState.value = HomeUIState.Error(failure.message ?: "Unknown")
             }
         )
@@ -62,9 +62,9 @@ class HomeViewModel(
         navController.navigate(Screen.Products.route)
     }
 
-    fun collectionSelected(navController: NavController, collectionHandle: String) {
-        Timber.i("Collection selected, navigating to $collectionHandle")
-        navController.navigate(Screen.Collection.route(collectionHandle))
+    fun productCollectionSelected(navController: NavController, collectionHandle: String) {
+        Timber.i("Product collection selected, navigating to $collectionHandle")
+        navController.navigate(Screen.ProductCollection.route(collectionHandle))
     }
 
     fun productSelected(navController: NavController, productId: ID) {
@@ -82,6 +82,6 @@ sealed class HomeUIState {
     data object Loading : HomeUIState()
     data class Error(val error: String) : HomeUIState()
     data class Loaded(
-        val collections: List<Storefront.Collection>,
+        val productCollections: List<Storefront.Collection>,
     ) : HomeUIState()
 }

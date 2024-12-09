@@ -31,7 +31,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.Stor
 class ProductCollectionsStorefrontApiClient(
     private val executor: StorefrontApiRequestExecutor,
 ) {
-    fun fetchCollection(
+    fun fetchProductCollection(
         handle: String,
         numProducts: Int,
         successCallback: (GraphResponse<Storefront.QueryRoot>) -> Unit,
@@ -39,14 +39,14 @@ class ProductCollectionsStorefrontApiClient(
     ) {
         val query = Storefront.query { query ->
             query.collection({ it.handle(handle) }) { collection ->
-                collectionFragment(collection, numProducts)
+                productCollectionFragment(collection, numProducts)
             }
         }
 
         executor.executeQuery(query, successCallback, failureCallback)
     }
 
-    fun fetchCollections(
+    fun fetchProductCollections(
         numCollections: Int,
         numProducts: Int,
         successCallback: (GraphResponse<Storefront.QueryRoot>) -> Unit,
@@ -55,7 +55,7 @@ class ProductCollectionsStorefrontApiClient(
         val query = Storefront.query { query ->
             query.collections({ it.first(numCollections) }) { collectionConnection ->
                 collectionConnection.nodes { collection ->
-                    collectionFragment(collection, numProducts)
+                    productCollectionFragment(collection, numProducts)
                 }
             }
         }
@@ -63,7 +63,7 @@ class ProductCollectionsStorefrontApiClient(
         executor.executeQuery(query, successCallback, failureCallback)
     }
 
-    private fun collectionFragment(collectionQuery: CollectionQuery, numProducts: Int): CollectionQuery {
+    private fun productCollectionFragment(collectionQuery: CollectionQuery, numProducts: Int): CollectionQuery {
         return collectionQuery.handle()
             .title()
             .description()
