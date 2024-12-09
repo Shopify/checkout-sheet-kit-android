@@ -39,9 +39,9 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.MIGRAT
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.home.HomeViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.LogsViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.ProductsViewModel
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.CollectionViewModel
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.CollectionRepository
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.source.network.CollectionsStorefrontApiClient
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.ProductCollectionViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.ProductCollectionRepository
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.source.network.ProductCollectionsStorefrontApiClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.ProductViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductRepository
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.source.network.ProductsStorefrontApiClient
@@ -81,8 +81,8 @@ val appModules = module {
         )
     }
 
-    singleOf(::CollectionRepository)
-    singleOf(::CollectionsStorefrontApiClient)
+    singleOf(::ProductCollectionRepository)
+    singleOf(::ProductCollectionsStorefrontApiClient)
     singleOf(::ProductRepository)
     singleOf(::ProductsStorefrontApiClient)
     singleOf(::CartRepository)
@@ -115,7 +115,7 @@ val appModules = module {
 
     // Compose view models
     viewModelOf(::SettingsViewModel)
-    viewModelOf(::CollectionViewModel)
+    viewModelOf(::ProductCollectionViewModel)
     viewModelOf(::ProductViewModel)
     viewModelOf(::ProductsViewModel)
     viewModelOf(::HomeViewModel)

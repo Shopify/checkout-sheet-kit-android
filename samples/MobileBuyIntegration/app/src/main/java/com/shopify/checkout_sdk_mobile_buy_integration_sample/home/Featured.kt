@@ -36,10 +36,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header3
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.defaultProductImageHeight
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.defaultProductImageHeightLg
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.CollectionProduct
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.ProductCollectionProduct
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.Product
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -51,7 +52,7 @@ fun Featured(
     verticalPadding: Dp = 30.dp,
     verticalSpacing: Dp = 30.dp,
     horizontalSpacing: Dp = 5.dp,
-    onProductClick: (id: String) -> Unit,
+    onProductClick: (id: ID) -> Unit,
 ) {
     if (featured.isEmpty()) {
         Text("No products configured for this collection")
@@ -77,7 +78,7 @@ fun Featured(
                 horizontalArrangement = Arrangement.spacedBy(horizontalSpacing)
             ) {
                 featured.forEach { featuredProduct ->
-                    CollectionProduct(
+                    ProductCollectionProduct(
                         product = featuredProduct,
                         imageHeight = imageHeight,
                         imageHeightLg = imageHeightLg,

@@ -22,6 +22,8 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data
 
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID
+
 data class Products(
     val products: List<Product> = mutableListOf(),
     val pageInfo: PageInfo = PageInfo(),
@@ -33,7 +35,7 @@ data class PageInfo(
 )
 
 data class Product(
-    val id: String = "",
+    val id: ID = ID(""),
     val title: String = "",
     val description: String? = "",
     val image: ProductImage? = ProductImage(),
@@ -46,9 +48,9 @@ data class Product(
 )
 
 data class ProductVariant(
+    val id: ID = ID(""),
     val price: String = "",
     val currencyName: String = "",
-    val id: String = "",
 )
 
 data class ProductPriceRange(

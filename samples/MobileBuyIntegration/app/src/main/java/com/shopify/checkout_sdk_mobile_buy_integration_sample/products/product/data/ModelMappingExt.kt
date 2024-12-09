@@ -23,12 +23,13 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data
 
 import com.shopify.buy3.Storefront
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.toLocal
 
 fun Storefront.Product.toLocal(): Product {
     val variants = this.variants
     val firstVariant = variants?.nodes?.firstOrNull()
     val uiProduct = Product(
-        id = id.toString(),
+        id = id.toLocal(),
         title = title,
         description = description,
         image = if (featuredImage == null) ProductImage() else ProductImage(
@@ -51,7 +52,7 @@ fun Storefront.Product.toLocal(): Product {
         if (firstVariant != null) {
             mutableListOf(
                 ProductVariant(
-                    id = firstVariant.id.toString(),
+                    id = firstVariant.id.toLocal(),
                     price = firstVariant.price.amount,
                     currencyName = firstVariant.price.currencyCode.name,
                 )

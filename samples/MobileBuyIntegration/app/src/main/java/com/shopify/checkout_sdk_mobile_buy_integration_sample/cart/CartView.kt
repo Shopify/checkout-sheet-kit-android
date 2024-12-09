@@ -63,6 +63,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartAmount
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartLine
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartState
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodyMedium
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodySmall
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
@@ -139,7 +140,7 @@ private fun CartLines(
     totalAmount: CartAmount,
     totalAmountEstimated: Boolean,
     continueShopping: () -> Unit,
-    modifyLineItem: (String, Int?) -> Unit,
+    modifyLineItem: (ID, Int?) -> Unit,
     checkout: () -> Unit,
     modifier: Modifier = Modifier
 ) {

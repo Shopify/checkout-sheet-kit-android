@@ -23,10 +23,11 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data
 
 import com.shopify.buy3.Storefront
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.toLocal
 
 internal fun Storefront.Cart.toLocal(): CartState.Cart {
     return CartState.Cart(
-        cartID = id.toString(),
+        cartID = id.toLocal(),
         cartLines = this.lines.nodes.mapNotNull { cartLine -> cartLine.toLocal() },
         cartTotals = CartTotals(
             totalAmount = CartAmount(
@@ -43,7 +44,7 @@ internal fun Storefront.Cart.toLocal(): CartState.Cart {
 internal fun Storefront.BaseCartLine.toLocal(): CartLine? {
     return (this.merchandise as? Storefront.ProductVariant)?.let {
         CartLine(
-            id = this.id.toString(),
+            id = this.id.toLocal(),
             imageURL = it.product.featuredImage.url,
             imageAltText = it.product.featuredImage.altText ?: "",
             title = it.product.title,

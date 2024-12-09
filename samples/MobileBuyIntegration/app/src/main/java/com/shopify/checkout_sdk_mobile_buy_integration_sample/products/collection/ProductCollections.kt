@@ -45,12 +45,12 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.horizontalPadding
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.verticalPadding
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.Collection
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.CollectionImage
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.ProductCollection
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.ProductCollectionImage
 
 @Composable
-fun Collections(
-    collections: List<Collection>,
+fun ProductCollections(
+    productCollections: List<ProductCollection>,
     onClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -65,11 +65,11 @@ fun Collections(
             modifier = Modifier.padding(vertical = verticalPadding),
         )
 
-        if (collections.isEmpty()) {
+        if (productCollections.isEmpty()) {
             Text(stringResource(id = R.string.collections_no_collections_configured))
         } else {
-            collections.forEach { collection ->
-                Collection(
+            productCollections.forEach { collection ->
+                ProductCollection(
                     handle = collection.handle,
                     title = collection.title,
                     image = collection.image,
@@ -82,10 +82,10 @@ fun Collections(
 }
 
 @Composable
-fun Collection(
+fun ProductCollection(
     handle: String,
     title: String,
-    image: CollectionImage,
+    image: ProductCollectionImage,
     onClick: (String) -> Unit,
     modifier: Modifier,
 ) {

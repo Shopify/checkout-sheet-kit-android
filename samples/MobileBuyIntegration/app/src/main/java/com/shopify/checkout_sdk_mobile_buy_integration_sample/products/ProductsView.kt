@@ -51,6 +51,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyRangeText
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.ProgressIndicator
@@ -135,7 +136,7 @@ fun ProductsView(
 fun Product(
     product: Product,
     imageHeight: Dp,
-    onProductClick: (id: String) -> Unit,
+    onProductClick: (id: ID) -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier
         .wrapContentWidth()

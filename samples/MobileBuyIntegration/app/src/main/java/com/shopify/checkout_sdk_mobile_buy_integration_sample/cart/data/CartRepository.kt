@@ -25,14 +25,15 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data
 import com.shopify.buy3.Storefront
 import com.shopify.buy3.Storefront.CartLineInput
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.source.network.CartStorefrontApiClient
-import com.shopify.graphql.support.ID
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.toGraphQLId
 import kotlin.coroutines.suspendCoroutine
 
 class CartRepository(
     private val cartStorefrontApiClient: CartStorefrontApiClient,
 ) {
 
-    suspend fun createCart(variantId: String, quantity: Int, demoBuyerIdentityEnabled: Boolean): CartState.Cart {
+    suspend fun createCart(variantId: ID, quantity: Int, demoBuyerIdentityEnabled: Boolean): CartState.Cart {
         return suspendCoroutine { continuation ->
             val buyerIdentity = if (demoBuyerIdentityEnabled) {
                 DemoBuyerIdentity.value
@@ -41,7 +42,7 @@ class CartRepository(
             }
 
             cartStorefrontApiClient.createCart(
-                variant = Storefront.ProductVariant(ID(variantId)),
+                variant = Storefront.ProductVariant(variantId.toGraphQLId()),
                 buyerIdentity = buyerIdentity,
                 quantity = quantity,
                 successCallback = { response ->
@@ -59,12 +60,12 @@ class CartRepository(
         }
     }
 
-    suspend fun addCartLine(cartId: String, variantId: String, quantity: Int): CartState.Cart {
-        val line = CartLineInput(ID(variantId)).setQuantity(quantity)
+    suspend fun addCartLine(cartId: ID, variantId: ID, quantity: Int): CartState.Cart {
+        val line = CartLineInput(variantId.toGraphQLId()).setQuantity(quantity)
         return suspendCoroutine { continuation ->
             cartStorefrontApiClient.cartLinesAdd(
                 lines = listOf(line),
-                cartId = ID(cartId),
+                cartId = cartId.toGraphQLId(),
                 successCallback = { response ->
                     val cartLinesAddResponse = response.data?.cartLinesAdd
                     if (cartLinesAddResponse == null) {
@@ -79,11 +80,11 @@ class CartRepository(
         }
     }
 
-    suspend fun modifyCartLine(cartId: String, lineItemId: String, quantity: Int?): CartState.Cart {
+    suspend fun modifyCartLine(cartId: ID, lineItemId: ID, quantity: Int?): CartState.Cart {
         return suspendCoroutine { continuation ->
             cartStorefrontApiClient.cartLinesModify(
-                cartId = ID(cartId),
-                lineItemId = ID(lineItemId),
+                cartId = cartId.toGraphQLId(),
+                lineItemId = lineItemId.toGraphQLId(),
                 quantity = quantity,
                 successCallback = { response ->
                     val cartResult =

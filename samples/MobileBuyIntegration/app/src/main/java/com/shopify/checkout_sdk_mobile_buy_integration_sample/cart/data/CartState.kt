@@ -23,13 +23,14 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data
 
 import androidx.compose.runtime.Stable
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID
 
 sealed class CartState {
     data object Empty : CartState()
 
     @Stable
     data class Cart(
-        val cartID: String,
+        val cartID: ID,
         val cartLines: List<CartLine>,
         val cartTotals: CartTotals,
         val checkoutUrl: String,
@@ -38,7 +39,7 @@ sealed class CartState {
 }
 
 data class CartLine(
-    val id: String,
+    val id: ID,
     val title: String,
     val vendor: String,
     val quantity: Int,

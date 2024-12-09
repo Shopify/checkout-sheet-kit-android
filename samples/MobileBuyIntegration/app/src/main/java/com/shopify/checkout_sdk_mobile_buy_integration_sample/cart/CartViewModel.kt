@@ -29,6 +29,7 @@ import androidx.navigation.NavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartRepository
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartState
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarEvent
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
@@ -68,7 +69,7 @@ class CartViewModel(
         }
     }
 
-    fun addToCart(variantId: String, quantity: Int, onComplete: OnComplete) {
+    fun addToCart(variantId: ID, quantity: Int, onComplete: OnComplete) {
         Timber.i("Adding variant: $variantId to cart with quantity: $quantity")
         when (val state = _cartState.value) {
             is CartState.Empty -> performCartCreate(variantId, quantity, onComplete)
@@ -76,7 +77,7 @@ class CartViewModel(
         }
     }
 
-    fun modifyLineItem(lineItemId: String, quantity: Int?) = viewModelScope.launch {
+    fun modifyLineItem(lineItemId: ID, quantity: Int?) = viewModelScope.launch {
         when (val state = _cartState.value) {
             is CartState.Cart -> {
                 Timber.i("Updating or removing line item: $lineItemId, quantity: $quantity")
@@ -129,7 +130,7 @@ class CartViewModel(
         navController.navigate(Screen.Products.route)
     }
 
-    private fun performCartLinesAdd(cartId: String, variantId: String, quantity: Int, onComplete: OnComplete) = viewModelScope.launch {
+    private fun performCartLinesAdd(cartId: ID, variantId: ID, quantity: Int, onComplete: OnComplete) = viewModelScope.launch {
         Timber.i("Adding cart lines to existing cart: $cartId, variant: $variantId, and $quantity")
         try {
             val cart = cartRepository.addCartLine(cartId, variantId, quantity)
@@ -142,7 +143,7 @@ class CartViewModel(
         }
     }
 
-    private fun performCartCreate(variantId: String, quantity: Int, onComplete: OnComplete) = viewModelScope.launch {
+    private fun performCartCreate(variantId: ID, quantity: Int, onComplete: OnComplete) = viewModelScope.launch {
         Timber.i("No existing cart, creating new")
         try {
             val cart = cartRepository.createCart(variantId, quantity, demoBuyerIdentityEnabled)

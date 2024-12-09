@@ -32,8 +32,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.ProgressIndicator
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.Collections
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.ProductCollections
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -69,11 +70,11 @@ fun HomeView(
             }
 
             is HomeUIState.Loaded -> {
-                Collections(
-                    collections = homeUiState.collections,
+                ProductCollections(
+                    productCollections = homeUiState.productCollections,
                     onClick = { collectionHandle -> homeViewModel.collectionSelected(navController, collectionHandle) }
                 )
-                Featured(homeUiState.collections.firstOrNull()?.products ?: emptyList()) { productId: String ->
+                Featured(homeUiState.productCollections.firstOrNull()?.products ?: emptyList()) { productId: ID ->
                     homeViewModel.productSelected(navController, productId)
                 }
             }

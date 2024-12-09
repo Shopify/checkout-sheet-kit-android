@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartLine
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyText
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.QuantitySelector
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
@@ -55,7 +56,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.la
 fun CartItem(
     cartLine: CartLine,
     loading: Boolean,
-    modifyLineItem: (String, Int?) -> Unit,
+    modifyLineItem: (ID, Int?) -> Unit,
 ) {
     BoxWithConstraints {
         Row(

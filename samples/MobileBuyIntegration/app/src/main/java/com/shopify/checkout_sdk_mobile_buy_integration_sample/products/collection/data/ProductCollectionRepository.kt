@@ -22,20 +22,20 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data
 
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.source.network.CollectionsStorefrontApiClient
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.source.network.ProductCollectionsStorefrontApiClient
 import kotlin.coroutines.suspendCoroutine
 
-class CollectionRepository(
-    private val client: CollectionsStorefrontApiClient,
+class ProductCollectionRepository(
+    private val client: ProductCollectionsStorefrontApiClient,
 ) {
-    suspend fun getCollections(numberOfCollections: Int, numberOfProductsPerCollection: Int): List<Collection> {
+    suspend fun getProductCollections(numberOfCollections: Int, numberOfProductsPerCollection: Int): List<ProductCollection> {
         return suspendCoroutine { continuation ->
             client.fetchCollections(numberOfCollections, numberOfProductsPerCollection, {
-                val collections = it.data?.collections
-                if (collections == null) {
+                val productCollections = it.data?.collections
+                if (productCollections == null) {
                     continuation.resumeWith(Result.failure(RuntimeException("Failed to fetch collections")))
                 } else {
-                    continuation.resumeWith(Result.success(collections.nodes.map { it.toLocal() }))
+                    continuation.resumeWith(Result.success(productCollections.nodes.map { it.toLocal() }))
                 }
             }, { exception ->
                 continuation.resumeWith(Result.failure(exception))
@@ -43,7 +43,7 @@ class CollectionRepository(
         }
     }
 
-    suspend fun getCollection(collectionHandle: String, numberOfProducts: Int): Collection {
+    suspend fun getProductCollection(collectionHandle: String, numberOfProducts: Int): ProductCollection {
         return suspendCoroutine { continuation ->
             client.fetchCollection(collectionHandle, numberOfProducts, {
                 val collection = it.data?.collection

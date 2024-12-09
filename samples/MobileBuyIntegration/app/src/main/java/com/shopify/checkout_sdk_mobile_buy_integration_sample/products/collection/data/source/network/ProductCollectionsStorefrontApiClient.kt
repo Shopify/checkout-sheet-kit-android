@@ -28,7 +28,7 @@ import com.shopify.buy3.Storefront
 import com.shopify.buy3.Storefront.CollectionQuery
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontApiRequestExecutor
 
-class CollectionsStorefrontApiClient(
+class ProductCollectionsStorefrontApiClient(
     private val executor: StorefrontApiRequestExecutor,
 ) {
     fun fetchCollection(

@@ -26,11 +26,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarEvent
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.Collection
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.CollectionRepository
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.ProductCollection
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.ProductCollectionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -38,7 +39,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class HomeViewModel(
-    private val collectionRepository: CollectionRepository,
+    private val productCollectionRepository: ProductCollectionRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<HomeUIState>(HomeUIState.Loading)
@@ -47,13 +48,13 @@ class HomeViewModel(
     fun fetchHomePageData() = viewModelScope.launch {
         try {
             Timber.i("Fetching home page data")
-            val collections = collectionRepository.getCollections(
+            val collections = productCollectionRepository.getProductCollections(
                 numberOfCollections = NUM_COLLECTIONS,
                 numberOfProductsPerCollection = NUM_PRODUCTS_PER_COLLECTION
             )
             Timber.i("Home page data fetched, retrieved ${collections.size} collections")
             _uiState.value = HomeUIState.Loaded(
-                collections = collections,
+                productCollections = collections,
             )
         } catch (e: Exception) {
             Timber.e("Failed to fetch collections $e")
@@ -68,13 +69,13 @@ class HomeViewModel(
     }
 
     fun collectionSelected(navController: NavController, collectionHandle: String) {
-        Timber.i("Collection selected, navigating to $collectionHandle")
-        navController.navigate(Screen.Collection.route(collectionHandle))
+        Timber.i("ProductCollection selected, navigating to $collectionHandle")
+        navController.navigate(Screen.ProductCollection.route(collectionHandle))
     }
 
-    fun productSelected(navController: NavController, productId: String) {
+    fun productSelected(navController: NavController, productId: ID) {
         Timber.i("Product selected $productId, navigating to product page")
-        navController.navigate(Screen.Product.route(productId.toString()))
+        navController.navigate(Screen.Product.route(productId.id))
     }
 
     companion object {
@@ -87,6 +88,6 @@ sealed class HomeUIState {
     data object Loading : HomeUIState()
     data class Error(val error: String) : HomeUIState()
     data class Loaded(
-        val collections: List<Collection>,
+        val productCollections: List<ProductCollection>,
     ) : HomeUIState()
 }

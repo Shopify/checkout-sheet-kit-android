@@ -39,6 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyText
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.defaultProductImageHeight
@@ -47,9 +48,9 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.la
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.Product
 
 @Composable
-fun CollectionProduct(
+fun ProductCollectionProduct(
     product: Product,
-    onProductClick: (id: String) -> Unit,
+    onProductClick: (id: ID) -> Unit,
     textColor: Color = MaterialTheme.colorScheme.onPrimary,
     imageHeight: Dp = defaultProductImageHeight,
     imageHeightLg: Dp = defaultProductImageHeightLg,
