@@ -26,6 +26,8 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.shopify.buy3.Storefront
 import com.shopify.buy3.Storefront.Product
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.ProductPriceAmount
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.ProductPriceRange
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.UIProduct
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.UIProductImage
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.UIProductVariant
@@ -88,13 +90,23 @@ class ProductPagingSource(
                 url = featuredImage.url,
                 altText = featuredImage.altText ?: "Product image",
             ),
+            priceRange = ProductPriceRange(
+                minVariantPrice = ProductPriceAmount(
+                    currencyCode = priceRange.minVariantPrice.currencyCode.name,
+                    amount = priceRange.minVariantPrice.amount.toDouble()
+                ),
+                maxVariantPrice = ProductPriceAmount(
+                    currencyCode = priceRange.maxVariantPrice.currencyCode.name,
+                    amount = priceRange.maxVariantPrice.amount.toDouble()
+                )
+            ),
             variants = mutableListOf(
                 UIProductVariant(
                     id = firstVariant.id,
                     price = firstVariant.price.amount,
                     currencyName = firstVariant.price.currencyCode.name,
                 )
-            )
+            ),
         )
         return uiProduct
     }
