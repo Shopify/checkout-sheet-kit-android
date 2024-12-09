@@ -18,22 +18,24 @@
 4. [Configuration](#configuration)
    - [Color Scheme](#color-scheme)
    - [Checkout Dialog Title](#checkout-dialog-title)
-   - [Preloading](#preloading)
-   - [Invalidation](#invalidation)
-   - [Lifecycle Management for Preloaded Checkout](#lifecycle-management-for-preloaded-checkout)
-   - [Additional Considerations for Preloaded Checkout](#additional-considerations-for-preloaded-checkout)
-5. [Monitoring the Lifecycle of a Checkout Session](#monitoring-the-lifecycle-of-a-checkout-session)
-6. [Error Handling](#error-handling)
-   - [CheckoutException](#checkoutexception)
+5. [Preloading](#preloading)
+   - [Important considerations](#important-considerations)
+   - [Flash Sales](#flash-sales)
+   - [When to preload](#when-to-preload)
+   - [Cache invalidation](#cache-invalidation)
+   - [Lifecycle management for preloaded checkout](#lifecycle-management-for-preloaded-checkout)
+6. [Monitoring the lifecycle of a checkout session](#monitoring-the-lifecycle-of-a-checkout-session)
+   - [Error handling](#error-handling)
+   - [`CheckoutException`](#checkoutexception)
    - [Exception Hierarchy](#exception-hierarchy)
-7. [Integrating with Web Pixels, Monitoring Behavioral Data](#integrating-with-web-pixels-monitoring-behavioral-data)
-8. [Integrating Identity & Customer Accounts](#integrating-identity--customer-accounts)
-   - [Cart: Buyer Bag, Identity, and Preferences](#cart-buyer-bag-identity-and-preferences)
+   - [Integrating with Web Pixels, monitoring behavioral data](#integrating-with-web-pixels-monitoring-behavioral-data)
+7. [Integrating identity \& customer accounts](#integrating-identity--customer-accounts)
+   - [Cart: buyer bag, identity, and preferences](#cart-buyer-bag-identity-and-preferences)
    - [Multipass](#multipass)
    - [Shop Pay](#shop-pay)
    - [Customer Account API](#customer-account-api)
-9. [Contributing](#contributing)
-10. [License](#license)
+8. [Contributing](#contributing)
+9. [License](#license)
 
 ### Requirements
 
@@ -182,7 +184,7 @@ The colors that can be modified are:
 
 The current configuration can be obtained by calling `ShopifyCheckoutSheetKit.getConfiguration()`.
 
-### Checkout Dialog Title
+#### Checkout Dialog Title
 
 To customize the title of the Dialog that the checkout WebView is displayed within, or to provide different values for the various locales your app supports, override the `checkout_web_view_title` String resource in your application, e.g:
 
@@ -192,11 +194,11 @@ To customize the title of the Dialog that the checkout WebView is displayed with
 
 ### Preloading
 
-Initializing a checkout session requires communicating with Shopify servers and, depending
-on the network weather and the quality of the buyer's connection, can result in undesirable
-waiting time for the buyer. To help optimize and deliver the best experience, the SDK provides
-a preloading hint that allows app developers to signal and initialize the checkout session in
-the background and ahead of time.
+Initializing a checkout session requires communicating with Shopify servers, thus depending
+on the network quality and bandwidth available to the buyer can result in undesirable waiting
+time for the buyer. To help optimize and deliver the best experience, the SDK provides a
+`preloading` "hint" that allows developers to signal that the checkout session should be
+initialized in the background, ahead of time.
 
 Preloading is an advanced feature that can be disabled via a runtime flag:
 
@@ -206,7 +208,8 @@ ShopifyCheckoutSheetKit.configure {
 }
 ```
 
-Once enabled, preloading a checkout is as simple as:
+Once enabled, preloading a checkout is as simple as calling
+`preload(checkoutUrl)` with a valid `checkoutUrl`.
 
 ```kotlin
 ShopifyCheckoutSheetKit.preload(checkoutUrl)
@@ -221,9 +224,37 @@ ShopifyCheckoutSheetKit.configure {
 ShopifyCheckoutSheetKit.preload(checkoutUrl) // no-op
 ```
 
-#### Invalidation
+#### Important considerations
 
-To invalidate a preloaded checkout, call `ShopifyCheckoutSheetKit.invalidate()`. This function will be a no-op if no checkout is preloaded.
+1. Initiating preload results in background network requests and additional
+   CPU/memory utilization for the client, and should be used when there is a
+   high likelihood that the buyer will soon request to checkout—e.g. when the
+   buyer navigates to the cart overview or a similar app-specific experience.
+2. A preloaded checkout session reflects the cart contents at the time when
+   `preload` is called. If the cart is updated after `preload` is called, the
+   application needs to call `preload` again to reflect the updated checkout
+   session.
+3. Calling `preload(checkoutUrl)` is a hint, **not a guarantee**: the library
+   may debounce or ignore calls to this API depending on various conditions; the
+   preload may not complete before `present(checkoutUrl)` is called, in which
+   case the buyer may still see a spinner while the checkout session is
+   finalized.
+
+#### Flash Sales
+
+It is important to note that during Flash Sales or periods of high amounts of traffic, buyers may be entered into a queue system.
+
+**Calls to preload which result in a buyer being enqueued will be rejected.** This means that a buyer will never enter the queue without their knowledge.
+
+#### When to preload
+
+Calling `preload()` each time an item is added to a buyer's cart can put significant strain on Shopify systems, which in return can result in rejected requests. Rejected requests will not result in a visual error shown to users, but will degrade the experience since they will need to load checkout from scratch.
+
+Instead, a better approach is to call `preload()` when you have a strong enough signal that the buyer intends to check out. In some cases this might mean a buyer has navigated to a "cart" screen.
+
+#### Cache invalidation
+
+Should you wish to manually clear the preload cache, there is a `ShopifyCheckoutSheetKit.invalidate()` helper function to do so. This function will be a no-op if no checkout is preloaded.
 
 You may wish to do this if the buyer changes shortly before entering checkout, e.g. by changing cart quantity on a cart view.
 
@@ -241,15 +272,6 @@ The library will automatically invalidate/abort preload under the following cond
 - When `ShopifyCheckoutSheet.configure` is called (e.g. with theming changes).
 
 A preloaded checkout _is not_ automatically invalidated when checkout is closed. For example, if a buyer loads the checkout then exists, the preloaded checkout is retained and should be updated when cart contents change.
-
-#### Additional considerations for preloaded checkout
-
-1. Preloading is a hint, not a guarantee. The library may debounce or ignore
-   calls depending on various conditions; the preload may not complete before
-   `present(checkoutUrl)` is called, in which case the buyer may still see a progress/loading indicator while the checkout session is finalized.
-2. Preloading results in background network requests and additional CPU/memory utilization
-   for the client, and should be used responsibly. For example, conditionally based on the state of the client and when there is a high likelihood that the buyer will soon
-   request to checkout.
 
 ### Monitoring the lifecycle of a checkout session
 
