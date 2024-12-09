@@ -8,54 +8,53 @@
 
 **Shopify's Checkout Sheet Kit for Android** is a library that enables Android apps to provide the world's highest converting, customizable, one-page checkout within an app. The presented experience is a fully-featured checkout that preserves all of the store customizations: Checkout UI extensions, Functions, Web Pixels, and more. It also provides idiomatic defaults such as support for light and dark mode, and convenient developer APIs to embed, customize and follow the lifecycle of the checkout experience. Check out our developer blog to [learn how Checkout Sheet Kit is built](https://www.shopify.com/partners/blog/mobile-checkout-sdks-for-ios-and-android).
 
-## Table of Contents
+- [Requirements](#requirements)
+- [Getting Started](#getting-started)
+  - [Gradle](#gradle)
+  - [Maven](#maven)
+- [Basic Usage](#basic-usage)
+- [Configuration](#configuration)
+  - [Color Scheme](#color-scheme)
+    - [Checkout Dialog Title](#checkout-dialog-title)
+- [Preloading](#preloading)
+  - [Important considerations](#important-considerations)
+    - [Flash Sales](#flash-sales)
+    - [When to preload](#when-to-preload)
+    - [Cache invalidation](#cache-invalidation)
+  - [Lifecycle management for preloaded checkout](#lifecycle-management-for-preloaded-checkout)
+    - [Additional considerations for preloaded checkout](#additional-considerations-for-preloaded-checkout)
+- [Monitoring the lifecycle of a checkout session](#monitoring-the-lifecycle-of-a-checkout-session)
+- [Error handling](#error-handling)
+  - [`CheckoutException`](#checkoutexception)
+  - [Exception Hierarchy](#exception-hierarchy)
+- [Integrating with Web Pixels, monitoring behavioral data](#integrating-with-web-pixels-monitoring-behavioral-data)
+- [Integrating identity \& customer accounts](#integrating-identity--customer-accounts)
+- [Cart: buyer bag, identity, and preferences](#cart-buyer-bag-identity-and-preferences)
+- [Multipass](#multipass)
+- [Shop Pay](#shop-pay)
+- [Customer Account API](#customer-account-api)
+- [Contributing](#contributing)
+- [License](#license)
 
-1. [Requirements](#requirements)
-2. [Getting Started](#getting-started)
-   - [Gradle](#gradle)
-   - [Maven](#maven)
-3. [Basic Usage](#basic-usage)
-4. [Configuration](#configuration)
-   - [Color Scheme](#color-scheme)
-   - [Checkout Dialog Title](#checkout-dialog-title)
-5. [Preloading](#preloading)
-   - [Important considerations](#important-considerations)
-   - [Flash Sales](#flash-sales)
-   - [When to preload](#when-to-preload)
-   - [Cache invalidation](#cache-invalidation)
-   - [Lifecycle management for preloaded checkout](#lifecycle-management-for-preloaded-checkout)
-6. [Monitoring the lifecycle of a checkout session](#monitoring-the-lifecycle-of-a-checkout-session)
-   - [Error handling](#error-handling)
-   - [`CheckoutException`](#checkoutexception)
-   - [Exception Hierarchy](#exception-hierarchy)
-   - [Integrating with Web Pixels, monitoring behavioral data](#integrating-with-web-pixels-monitoring-behavioral-data)
-7. [Integrating identity \& customer accounts](#integrating-identity--customer-accounts)
-   - [Cart: buyer bag, identity, and preferences](#cart-buyer-bag-identity-and-preferences)
-   - [Multipass](#multipass)
-   - [Shop Pay](#shop-pay)
-   - [Customer Account API](#customer-account-api)
-8. [Contributing](#contributing)
-9. [License](#license)
-
-### Requirements
+## Requirements
 
 - JDK 17+
 - Android SDK 23+
 - The SDK is not compatible with checkout.liquid. The Shopify Store must be migrated for extensibility
 
-### Getting Started
+## Getting Started
 
 The SDK is an [open source Android library](https://central.sonatype.com/artifact/com.shopify/checkout-sheet-kit). As a quick start, see
 [sample projects](samples/README.md) or use one of the following ways to integrate the SDK into
 your project:
 
-#### Gradle
+### Gradle
 
 ```groovy
 implementation "com.shopify:checkout-sheet-kit:3.3.0"
 ```
 
-#### Maven
+### Maven
 
 ```xml
 
@@ -66,7 +65,7 @@ implementation "com.shopify:checkout-sheet-kit:3.3.0"
 </dependency>
 ```
 
-### Basic Usage
+## Basic Usage
 
 Once the SDK has been added as a dependency, you can import the library:
 
@@ -119,12 +118,12 @@ fun presentCheckout() {
 > To help optimize and deliver the best experience the SDK also provides a
 > [preloading API](#preloading) that can be used to initialize the checkout session ahead of time.
 
-### Configuration
+## Configuration
 
 The SDK provides a way to customize the presented checkout experience via
 the `ShopifyCheckoutSheetKit.configure` function.
 
-#### Color Scheme
+### Color Scheme
 
 By default, the SDK will match the user's device color appearance. This behavior can be customized
 via the `colorScheme` property:
@@ -192,7 +191,7 @@ To customize the title of the Dialog that the checkout WebView is displayed with
 <string name="checkout_web_view_title">Buy Now!</string>
 ```
 
-### Preloading
+## Preloading
 
 Initializing a checkout session requires communicating with Shopify servers, thus depending
 on the network quality and bandwidth available to the buyer can result in undesirable waiting
@@ -224,7 +223,7 @@ ShopifyCheckoutSheetKit.configure {
 ShopifyCheckoutSheetKit.preload(checkoutUrl) // no-op
 ```
 
-#### Important considerations
+### Important considerations
 
 1. Initiating preload results in background network requests and additional
    CPU/memory utilization for the client, and should be used when there is a
@@ -258,7 +257,7 @@ Should you wish to manually clear the preload cache, there is a `ShopifyCheckout
 
 You may wish to do this if the buyer changes shortly before entering checkout, e.g. by changing cart quantity on a cart view.
 
-#### Lifecycle management for preloaded checkout
+### Lifecycle management for preloaded checkout
 
 Preloading renders a checkout in a background webview, which is brought to foreground when `ShopifyCheckoutSheetKit.present()` is called. The content of preloaded checkout reflects the state of the cart when `preload()` was initially called. If the cart is mutated after `preload()` is called, the application is responsible for invalidating the preloaded checkout to ensure that up-to-date checkout content is displayed to the buyer:
 
@@ -273,7 +272,16 @@ The library will automatically invalidate/abort preload under the following cond
 
 A preloaded checkout _is not_ automatically invalidated when checkout is closed. For example, if a buyer loads the checkout then exists, the preloaded checkout is retained and should be updated when cart contents change.
 
-### Monitoring the lifecycle of a checkout session
+#### Additional considerations for preloaded checkout
+
+1. Preloading is a hint, not a guarantee. The library may debounce or ignore
+   calls depending on various conditions; the preload may not complete before
+   `present(checkoutUrl)` is called, in which case the buyer may still see a progress/loading indicator while the checkout session is finalized.
+2. Preloading results in background network requests and additional CPU/memory utilization
+   for the client, and should be used responsibly. For example, conditionally based on the state of the client and when there is a high likelihood that the buyer will soon
+   request to checkout.
+
+## Monitoring the lifecycle of a checkout session
 
 Extend the `DefaultCheckoutEventProcessor` abstract class to register callbacks for key lifecycle events during the checkout session:
 
@@ -347,7 +355,7 @@ val processor = object : DefaultCheckoutEventProcessor(activity) {
 > [!Note]
 > The `DefaultCheckoutEventProcessor` provides default implementations for current and future callback functions (such as `onLinkClicked()`), which can be overridden by clients wanting to change default behavior.
 
-#### Error handling
+## Error handling
 
 In the event of a checkout error occurring, the Checkout Sheet Kit _may_ attempt to retry to recover from the error. Recovery will happen in the background by discarding the failed WebView and creating a new "recovery" instance. Recovery will be attempted in the following scenarios:
 
@@ -382,7 +390,7 @@ ShopifyCheckoutSheetKit.configure {
 }
 ```
 
-#### `CheckoutException`
+### `CheckoutException`
 
 | Exception Class                | Error Code                     | Description                                                                   | Recommendation                                                                                    |
 | ------------------------------ | ------------------------------ | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
@@ -400,7 +408,7 @@ ShopifyCheckoutSheetKit.configure {
 | `ClientException`              | 'client_error'                 | An unhandled client error was encountered.                                    | Show checkout in a fallback WebView.                                                              |
 | `CheckoutUnavailableException` | 'unknown'                      | Checkout is unavailable for another reason, see error details for more info.  | Show checkout in a fallback WebView.                                                              |
 
-#### Exception Hierarchy
+### Exception Hierarchy
 
 ```mermaid
 ---
@@ -440,7 +448,7 @@ classDiagram
     }
 ```
 
-#### Integrating with Web Pixels, monitoring behavioral data
+## Integrating with Web Pixels, monitoring behavioral data
 
 App developers can use [lifecycle events](#monitoring-the-lifecycle-of-a-checkout-session) to
 monitor and log the status of a checkout session.
@@ -483,14 +491,14 @@ fun processStandardEvent(event: StandardPixelEvent) {
 > [!Note]
 > The `customData` attribute of CustomPixelEvent can take on any shape. As such, this attribute will be returned as a String. Client applications should define a custom data type and deserialize the `customData` string into that type.
 
-### Integrating identity & customer accounts
+## Integrating identity & customer accounts
 
 Buyer-aware checkout experience reduces friction and increases conversion. Depending on the context
 of the buyer (guest or signed-in), knowledge of buyer preferences, or account/identity system, the
 application can use on of the following methods to initialize personalized and contextualized buyer
 experience.
 
-#### Cart: buyer bag, identity, and preferences
+## Cart: buyer bag, identity, and preferences
 
 In addition to specifying the line items, the Cart can include buyer identity (name, email, address,
 etc.), and delivery and payment preferences:
@@ -498,7 +506,7 @@ see [guide](https://shopify.dev/docs/custom-storefronts/building-with-the-storef
 Included information will be used to present pre-filled and pre-selected choices to the buyer within
 checkout.
 
-#### Multipass
+## Multipass
 
 [Shopify Plus](https://help.shopify.com/en/manual/intro-to-shopify/pricing-plans/plans-features/shopify-plus-plan)
 merchants
@@ -529,7 +537,7 @@ and initialize a buyer-aware checkout session.
 > Multipass errors are not "recoverable" (See [Error Handling](#error-handling)) due to their one-time nature. Failed requests containing multipass URLs
 > will require re-generating new tokens.
 
-#### Shop Pay
+## Shop Pay
 
 To initialize accelerated Shop Pay checkout, the cart can set a
 [walletPreference](https://shopify.dev/docs/api/storefront/latest/mutations/cartBuyerIdentityUpdate#field-cartbuyeridentityinput-walletpreferences)
@@ -537,7 +545,7 @@ to 'shop_pay'. The sign-in state of the buyer is app-local and the buyer will be
 to their Shop account on their first checkout, and their sign-in state will be remembered for future
 checkout sessions.
 
-#### Customer Account API
+## Customer Account API
 
 We are working on a library to provide buyer sign-in and authentication powered by the
 [new Customer Account API](https://www.shopify.com/partners/blog/introducing-customer-account-api-for-headless-stores)
@@ -545,11 +553,11 @@ We are working on a library to provide buyer sign-in and authentication powered 
 
 ---
 
-### Contributing
+## Contributing
 
 We welcome code contributions, feature requests, and reporting of issues. Please
 see [guidelines and instructions](.github/CONTRIBUTING.md).
 
-### License
+## License
 
 Shopify's Checkout Sheet Kit is provided under an [MIT License](LICENSE).
