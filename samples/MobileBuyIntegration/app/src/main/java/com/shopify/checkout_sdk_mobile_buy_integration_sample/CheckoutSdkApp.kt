@@ -38,6 +38,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -47,15 +49,19 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.totalQuantity
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ObserveAsEvents
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.BottomAppBarWithNavigation
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.CheckoutSdkNavHost
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
@@ -64,6 +70,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.LogsViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsUiState
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsViewModel
 import com.shopify.checkoutsheetkit.ColorScheme
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.KoinAndroidContext
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -92,6 +99,7 @@ fun CheckoutSdkAppRoot(
 
     val cartState = cartViewModel.cartState.collectAsState()
     val totalQuantity = cartState.value.totalQuantity
+    val context = LocalContext.current
 
     CheckoutSdkSampleTheme(darkTheme = useDarkTheme) {
         Surface(
@@ -99,6 +107,15 @@ fun CheckoutSdkAppRoot(
         ) {
             val navController = rememberNavController()
             var currentScreen by remember { mutableStateOf<Screen>(Screen.Product) }
+            val scope = rememberCoroutineScope()
+            val snackbarHostState = remember { SnackbarHostState() }
+
+            ObserveAsEvents(flow = SnackbarController.events) { event ->
+                scope.launch {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    snackbarHostState.showSnackbar(message = context.resources.getText(event.resourceId).toString())
+                }
+            }
 
             LaunchedEffect(navController) {
                 navController.currentBackStackEntryFlow.collect { backStackEntry ->
@@ -109,6 +126,9 @@ fun CheckoutSdkAppRoot(
             }
 
             Scaffold(
+                snackbarHost = {
+                    SnackbarHost(hostState = snackbarHostState)
+                },
                 topBar = {
                     CenterAlignedTopAppBar(
                         modifier = Modifier,
