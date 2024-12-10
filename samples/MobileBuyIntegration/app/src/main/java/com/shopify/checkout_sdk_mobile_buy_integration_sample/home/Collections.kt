@@ -95,23 +95,14 @@ fun Collection(
         .clickable {
             onClick(handle)
         }) {
-        if (image.url != null) {
-            RemoteImage(
-                url = image.url,
-                altText = image.altText ?: stringResource(id = R.string.collection_img_alt_default),
-                modifier = modifier
-                    .defaultMinSize(minWidth = 345.dp, minHeight = 345.dp)
-                    .fillMaxWidth(),
-            )
-        } else {
-            Image(
-                painter = painterResource(id = R.drawable.placeholder),
-                contentDescription = stringResource(id = R.string.collection_img_alt_default),
-                modifier = modifier
-                    .defaultMinSize(minWidth = 345.dp, minHeight = 345.dp)
-                    .fillMaxWidth(),
-            )
-        }
+        RemoteImage(
+            url = image.url,
+            altText = image.altText ?: stringResource(id = R.string.collection_img_alt_default),
+            modifier = modifier
+                .defaultMinSize(minWidth = 345.dp, minHeight = 345.dp)
+                .fillMaxWidth(),
+        )
+        
         Row(verticalAlignment = Alignment.CenterVertically) {
             Header3(
                 text = title,
