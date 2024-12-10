@@ -20,24 +20,14 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkout_sdk_mobile_buy_integration_sample.products
+package com.shopify.checkout_sdk_mobile_buy_integration_sample.common
 
-import androidx.lifecycle.ViewModel
-import androidx.navigation.NavController
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductPagingSource
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductRepository
-import timber.log.Timber
+data class ID(val id: String)
 
-class ProductsViewModel(
-    productRepository: ProductRepository,
-) : ViewModel() {
+fun ID.toGraphQLId(): com.shopify.graphql.support.ID {
+    return com.shopify.graphql.support.ID(this.id)
+}
 
-    val pagingSource = ProductPagingSource(productRepository)
-
-    fun productClicked(navController: NavController, productId: ID) {
-        Timber.i("Navigation to product description page for $productId")
-        navController.navigate(Screen.Product.route(productId.id))
-    }
+fun com.shopify.graphql.support.ID.toLocal(): ID {
+    return ID(this.toString())
 }

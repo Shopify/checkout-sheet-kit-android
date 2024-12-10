@@ -30,6 +30,7 @@ import com.shopify.buy3.GraphClient
 import com.shopify.buy3.Storefront
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.BuildConfig
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartRepository
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.source.network.CartStorefrontApiClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontApiRequestExecutor
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.LogDatabase
@@ -39,8 +40,10 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.home.HomeViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.LogsViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.ProductsViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.ProductCollectionViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.ProductCollectionRepository
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.source.network.ProductCollectionsStorefrontApiClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.ProductViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductRepository
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.source.network.ProductsStorefrontApiClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsViewModel
@@ -65,6 +68,7 @@ val appModules = module {
     // App-wide components
     singleOf(::PreferencesManager)
 
+    // API Clients
     singleOf(::CartStorefrontApiClient)
     singleOf(::ProductsStorefrontApiClient)
     singleOf(::ProductCollectionsStorefrontApiClient)
@@ -80,19 +84,15 @@ val appModules = module {
             )
         )
     }
-
     single {
         val maxEntries = 100
         LruCache<String, GraphCallResult.Success<Storefront.QueryRoot>>(maxEntries)
     }
 
-    single {
-        // singleton instance of shared cart view model
-        CartViewModel(
-            get(),
-            get(),
-        )
-    }
+    // Repositories
+    singleOf(::CartRepository)
+    singleOf(::ProductRepository)
+    singleOf(::ProductCollectionRepository)
 
     single {
         Room.databaseBuilder(
@@ -118,4 +118,11 @@ val appModules = module {
     viewModelOf(::ProductsViewModel)
     viewModelOf(::HomeViewModel)
     viewModelOf(::LogsViewModel)
+    single {
+        // singleton instance of shared cart view model
+        CartViewModel(
+            get(),
+            get(),
+        )
+    }
 }
