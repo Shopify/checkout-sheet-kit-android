@@ -97,9 +97,9 @@ fun CollectionView(
                         verticalArrangement = Arrangement.spacedBy(30.dp),
                         horizontalArrangement = Arrangement.spacedBy(5.dp)
                     ) {
-                        collection.products.nodes.forEach { collectionProduct ->
+                        collection.products.edges.forEach { collectionProduct ->
                             CollectionProduct(
-                                product = collectionProduct,
+                                product = collectionProduct.node,
                                 textColor = MaterialTheme.colorScheme.onBackground,
                                 onProductClick = { productId -> collectionViewModel.productSelected(navController, productId) }
                             )
