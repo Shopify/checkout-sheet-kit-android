@@ -30,12 +30,12 @@ class ProductCollectionRepository(
 ) {
     suspend fun getProductCollections(numberOfCollections: Int, numberOfProductsPerCollection: Int): List<ProductCollection> {
         return suspendCoroutine { continuation ->
-            client.fetchProductCollections(numberOfCollections, numberOfProductsPerCollection, {
-                val productCollections = it.data?.collections
+            client.fetchProductCollections(numberOfCollections, numberOfProductsPerCollection, { response ->
+                val productCollections = response.data?.collections
                 if (productCollections == null) {
                     continuation.resumeWith(Result.failure(RuntimeException("Failed to fetch collections")))
                 } else {
-                    continuation.resumeWith(Result.success(productCollections.nodes.map { it.toLocal() }))
+                    continuation.resumeWith(Result.success(productCollections.nodes.map { collection -> collection.toLocal() }))
                 }
             }, { exception ->
                 continuation.resumeWith(Result.failure(exception))
@@ -45,8 +45,8 @@ class ProductCollectionRepository(
 
     suspend fun getProductCollection(collectionHandle: String, numberOfProducts: Int): ProductCollection {
         return suspendCoroutine { continuation ->
-            client.fetchProductCollection(collectionHandle, numberOfProducts, {
-                val collection = it.data?.collection
+            client.fetchProductCollection(collectionHandle, numberOfProducts, { response ->
+                val collection = response.data?.collection
                 if (collection == null) {
                     continuation.resumeWith(Result.failure(RuntimeException("Failed to fetch collection")))
                 } else {

@@ -44,7 +44,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.paging.LoadState
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -81,6 +80,10 @@ fun ProductsView(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        if (!lazyPagingItems.loadState.isIdle) {
+            ProgressIndicator()
+        }
+
         Column(
             Modifier
                 .padding(horizontal = horizontalPadding)
@@ -95,11 +98,13 @@ fun ProductsView(
                     verticalArrangement = Arrangement.spacedBy(30.dp),
                     horizontalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
-                    item(span = { GridItemSpan(maxCurrentLineSpan) }) {
-                        Header2(
-                            modifier = Modifier.padding(top = verticalPadding),
-                            text = stringResource(id = R.string.products_header)
-                        )
+                    if (lazyPagingItems.loadState.isIdle) {
+                        item(span = { GridItemSpan(maxCurrentLineSpan) }) {
+                            Header2(
+                                modifier = Modifier.padding(top = verticalPadding),
+                                text = stringResource(id = R.string.products_header)
+                            )
+                        }
                     }
 
                     items(
@@ -118,12 +123,6 @@ fun ProductsView(
                                     productsViewModel.productClicked(navController, productId)
                                 }
                             )
-                        }
-                    }
-
-                    if (lazyPagingItems.loadState.append == LoadState.Loading) {
-                        item {
-                            ProgressIndicator()
                         }
                     }
                 }

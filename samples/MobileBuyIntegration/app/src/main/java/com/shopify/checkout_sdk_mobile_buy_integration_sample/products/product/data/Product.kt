@@ -35,22 +35,18 @@ data class PageInfo(
 )
 
 data class Product(
-    val id: ID = ID(""),
-    val title: String = "",
-    val description: String? = "",
-    val image: ProductImage? = ProductImage(),
+    val id: ID,
+    val title: String,
+    val description: String,
+    val image: ProductImage?,
+    val priceRange: ProductPriceRange,
+    val variants: List<ProductVariant>? = mutableListOf(),
     val selectedVariant: Int? = 0,
-    val priceRange: ProductPriceRange = ProductPriceRange(
-        minVariantPrice = ProductPriceAmount(),
-        maxVariantPrice = ProductPriceAmount()
-    ),
-    val variants: MutableList<ProductVariant>? = mutableListOf(ProductVariant())
 )
 
 data class ProductVariant(
-    val id: ID = ID(""),
-    val price: String = "",
-    val currencyName: String = "",
+    val id: ID,
+    val price: ProductPriceAmount,
 )
 
 data class ProductPriceRange(
@@ -67,5 +63,5 @@ data class ProductImage(
     val width: Int = 0,
     val height: Int = 0,
     val altText: String? = null,
-    val url: String? = null,
+    val url: String,
 )

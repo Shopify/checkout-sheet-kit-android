@@ -90,8 +90,8 @@ fun ProductCollectionView(
                     BodyMedium(text = productCollection.description)
 
                     RemoteImage(
-                        url = productCollection.image.url,
-                        altText = productCollection.image.altText ?: stringResource(id = R.string.collection_img_alt_default),
+                        url = productCollection.image?.url,
+                        altText = productCollection.image?.altText ?: stringResource(id = R.string.collection_img_alt_default),
                         modifier = Modifier.fillMaxWidth()
                     )
 

@@ -43,12 +43,16 @@ data class CartLine(
     val title: String,
     val vendor: String,
     val quantity: Int,
-    val imageURL: String,
-    val imageAltText: String,
+    val image: CartLineImage?,
     val pricePerQuantity: Double,
     val currencyPerQuantity: String,
     val totalPrice: Double,
     val totalCurrency: String,
+)
+
+data class CartLineImage(
+    val url: String,
+    val altText: String?,
 )
 
 data class CartTotals(

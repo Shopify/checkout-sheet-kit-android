@@ -85,7 +85,7 @@ fun ProductCollections(
 fun ProductCollection(
     handle: String,
     title: String,
-    image: ProductCollectionImage,
+    image: ProductCollectionImage?,
     onClick: (String) -> Unit,
     modifier: Modifier,
 ) {
@@ -96,8 +96,8 @@ fun ProductCollection(
         }) {
 
         RemoteImage(
-            url = image.url,
-            altText = image.altText ?: stringResource(R.string.collection_img_alt_default),
+            url = image?.url,
+            altText = image?.altText ?: stringResource(R.string.collection_img_alt_default),
             modifier = modifier
                 .defaultMinSize(minWidth = 345.dp, minHeight = 345.dp)
                 .fillMaxWidth(),

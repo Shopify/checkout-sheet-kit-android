@@ -121,7 +121,7 @@ fun ProductView(
                         Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
                             // TODO deal with a variable amount of variants
                             val variant = product.variants!!.first()
-                            MoneyText(variant.currencyName, variant.price.toDouble())
+                            MoneyText(variant.price.currencyCode, variant.price.amount)
                             BodySmall(
                                 stringResource(id = R.string.product_taxes_included)
                             )
@@ -139,7 +139,7 @@ fun ProductView(
                         }
 
                         BodyMedium(
-                            text = product.description ?: "",
+                            text = product.description,
                             color = MaterialTheme.colorScheme.onBackground,
                         )
                     }
