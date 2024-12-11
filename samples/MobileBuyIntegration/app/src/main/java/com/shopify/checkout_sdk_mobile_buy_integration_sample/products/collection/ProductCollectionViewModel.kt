@@ -61,7 +61,7 @@ class ProductCollectionViewModel(
 
     fun productSelected(navController: NavController, productId: ID) {
         Timber.i("Product $productId selected, navigation to product page")
-        val encodedId = URLEncoder.encode(productId.id, "UTF-8")
+        val encodedId = URLEncoder.encode(productId.value, "UTF-8")
         navController.navigate(Screen.Product.route.replace("{productId}", encodedId))
     }
 }

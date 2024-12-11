@@ -22,10 +22,10 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.common
 
-data class ID(val id: String)
+data class ID(val value: String)
 
 fun ID.toGraphQLId(): com.shopify.graphql.support.ID {
-    return com.shopify.graphql.support.ID(this.id)
+    return com.shopify.graphql.support.ID(this.value)
 }
 
 fun com.shopify.graphql.support.ID.toLocal(): ID {

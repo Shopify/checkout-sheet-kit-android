@@ -38,6 +38,6 @@ class ProductsViewModel(
 
     fun productClicked(navController: NavController, productId: ID) {
         Timber.i("Navigation to product description page for $productId")
-        navController.navigate(Screen.Product.route(productId.id))
+        navController.navigate(Screen.Product.route(productId.value))
     }
 }

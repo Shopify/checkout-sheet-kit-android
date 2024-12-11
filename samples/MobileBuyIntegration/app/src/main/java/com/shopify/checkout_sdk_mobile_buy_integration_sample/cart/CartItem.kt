@@ -66,8 +66,8 @@ fun CartItem(
                 .padding(vertical = 10.dp)
         ) {
             RemoteImage(
-                url = cartLine.imageURL,
-                altText = cartLine.imageAltText,
+                url = cartLine.image?.url,
+                altText = cartLine.image?.altText,
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight(.95f)

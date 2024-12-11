@@ -32,10 +32,10 @@ internal fun Storefront.Collection.toLocal(): ProductCollection {
         handle = handle,
         title = title,
         description = description,
-        image = ProductCollectionImage(
+        image = if (image?.url != null) ProductCollectionImage(
             image.url,
             image.altText
-        ),
+        ) else null,
         products = products.edges.map { it.node.toLocal() }
     )
 }

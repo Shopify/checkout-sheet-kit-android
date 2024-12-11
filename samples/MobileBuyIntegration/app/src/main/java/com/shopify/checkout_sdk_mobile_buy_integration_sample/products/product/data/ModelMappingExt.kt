@@ -32,7 +32,7 @@ fun Storefront.Product.toLocal(): Product {
         id = id.toLocal(),
         title = title,
         description = description,
-        image = if (featuredImage == null) ProductImage() else ProductImage(
+        image = if (featuredImage == null) null else ProductImage(
             width = featuredImage.width,
             height = featuredImage.height,
             url = featuredImage.url,
@@ -48,13 +48,14 @@ fun Storefront.Product.toLocal(): Product {
                 amount = priceRange.maxVariantPrice.amount.toDouble()
             )
         ),
-        variants =
-        if (firstVariant != null) {
+        variants = if (firstVariant != null) {
             mutableListOf(
                 ProductVariant(
                     id = firstVariant.id.toLocal(),
-                    price = firstVariant.price.amount,
-                    currencyName = firstVariant.price.currencyCode.name,
+                    price = ProductPriceAmount(
+                        amount = firstVariant.price.amount.toDouble(),
+                        currencyCode = firstVariant.price.currencyCode.name,
+                    )
                 )
             )
         } else {
