@@ -20,24 +20,22 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkout_sdk_mobile_buy_integration_sample.products
+package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data
 
-import androidx.lifecycle.ViewModel
-import androidx.navigation.NavController
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductPagingSource
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductRepository
-import timber.log.Timber
+import com.shopify.buy3.Storefront
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.toLocal
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.toLocal
 
-class ProductsViewModel(
-    productRepository: ProductRepository,
-) : ViewModel() {
-
-    val pagingSource = ProductPagingSource(productRepository)
-
-    fun productClicked(navController: NavController, productId: ID) {
-        Timber.i("Navigation to product description page for $productId")
-        navController.navigate(Screen.Product.route(productId.id))
-    }
+internal fun Storefront.Collection.toLocal(): ProductCollection {
+    return ProductCollection(
+        id = id.toLocal(),
+        handle = handle,
+        title = title,
+        description = description,
+        image = if (image?.url != null) ProductCollectionImage(
+            image.url,
+            image.altText
+        ) else null,
+        products = products.edges.map { it.node.toLocal() }
+    )
 }

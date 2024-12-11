@@ -44,13 +44,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.paging.LoadState
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemContentType
 import androidx.paging.compose.itemKey
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyRangeText
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.ProgressIndicator
@@ -60,8 +60,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.de
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.horizontalPadding
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.largeScreenBreakpoint
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.verticalPadding
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.UIProduct
-import com.shopify.graphql.support.ID
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.Product
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -81,6 +80,10 @@ fun ProductsView(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        if (!lazyPagingItems.loadState.isIdle) {
+            ProgressIndicator()
+        }
+
         Column(
             Modifier
                 .padding(horizontal = horizontalPadding)
@@ -95,17 +98,19 @@ fun ProductsView(
                     verticalArrangement = Arrangement.spacedBy(30.dp),
                     horizontalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
-                    item(span = { GridItemSpan(maxCurrentLineSpan) }) {
-                        Header2(
-                            modifier = Modifier.padding(top = verticalPadding),
-                            text = stringResource(id = R.string.products_header)
-                        )
+                    if (lazyPagingItems.loadState.isIdle) {
+                        item(span = { GridItemSpan(maxCurrentLineSpan) }) {
+                            Header2(
+                                modifier = Modifier.padding(top = verticalPadding),
+                                text = stringResource(id = R.string.products_header)
+                            )
+                        }
                     }
 
                     items(
                         count = lazyPagingItems.itemCount,
                         key = lazyPagingItems.itemKey { item ->
-                            item.id
+                            item.id.id
                         },
                         contentType = lazyPagingItems.itemContentType { "Products" }
                     ) { index ->
@@ -120,12 +125,6 @@ fun ProductsView(
                             )
                         }
                     }
-
-                    if (lazyPagingItems.loadState.append == LoadState.Loading) {
-                        item {
-                            ProgressIndicator()
-                        }
-                    }
                 }
             }
         }
@@ -134,7 +133,7 @@ fun ProductsView(
 
 @Composable
 fun Product(
-    product: UIProduct,
+    product: Product,
     imageHeight: Dp,
     onProductClick: (id: ID) -> Unit,
 ) {
@@ -144,14 +143,16 @@ fun Product(
             onProductClick(product.id)
         }) {
         RemoteImage(
-            url = product.image.url,
-            altText = product.image.altText,
+            url = product.image?.url,
+            altText = product.image?.altText ?: stringResource(id = R.string.product_alt_text_default),
             modifier = Modifier
                 .height(imageHeight)
                 .fillMaxWidth()
-                .align(Alignment.CenterHorizontally)
+                .align(Alignment.CenterHorizontally),
         )
+
         Text(product.title, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground)
+
         MoneyRangeText(
             fromPrice = product.priceRange.minVariantPrice.amount,
             fromCurrencyCode = product.priceRange.minVariantPrice.currencyCode,

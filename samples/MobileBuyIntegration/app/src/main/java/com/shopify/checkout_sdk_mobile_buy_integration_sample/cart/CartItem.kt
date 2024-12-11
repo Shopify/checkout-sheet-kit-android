@@ -45,11 +45,12 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartLine
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyText
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.QuantitySelector
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.largeScreenBreakpoint
-import com.shopify.graphql.support.ID
 
 @Composable
 fun CartItem(
@@ -65,8 +66,8 @@ fun CartItem(
                 .padding(vertical = 10.dp)
         ) {
             RemoteImage(
-                url = cartLine.imageURL,
-                altText = cartLine.imageAltText,
+                url = cartLine.image?.url,
+                altText = cartLine.image?.altText,
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight(.95f)

@@ -38,8 +38,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodyMedium
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.ProgressIndicator
@@ -52,11 +54,11 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun ProductCollectionView(
     navController: NavController,
-    collectionHandle: String,
+    productCollectionHandle: String,
     productCollectionViewModel: ProductCollectionViewModel = koinViewModel(),
 ) {
     LaunchedEffect(key1 = true) {
-        productCollectionViewModel.fetchProductCollection(collectionHandle)
+        productCollectionViewModel.fetchCollection(productCollectionHandle)
     }
 
     Column(
@@ -82,11 +84,14 @@ fun ProductCollectionView(
                     verticalArrangement = Arrangement.spacedBy(verticalPadding)
                 ) {
                     val productCollection = productCollectionUIState.productCollection
+
                     Header2(text = productCollection.title)
+
                     BodyMedium(text = productCollection.description)
+
                     RemoteImage(
-                        url = productCollection.image.url,
-                        altText = productCollection.image.altText ?: "",
+                        url = productCollection.image?.url,
+                        altText = productCollection.image?.altText ?: stringResource(id = R.string.collection_img_alt_default),
                         modifier = Modifier.fillMaxWidth()
                     )
 
@@ -97,9 +102,9 @@ fun ProductCollectionView(
                         verticalArrangement = Arrangement.spacedBy(30.dp),
                         horizontalArrangement = Arrangement.spacedBy(5.dp)
                     ) {
-                        productCollection.products.edges.forEach { collectionProduct ->
+                        productCollection.products.forEach { collectionProduct ->
                             ProductCollectionProduct(
-                                product = collectionProduct.node,
+                                product = collectionProduct,
                                 textColor = MaterialTheme.colorScheme.onBackground,
                                 onProductClick = { productId -> productCollectionViewModel.productSelected(navController, productId) }
                             )

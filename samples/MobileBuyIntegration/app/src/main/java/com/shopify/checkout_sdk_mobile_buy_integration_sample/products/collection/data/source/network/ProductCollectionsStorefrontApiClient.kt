@@ -77,6 +77,7 @@ class ProductCollectionsStorefrontApiClient(
                 productsConnection.edges { edges ->
                     edges.node { product ->
                         product.title()
+                        product.description()
                         product.priceRange { priceRange ->
                             priceRange.maxVariantPrice { variantPrice ->
                                 variantPrice.amount()

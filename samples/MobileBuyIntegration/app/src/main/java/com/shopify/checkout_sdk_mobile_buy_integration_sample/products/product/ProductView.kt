@@ -78,7 +78,7 @@ fun ProductView(
 
         is ProductUIState.Loaded -> {
             if (productUIState.isAddingToCart) {
-                Timber.i("Product loaded, and adding to cart, showing progress indicator")
+                Timber.i("Showing progress indicator")
                 ProgressIndicator()
             }
 
@@ -90,25 +90,24 @@ fun ProductView(
                     .verticalScroll(rememberScrollState())
             ) {
                 Column(modifier = Modifier.padding(vertical = verticalPadding)) {
-                    if (productUIState.product.image.url != "") {
-                        BoxWithConstraints(
-                            Modifier.align(Alignment.CenterHorizontally)
-                        ) {
-                            val modifier = Modifier
-                                .wrapContentHeight()
-                                .padding(horizontal = 10.dp)
-                            RemoteImage(
-                                url = product.image.url,
-                                altText = product.image.altText,
-                                modifier = if (maxWidth < largeScreenBreakpoint) {
-                                    modifier.fillMaxWidth()
-                                } else {
-                                    modifier.fillMaxWidth(.7f)
-                                }
-                            )
-                        }
+                    BoxWithConstraints(
+                        Modifier.align(Alignment.CenterHorizontally)
+                    ) {
+                        val modifier = Modifier
+                            .wrapContentHeight()
+                            .padding(horizontal = 10.dp)
 
+                        RemoteImage(
+                            url = product.image?.url,
+                            altText = product.image?.altText ?: stringResource(id = R.string.product_alt_text_default),
+                            modifier = if (maxWidth < largeScreenBreakpoint) {
+                                modifier.fillMaxWidth()
+                            } else {
+                                modifier.fillMaxWidth(.7f)
+                            }
+                        )
                     }
+
                     Column(
                         Modifier
                             .fillMaxSize()
@@ -121,8 +120,8 @@ fun ProductView(
 
                         Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
                             // TODO deal with a variable amount of variants
-                            val variant = product.variants.first()
-                            MoneyText(variant.currencyName, variant.price.toDouble())
+                            val variant = product.variants!!.first()
+                            MoneyText(variant.price.currencyCode, variant.price.amount)
                             BodySmall(
                                 stringResource(id = R.string.product_taxes_included)
                             )
