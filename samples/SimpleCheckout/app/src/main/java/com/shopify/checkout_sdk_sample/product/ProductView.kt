@@ -20,10 +20,8 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkout_sdk_sample
+package com.shopify.checkout_sdk_sample.product
 
-import android.os.Handler
-import android.os.Looper
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Column
@@ -35,41 +33,35 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.shopify.checkout_sdk_sample.R
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
-import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
 
 @Composable
 fun ProductView(
-    productViewModel: ProductViewModel = viewModel(LocalContext.current as ComponentActivity)
+    productViewModel: ProductViewModel = viewModel()
 ) {
+
+    val activity = LocalContext.current as ComponentActivity
+
+    LaunchedEffect(key1 = true) {
+        productViewModel.setEventProcessor(activity)
+        productViewModel.fetchProducts()
+    }
 
     val productUIState = productViewModel.uiState.collectAsState().value
     val checkoutState = productViewModel.checkoutState.collectAsState().value
-    val activity = LocalContext.current as ComponentActivity
 
     fun showToast(stringResourceId: Int) = Toast.makeText(activity, activity.getString(stringResourceId), Toast.LENGTH_SHORT).show()
-
-    val processor = object : DefaultCheckoutEventProcessor(activity) {
-        override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {
-            productViewModel.checkoutCompleted()
-        }
-
-        override fun onCheckoutFailed(error: CheckoutException) {
-            productViewModel.checkoutFailed(error)
-        }
-
-        override fun onCheckoutCanceled() {
-            productViewModel.checkoutCanceled()
-        }
-    }
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -86,7 +78,7 @@ fun ProductView(
                 Text(productUIState.error)
             }
 
-            is ProductUIState.Product -> {
+            is ProductUIState.Loaded -> {
                 val product = productUIState.product
                 val selectedVariant = product.variants[product.selectedVariant]
                 Column {
@@ -95,10 +87,10 @@ fun ProductView(
                             .fillMaxHeight()
                             .weight(1f, false)
                     ) {
-                        if (productUIState.product.image.url != "") {
+                        if (productUIState.product.image?.url != null) {
                             ProductImage(
-                                url = product.image.url,
-                                altText = product.image.altText,
+                                url = product.image!!.url,
+                                altText = product.image.altText ?: "Product image",
                                 modifier = Modifier
                                     .fillMaxHeight(0.5f)
                                     .fillMaxWidth()
@@ -107,8 +99,8 @@ fun ProductView(
 
                         ProductInfo(
                             title = product.title,
-                            vendor = product.vendor,
-                            description = product.description
+                            vendor = product.vendor ?: "",
+                            description = product.description ?: ""
                         )
                     }
                     Column {
@@ -122,15 +114,7 @@ fun ProductView(
                                 .padding(20.dp)
                         ) {
                             productViewModel.clearCheckoutState()
-                            productViewModel.createCart(selectedVariant.id) {
-                                Handler(Looper.getMainLooper()).post {
-                                    ShopifyCheckoutSheetKit.present(
-                                        it.cartCreate.cart.checkoutUrl,
-                                        activity,
-                                        processor
-                                    )
-                                }
-                            }
+                            productViewModel.checkout(activity, selectedVariant.id)
                         }
                     }
                 }

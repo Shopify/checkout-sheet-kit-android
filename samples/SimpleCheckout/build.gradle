@@ -5,8 +5,8 @@ buildscript {
         lifecycle_version = '2.7.0'
         activity_version = '1.8.2'
         coil_version = '2.6.0'
-        khttp_version = '1.6.1'
         kotlin_serialization_version = '1.6.2'
+        apollo_version = '4.1.0'
     }
 }
 plugins {
@@ -14,4 +14,5 @@ plugins {
     id 'org.jetbrains.kotlin.android' version '1.9.22' apply false
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.22' apply false
     id 'io.gitlab.arturbosch.detekt' version '1.23.0' apply false
+    id 'com.apollographql.apollo' version '4.1.0' apply false
 }

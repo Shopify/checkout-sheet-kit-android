@@ -23,6 +23,9 @@
 package com.shopify.checkout_sdk_sample
 
 import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
@@ -33,11 +36,16 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import com.shopify.checkout_sdk_sample.product.ProductView
+import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.ColorScheme
+import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.Preloading
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
 
 @Composable
 fun CheckoutSdkApp() {
