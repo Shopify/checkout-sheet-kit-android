@@ -36,6 +36,12 @@ import com.shopify.checkout_sdk_sample.data.Product
 import com.shopify.checkout_sdk_sample.data.source.network.adapters.URLAdapter
 import com.shopify.checkout_sdk_sample.data.toLocal
 
+/**
+ * Executes queries and mutations against the Storefront API
+ *  - maps GraphQL scalars to kotlin/java types
+ *  - configures a normalized cache
+ *  - adds Storefront API access token to requests via a HTTP header
+ */
 class StorefrontAPIClient(
     private val apollo: ApolloClient = ApolloClient.Builder()
         .serverUrl("https://${BuildConfig.storefrontDomain}/api/2024-10/graphql.json")

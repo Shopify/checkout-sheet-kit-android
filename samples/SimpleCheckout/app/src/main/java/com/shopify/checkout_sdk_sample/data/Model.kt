@@ -2,6 +2,9 @@ package com.shopify.checkout_sdk_sample.data
 
 import java.net.URL
 
+/**
+ * The application's internal data model
+ */
 data class Product(
     val title: String,
     val vendor: String?,
