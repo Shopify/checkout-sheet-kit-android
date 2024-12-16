@@ -298,9 +298,8 @@ val processor = object : DefaultCheckoutEventProcessor(activity) {
     }
 
     override fun onCheckoutFailed(error: CheckoutException) {
-        /**
-         * Called when the checkout encountered an error and has been aborted.
-         */
+        // Called when the checkout encountered an error and has been aborted.
+    }
 
     override fun onCheckoutLinkClicked(uri: Uri) {
         // Called when the buyer clicks a link within the checkout experience:
@@ -334,14 +333,13 @@ val processor = object : DefaultCheckoutEventProcessor(activity) {
         // To cancel the request, call filePathCallback.onReceiveValue(null) and return true.
     }
 
-
     override fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {
         // Called to tell the client to show a geolocation permissions prompt as a geolocation permissions
         // request has been made.
         // Invoked for example if a customer uses `Use my location` for pickup points
     }
 
-       override fun onGeolocationPermissionsHidePrompt() {
+    override fun onGeolocationPermissionsHidePrompt() {
         // Called to tell the client to hide the geolocation permissions prompt, e.g. as the request has been cancelled
     }
 
