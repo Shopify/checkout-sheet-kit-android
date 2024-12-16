@@ -16,6 +16,9 @@ def loadProperties() {
 def properties = loadProperties()
 def storefrontDomain = properties.getProperty("STOREFRONT_DOMAIN")
 def accessToken = properties.getProperty("STOREFRONT_ACCESS_TOKEN")
+def apiVersion = properties.getProperty("STOREFRONT_API_VERSION") ?: "2024-10"
+
+println("api version $apiVersion")
 
 if (!storefrontDomain || !accessToken) {
     println("**** Please add a .env file with STOREFRONT_DOMAIN and STOREFRONT_ACCESS_TOKEN set *****")
@@ -33,7 +36,7 @@ apollo {
         mapScalarToKotlinDouble("Decimal")
 
         introspection {
-            endpointUrl.set("https://$storefrontDomain/api/2024-10/graphql.json")
+            endpointUrl.set("https://$storefrontDomain/api/$apiVersion/graphql.json")
             headers.set(["X-Shopify-Storefront-Access-Token": "$accessToken"])
             schemaFile.set(file("src/main/graphql/schema.graphqls"))
         }
