@@ -1,0 +1,24 @@
+query FetchProducts($numProducts: Int!, $numVariants: Int!) {
+    products(first: $numProducts) {
+        nodes {
+            title
+            description
+            vendor
+            featuredImage {
+                url
+                altText
+                height
+                width
+            }
+            variants(first: $numVariants) {
+                nodes {
+                    id
+                    price {
+                        amount
+                        currencyCode
+                    }
+                }
+            }
+        }
+    }
+}

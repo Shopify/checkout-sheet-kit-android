@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkout_sdk_sample
+package com.shopify.checkout_sdk_sample.product
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,9 +33,12 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.os.ConfigurationCompat
+import java.util.Locale
 
 @Composable
 fun BuyNowButton(
@@ -45,6 +48,8 @@ fun BuyNowButton(
     modifier: Modifier,
     onClick: () -> Unit
 ) {
+    val locale = ConfigurationCompat.getLocales(LocalConfiguration.current).get(0)
+
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -70,7 +75,7 @@ fun BuyNowButton(
                     Text(
                         fontSize = 12.sp,
                         textAlign = TextAlign.Center,
-                        text = toDisplayText(currency, price)
+                        text = toDisplayText(currency, price, locale)
                     )
                 }
             }
@@ -78,8 +83,8 @@ fun BuyNowButton(
     }
 }
 
-fun toDisplayText(currencyCode: String, price: Double): String {
-    return "${currencyCode.toSymbol()}${price.toTwoDecimalString()}"
+fun toDisplayText(currencyCode: String, price: Double, locale: Locale?): String {
+    return "${currencyCode.toSymbol()}${price.toTwoDecimalString(locale)}"
 }
 
 private fun String.toSymbol(): String {
@@ -93,4 +98,4 @@ private fun String.toSymbol(): String {
     }
 }
 
-private fun Double.toTwoDecimalString() = String.format("%,.2f", this)
+private fun Double.toTwoDecimalString(locale: Locale?) = String.format(locale, "%,.2f", this)

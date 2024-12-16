@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'org.jetbrains.kotlin.plugin.serialization'
+    id "com.apollographql.apollo"
 }
 
 def loadProperties() {
@@ -22,6 +23,21 @@ if (!storefrontDomain || !accessToken) {
 
 private String getVersionName() {
     return file("./version").text.trim()
+}
+
+apollo {
+    service("storefront") {
+        packageName.set("com.shopify.checkout_sdk_sample")
+
+        mapScalar("URL", "java.net.URL")
+        mapScalarToKotlinDouble("Decimal")
+
+        introspection {
+            endpointUrl.set("https://$storefrontDomain/api/2024-10/graphql.json")
+            headers.set(["X-Shopify-Storefront-Access-Token": "$accessToken"])
+            schemaFile.set(file("src/main/graphql/schema.graphqls"))
+        }
+    }
 }
 
 android {
@@ -84,7 +100,9 @@ dependencies {
     implementation "androidx.compose.ui:ui:$compose_ui_version"
     implementation "androidx.compose.material:material:$compose_ui_version"
 
+    implementation "com.apollographql.apollo:apollo-runtime:$apollo_version"
+    implementation "com.apollographql.apollo:apollo-normalized-cache:$apollo_version"
+
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlin_serialization_version"
     implementation "io.coil-kt:coil-compose:$coil_version"
-    implementation "org.danilopianini:khttp:$khttp_version"
 }
