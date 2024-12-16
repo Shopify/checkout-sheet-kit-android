@@ -1,0 +1,7 @@
+mutation CartCreate($variantId: ID!) {
+    cartCreate(input: { lines: { merchandiseId: $variantId } }) {
+        cart {
+            checkoutUrl
+        }
+    }
+}
