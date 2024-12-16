@@ -18,8 +18,6 @@ def storefrontDomain = properties.getProperty("STOREFRONT_DOMAIN")
 def accessToken = properties.getProperty("STOREFRONT_ACCESS_TOKEN")
 def apiVersion = properties.getProperty("STOREFRONT_API_VERSION") ?: "2024-10"
 
-println("api version $apiVersion")
-
 if (!storefrontDomain || !accessToken) {
     println("**** Please add a .env file with STOREFRONT_DOMAIN and STOREFRONT_ACCESS_TOKEN set *****")
 }
