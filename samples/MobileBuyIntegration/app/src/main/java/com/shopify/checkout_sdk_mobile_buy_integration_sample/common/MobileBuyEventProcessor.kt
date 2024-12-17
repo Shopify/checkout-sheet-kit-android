@@ -85,7 +85,8 @@ class MobileBuyEventProcessor(
     }
 
     override fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {
-        return (context as MainActivity).onGeolocationPermissionsShowPrompt(origin, callback)
+        (context as MainActivity).requestGeolocationPermission()
+        super.onGeolocationPermissionsShowPrompt(origin, callback)
     }
 
     override fun onShowFileChooser(
