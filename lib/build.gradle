@@ -120,6 +120,10 @@ detekt {
     config.setFrom('detekt.config.yml')
 }
 
+ktlint {
+    disabledRules = ['empty_function_block']
+}
+
 tasks.withType(KotlinCompile).configureEach {
     if (!it.name.contains("Test")) {
         kotlinOptions.freeCompilerArgs += "-Xexplicit-api=strict"

@@ -351,7 +351,7 @@ val processor = object : DefaultCheckoutEventProcessor(activity) {
 ```
 
 > [!Note]
-> The `DefaultCheckoutEventProcessor` provides default implementations for current and future callback functions (such as `onLinkClicked()`), which can be overridden by clients wanting to change default behavior.
+> The `DefaultCheckoutEventProcessor` provides default implementations for current and future callback functions (such as `onCheckoutLinkClicked()`), which can be overridden by clients wanting to change default behavior.
 
 ### Error handling
 

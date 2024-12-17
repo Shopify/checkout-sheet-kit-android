@@ -1,18 +1,18 @@
 /*
  * MIT License
- * 
+ *
  * Copyright 2023-present, Shopify Inc.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,6 +26,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.net.Uri
+import android.webkit.GeolocationPermissions
 import androidx.activity.ComponentActivity
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
@@ -33,7 +34,9 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
@@ -46,6 +49,7 @@ class DefaultCheckoutEventProcessorTest {
 
     private lateinit var activity: ComponentActivity
     private lateinit var shadowActivity: ShadowActivity
+    private val mockCallback = mock<GeolocationPermissions.Callback>()
 
     @Before
     fun setUp() {
@@ -164,12 +168,36 @@ class DefaultCheckoutEventProcessorTest {
         assertThat(recoverable).isTrue()
     }
 
+    @Test
+    fun `onGeolocationPermissionsShowPrompt should invoke callback with correct args`() {
+        val origin = "http://shopify.com"
+        val processor = object: DefaultCheckoutEventProcessor(mock(), mock()) {
+            override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {}
+            override fun onCheckoutFailed(error: CheckoutException) {}
+            override fun onCheckoutCanceled() {}
+        }
+        processor.onGeolocationPermissionsShowPrompt(origin, mockCallback)
+        verify(mockCallback).invoke(origin, true, true)
+    }
+
+    @Test
+    fun `onGeolocationPermissionsShowPrompt should not invoke callback if overridden with no-op`() {
+        val overriddenProcessor = object: DefaultCheckoutEventProcessor(mock(), mock()) {
+            override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {}
+            override fun onCheckoutFailed(error: CheckoutException) {}
+            override fun onCheckoutCanceled() {}
+            override fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {}
+        }
+        overriddenProcessor.onGeolocationPermissionsShowPrompt("http://shopify.com", mockCallback)
+        verify(mockCallback, times(0)).invoke(any(), any(), any())
+    }
+
     private fun processor(activity: ComponentActivity): DefaultCheckoutEventProcessor {
         return object: DefaultCheckoutEventProcessor(activity) {
-            override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {/* not implemented */}
-            override fun onCheckoutFailed(error: CheckoutException) {/* not implemented */}
-            override fun onCheckoutCanceled() {/* not implemented */}
-            override fun onWebPixelEvent(event: PixelEvent) {/* not implemented */}
+            override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {}
+            override fun onCheckoutFailed(error: CheckoutException) {}
+            override fun onCheckoutCanceled() {}
+            override fun onWebPixelEvent(event: PixelEvent) {}
         }
     }
 }

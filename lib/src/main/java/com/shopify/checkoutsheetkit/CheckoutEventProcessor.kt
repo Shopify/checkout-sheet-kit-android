@@ -167,7 +167,12 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
     }
 
     override fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {
-        // no-op override to implement
+        // Whether to grant the webview permission to access device location
+        val grant = true;
+        // Whether to retain/remember this permission decision for future requests
+        val retain = true;
+
+        callback.invoke(origin, grant, retain)
     }
 
     override fun onGeolocationPermissionsHidePrompt() {
