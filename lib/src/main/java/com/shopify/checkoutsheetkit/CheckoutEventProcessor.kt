@@ -37,99 +37,111 @@ import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 
 /**
- * Interface to implement to allow responding to lifecycle events in checkout.
- * We'd strongly recommend extending DefaultCheckoutEventProcessor where possible
+ * Interface to implement to allow responding to lifecycle events in checkout. We'd strongly
+ * recommend extending DefaultCheckoutEventProcessor where possible
  */
 public interface CheckoutEventProcessor {
-    /**
-     * Event representing the successful completion of a checkout.
-     */
+    /** Event representing the successful completion of a checkout. */
     public fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent)
 
     /**
-     * Event representing an error that occurred during checkout. This can be used to display
-     * error messages for example.
+     * Event representing an error that occurred during checkout. This can be used to display error
+     * messages for example.
      *
-     * @param error - the CheckoutErrorException that occurred
+     * @param error
+     * - the CheckoutErrorException that occurred
      * @see Exception
      */
     public fun onCheckoutFailed(error: CheckoutException)
 
-    /**
-     * Event representing the cancellation/closing of checkout by the buyer
-     */
+    /** Event representing the cancellation/closing of checkout by the buyer */
     public fun onCheckoutCanceled()
 
     /**
      * Event indicating that a link has been clicked within checkout that should be opened outside
-     * of the WebView, e.g. in a system browser or email client. Protocols can be http/https/mailto/tel
+     * of the WebView, e.g. in a system browser or email client. Protocols can be
+     * http/https/mailto/tel
      */
     public fun onCheckoutLinkClicked(uri: Uri)
 
-    /**
-     * A permission has been requested by the web chrome client, e.g. to access the camera
-     */
+    /** A permission has been requested by the web chrome client, e.g. to access the camera */
     public fun onPermissionRequest(permissionRequest: PermissionRequest)
 
     /**
-     * Web Pixel event emitted from checkout, that can be optionally transformed, enhanced (e.g. with user and session identifiers),
-     * and processed
+     * Web Pixel event emitted from checkout, that can be optionally transformed, enhanced (e.g.
+     * with user and session identifiers), and processed
      */
     public fun onWebPixelEvent(event: PixelEvent)
 
     /**
-     * Called when the client should show a file chooser. This is called to handle HTML forms with 'file' input type, in response to the
-     * user pressing the "Select File" button. To cancel the request, call filePathCallback.onReceiveValue(null) and return true.
+     * Called when the client should show a file chooser. This is called to handle HTML forms with
+     * 'file' input type, in response to the user pressing the "Select File" button. To cancel the
+     * request, call filePathCallback.onReceiveValue(null) and return true.
      */
     public fun onShowFileChooser(
-        webView: WebView,
-        filePathCallback: ValueCallback<Array<Uri>>,
-        fileChooserParams: WebChromeClient.FileChooserParams,
+            webView: WebView,
+            filePathCallback: ValueCallback<Array<Uri>>,
+            fileChooserParams: WebChromeClient.FileChooserParams,
     ): Boolean
 
     /**
-     * Called when the client should show a location permissions prompt. For example when using 'Use my location' for
-     * pickup points in checkout
+     * Called when the client should show a location permissions prompt. For example when using 'Use
+     * my location' for pickup points in checkout
      */
-    public fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback)
+    public fun onGeolocationPermissionsShowPrompt(
+            origin: String,
+            callback: GeolocationPermissions.Callback
+    )
 
     /**
-     * Called when the client should hide the location permissions prompt, e.g. if th request is cancelled
+     * Called when the client should hide the location permissions prompt, e.g. if th request is
+     * cancelled
      */
     public fun onGeolocationPermissionsHidePrompt()
 }
 
 internal class NoopEventProcessor : CheckoutEventProcessor {
-    override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {/* noop */
+    override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {
+        /* noop */
     }
 
-    override fun onCheckoutFailed(error: CheckoutException) {/* noop */
+    override fun onCheckoutFailed(error: CheckoutException) {
+        /* noop */
     }
 
-    override fun onCheckoutCanceled() {/* noop */
+    override fun onCheckoutCanceled() {
+        /* noop */
     }
 
-    override fun onCheckoutLinkClicked(uri: Uri) {/* noop */
+    override fun onCheckoutLinkClicked(uri: Uri) {
+        /* noop */
     }
 
-    override fun onWebPixelEvent(event: PixelEvent) {/* noop */
+    override fun onWebPixelEvent(event: PixelEvent) {
+        /* noop */
     }
 
     override fun onShowFileChooser(
-        webView: WebView,
-        filePathCallback: ValueCallback<Array<Uri>>,
-        fileChooserParams: WebChromeClient.FileChooserParams,
+            webView: WebView,
+            filePathCallback: ValueCallback<Array<Uri>>,
+            fileChooserParams: WebChromeClient.FileChooserParams,
     ): Boolean {
         return false
     }
 
-    override fun onPermissionRequest(permissionRequest: PermissionRequest) {/* noop */
+    override fun onPermissionRequest(permissionRequest: PermissionRequest) {
+        /* noop */
     }
 
-    override fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {/* noop */
+    override fun onGeolocationPermissionsShowPrompt(
+            origin: String,
+            callback: GeolocationPermissions.Callback
+    ) {
+        /* noop */
     }
 
-    override fun onGeolocationPermissionsHidePrompt() {/* noop */
+    override fun onGeolocationPermissionsHidePrompt() {
+        /* noop */
     }
 }
 
@@ -138,15 +150,18 @@ internal class NoopEventProcessor : CheckoutEventProcessor {
  * for handling checkout events and interacting with the Android operating system.
  * @param context from which we will launch intents.
  */
-public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
-    private val context: Context,
-    private val log: LogWrapper = LogWrapper(),
+public abstract class DefaultCheckoutEventProcessor
+@JvmOverloads
+constructor(
+        private val context: Context,
+        private val log: LogWrapper = LogWrapper(),
 ) : CheckoutEventProcessor {
 
-    private val LOCATION_PERMISSIONS: Array<String> = arrayOf(
-        Manifest.permission.ACCESS_FINE_LOCATION,
-        Manifest.permission.ACCESS_COARSE_LOCATION
-    )
+    private val locationPermissions: Array<String> =
+            arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+            )
 
     override fun onCheckoutLinkClicked(uri: Uri) {
         when (uri.scheme) {
@@ -166,38 +181,42 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
     }
 
     override fun onShowFileChooser(
-        webView: WebView,
-        filePathCallback: ValueCallback<Array<Uri>>,
-        fileChooserParams: WebChromeClient.FileChooserParams,
+            webView: WebView,
+            filePathCallback: ValueCallback<Array<Uri>>,
+            fileChooserParams: WebChromeClient.FileChooserParams,
     ): Boolean {
         return false
     }
 
     /**
-     * Called when the webview requests location permissions. For example when using 'Use my location' to locate pickup points.
-     * The default implementation here will check for both manifest and runtime permissions. If both have been granted,
-     * permission will be granted to present the location prompt to the user.
+     * Called when the webview requests location permissions. For example when using 'Use my
+     * location' to locate pickup points. The default implementation here will check for both
+     * manifest and runtime permissions. If both have been granted, permission will be granted to
+     * present the location prompt to the user.
      *
-     * Runtime permissions must be requested by your host app. The Checkout Sheet kit cannot request them on your behalf.
+     * Runtime permissions must be requested by your host app. The Checkout Sheet kit cannot request
+     * them on your behalf.
      */
     override fun onGeolocationPermissionsShowPrompt(
-        origin: String,
-        callback: GeolocationPermissions.Callback
+            origin: String,
+            callback: GeolocationPermissions.Callback
     ) {
         // Check manifest permissions
-        val manifestPermissions = try {
-            context.packageManager
-                .getPackageInfo(context.packageName, PackageManager.GET_PERMISSIONS)
-                .requestedPermissions
-                ?.toSet() ?: emptySet()
-        } catch (e: Exception) {
-            emptySet()
-        }
+        val manifestPermissions =
+                try {
+                    context.packageManager
+                            .getPackageInfo(context.packageName, PackageManager.GET_PERMISSIONS)
+                            .requestedPermissions
+                            ?.toSet()
+                            ?: emptySet()
+                } catch (e: Exception) {
+                    log.e(TAG, "Failed to get package permissions", e)
+                    emptySet()
+                }
 
         // Check if either permission is declared in manifest
-        val hasManifestPermission = LOCATION_PERMISSIONS.any { permission ->
-            manifestPermissions.contains(permission)
-        }
+        val hasManifestPermission =
+                locationPermissions.any { permission -> manifestPermissions.contains(permission) }
 
         if (!hasManifestPermission) {
             callback.invoke(origin, false, false)
@@ -205,9 +224,10 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
         }
 
         // Check runtime permissions
-        val hasRuntimePermission = LOCATION_PERMISSIONS.any { permission ->
-            context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
-        }
+        val hasRuntimePermission =
+                locationPermissions.any { permission ->
+                    context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
+                }
 
         callback.invoke(origin, hasRuntimePermission, hasRuntimePermission)
     }
