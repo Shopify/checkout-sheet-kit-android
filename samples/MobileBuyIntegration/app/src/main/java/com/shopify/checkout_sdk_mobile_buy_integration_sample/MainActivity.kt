@@ -1,18 +1,18 @@
 /*
  * MIT License
- * 
+ *
  * Copyright 2023-present, Shopify Inc.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,9 +25,7 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample
 import android.Manifest
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.webkit.GeolocationPermissions
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient.FileChooserParams
 import android.webkit.WebView.setWebContentsDebuggingEnabled
@@ -35,7 +33,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import timber.log.Timber
 import timber.log.Timber.DebugTree
 
@@ -44,7 +41,8 @@ class MainActivity : ComponentActivity() {
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
     private lateinit var showFileChooserLauncher: ActivityResultLauncher<FileChooserParams>
 
-    // State related to file chooser requests (e.g. for using a file chooser/camera for proving identity)
+    // State related to file chooser requests (e.g. for using a file chooser/camera for proving
+    // identity)
     private var filePathCallback: ValueCallback<Array<Uri>>? = null
     private var fileChooserParams: FileChooserParams? = null
 
@@ -63,45 +61,53 @@ class MainActivity : ComponentActivity() {
             Timber.plant(DebugTree())
         }
 
-        setContent {
-            CheckoutSdkApp()
-        }
+        setContent { CheckoutSdkApp() }
 
-        requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            val fileChooserParams = this.fileChooserParams
-            if (isGranted && fileChooserParams != null) {
-                this.showFileChooserLauncher.launch(fileChooserParams)
-                this.fileChooserParams = null
-            }
-            // N.B. a file chooser intent (without camera) could be launched here if the permission was denied
-        }
+        requestPermissionLauncher =
+                registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted
+                    ->
+                    val fileChooserParams = this.fileChooserParams
+                    if (isGranted && fileChooserParams != null) {
+                        this.showFileChooserLauncher.launch(fileChooserParams)
+                        this.fileChooserParams = null
+                    }
+                    // N.B. a file chooser intent (without camera) could be launched here if the
+                    // permission was denied
+                }
 
-        showFileChooserLauncher = registerForActivityResult(FileChooserResultContract()) { uri: Uri? ->
-            // invoke the callback with the selected file
-            filePathCallback?.onReceiveValue(if (uri != null) arrayOf(uri) else null)
+        showFileChooserLauncher =
+                registerForActivityResult(FileChooserResultContract()) { uri: Uri? ->
+                    // invoke the callback with the selected file
+                    filePathCallback?.onReceiveValue(if (uri != null) arrayOf(uri) else null)
 
-            // reset fileChooser state
-            filePathCallback = null
-            fileChooserParams = null
-        }
+                    // reset fileChooser state
+                    filePathCallback = null
+                    fileChooserParams = null
+                }
     }
 
     fun requestGeolocationPermission() {
-        val fineLocationGranted = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-        val coarseLocationGranted = checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val fineLocationGranted = permissionGranted(Manifest.permission.ACCESS_FINE_LOCATION)
+        val coarseLocationGranted = permissionGranted(Manifest.permission.ACCESS_COARSE_LOCATION)
 
         if (!fineLocationGranted && !coarseLocationGranted) {
             requestPermissions(
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+                    arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                    ),
                     LOCATION_PERMISSION_REQUEST_CODE
             )
         }
     }
 
     // Show a file chooser when prompted by the event processor
-    fun onShowFileChooser(filePathCallback: ValueCallback<Array<Uri>>, fileChooserParams: FileChooserParams): Boolean {
+    fun onShowFileChooser(
+            filePathCallback: ValueCallback<Array<Uri>>,
+            fileChooserParams: FileChooserParams
+    ): Boolean {
         this.filePathCallback = filePathCallback
-        if (permissionAlreadyGranted(Manifest.permission.CAMERA)) {
+        if (permissionGranted(Manifest.permission.CAMERA)) {
             // Permissions already granted, launch chooser immediately
             showFileChooserLauncher.launch(fileChooserParams)
             this.fileChooserParams = null
@@ -113,7 +119,7 @@ class MainActivity : ComponentActivity() {
         return true
     }
 
-    private fun permissionAlreadyGranted(permission: String): Boolean {
-        return ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
+    private fun permissionGranted(permission: String): Boolean {
+        return checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
     }
 }
