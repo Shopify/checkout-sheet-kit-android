@@ -22,7 +22,10 @@
  */
 package com.shopify.checkoutsheetkit
 
+import android.Manifest
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.net.Uri
@@ -34,10 +37,9 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.any
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.times
-import org.mockito.kotlin.verify
+import org.mockito.Mockito.`when`
+import org.mockito.MockitoAnnotations
+import org.mockito.kotlin.*
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
@@ -47,14 +49,22 @@ import org.robolectric.shadows.ShadowActivity
 @RunWith(RobolectricTestRunner::class)
 class DefaultCheckoutEventProcessorTest {
 
+    private lateinit var context: Context
     private lateinit var activity: ComponentActivity
     private lateinit var shadowActivity: ShadowActivity
     private val mockCallback = mock<GeolocationPermissions.Callback>()
+    private lateinit var processor: TestCheckoutEventProcessor
+    private lateinit var packageManager: PackageManager
 
     @Before
     fun setUp() {
+        MockitoAnnotations.openMocks(this)
         activity = Robolectric.buildActivity(ComponentActivity::class.java).get()
         shadowActivity = shadowOf(activity)
+        context = mock()
+        packageManager = mock()
+        `when`(context.packageManager).thenReturn(packageManager)
+        processor = TestCheckoutEventProcessor(context)
     }
 
     @Test
@@ -77,7 +87,8 @@ class DefaultCheckoutEventProcessorTest {
         processor.onCheckoutLinkClicked(uri)
 
         val intent = shadowActivity.peekNextStartedActivityForResult().intent
-        assertThat(intent.getStringArrayExtra(Intent.EXTRA_EMAIL)).isEqualTo(arrayOf("test.user@shopify.com"))
+        assertThat(intent.getStringArrayExtra(Intent.EXTRA_EMAIL))
+                .isEqualTo(arrayOf("test.user@shopify.com"))
         assertThat(intent.action).isEqualTo("android.intent.action.SEND")
     }
 
@@ -105,12 +116,23 @@ class DefaultCheckoutEventProcessorTest {
         val shadowPackageManager = shadowOf(pm)
         shadowPackageManager.addResolveInfoForIntent(expectedIntent, ResolveInfo())
 
-        val processor = object: DefaultCheckoutEventProcessor(activity, log) {
-            override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {/* not implemented */}
-            override fun onCheckoutFailed(error: CheckoutException) {/* not implemented */}
-            override fun onCheckoutCanceled() {/* not implemented */}
-            override fun onWebPixelEvent(event: PixelEvent) {/* not implemented */}
-        }
+        val processor =
+                object : DefaultCheckoutEventProcessor(activity, log) {
+                    override fun onCheckoutCompleted(
+                            checkoutCompletedEvent: CheckoutCompletedEvent
+                    ) {
+                        /* not implemented */
+                    }
+                    override fun onCheckoutFailed(error: CheckoutException) {
+                        /* not implemented */
+                    }
+                    override fun onCheckoutCanceled() {
+                        /* not implemented */
+                    }
+                    override fun onWebPixelEvent(event: PixelEvent) {
+                        /* not implemented */
+                    }
+                }
 
         processor.onCheckoutLinkClicked(uri)
 
@@ -122,19 +144,34 @@ class DefaultCheckoutEventProcessorTest {
     @Test
     fun `onCheckoutLinkedClick with unhandled scheme logs warning`() {
         val log = mock<LogWrapper>()
-        val processor = object: DefaultCheckoutEventProcessor(activity, log) {
-            override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {/* not implemented */}
-            override fun onCheckoutFailed(error: CheckoutException) {/* not implemented */}
-            override fun onCheckoutCanceled() {/* not implemented */}
-            override fun onWebPixelEvent(event: PixelEvent) {/* not implemented */}
-        }
+        val processor =
+                object : DefaultCheckoutEventProcessor(activity, log) {
+                    override fun onCheckoutCompleted(
+                            checkoutCompletedEvent: CheckoutCompletedEvent
+                    ) {
+                        /* not implemented */
+                    }
+                    override fun onCheckoutFailed(error: CheckoutException) {
+                        /* not implemented */
+                    }
+                    override fun onCheckoutCanceled() {
+                        /* not implemented */
+                    }
+                    override fun onWebPixelEvent(event: PixelEvent) {
+                        /* not implemented */
+                    }
+                }
 
         val uri = Uri.parse("ftp:random")
 
         processor.onCheckoutLinkClicked(uri)
 
         assertThat(shadowActivity.peekNextStartedActivityForResult()).isNull()
-        verify(log).w("DefaultCheckoutEventProcessor", "Unrecognized scheme for link clicked in checkout 'ftp:random'")
+        verify(log)
+                .w(
+                        "DefaultCheckoutEventProcessor",
+                        "Unrecognized scheme for link clicked in checkout 'ftp:random'"
+                )
     }
 
     @Test
@@ -144,7 +181,9 @@ class DefaultCheckoutEventProcessorTest {
         var recoverable: Boolean? = null
         val processor =
                 object : DefaultCheckoutEventProcessor(activity, log) {
-                    override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {
+                    override fun onCheckoutCompleted(
+                            checkoutCompletedEvent: CheckoutCompletedEvent
+                    ) {
                         /* not implemented */
                     }
                     override fun onCheckoutFailed(error: CheckoutException) {
@@ -169,35 +208,77 @@ class DefaultCheckoutEventProcessorTest {
     }
 
     @Test
-    fun `onGeolocationPermissionsShowPrompt should invoke callback with correct args`() {
-        val origin = "http://shopify.com"
-        val processor = object: DefaultCheckoutEventProcessor(mock(), mock()) {
-            override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {}
-            override fun onCheckoutFailed(error: CheckoutException) {}
-            override fun onCheckoutCanceled() {}
-        }
-        processor.onGeolocationPermissionsShowPrompt(origin, mockCallback)
-        verify(mockCallback).invoke(origin, true, true)
+    fun testOnGeolocationPermissionsShowPrompt_withNoManifestPermission() {
+        // Simulate no permissions declared in the manifest
+        whenever(packageManager.getPackageInfo(context.packageName, PackageManager.GET_PERMISSIONS))
+                .thenThrow(PackageManager.NameNotFoundException())
+        processor.onGeolocationPermissionsShowPrompt("http://shopify.com", mockCallback)
+        verify(mockCallback).invoke("http://shopify.com", false, false)
     }
 
     @Test
-    fun `onGeolocationPermissionsShowPrompt should not invoke callback if overridden with no-op`() {
-        val overriddenProcessor = object: DefaultCheckoutEventProcessor(mock(), mock()) {
-            override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {}
-            override fun onCheckoutFailed(error: CheckoutException) {}
-            override fun onCheckoutCanceled() {}
-            override fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {}
-        }
-        overriddenProcessor.onGeolocationPermissionsShowPrompt("http://shopify.com", mockCallback)
-        verify(mockCallback, times(0)).invoke(any(), any(), any())
+    fun testOnGeolocationPermissionsShowPrompt_withManifestPermissionGranted() {
+        // Simulate permissions declared in the manifest
+        val permissions =
+                arrayOf(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+        whenever(packageManager.getPackageInfo(context.packageName, PackageManager.GET_PERMISSIONS))
+                .thenReturn(mockPackageInfo(permissions))
+
+        // Simulate runtime permission granted
+        whenever(context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION))
+                .thenReturn(PackageManager.PERMISSION_GRANTED)
+        whenever(context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION))
+                .thenReturn(PackageManager.PERMISSION_GRANTED)
+
+        processor.onGeolocationPermissionsShowPrompt("http://shopify.com", mockCallback)
+
+        verify(mockCallback).invoke("http://shopify.com", true, true)
     }
 
+    @Test
+    fun testOnGeolocationPermissionsShowPrompt_withManifestPermissionDenied() {
+        // Simulate permissions declared in the manifest
+        val permissions =
+                arrayOf(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+        whenever(packageManager.getPackageInfo(context.packageName, PackageManager.GET_PERMISSIONS))
+                .thenReturn(mockPackageInfo(permissions))
+
+        // Simulate runtime permission denied
+        whenever(context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION))
+                .thenReturn(PackageManager.PERMISSION_DENIED)
+        whenever(context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION))
+                .thenReturn(PackageManager.PERMISSION_DENIED)
+
+        processor.onGeolocationPermissionsShowPrompt("http://shopify.com", mockCallback)
+
+        verify(mockCallback).invoke("http://shopify.com", false, false)
+    }
+
+    // Private
+
     private fun processor(activity: ComponentActivity): DefaultCheckoutEventProcessor {
-        return object: DefaultCheckoutEventProcessor(activity) {
+        return object : DefaultCheckoutEventProcessor(activity) {
             override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {}
             override fun onCheckoutFailed(error: CheckoutException) {}
             override fun onCheckoutCanceled() {}
             override fun onWebPixelEvent(event: PixelEvent) {}
         }
+    }
+
+    private fun mockPackageInfo(permissions: Array<String>): PackageInfo {
+        return PackageInfo().apply { requestedPermissions = permissions }
+    }
+
+    private class TestCheckoutEventProcessor(context: Context) :
+            DefaultCheckoutEventProcessor(context) {
+        override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {}
+        override fun onCheckoutFailed(error: CheckoutException) {}
+        override fun onCheckoutCanceled() {}
     }
 }
