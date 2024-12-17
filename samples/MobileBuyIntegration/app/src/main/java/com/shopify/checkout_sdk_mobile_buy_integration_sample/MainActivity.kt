@@ -25,6 +25,7 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample
 import android.Manifest
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.webkit.GeolocationPermissions
 import android.webkit.ValueCallback
@@ -42,15 +43,14 @@ class MainActivity : ComponentActivity() {
     // Launchers
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
     private lateinit var showFileChooserLauncher: ActivityResultLauncher<FileChooserParams>
-    private lateinit var geolocationLauncher: ActivityResultLauncher<Array<String>>
 
     // State related to file chooser requests (e.g. for using a file chooser/camera for proving identity)
     private var filePathCallback: ValueCallback<Array<Uri>>? = null
     private var fileChooserParams: FileChooserParams? = null
 
-    // State related to geolocation requests (e.g. for pickup points - use my location)
-    private var geolocationPermissionCallback: GeolocationPermissions.Callback? = null
-    private var geolocationOrigin: String? = null
+    companion object {
+        private const val LOCATION_PERMISSION_REQUEST_CODE = 1001
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,15 +84,17 @@ class MainActivity : ComponentActivity() {
             filePathCallback = null
             fileChooserParams = null
         }
+    }
 
-        geolocationLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
-            val isGranted = result.any { it.value }
-            // invoke the callback with the permission result
-            geolocationPermissionCallback?.invoke(geolocationOrigin, isGranted, false)
+    fun requestGeolocationPermission() {
+        val fineLocationGranted = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val coarseLocationGranted = checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
 
-            // reset geolocation state
-            geolocationPermissionCallback = null
-            geolocationOrigin = null
+        if (!fineLocationGranted && !coarseLocationGranted) {
+            requestPermissions(
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+                    LOCATION_PERMISSION_REQUEST_CODE
+            )
         }
     }
 
@@ -109,19 +111,6 @@ class MainActivity : ComponentActivity() {
             requestPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
         return true
-    }
-
-    // Deal with requests from Checkout to show the geolocation permissions prompt
-    fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {
-        if (permissionAlreadyGranted(Manifest.permission.ACCESS_FINE_LOCATION) && permissionAlreadyGranted(Manifest.permission.ACCESS_COARSE_LOCATION)) {
-            // Permissions already granted, invoke callback immediately
-            callback(origin, true, true)
-        } else {
-            // Permissions not yet granted, request permissions before invoking callback
-            geolocationPermissionCallback = callback
-            geolocationOrigin = origin
-            geolocationLauncher.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION))
-        }
     }
 
     private fun permissionAlreadyGranted(permission: String): Boolean {

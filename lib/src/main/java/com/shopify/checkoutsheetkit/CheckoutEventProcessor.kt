@@ -22,9 +22,11 @@
  */
 package com.shopify.checkoutsheetkit
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.webkit.GeolocationPermissions
 import android.webkit.PermissionRequest
@@ -141,6 +143,11 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
     private val log: LogWrapper = LogWrapper(),
 ) : CheckoutEventProcessor {
 
+    private val LOCATION_PERMISSIONS: Array<String> = arrayOf(
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION
+    )
+
     override fun onCheckoutLinkClicked(uri: Uri) {
         when (uri.scheme) {
             "tel" -> context.launchPhoneApp(uri.schemeSpecificPart)
@@ -166,13 +173,50 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
         return false
     }
 
-    override fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {
-        // no-op override to implement
+    /**
+     * Called when the webview requests location permissions. For example when using 'Use my location' to locate pickup points.
+     * The default implementation here will check for both manifest and runtime permissions. If both have been granted,
+     * permission will be granted to present the location prompt to the user.
+     *
+     * Runtime permissions must be requested by your host app. The Checkout Sheet kit cannot request them on your behalf.
+     */
+    override fun onGeolocationPermissionsShowPrompt(
+        origin: String,
+        callback: GeolocationPermissions.Callback
+    ) {
+        // Check manifest permissions
+        val manifestPermissions = try {
+            context.packageManager
+                .getPackageInfo(context.packageName, PackageManager.GET_PERMISSIONS)
+                .requestedPermissions
+                ?.toSet() ?: emptySet()
+        } catch (e: Exception) {
+            emptySet()
+        }
+
+        // Check if either permission is declared in manifest
+        val hasManifestPermission = LOCATION_PERMISSIONS.any { permission ->
+            manifestPermissions.contains(permission)
+        }
+
+        if (!hasManifestPermission) {
+            callback.invoke(origin, false, false)
+            return
+        }
+
+        // Check runtime permissions
+        val hasRuntimePermission = LOCATION_PERMISSIONS.any { permission ->
+            context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
+        }
+
+        callback.invoke(origin, hasRuntimePermission, hasRuntimePermission)
     }
 
     override fun onGeolocationPermissionsHidePrompt() {
         // no-op override to implement
     }
+
+    // Private
 
     private fun Context.launchEmailApp(to: String) {
         val intent = Intent(Intent.ACTION_SEND)
