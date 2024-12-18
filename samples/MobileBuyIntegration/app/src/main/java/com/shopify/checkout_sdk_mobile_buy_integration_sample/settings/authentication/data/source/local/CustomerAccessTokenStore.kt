@@ -85,6 +85,6 @@ class CustomerAccessTokenStore(
 
     companion object {
         private const val PREFS_NAME = "customer_access_tokens"
-        private const val KEY = "tokens"
+        private const val KEY = "token"
     }
 }

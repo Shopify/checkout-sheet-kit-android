@@ -52,8 +52,8 @@ class LoginViewModel(
      */
     fun checkLoginState(locale: Locale) = viewModelScope.launch {
         Timber.i("Checking logged in state")
-        val tokens = customerRepository.getCustomerAccessToken()
-        if (tokens == null) {
+        val token = customerRepository.getCustomerAccessToken()
+        if (token == null) {
             Timber.i("Not yet logged in")
             val codeVerifier = authenticationHelper.createCodeVerifier()
             _uiState.value = _uiState.value.copy(
@@ -84,7 +84,7 @@ class LoginViewModel(
         if (customerAccessTokens != null) {
             _uiState.value = _uiState.value.copy(status = Status.LoggedIn)
         } else {
-            _uiState.value = _uiState.value.copy(status = Status.Error("Failed to create tokens"))
+            _uiState.value = _uiState.value.copy(status = Status.Error("Failed to create token"))
         }
     }
 }

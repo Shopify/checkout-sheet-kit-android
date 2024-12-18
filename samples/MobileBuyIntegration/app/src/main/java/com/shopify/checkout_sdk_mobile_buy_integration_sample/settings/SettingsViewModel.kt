@@ -45,12 +45,12 @@ class SettingsViewModel(
 
     fun observeSettings() = viewModelScope.launch {
         settingsRepository.observeSettings().collect { settings ->
-            val tokens = customerRepository.getCustomerAccessToken()
+            val token = customerRepository.getCustomerAccessToken()
             _uiState.value = SettingsUiState.Loaded(
                 settings = settings,
                 sdkVersion = ShopifyCheckoutSheetKit.version,
                 sampleAppVersion = BuildConfig.VERSION_NAME,
-                isAuthenticated = tokens != null
+                isAuthenticated = token != null
             )
         }
     }

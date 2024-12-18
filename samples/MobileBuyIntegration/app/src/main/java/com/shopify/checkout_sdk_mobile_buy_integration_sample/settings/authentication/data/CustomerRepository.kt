@@ -81,12 +81,12 @@ class CustomerRepository(
     suspend fun createCustomerAccessToken(code: String, codeVerifier: String): AccessToken? {
         val customerAccessToken = localTokenStore.find()
         if (customerAccessToken != null) {
-            Timber.i("Locally stored customer access tokens found")
+            Timber.i("Locally stored customer access token found")
             if (!customerAccessToken.hasExpired()) {
-                Timber.i("Returning locally stored customer access tokens")
+                Timber.i("Returning locally stored customer access token")
                 return customerAccessToken
             } else {
-                Timber.i("Locally stored customer access tokens expired, refreshing")
+                Timber.i("Locally stored customer access token expired, refreshing")
                 return restClient.refreshAccessToken(customerAccessToken).toToken()
             }
         }
