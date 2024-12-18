@@ -64,6 +64,7 @@ fun LoginView(
                 // Show the login WebView if not yet logged in
                 LoginWebView(
                     url = uiState.status.loginUrl,
+                    customerAccountApiRedirectUri = uiState.status.redirectUri,
                     onCodeParamIntercepted = { code: String ->
                         loginViewModel.codeParamIntercepted(code)
                     }

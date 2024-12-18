@@ -58,6 +58,7 @@ class LoginViewModel(
             val codeVerifier = authenticationHelper.createCodeVerifier()
             _uiState.value = _uiState.value.copy(
                 status = Status.LoggedOut(
+                    redirectUri = authenticationHelper.redirectUri,
                     loginUrl = authenticationHelper.buildAuthorizationURL(
                         codeVerifier = codeVerifier,
                         locale = locale
@@ -96,6 +97,10 @@ data class LoginUIState(
 sealed class Status {
     data object Loading : Status()
     data object LoggedIn : Status()
-    data class LoggedOut(val loginUrl: String) : Status()
+    data class LoggedOut(
+        val loginUrl: String,
+        val redirectUri: String,
+    ) : Status()
+
     data class Error(val message: String) : Status()
 }

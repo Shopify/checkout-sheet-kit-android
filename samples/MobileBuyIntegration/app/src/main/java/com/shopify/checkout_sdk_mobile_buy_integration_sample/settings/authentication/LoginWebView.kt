@@ -30,7 +30,6 @@ import android.webkit.WebViewClient
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.BuildConfig
 
 /**
  * WebView used to display the login page and intercept authorization code param redirects
@@ -40,6 +39,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.BuildConfig
 fun LoginWebView(
     url: String,
     modifier: Modifier = Modifier,
+    customerAccountApiRedirectUri: String,
     onCodeParamIntercepted: (String) -> Unit = {},
 ) {
     AndroidView(
@@ -50,7 +50,7 @@ fun LoginWebView(
                     ViewGroup.LayoutParams.MATCH_PARENT
                 )
                 settings.apply { javaScriptEnabled = true }
-                webViewClient = AuthenticationWebViewClient(onCodeParamIntercepted)
+                webViewClient = AuthenticationWebViewClient(customerAccountApiRedirectUri, onCodeParamIntercepted)
             }
         },
         update = { it.loadUrl(url) },
@@ -63,9 +63,12 @@ fun LoginWebView(
  * [redirect_uri](https://shopify.dev/docs/api/customer#authorization-propertydetail-redirecturi)
  * with a [code](https://shopify.dev/docs/api/customer#step-code) query parameter.
  */
-class AuthenticationWebViewClient(private val onCodeParamIntercepted: (String) -> Unit) : WebViewClient() {
+class AuthenticationWebViewClient(
+    private val customerAccountApiRedirectUri: String,
+    private val onCodeParamIntercepted: (String) -> Unit
+) : WebViewClient() {
     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
-        if ("${request.url.scheme}://${request.url.host}" != BuildConfig.customerAccountsApiRedirectUri) {
+        if ("${request.url.scheme}://${request.url.host}" != customerAccountApiRedirectUri) {
             return super.shouldOverrideUrlLoading(view, request)
         }
 

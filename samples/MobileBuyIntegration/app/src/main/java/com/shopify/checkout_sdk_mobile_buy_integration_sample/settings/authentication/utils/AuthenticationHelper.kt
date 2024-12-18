@@ -25,7 +25,6 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authenti
 import android.net.Uri
 import android.util.Base64
 import androidx.compose.ui.text.intl.Locale
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.BuildConfig
 import java.security.MessageDigest
 import java.security.SecureRandom
 
@@ -34,7 +33,9 @@ import java.security.SecureRandom
  * code verifier, code challenge, and state values.
  */
 class AuthenticationHelper(
-    private val baseUrl: String
+    val clientId: String,
+    val redirectUri: String,
+    private val baseUrl: String,
 ) {
     /**
      * Builds an [Authorization URL](https://shopify.dev/docs/api/customer#step-authorization) which
@@ -47,9 +48,9 @@ class AuthenticationHelper(
         val codeChallenge = codeChallenge(codeVerifier)
         val url = Uri.parse("$baseUrl/oauth/authorize").buildUpon()
             .appendQueryParameter("scope", "openid email customer-account-api:full")
-            .appendQueryParameter("client_id", BuildConfig.customerAccountsApiClientId)
+            .appendQueryParameter("client_id", clientId)
             .appendQueryParameter("response_type", "code")
-            .appendQueryParameter("redirect_uri", BuildConfig.customerAccountsApiRedirectUri)
+            .appendQueryParameter("redirect_uri", redirectUri)
             .appendQueryParameter("state", state())
             .appendQueryParameter("code_challenge", codeChallenge)
             .appendQueryParameter("code_challenge_method", "S256")
@@ -129,6 +130,8 @@ class AuthenticationHelper(
 
     companion object {
         private const val ALLOWED_RANDOM_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+
+        // Taken from https://shopify.dev/docs/api/customer#authorization-propertydetail-uilocales
         private val SUPPORTED_LOCALES = listOf(
             "en", "fr", "cs", "da", "de", "el", "es", "fi", "hi", "hr", "hu", "id", "it", "ja", "ko", "lt", "ms", "nb",
             "nl", "pl", "pt-BR", "pt-PT", "ro", "ru", "sk", "sl", "sv", "th", "tr", "vi", "zh-CN", "zh-TW"

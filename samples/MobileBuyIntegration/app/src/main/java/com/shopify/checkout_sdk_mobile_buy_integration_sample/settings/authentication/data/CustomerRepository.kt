@@ -96,11 +96,7 @@ class CustomerRepository(
     }
 
     suspend fun logout() {
-        val idToken = getCustomerAccessToken()?.idToken
-        if (idToken == null) {
-            Timber.i("No stored token, skipping logout")
-            return
-        }
+        val idToken = getCustomerAccessToken()?.idToken ?: ""
         Timber.i("Logging out and deleting stored token")
         restClient.logout(idToken)
         localTokenStore.delete()

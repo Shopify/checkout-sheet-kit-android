@@ -14,12 +14,17 @@ def loadProperties() {
 }
 
 def properties = loadProperties()
+
+// Storefront API
 def storefrontDomain = properties.getProperty("STOREFRONT_DOMAIN")
 def accessToken = properties.getProperty("STOREFRONT_ACCESS_TOKEN")
-def apiVersion = properties.getProperty("API_VERSION", "2024-10")
-def shopId = properties.getProperty("SHOP_ID")
-def customerAccountsApiClientId = properties.getProperty("CUSTOMER_ACCOUNTS_CLIENT_ID")
-def customerAccountsApiRedirectUri = properties.getProperty("CUSTOMER_ACCOUNTS_REDIRECT_URI")
+
+// Customer Account API
+def customerAccountApiClientId = properties.getProperty("CUSTOMER_ACCOUNT_API_CLIENT_ID")
+def customerAccountApiRedirectUri = properties.getProperty("CUSTOMER_ACCOUNT_API_REDIRECT_URI")
+
+def customerAccountApiGraphQLBaseUrl = properties.getProperty("CUSTOMER_ACCOUNT_API_GRAPHQL_BASE_URL")
+def customerAccountApiAuthBaseUrl = properties.getProperty("CUSTOMER_ACCOUNT_API_AUTH_BASE_URL")
 
 if (!storefrontDomain || !accessToken) {
     println("**** Please add a .env file with STOREFRONT_DOMAIN and STOREFRONT_ACCESS_TOKEN set *****")
@@ -42,10 +47,10 @@ android {
         }
         buildConfigField "String", "storefrontDomain", "\"$storefrontDomain\""
         buildConfigField "String", "storefrontAccessToken", "\"$accessToken\""
-        buildConfigField "String", "apiVersion", "\"$apiVersion\""
-        buildConfigField "String", "customerAccountsApiClientId", "\"$customerAccountsApiClientId\""
-        buildConfigField "String", "customerAccountsApiRedirectUri", "\"$customerAccountsApiRedirectUri\""
-        buildConfigField "String", "shopId", "\"$shopId\""
+        buildConfigField "String", "customerAccountApiClientId", "\"$customerAccountApiClientId\""
+        buildConfigField "String", "customerAccountApiRedirectUri", "\"$customerAccountApiRedirectUri\""
+        buildConfigField "String", "customerAccountApiAuthBaseUrl", "\"$customerAccountApiAuthBaseUrl\""
+        buildConfigField "String", "customerAccountApiGraphQLBaseUrl", "\"$customerAccountApiGraphQLBaseUrl\""
     }
 
     buildTypes {

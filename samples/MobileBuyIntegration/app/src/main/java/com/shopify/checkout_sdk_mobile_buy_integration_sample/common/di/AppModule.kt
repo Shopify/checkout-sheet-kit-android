@@ -107,15 +107,15 @@ val appModules = module {
             client = OkHttpClient(),
             json = get(),
             helper = get(),
-            redirectUri = BuildConfig.customerAccountsApiRedirectUri,
-            clientId = BuildConfig.customerAccountsApiClientId
+            redirectUri = BuildConfig.customerAccountApiRedirectUri,
+            clientId = BuildConfig.customerAccountApiClientId
         )
     }
     single {
         CustomerAccountsApiGraphQLClient(
             client = OkHttpClient(),
             json = get(),
-            baseUrl = "https://shopify.com/${BuildConfig.shopId}/account/customer/api/${BuildConfig.apiVersion}/graphql",
+            baseUrl = BuildConfig.customerAccountApiGraphQLBaseUrl,
         )
     }
     single {
@@ -132,7 +132,11 @@ val appModules = module {
     }
 
     single {
-        AuthenticationHelper(baseUrl = "https://shopify.com/authentication/${BuildConfig.shopId}")
+        AuthenticationHelper(
+            baseUrl = BuildConfig.customerAccountApiAuthBaseUrl,
+            redirectUri = BuildConfig.customerAccountApiRedirectUri,
+            clientId = BuildConfig.customerAccountApiClientId
+        )
     }
 
     // Repositories
