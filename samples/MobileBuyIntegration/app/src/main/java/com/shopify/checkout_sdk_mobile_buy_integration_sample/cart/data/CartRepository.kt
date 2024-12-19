@@ -27,29 +27,31 @@ import com.shopify.buy3.Storefront.CartLineInput
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.source.network.CartStorefrontApiClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.toGraphQLId
+import timber.log.Timber
 import kotlin.coroutines.suspendCoroutine
 
 class CartRepository(
     private val cartStorefrontApiClient: CartStorefrontApiClient,
 ) {
 
-    suspend fun createCart(variantId: ID, quantity: Int, demoBuyerIdentityEnabled: Boolean): CartState.Cart {
+    suspend fun createCart(
+        variantId: ID,
+        quantity: Int,
+        demoBuyerIdentityEnabled: Boolean,
+        customerAccessToken: String?,
+    ): CartState.Cart {
         return suspendCoroutine { continuation ->
-            val buyerIdentity = if (demoBuyerIdentityEnabled) {
-                DemoBuyerIdentity.value
-            } else {
-                Storefront.CartBuyerIdentityInput().setCountryCode(Storefront.CountryCode.CA)
-            }
-
             cartStorefrontApiClient.createCart(
                 variant = Storefront.ProductVariant(variantId.toGraphQLId()),
-                buyerIdentity = buyerIdentity,
+                buyerIdentity = buyerIdentity(demoBuyerIdentityEnabled, customerAccessToken),
                 quantity = quantity,
                 successCallback = { response ->
                     val cartCreateResponse = response.data?.cartCreate
-                    if (cartCreateResponse == null) {
-                        continuation.resumeWith(Result.failure(RuntimeException("Failed to create cart")))
+                    if (cartCreateResponse?.cart == null) {
+                        val errors = cartCreateResponse?.userErrors?.joinToString { "${it.field} - ${it.message}" }
+                        continuation.resumeWith(Result.failure(RuntimeException("Failed to create cart, $errors")))
                     } else {
+                        Timber.i("cart ${cartCreateResponse.cart.checkoutUrl}")
                         continuation.resumeWith(Result.success(cartCreateResponse.cart.toLocal()))
                     }
                 },
@@ -100,6 +102,28 @@ class CartRepository(
                 failureCallback = { exception ->
                     continuation.resumeWith(Result.failure(RuntimeException("Failed to modify cart", exception)))
                 })
+        }
+    }
+
+    /**
+     * Build up CartBuyerIdentityInput to pass into cart mutations, with value depending on
+     * whether a customer access token is available, and the demo buyer identity setting is enabled
+     */
+    private fun buyerIdentity(demoBuyerIdentityEnabled: Boolean, customerAccessToken: String?): Storefront.CartBuyerIdentityInput {
+        // Give precedence to customer access token
+        if (customerAccessToken != null) {
+            // Attach token to authenticate
+            Timber.i("Setting a customer access token in buyer identity")
+            return Storefront.CartBuyerIdentityInput().setCustomerAccessToken(customerAccessToken)
+        }
+
+        return if (demoBuyerIdentityEnabled) {
+            // No token available, instead of authenticating, prefill checkout with known customer data
+            Timber.i("Using demo buyer identity data to prefill checkout")
+            DemoBuyerIdentity.value
+        } else {
+            // We could e.g. set a country code in the absence of other customer information
+            Storefront.CartBuyerIdentityInput().setCountryCode(Storefront.CountryCode.CA)
         }
     }
 }

@@ -545,9 +545,8 @@ checkout sessions.
 
 ### Customer Account API
 
-We are working on a library to provide buyer sign-in and authentication powered by the
-[new Customer Account API](https://www.shopify.com/partners/blog/introducing-customer-account-api-for-headless-stores)
-—stay tuned.
+The Customer Account API allows you to authenticate buyers and provide a personalized checkout experience. 
+For detailed implementation instructions, see our [Customer Account API Authentication Guide](https://shopify.dev/docs/storefronts/headless/mobile-apps/checkout-sheet-kit/authenticate-checkouts).
 
 ---
 

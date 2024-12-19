@@ -24,8 +24,8 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample
 
 import android.app.Application
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.CookiePurger
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.di.setupDI
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.di.setupDI
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.ErrorRecovery
@@ -58,7 +58,7 @@ class MobileBuyIntegration : Application() {
             ShopifyCheckoutSheetKit.configure {
                 it.colorScheme = settings.colorScheme
                 it.preloading = settings.preloading
-                it.errorRecovery = object: ErrorRecovery {
+                it.errorRecovery = object : ErrorRecovery {
                     val logger: Logger by inject()
 
                     override fun preRecoveryActions(exception: CheckoutException, checkoutUrl: String) {

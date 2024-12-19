@@ -14,6 +14,8 @@
     <!-- Settings -->
     <string name="settings" translatable="false">Settings</string>
 
+    <string name="settings_account_details" translatable="false">Account details</string>
+
     <string name="color_scheme" translatable="false">Color Scheme</string>
     <string name="color_scheme_automatic" translatable="false">Automatic</string>
     <string name="color_scheme_dark" translatable="false">Dark</string>
@@ -30,6 +32,10 @@
     <string name="view_logs" translatable="false">View logs</string>
     <string name="delete_logs" translatable="false">Delete logs</string>
 
+    <string name="login" translatable="false">Log in</string>
+    <string name="logout" translatable="false">Log out</string>
+    <string name="login_retry" translatable="false">Retry</string>
+
     <!-- Errors -->
     <string name="checkout_error" translatable="false">Checkout failed, please try again</string>
     <string name="collection_failed_to_load" translatable="false">Failed to load collection</string>
@@ -37,6 +43,8 @@
     <string name="products_failed_to_load" translatable="false">Failed to load products</string>
     <string name="cart_error_creating" translatable="false">Failed to create cart</string>
     <string name="cart_error_updating" translatable="false">Failed to update cart</string>
+    <string name="login_error" translatable="false">An error occurred when completing log in</string>
+    <string name="customer_failed_to_load" translatable="false">Failed to load customer</string>R
 
     <!-- File chooser title - if an app is installed that requires media upload -->
     <string name="filechooser_title">Select or Capture Image</string>
@@ -75,4 +83,20 @@
     <string name="cart_empty" translatable="false">Your cart is empty</string>
     <string name="cart_emtpy_description" translatable="false">Add products while you shop, so they\'ll be ready for checkout later.</string>
     <string name="cart_trash_content_description" translatable="false">Delete line item</string>
+
+    <!-- Customer -->
+    <string name="customer_email" translatable="false">Email</string>
+    <string name="customer_phone" translatable="false">Phone</string>
+    <string name="customer_default_addr" translatable="false">Default Address</string>
+    <string name="customer_default_addr_first_name" translatable="false">First Name</string>
+    <string name="customer_default_addr_last_name" translatable="false">Last Name</string>
+    <string name="customer_default_addr_phone" translatable="false">Phone number</string>
+    <string name="customer_default_addr_address1" translatable="false">Address 1</string>
+    <string name="customer_default_addr_address2" translatable="false">Address 2</string>
+    <string name="customer_default_addr_city" translatable="false">City</string>
+    <string name="customer_default_addr_province" translatable="false">Province</string>
+    <string name="customer_default_addr_zip" translatable="false">Zip code</string>
+    <string name="customer_default_addr_country" translatable="false">Country</string>
+    <string name="customer_back_to_settings" translatable="false">Back to settings</string>
+    <string name="customer_image_alt" translatable="false">Customer image</string>
 </resources>
