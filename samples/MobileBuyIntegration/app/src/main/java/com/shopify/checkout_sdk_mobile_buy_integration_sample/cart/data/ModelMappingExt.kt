@@ -56,6 +56,12 @@ internal fun Storefront.BaseCartLine.toLocal(): CartLine? {
             currencyPerQuantity = this.cost.amountPerQuantity.currencyCode.name,
             totalPrice = this.cost.totalAmount.amount.toDouble(),
             totalCurrency = this.cost.totalAmount.currencyCode.name,
+            variantDescription = it.selectedOptions.toDescription()
         )
     }
+}
+
+fun List<Storefront.SelectedOption>.toDescription(): String {
+    val optionsWithoutTitle = this.filter { option -> option.name != "Title" }
+    return optionsWithoutTitle.joinToString(separator = " / ") { option -> option.value }
 }

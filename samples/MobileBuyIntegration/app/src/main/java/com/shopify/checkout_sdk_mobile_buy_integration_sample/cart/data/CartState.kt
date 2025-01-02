@@ -43,6 +43,7 @@ data class CartLine(
     val title: String,
     val vendor: String,
     val quantity: Int,
+    val variantDescription: String,
     val image: CartLineImage?,
     val pricePerQuantity: Double,
     val currencyPerQuantity: String,

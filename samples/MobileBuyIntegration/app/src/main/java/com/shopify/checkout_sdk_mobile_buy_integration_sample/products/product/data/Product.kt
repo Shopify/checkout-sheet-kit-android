@@ -40,13 +40,25 @@ data class Product(
     val description: String,
     val image: ProductImage?,
     val priceRange: ProductPriceRange,
-    val variants: List<ProductVariant>? = mutableListOf(),
-    val selectedVariant: Int? = 0,
+    val variants: List<ProductVariant> = mutableListOf(),
 )
 
 data class ProductVariant(
     val id: ID,
     val price: ProductPriceAmount,
+    val availableForSale: Boolean,
+    val title: String,
+    val selectedOptions: List<ProductVariantSelectedOption>,
+)
+
+data class ProductVariantSelectedOption(
+    val name: String,
+    val value: String,
+)
+
+data class ProductVariantOptionDetails(
+    val name: String,
+    val availableForSale: Boolean,
 )
 
 data class ProductPriceRange(

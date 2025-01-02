@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartLine
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodySmall
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyText
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.QuantitySelector
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
@@ -95,6 +96,7 @@ fun CartItem(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.secondary,
                     )
+                    BodySmall(cartLine.variantDescription)
                 }
                 QuantitySelector(enabled = !loading, quantity = cartLine.quantity) { quantity ->
                     modifyLineItem(cartLine.id, quantity)

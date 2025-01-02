@@ -42,7 +42,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodyMedium
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodySmall
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyText
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.ProgressIndicator
@@ -119,12 +118,15 @@ fun ProductView(
                         )
 
                         Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                            // TODO deal with a variable amount of variants
-                            val variant = product.variants!!.first()
+                            val variant = productUIState.selectedVariant
                             MoneyText(variant.price.currencyCode, variant.price.amount)
-                            BodySmall(
-                                stringResource(id = R.string.product_taxes_included)
-                            )
+                        }
+
+                        OptionSelector(
+                            availableOptions = productUIState.availableOptions,
+                            selectedOptions = productUIState.selectedVariant.selectedOptions.associate { it.name to it.value }
+                        ) { name, value ->
+                            productViewModel.updateSelectedOption(name, value)
                         }
 
                         QuantitySelector(enabled = true, quantity = productUIState.addQuantityAmount) { quantity ->
@@ -132,6 +134,7 @@ fun ProductView(
                         }
 
                         AddToCartButton(
+                            enabled = productUIState.selectedVariant.availableForSale,
                             loading = productUIState.isAddingToCart,
                             modifier = Modifier.fillMaxWidth()
                         ) {

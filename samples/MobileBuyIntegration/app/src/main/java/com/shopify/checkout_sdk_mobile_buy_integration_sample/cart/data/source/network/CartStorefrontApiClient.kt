@@ -163,6 +163,10 @@ class CartStorefrontApiClient(
                                     image.altText()
                                 }
                             }
+                            variant.selectedOptions { option ->
+                                option.name()
+                                option.value()
+                            }
                         }
                     }
                 }
