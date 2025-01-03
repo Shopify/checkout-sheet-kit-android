@@ -24,7 +24,16 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.CommonStatusCodes
+import com.google.android.gms.tasks.Task
+import com.google.android.gms.wallet.IsReadyToPayRequest
+import com.google.android.gms.wallet.PaymentData
+import com.google.android.gms.wallet.PaymentDataRequest
+import com.google.android.gms.wallet.PaymentsClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartState
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.GooglePay
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.Product
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductRepository
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductVariant
@@ -34,15 +43,24 @@ import com.shopify.graphql.support.ID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import org.json.JSONException
+import org.json.JSONObject
 import timber.log.Timber
 
 class ProductViewModel(
     private val cartViewModel: CartViewModel,
     private val productRepository: ProductRepository,
+    private val paymentsClient: PaymentsClient,
 ) : ViewModel() {
+
     private val _uiState = MutableStateFlow<ProductUIState>(ProductUIState.Loading)
     val uiState: StateFlow<ProductUIState> = _uiState.asStateFlow()
+
+    private val _paymentUiState: MutableStateFlow<PaymentUiState> = MutableStateFlow(PaymentUiState.NotStarted)
+    val paymentUiState: StateFlow<PaymentUiState> = _paymentUiState.asStateFlow()
 
     fun setAddQuantityAmount(quantity: Int) {
         val currentState = _uiState.value
@@ -52,13 +70,25 @@ class ProductViewModel(
         }
     }
 
-    fun addToCart() {
+    fun addToCart() = viewModelScope.launch {
         val state = _uiState.value
         if (state is ProductUIState.Loaded) {
             val quantity = state.addQuantityAmount
             setIsAddingToCart(true)
-            cartViewModel.addToCart(state.selectedVariant.id, quantity) {
-                setIsAddingToCart(false)
+            cartViewModel.addToCart(state.selectedVariant.id, quantity)
+            setIsAddingToCart(false)
+        }
+    }
+
+    fun initiateGooglePayment() = viewModelScope.launch {
+        val paymentState = _paymentUiState.value
+        if (paymentState is PaymentUiState.Available) {
+            val state = _uiState.value
+            if (state is ProductUIState.Loaded) {
+                val quantity = state.addQuantityAmount
+                setIsAddingToCart(true)
+                val cart = cartViewModel.addToCart(state.selectedVariant.id, quantity, true)
+                _paymentUiState.value = PaymentUiState.InProgress(cart = cart)
             }
         }
     }
@@ -96,6 +126,85 @@ class ProductViewModel(
                 )
             }
         }
+    }
+
+    /**
+     * Determine the user's ability to pay with a payment method supported by your app and display
+     * a Google Pay payment button.
+    ) */
+    suspend fun verifyGooglePayReadiness() = viewModelScope.launch {
+        val newUiState: PaymentUiState = try {
+            if (fetchCanUseGooglePay()) {
+                PaymentUiState.Available
+            } else {
+                PaymentUiState.Error(CommonStatusCodes.ERROR)
+            }
+        } catch (exception: ApiException) {
+            PaymentUiState.Error(exception.statusCode, exception.message)
+        }
+
+        _paymentUiState.update { newUiState }
+    }
+
+    fun googlePayCanceled() {
+        Timber.i("Google pay request canceled by user")
+        _paymentUiState.value = PaymentUiState.Available
+    }
+
+    /**
+     * Determine the user's ability to pay with a payment method supported by your app.
+    ) */
+    private suspend fun fetchCanUseGooglePay(): Boolean {
+        val request = IsReadyToPayRequest.fromJson(GooglePay.isReadyToPayRequest().toString())
+        return paymentsClient.isReadyToPay(request).await()
+    }
+
+    /**
+     * Creates a [Task] that starts the payment process with the transaction details included.
+     *
+     * @return a [Task] with the payment information.
+     * @see [PaymentDataRequest](https://developers.google.com/android/reference/com/google/android/gms/wallet/PaymentsClient#loadPaymentData(com.google.android.gms.wallet.PaymentDataRequest)
+    ) */
+    fun getLoadPaymentDataTask(priceLabel: String, countryCode: String, currencyCode: String): Task<PaymentData> {
+        val paymentDataRequestJson = GooglePay.getPaymentDataRequest(priceLabel, countryCode, currencyCode)
+        val request = PaymentDataRequest.fromJson(paymentDataRequestJson.toString())
+        return paymentsClient.loadPaymentData(request)
+    }
+
+    fun setPaymentData(paymentData: PaymentData) {
+        val payState = extractPaymentBillingName(paymentData)?.let {
+            PaymentUiState.PaymentCompleted(payerName = it)
+        } ?: PaymentUiState.Error(CommonStatusCodes.INTERNAL_ERROR)
+
+        _paymentUiState.update { payState }
+    }
+
+    private fun extractPaymentBillingName(paymentData: PaymentData): String? {
+        val paymentInformation = paymentData.toJson()
+
+        try {
+            // Token will be null if PaymentDataRequest was not constructed using fromJson(String).
+            val paymentMethodData =
+                JSONObject(paymentInformation).getJSONObject("paymentMethodData")
+            val billingName = paymentMethodData.getJSONObject("info")
+                .getJSONObject("billingAddress").getString("name")
+            Timber.i("BillingName $billingName")
+
+            // Logging token string.
+            Timber.i(
+                "Google Pay token ${
+                    paymentMethodData
+                        .getJSONObject("tokenizationData")
+                        .getString("token")
+                }"
+            )
+
+            return billingName
+        } catch (error: JSONException) {
+            Timber.e("handlePaymentSuccess - Error: $error")
+        }
+
+        return null
     }
 
     // Returns variant options for the product, and whether the option is available for sale (when combined with other options on the
@@ -144,4 +253,12 @@ sealed class ProductUIState {
         val isAddingToCart: Boolean,
         val addQuantityAmount: Int
     ) : ProductUIState()
+}
+
+sealed class PaymentUiState {
+    data object NotStarted : PaymentUiState()
+    data object Available : PaymentUiState()
+    data class InProgress(val cart: CartState.Cart) : PaymentUiState()
+    data class PaymentCompleted(val payerName: String) : PaymentUiState()
+    data class Error(val code: Int, val message: String? = null) : PaymentUiState()
 }

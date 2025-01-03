@@ -42,6 +42,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import kotlin.coroutines.suspendCoroutine
 
 typealias OnComplete = (Result<CartState.Cart>) -> Unit
 
@@ -71,11 +72,18 @@ class CartViewModel(
         }
     }
 
-    fun addToCart(variantId: ID, quantity: Int, onComplete: OnComplete) {
+    suspend fun addToCart(variantId: ID, quantity: Int, localState: Boolean = false): CartState.Cart {
         Timber.i("Adding variant: $variantId to cart with quantity: $quantity")
-        when (val state = _cartState.value) {
-            is CartState.Empty -> performCartCreate(variantId, quantity, onComplete)
-            is CartState.Cart -> performCartLinesAdd(state.cartID, variantId, quantity, onComplete)
+        return suspendCoroutine { continuation ->
+            when (val state = _cartState.value) {
+                is CartState.Empty -> performCartCreate(variantId, quantity, localState) { result ->
+                    continuation.resumeWith(result)
+                }
+
+                is CartState.Cart -> performCartLinesAdd(state.cartID, variantId, quantity, localState) { result ->
+                    continuation.resumeWith(result)
+                }
+            }
         }
     }
 
@@ -132,22 +140,23 @@ class CartViewModel(
         navController.navigate(Screen.Products.route)
     }
 
-    private fun performCartLinesAdd(cartId: ID, variantId: ID, quantity: Int, onComplete: OnComplete) = viewModelScope.launch {
-        Timber.i("Adding cart lines to existing cart: $cartId, variant: $variantId, and $quantity")
-        try {
-            val cart = cartRepository.addCartLine(cartId, variantId, quantity)
-            _cartState.value = cart
-            onComplete(Result.success(cart))
-        } catch (e: Exception) {
-            Timber.e("Couldn't add cart line $e")
-            SnackbarController.sendEvent(SnackbarEvent(R.string.cart_error_updating))
-            onComplete(Result.failure(e))
+    private fun performCartLinesAdd(cartId: ID, variantId: ID, quantity: Int, localState: Boolean, onComplete: OnComplete) =
+        viewModelScope.launch {
+            Timber.i("Adding cart lines to existing cart: $cartId, variant: $variantId, and $quantity")
+            try {
+                val cart = cartRepository.addCartLine(cartId, variantId, quantity)
+                if (!localState) _cartState.value = cart
+                onComplete(Result.success(cart))
+            } catch (e: Exception) {
+                Timber.e("Couldn't add cart line $e")
+                SnackbarController.sendEvent(SnackbarEvent(R.string.cart_error_updating))
+                onComplete(Result.failure(e))
+            }
         }
-    }
 
-    private fun performCartCreate(variantId: ID, quantity: Int, onComplete: OnComplete) = viewModelScope.launch {
+    private fun performCartCreate(variantId: ID, quantity: Int, localState: Boolean, onComplete: OnComplete) = viewModelScope.launch {
         Timber.i("No existing cart, creating a new one")
-        val customerAccessToken = customerRepository.getCustomerAccessToken()?.accessToken
+        val customerAccessToken = null//customerRepository.getCustomerAccessToken()?.accessToken
         try {
             val cart = cartRepository.createCart(
                 variantId,
@@ -157,7 +166,7 @@ class CartViewModel(
             )
 
             Timber.i("Cart created $cart")
-            _cartState.value = cart
+            if (!localState) _cartState.value = cart
             onComplete(Result.success(cart))
         } catch (e: Exception) {
             Timber.e("Couldn't create cart $e")

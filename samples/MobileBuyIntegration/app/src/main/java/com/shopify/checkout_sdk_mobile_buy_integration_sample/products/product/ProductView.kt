@@ -22,6 +22,7 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product
 
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -38,9 +39,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.google.android.gms.common.api.CommonStatusCodes
+import com.google.android.gms.wallet.contract.TaskResultContracts
+import com.google.pay.button.PayButton
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.GooglePay
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodyMedium
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyText
@@ -60,9 +66,29 @@ fun ProductView(
     productViewModel: ProductViewModel = koinViewModel(),
 ) {
 
+    val paymentDataLauncher = rememberLauncherForActivityResult(TaskResultContracts.GetPaymentDataResult()) { taskResult ->
+        when (taskResult.status.statusCode) {
+            CommonStatusCodes.SUCCESS -> {
+                taskResult.result?.let { paymentData -> productViewModel.setPaymentData(paymentData) }
+            }
+
+            CommonStatusCodes.CANCELED -> {
+                productViewModel.googlePayCanceled()
+            }
+
+            else -> {
+                val status = taskResult.status
+                Timber.e("Google Pay API error - Error code: ${status.statusCode}, Message: ${status.statusMessage}")
+            }
+        }
+    }
+
     LaunchedEffect(key1 = true) {
         productViewModel.fetchProduct(ID(productId))
+        productViewModel.verifyGooglePayReadiness()
     }
+
+    val payUiState = productViewModel.paymentUiState.collectAsState().value
 
     when (val productUIState = productViewModel.uiState.collectAsState().value) {
         is ProductUIState.Loading -> {
@@ -79,6 +105,20 @@ fun ProductView(
             if (productUIState.isAddingToCart) {
                 Timber.i("Showing progress indicator")
                 ProgressIndicator()
+            }
+
+            if (payUiState is PaymentUiState.InProgress) {
+                val totals = payUiState.cart.cartTotals
+                val task = productViewModel.getLoadPaymentDataTask(
+                    priceLabel = totals.totalAmount.price.toString(),
+                    countryCode = "US", // TODO - figure out where to get country code from
+                    currencyCode = totals.totalAmount.currency,
+                )
+                task.addOnCompleteListener(paymentDataLauncher::launch)
+            }
+
+            if (payUiState is PaymentUiState.PaymentCompleted) {
+                // TODO - handle the completion of payment, redirect to thank you
             }
 
             val product = productUIState.product
@@ -139,6 +179,18 @@ fun ProductView(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             productViewModel.addToCart()
+                        }
+
+                        if (payUiState !is PaymentUiState.NotStarted) {
+                            PayButton(
+                                onClick = { productViewModel.initiateGooglePayment() },
+                                allowedPaymentMethods = GooglePay.allowedPaymentMethods().toString(),
+                                radius = 0.dp,
+                                modifier = Modifier
+                                    .testTag("payButton")
+                                    .fillMaxWidth(),
+
+                                )
                         }
 
                         BodyMedium(

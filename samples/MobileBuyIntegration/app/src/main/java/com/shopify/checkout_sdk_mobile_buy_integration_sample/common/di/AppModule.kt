@@ -32,6 +32,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.BuildConfig
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartRepository
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.source.network.CartStorefrontApiClient
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.GooglePay
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontApiRequestExecutor
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.LogDatabase
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
@@ -78,6 +79,10 @@ fun setupDI(application: Application) {
 val appModules = module {
     // App-wide components
     singleOf(::PreferencesManager)
+
+    single {
+        GooglePay.createPaymentsClient(get())
+    }
 
     // Serialization
     single { Json { ignoreUnknownKeys = true } }
