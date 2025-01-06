@@ -29,6 +29,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodyMedium
@@ -56,12 +57,12 @@ fun OptionSelector(
                         colors = if (isSelected) {
                             ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onBackground)
                         } else {
-                            ButtonDefaults.outlinedButtonColors(containerColor = MaterialTheme.colorScheme.onPrimary)
+                            ButtonDefaults.outlinedButtonColors(containerColor = Color.Unspecified)
                         }
                     ) {
                         BodyMedium(
                             optionDetails.name,
-                            color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onBackground,
+                            color = if (isSelected) MaterialTheme.colorScheme.background else MaterialTheme.colorScheme.onBackground,
                             textDecoration = if (optionDetails.availableForSale) TextDecoration.None else TextDecoration.LineThrough,
                         )
                     }
