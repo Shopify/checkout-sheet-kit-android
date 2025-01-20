@@ -43,15 +43,17 @@ class SettingsViewModel(
     private val _uiState = MutableStateFlow<SettingsUiState>(SettingsUiState.Loading)
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
-    fun observeSettings() = viewModelScope.launch {
-        settingsRepository.observeSettings().collect { settings ->
-            val token = customerRepository.getCustomerAccessToken()
-            _uiState.value = SettingsUiState.Loaded(
-                settings = settings,
-                sdkVersion = ShopifyCheckoutSheetKit.version,
-                sampleAppVersion = BuildConfig.VERSION_NAME,
-                isAuthenticated = token != null
-            )
+    init {
+        viewModelScope.launch {
+            settingsRepository.observeSettings().collect { settings ->
+                val token = customerRepository.getCustomerAccessToken()
+                _uiState.value = SettingsUiState.Loaded(
+                    settings = settings,
+                    sdkVersion = ShopifyCheckoutSheetKit.version,
+                    sampleAppVersion = BuildConfig.VERSION_NAME,
+                    isAuthenticated = token != null
+                )
+            }
         }
     }
 

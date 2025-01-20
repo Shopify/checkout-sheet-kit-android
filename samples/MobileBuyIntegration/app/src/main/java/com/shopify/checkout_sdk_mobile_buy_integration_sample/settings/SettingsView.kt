@@ -36,7 +36,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,10 +58,6 @@ fun SettingsView(
     settingsViewModel: SettingsViewModel,
     navController: NavHostController,
 ) {
-
-    LaunchedEffect(key1 = true) {
-        settingsViewModel.observeSettings()
-    }
 
     when (val uiState = settingsViewModel.uiState.collectAsState().value) {
         is SettingsUiState.Loading -> {
