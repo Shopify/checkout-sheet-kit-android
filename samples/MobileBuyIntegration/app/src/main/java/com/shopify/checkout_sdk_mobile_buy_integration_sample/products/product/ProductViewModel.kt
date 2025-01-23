@@ -92,7 +92,10 @@ class ProductViewModel(
             matchingVariant.let {
                 _uiState.value = state.copy(
                     selectedVariant = it,
-                    availableOptions = buildAvailableOptions(product = state.product, selectedVariant = it)
+                    availableOptions = buildAvailableOptions(
+                        product = state.product,
+                        selectedVariant = it
+                    )
                 )
             }
         }
@@ -100,27 +103,42 @@ class ProductViewModel(
 
     // Returns variant options for the product, and whether the option is available for sale (when combined with other options on the
     // currently selected variant) e.g. { "size": [{"large", true}, {"medium", false}], "color": [{"red", true}, {"blue", false}]}
-    private fun buildAvailableOptions(product: Product, selectedVariant: ProductVariant): Map<String, List<ProductVariantOptionDetails>> {
+    private fun buildAvailableOptions(
+        product: Product,
+        selectedVariant: ProductVariant
+    ): Map<String, List<ProductVariantOptionDetails>> {
         // Only return available options if more than one option exists
         if (product.variants.size == 1) {
             return emptyMap()
         }
 
-        val allOptions = product.variants.flatMap { variant -> variant.selectedOptions }
-        return allOptions.map { option -> option.name }.distinct().associateWith { optionName ->
-            allOptions.filter { option -> option.name == optionName }.map { it.value }.distinct().map { optionValue ->
-                val newOptions = newOptions(selectedVariant, optionName, optionValue)
-                ProductVariantOptionDetails(
-                    name = optionValue,
-                    availableForSale = product.variants.find { it.selectedOptions.containsAll(newOptions) }!!.availableForSale,
-                )
-            }
-        }
+        val options = product.variants
+            .flatMap { it.selectedOptions }
+            .distinctBy { it.value }
+
+        return options.associateBy(
+            { it.name },
+            { selectedOption ->
+                options.filter { it.name == selectedOption.name }.map { option ->
+                    ProductVariantOptionDetails(
+                        name = option.value,
+                        availableForSale = product.variants.find {
+                            it.selectedOptions.containsAll(
+                                newOptions(selectedVariant, selectedOption.name, option.value)
+                            )
+                        }?.availableForSale ?: false,
+                    )
+                }
+            })
     }
 
     // Modifies the options for the selected variant (e.g: [size: large, color: red]) by replacing one with a new option (e.g. color: blue)
-    // to return e.g. [size: large, color: blue]
-    private fun newOptions(selectedVariant: ProductVariant, name: String, value: String): List<ProductVariantSelectedOption> =
+// to return e.g. [size: large, color: blue]
+    private fun newOptions(
+        selectedVariant: ProductVariant,
+        name: String,
+        value: String
+    ): List<ProductVariantSelectedOption> =
         selectedVariant.selectedOptions
             .filter { it.name != name }
             .plus(ProductVariantSelectedOption(name, value))
