@@ -40,7 +40,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyText
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyRangeText
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.defaultProductImageHeight
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.defaultProductImageHeightLg
@@ -79,9 +79,11 @@ fun ProductCollectionProduct(
                 maxLines = 1,
             )
 
-            MoneyText(
-                currency = product.priceRange.maxVariantPrice.currencyCode,
-                price = product.priceRange.maxVariantPrice.amount,
+            MoneyRangeText(
+                fromPrice = product.priceRange.minVariantPrice.amount,
+                fromCurrencyCode = product.priceRange.minVariantPrice.currencyCode,
+                toPrice = product.priceRange.maxVariantPrice.amount,
+                toCurrencyCode = product.priceRange.maxVariantPrice.currencyCode,
                 style = MaterialTheme.typography.bodyMedium,
                 color = textColor,
             )

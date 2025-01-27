@@ -27,6 +27,9 @@ import androidx.lifecycle.viewModelScope
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.Product
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductRepository
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductVariant
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductVariantOptionDetails
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductVariantSelectedOption
 import com.shopify.graphql.support.ID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -51,11 +54,10 @@ class ProductViewModel(
 
     fun addToCart() {
         val state = _uiState.value
-        if (state is ProductUIState.Loaded && state.product.variants != null && state.product.selectedVariant != null) {
-            val selectedVariantId = state.product.variants[state.product.selectedVariant].id
+        if (state is ProductUIState.Loaded) {
             val quantity = state.addQuantityAmount
             setIsAddingToCart(true)
-            cartViewModel.addToCart(selectedVariantId, quantity) {
+            cartViewModel.addToCart(state.selectedVariant.id, quantity) {
                 setIsAddingToCart(false)
             }
         }
@@ -66,8 +68,11 @@ class ProductViewModel(
         try {
             val product = productRepository.getProduct(productId)
             Timber.i("Fetching product complete $product")
+            val selectedVariant = product.variants.first()
             _uiState.value = ProductUIState.Loaded(
                 product = product,
+                selectedVariant = selectedVariant,
+                availableOptions = buildAvailableOptions(product, selectedVariant),
                 isAddingToCart = false,
                 addQuantityAmount = 1
             )
@@ -76,6 +81,67 @@ class ProductViewModel(
             _uiState.value = ProductUIState.Error(e.message ?: "Unknown error")
         }
     }
+
+    // Select a new variant option (e.g. size = large)
+    fun updateSelectedOption(name: String, value: String) {
+        val state = _uiState.value
+        if (state is ProductUIState.Loaded) {
+            val matchingVariant = state.product.variants.first { variant ->
+                variant.selectedOptions.containsAll(newOptions(state.selectedVariant, name, value))
+            }
+            matchingVariant.let {
+                _uiState.value = state.copy(
+                    selectedVariant = it,
+                    availableOptions = buildAvailableOptions(
+                        product = state.product,
+                        selectedVariant = it
+                    )
+                )
+            }
+        }
+    }
+
+    // Returns variant options for the product, and whether the option is available for sale (when combined with other options on the
+    // currently selected variant) e.g. { "size": [{"large", true}, {"medium", false}], "color": [{"red", true}, {"blue", false}]}
+    private fun buildAvailableOptions(
+        product: Product,
+        selectedVariant: ProductVariant
+    ): Map<String, List<ProductVariantOptionDetails>> {
+        // Only return available options if more than one option exists
+        if (product.variants.size == 1) {
+            return emptyMap()
+        }
+
+        val options = product.variants
+            .flatMap { it.selectedOptions }
+            .distinctBy { it.value }
+
+        return options.associateBy(
+            { it.name },
+            { selectedOption ->
+                options.filter { it.name == selectedOption.name }.map { option ->
+                    ProductVariantOptionDetails(
+                        name = option.value,
+                        availableForSale = product.variants.find {
+                            it.selectedOptions.containsAll(
+                                newOptions(selectedVariant, selectedOption.name, option.value)
+                            )
+                        }?.availableForSale ?: false,
+                    )
+                }
+            })
+    }
+
+    // Modifies the options for the selected variant (e.g: [size: large, color: red]) by replacing one with a new option (e.g. color: blue)
+// to return e.g. [size: large, color: blue]
+    private fun newOptions(
+        selectedVariant: ProductVariant,
+        name: String,
+        value: String
+    ): List<ProductVariantSelectedOption> =
+        selectedVariant.selectedOptions
+            .filter { it.name != name }
+            .plus(ProductVariantSelectedOption(name, value))
 
     private fun setIsAddingToCart(value: Boolean) {
         val currentState = _uiState.value
@@ -89,5 +155,11 @@ class ProductViewModel(
 sealed class ProductUIState {
     data object Loading : ProductUIState()
     data class Error(val error: String) : ProductUIState()
-    data class Loaded(val product: Product, val isAddingToCart: Boolean, val addQuantityAmount: Int) : ProductUIState()
+    data class Loaded(
+        val product: Product,
+        val selectedVariant: ProductVariant,
+        val availableOptions: Map<String, List<ProductVariantOptionDetails>>,
+        val isAddingToCart: Boolean,
+        val addQuantityAmount: Int
+    ) : ProductUIState()
 }

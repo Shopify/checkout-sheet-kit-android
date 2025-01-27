@@ -40,6 +40,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.
 
 @Composable
 fun AddToCartButton(
+    enabled: Boolean,
     loading: Boolean,
     modifier: Modifier,
     onClick: () -> Unit

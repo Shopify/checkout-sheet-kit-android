@@ -26,8 +26,6 @@ import com.shopify.buy3.Storefront
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.toLocal
 
 fun Storefront.Product.toLocal(): Product {
-    val variants = this.variants
-    val firstVariant = variants?.nodes?.firstOrNull()
     val uiProduct = Product(
         id = id.toLocal(),
         title = title,
@@ -48,19 +46,23 @@ fun Storefront.Product.toLocal(): Product {
                 amount = priceRange.maxVariantPrice.amount.toDouble()
             )
         ),
-        variants = if (firstVariant != null) {
-            mutableListOf(
-                ProductVariant(
-                    id = firstVariant.id.toLocal(),
-                    price = ProductPriceAmount(
-                        amount = firstVariant.price.amount.toDouble(),
-                        currencyCode = firstVariant.price.currencyCode.name,
+        variants = variants?.nodes?.map { variant ->
+            ProductVariant(
+                id = variant.id.toLocal(),
+                price = ProductPriceAmount(
+                    amount = variant.price.amount.toDouble(),
+                    currencyCode = variant.price.currencyCode.name,
+                ),
+                title = variant.title,
+                availableForSale = variant.availableForSale,
+                selectedOptions = variant.selectedOptions.map { option ->
+                    ProductVariantSelectedOption(
+                        option.name,
+                        option.value
                     )
-                )
+                }
             )
-        } else {
-            mutableListOf()
-        }
+        } ?: mutableListOf()
     )
     return uiProduct
 }

@@ -100,6 +100,12 @@ class ProductsStorefrontApiClient(
                             .amount()
                             .currencyCode()
                     }
+                    productVariantNode.selectedOptions { option ->
+                        option.name()
+                        option.value()
+                    }
+                    productVariantNode.availableForSale()
+                    productVariantNode.title()
                 }
             }
     }

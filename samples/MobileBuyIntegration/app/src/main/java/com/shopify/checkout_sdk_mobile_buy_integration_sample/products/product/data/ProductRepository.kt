@@ -32,7 +32,7 @@ class ProductRepository(
 
     suspend fun getProduct(productId: ID): Product {
         return suspendCoroutine { continuation ->
-            client.fetchProduct(productId = productId, numVariants = 1, { result ->
+            client.fetchProduct(productId = productId, numVariants = 20, { result ->
                 val product = result.data?.product
                 if (product == null) {
                     continuation.resumeWith(Result.failure(RuntimeException("Failed to fetch product")))
@@ -52,14 +52,14 @@ class ProductRepository(
                 if (products == null) {
                     continuation.resumeWith(Result.failure(RuntimeException("Failed to fetch products")))
                 } else {
-                    val products = Products(
+                    val result = Products(
                         products = products.edges.map { it.node.toLocal() },
                         pageInfo = PageInfo(
                             startCursor = products.pageInfo.startCursor,
                             endCursor = products.pageInfo.endCursor,
                         )
                     )
-                    continuation.resumeWith(Result.success(products))
+                    continuation.resumeWith(Result.success(result))
                 }
             }, { exception ->
                 continuation.resumeWith(Result.failure(exception))
