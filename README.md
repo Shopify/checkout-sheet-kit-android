@@ -73,11 +73,11 @@ Once the SDK has been added as a dependency, you can import the library:
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 ```
 
-To present a checkout to the buyer, your application must first obtain a checkoutUrl.
+To present a checkout to the buyer, your application must first obtain a checkout URL.
 The most common way is to use the [Storefront GraphQL API](https://shopify.dev/docs/api/storefront)
-to assemble a cart (via `cartCreate` and related update mutations) and query the
-[checkoutUrl](https://shopify.dev/docs/api/storefront/2023-10/objects/Cart#field-cart-checkouturl). Alternatively, a [cart permalink] can be provided. 
-You can use any GraphQL client to obtain a checkoutUrl and we recommend
+to assemble a cart (via `cartCreate` and related update mutations) and load the
+[`checkoutUrl`](https://shopify.dev/docs/api/storefront/2023-10/objects/Cart#field-cart-checkouturl). Alternatively, a [cart permalink](https://help.shopify.com/en/manual/products/details/cart-permalink) can be provided. 
+You can use any GraphQL client to obtain a checkout URL and we recommend
 Shopify's [Mobile Buy SDK for Android](https://github.com/Shopify/mobile-buy-sdk-android) to
 simplify the development workflow:
 
@@ -451,7 +451,7 @@ classDiagram
 App developers can use [lifecycle events](#monitoring-the-lifecycle-of-a-checkout-session) to
 monitor and log the status of a checkout session.
 
-For behavioral monitoring, [standard](https://shopify.dev/docs/api/web-pixels-api/standard-events) and [custom](https://shopify.dev/docs/api/web-pixels-api/emitting-data) Web Pixel events will be relayed back to your application through the `onWebPixelEvent` checkout event processor function. App developers should only subscribe to pixel events if they have proper levels of consent and are responsible for adherence to local regulations like GDPR and ePrivacy directive before disseminating these events to first-party and third-party systems.
+For behavioral monitoring, [standard](https://shopify.dev/docs/api/web-pixels-api/standard-events) and [custom](https://shopify.dev/docs/api/web-pixels-api/emitting-data) Web Pixel events will be relayed back to your application through the `onWebPixelEvent` checkout event processor function. App developers should only subscribe to pixel events if they have proper levels of consent from merchants/buyers and are responsible for adherence to local regulations like GDPR and ePrivacy directive before disseminating these events to first-party and third-party systems.
 
 Here's how you might intercept these events:
 
