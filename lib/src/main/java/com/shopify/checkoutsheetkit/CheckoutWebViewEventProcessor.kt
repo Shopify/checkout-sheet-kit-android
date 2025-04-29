@@ -32,6 +32,7 @@ import android.webkit.PermissionRequest
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient.FileChooserParams
 import android.webkit.WebView
+import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 
@@ -47,7 +48,10 @@ internal class CheckoutWebViewEventProcessor(
     private val updateProgressBarPercentage: (Int) -> Unit = {},
 ) {
     fun onCheckoutViewComplete(checkoutCompletedEvent: CheckoutCompletedEvent) {
+        log.d(LOG_TAG, "Clearing WebView cache after checkout completion.")
         CheckoutWebView.markCacheEntryStale()
+
+        log.d(LOG_TAG, "Calling onCheckoutCompleted $checkoutCompletedEvent.")
         eventProcessor.onCheckoutCompleted(checkoutCompletedEvent)
     }
 
@@ -58,6 +62,7 @@ internal class CheckoutWebViewEventProcessor(
     }
 
     fun onCheckoutViewLinkClicked(uri: Uri) {
+        log.d(LOG_TAG, "Calling onCheckoutLinkClicked.")
         eventProcessor.onCheckoutLinkClicked(uri)
     }
 
@@ -108,6 +113,7 @@ internal class CheckoutWebViewEventProcessor(
     }
 
     fun onWebPixelEvent(event: PixelEvent) {
+        log.d(LOG_TAG, "Calling onWebPixelEvent for $event.")
         eventProcessor.onWebPixelEvent(event)
     }
 
@@ -115,5 +121,9 @@ internal class CheckoutWebViewEventProcessor(
         Handler(Looper.getMainLooper()).post {
             block()
         }
+    }
+
+    companion object {
+        private const val LOG_TAG = "CheckoutWebViewEventProcessor"
     }
 }

@@ -26,6 +26,7 @@ import android.content.Context
 import android.net.Uri
 import android.util.AttributeSet
 import android.webkit.WebView
+import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
 import com.shopify.checkoutsheetkit.lifecycleevents.emptyCompletedEvent
 
 internal class FallbackWebView(context: Context, attributeSet: AttributeSet? = null) :
@@ -36,6 +37,7 @@ internal class FallbackWebView(context: Context, attributeSet: AttributeSet? = n
     override val cspSchema = "noconnect"
 
     init {
+        log.d(LOG_TAG, "Initializing fallback web view.")
         webViewClient = FallbackWebViewClient()
         settings.userAgentString = "${settings.userAgentString} ${userAgentSuffix()}"
     }
@@ -43,6 +45,7 @@ internal class FallbackWebView(context: Context, attributeSet: AttributeSet? = n
     private var checkoutEventProcessor = CheckoutWebViewEventProcessor(NoopEventProcessor())
 
     fun setEventProcessor(processor: CheckoutWebViewEventProcessor) {
+        log.d(LOG_TAG, "Setting event processor $processor.")
         this.checkoutEventProcessor = processor
     }
 
@@ -56,16 +59,19 @@ internal class FallbackWebView(context: Context, attributeSet: AttributeSet? = n
 
         init {
             if (BuildConfig.DEBUG) {
+                log.d(LOG_TAG, "Setting web contents debugging enabled.")
                 setWebContentsDebuggingEnabled(true)
             }
         }
 
         override fun onPageFinished(view: WebView, url: String) {
             super.onPageFinished(view, url)
+            log.d(LOG_TAG, "onPageFinished called.")
             getEventProcessor().onCheckoutViewLoadComplete()
 
             val uri = Uri.parse(url)
             if (isConfirmation(uri)) {
+                log.d(LOG_TAG, "Finished page has confirmationUrl. Emitting minimal checkout completed event.")
                 getEventProcessor().onCheckoutViewComplete(
                     emptyCompletedEvent(id = getOrderIdFromQueryString(uri))
                 )
@@ -74,5 +80,9 @@ internal class FallbackWebView(context: Context, attributeSet: AttributeSet? = n
 
         private fun getOrderIdFromQueryString(uri: Uri): String? = uri.getQueryParameter("order_id")
         private fun isConfirmation(uri: Uri) = uri.pathSegments.any { pathSegment -> typRegex.matches(pathSegment) }
+    }
+
+    companion object {
+        private const val LOG_TAG = "FallbackWebView"
     }
 }

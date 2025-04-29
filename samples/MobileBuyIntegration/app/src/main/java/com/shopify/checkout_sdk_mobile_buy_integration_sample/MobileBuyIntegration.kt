@@ -58,6 +58,7 @@ class MobileBuyIntegration : Application() {
             ShopifyCheckoutSheetKit.configure {
                 it.colorScheme = settings.colorScheme
                 it.preloading = settings.preloading
+                it.debugEnabled = true
                 it.errorRecovery = object : ErrorRecovery {
                     val logger: Logger by inject()
 

@@ -25,9 +25,15 @@ package com.shopify.checkoutsheetkit
 import android.util.Log
 
 /**
- * Wrap Log class static methods to allow testing
+ * Wrap Log class static methods to allow testing and/or disabling debug logs
  */
 public class LogWrapper {
+    public fun d(tag: String, msg: String) {
+        if (ShopifyCheckoutSheetKit.configuration.debugEnabled) {
+            Log.d(tag, msg)
+        }
+    }
+
     public fun w(tag: String, msg: String) {
         Log.w(tag, msg)
     }

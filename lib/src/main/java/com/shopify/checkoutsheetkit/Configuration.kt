@@ -34,6 +34,7 @@ public data class Configuration internal constructor(
     var preloading: Preloading = Preloading(),
     var errorRecovery: ErrorRecovery = object : ErrorRecovery {},
     var platform: Platform? = null,
+    var debugEnabled: Boolean = false
 )
 
 /**
@@ -49,6 +50,7 @@ public interface ErrorRecovery {
     public fun preRecoveryActions(exception: CheckoutException, checkoutUrl: String) {
         // logging or pre-recovery cleanup can be added here
     }
+
     public fun shouldRecoverFromError(checkoutException: CheckoutException): Boolean {
         return checkoutException.isRecoverable
     }

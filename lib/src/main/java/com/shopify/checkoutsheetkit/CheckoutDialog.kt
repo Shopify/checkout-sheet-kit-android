@@ -45,6 +45,7 @@ import androidx.activity.ComponentActivity
 import androidx.annotation.ColorInt
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.children
+import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
 
 internal class CheckoutDialog(
     private val checkoutUrl: String,
@@ -53,6 +54,7 @@ internal class CheckoutDialog(
 ) : Dialog(context) {
 
     fun start(context: ComponentActivity) {
+        log.d(LOG_TAG, "Dialog start called.")
         setContentView(R.layout.dialog_checkout)
         window?.setLayout(MATCH_PARENT, WRAP_CONTENT)
         window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
@@ -63,55 +65,67 @@ internal class CheckoutDialog(
         // properly into the fields. To be investigated further.
         window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
+        log.d(LOG_TAG, "Finding or creating new WebView.")
         val checkoutWebView = CheckoutWebView.cacheableCheckoutView(
             checkoutUrl,
             context,
         )
 
         checkoutWebView.onResume()
+        log.d(LOG_TAG, "Setting event processor on WebView.")
         checkoutWebView.setEventProcessor(eventProcessor())
 
         val colorScheme = ShopifyCheckoutSheetKit.configuration.colorScheme
+        log.d(LOG_TAG, "Configured colorScheme $colorScheme")
         val header = findViewById<Toolbar>(R.id.checkoutSdkHeader)
 
         header.apply {
+            log.d(LOG_TAG, "Applying configured header colors and inflating menu.")
             setBackgroundColor(colorScheme.headerBackgroundColor())
             setTitleTextColor(colorScheme.headerFontColor())
             inflateMenu(R.menu.checkout_menu)
         }
 
         findViewById<ProgressBar>(R.id.progressBar).apply {
+            log.d(LOG_TAG, "Setting progress tint.")
             progressTintList = ColorStateList.valueOf(colorScheme.progressIndicatorColor())
             if (checkoutWebView.hasFinishedLoading()) {
+                log.d(LOG_TAG, "Page has finished loading, hiding progress bar.")
                 this.visibility = INVISIBLE
             }
         }
 
         addWebViewToContainer(colorScheme, checkoutWebView)
         setOnCancelListener {
+            log.d(LOG_TAG, "Cancel listener invoked, invoking onCheckoutCanceled.")
             CheckoutWebViewContainer.retainCacheEntry = RetainCacheEntry.IF_NOT_STALE
             checkoutEventProcessor.onCheckoutCanceled()
         }
 
         setOnDismissListener {
+            log.d(LOG_TAG, "Dismiss listener invoked.")
             removeWebViewFromContainer()
         }
 
         header.setOnMenuItemClickListener {
+            log.d(LOG_TAG, "Menu click cancel invoked.")
             cancel()
             true
         }
 
         setOnShowListener {
+            log.d(LOG_TAG, "On show listener invoked, calling WebView notifyPresented.")
             checkoutWebView.notifyPresented()
         }
 
+        log.d(LOG_TAG, "Showing dialog.")
         show()
     }
 
     private fun removeWebViewFromContainer() {
         findViewById<RelativeLayout>(R.id.checkoutSdkContainer).apply {
             this.children.firstOrNull { it is WebView }?.let { webView ->
+                log.d(LOG_TAG, "Removing WebView from container.")
                 this.removeView(webView)
             }
         }
@@ -122,22 +136,26 @@ internal class CheckoutDialog(
         checkoutWebView: BaseWebView,
     ) {
         findViewById<RelativeLayout>(R.id.checkoutSdkContainer).apply {
+            log.d(LOG_TAG, "Found parent view, setting its colors and layout params.")
             setBackgroundColor(colorScheme.webViewBackgroundColor())
             val layoutParams = RelativeLayout.LayoutParams(WRAP_CONTENT, MATCH_PARENT)
             layoutParams.addRule(RelativeLayout.BELOW, R.id.progressBar)
             checkoutWebView.removeFromParent()
+            log.d(LOG_TAG, "Adding WebView to parent view.")
             addView(checkoutWebView, layoutParams)
         }
     }
 
     private fun toggleHeader(modalVisible: Boolean) {
         Handler(Looper.getMainLooper()).post {
+            log.d(LOG_TAG, "Toggling header based on modal visibility state. Modal visible: $modalVisible.")
             findViewById<Toolbar>(R.id.checkoutSdkHeader).visibility = if (modalVisible) GONE else VISIBLE
             findViewById<ProgressBar>(R.id.progressBar).visibility = if (modalVisible) GONE else INVISIBLE
         }
     }
 
     private fun updateProgressBarPercentage(percentage: Int) {
+        log.d(LOG_TAG, "Updating progress bar percentage, $percentage.")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             findViewById<ProgressBar>(R.id.progressBar).setProgress(percentage, true)
         } else {
@@ -146,16 +164,24 @@ internal class CheckoutDialog(
     }
 
     private fun setProgressBarVisibility(visibility: Int) {
+        log.d(LOG_TAG, "Setting progress bar visibility $visibility.")
         findViewById<ProgressBar>(R.id.progressBar).visibility = visibility
     }
 
     internal fun closeCheckoutDialogWithError(exception: CheckoutException) {
+        log.d(LOG_TAG, "Closing dialog with error, marking cache entry stale, calling onCheckoutFailed.")
         CheckoutWebView.markCacheEntryStale()
         checkoutEventProcessor.onCheckoutFailed(exception)
-        if (!this.checkoutUrl.isOneTimeUse() &&
-            ShopifyCheckoutSheetKit.configuration.errorRecovery.shouldRecoverFromError(exception)) {
+
+        val isOneTimeUseUrl = this.checkoutUrl.isOneTimeUse()
+        val shouldRecover = ShopifyCheckoutSheetKit.configuration.errorRecovery.shouldRecoverFromError(exception)
+
+        log.d(LOG_TAG, "One time use checkout URL?: $isOneTimeUseUrl, should recover?: $shouldRecover.")
+        if (!isOneTimeUseUrl && shouldRecover) {
+            log.d(LOG_TAG, "Attempting to recover from error.")
             attemptToRecoverFromError(exception)
         } else {
+            log.d(LOG_TAG, "Not attempting to recover, dismissing sheet.")
             dismiss()
         }
     }
@@ -163,8 +189,10 @@ internal class CheckoutDialog(
     internal fun attemptToRecoverFromError(exception: CheckoutException): Boolean {
         removeWebViewFromContainer()
 
+        log.d(LOG_TAG, "Invoking pre-recovery actions.")
         ShopifyCheckoutSheetKit.configuration.errorRecovery.preRecoveryActions(exception, checkoutUrl)
 
+        log.d(LOG_TAG, "Adding fallback WebView to container.")
         addWebViewToContainer(
             ShopifyCheckoutSheetKit.configuration.colorScheme,
             FallbackWebView(context).apply {
@@ -203,4 +231,8 @@ internal class CheckoutDialog(
 
     private fun Context.isDarkTheme() =
         resources.configuration.uiMode and UI_MODE_NIGHT_MASK == UI_MODE_NIGHT_YES
+
+    companion object {
+        private const val LOG_TAG = "CheckoutDialog"
+    }
 }
