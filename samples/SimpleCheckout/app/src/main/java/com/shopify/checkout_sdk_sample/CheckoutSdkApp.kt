@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import com.shopify.checkout_sdk_sample.product.ProductView
 import com.shopify.checkoutsheetkit.ColorScheme
+import com.shopify.checkoutsheetkit.Debug
 import com.shopify.checkoutsheetkit.Preloading
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 
@@ -45,6 +46,7 @@ fun CheckoutSdkApp() {
     ShopifyCheckoutSheetKit.configure {
         it.colorScheme = ColorScheme.Light()
         it.preloading = Preloading(enabled = false)
+        it.debug = Debug(logsEnabled = true)
     }
 
     val view = LocalView.current

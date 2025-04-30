@@ -28,6 +28,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.di.setupDI
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
 import com.shopify.checkoutsheetkit.CheckoutException
+import com.shopify.checkoutsheetkit.Debug
 import com.shopify.checkoutsheetkit.ErrorRecovery
 import com.shopify.checkoutsheetkit.HttpException
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
@@ -56,9 +57,9 @@ class MobileBuyIntegration : Application() {
         applicationScope.launch {
             val settings = preferencesManager.userPreferencesFlow.first()
             ShopifyCheckoutSheetKit.configure {
+                it.debug = Debug(logsEnabled = true)
                 it.colorScheme = settings.colorScheme
                 it.preloading = settings.preloading
-                it.debugEnabled = true
                 it.errorRecovery = object : ErrorRecovery {
                     val logger: Logger by inject()
 

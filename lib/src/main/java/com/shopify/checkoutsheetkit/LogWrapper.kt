@@ -29,7 +29,7 @@ import android.util.Log
  */
 public class LogWrapper {
     public fun d(tag: String, msg: String) {
-        if (ShopifyCheckoutSheetKit.configuration.debugEnabled) {
+        if (ShopifyCheckoutSheetKit.configuration.debug.logsEnabled) {
             Log.d(tag, msg)
         }
     }

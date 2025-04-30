@@ -34,7 +34,7 @@ public data class Configuration internal constructor(
     var preloading: Preloading = Preloading(),
     var errorRecovery: ErrorRecovery = object : ErrorRecovery {},
     var platform: Platform? = null,
-    var debugEnabled: Boolean = false
+    var debug: Debug = Debug()
 )
 
 /**
@@ -44,6 +44,13 @@ public data class Configuration internal constructor(
  */
 public data class Preloading(
     val enabled: Boolean = true
+)
+
+/**
+ * Configuration related to debugging
+ */
+public data class Debug(
+    val logsEnabled: Boolean = false,
 )
 
 public interface ErrorRecovery {
