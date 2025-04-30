@@ -29,13 +29,15 @@ import android.util.Log
  */
 public class LogWrapper {
     public fun d(tag: String, msg: String) {
-        if (ShopifyCheckoutSheetKit.configuration.debug.logsEnabled) {
+        if (ShopifyCheckoutSheetKit.configuration.logLevel == LogLevel.DEBUG) {
             Log.d(tag, msg)
         }
     }
 
     public fun w(tag: String, msg: String) {
-        Log.w(tag, msg)
+        if (listOf(LogLevel.DEBUG, LogLevel.WARN).contains(ShopifyCheckoutSheetKit.configuration.logLevel)) {
+            Log.w(tag, msg)
+        }
     }
 
     public fun e(tag: String, msg: String) {

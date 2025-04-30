@@ -34,7 +34,7 @@ public data class Configuration internal constructor(
     var preloading: Preloading = Preloading(),
     var errorRecovery: ErrorRecovery = object : ErrorRecovery {},
     var platform: Platform? = null,
-    var debug: Debug = Debug()
+    var logLevel: LogLevel = LogLevel.WARN,
 )
 
 /**
@@ -46,12 +46,9 @@ public data class Preloading(
     val enabled: Boolean = true
 )
 
-/**
- * Configuration related to debugging
- */
-public data class Debug(
-    val logsEnabled: Boolean = false,
-)
+public enum class LogLevel {
+    DEBUG, WARN, ERROR
+}
 
 public interface ErrorRecovery {
     public fun preRecoveryActions(exception: CheckoutException, checkoutUrl: String) {
