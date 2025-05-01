@@ -28,6 +28,7 @@ import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.COMPLETE
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.ERROR
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.MODAL
 import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.WEB_PIXELS
+import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
 import com.shopify.checkoutsheetkit.errorevents.CheckoutErrorDecoder
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEventDecoder
 import com.shopify.checkoutsheetkit.pixelevents.PixelEventDecoder
@@ -38,9 +39,9 @@ import kotlinx.serialization.json.Json
 internal class CheckoutBridge(
     private var eventProcessor: CheckoutWebViewEventProcessor,
     private val decoder: Json = Json { ignoreUnknownKeys = true },
-    private val pixelEventDecoder: PixelEventDecoder = PixelEventDecoder(decoder),
-    private val checkoutCompletedEventDecoder: CheckoutCompletedEventDecoder = CheckoutCompletedEventDecoder(decoder),
-    private val checkoutErrorDecoder: CheckoutErrorDecoder = CheckoutErrorDecoder(decoder),
+    private val pixelEventDecoder: PixelEventDecoder = PixelEventDecoder(decoder, log),
+    private val checkoutCompletedEventDecoder: CheckoutCompletedEventDecoder = CheckoutCompletedEventDecoder(decoder, log),
+    private val checkoutErrorDecoder: CheckoutErrorDecoder = CheckoutErrorDecoder(decoder, log),
 ) {
 
     fun setEventProcessor(eventProcessor: CheckoutWebViewEventProcessor) {
@@ -64,7 +65,7 @@ internal class CheckoutBridge(
 
     sealed class SDKOperation(val key: String) {
         data object Presented : SDKOperation("presented")
-        class Instrumentation(val payload: InstrumentationPayload): SDKOperation("instrumentation")
+        class Instrumentation(val payload: InstrumentationPayload) : SDKOperation("instrumentation")
     }
 
     // Allows Web to postMessages back to the SDK
@@ -72,30 +73,39 @@ internal class CheckoutBridge(
     @JavascriptInterface
     fun postMessage(message: String) {
         try {
+            log.d(LOG_TAG, "Received message from checkout.")
             val decodedMsg = decoder.decodeFromString<WebToSdkEvent>(message)
 
             when (CheckoutWebOperation.fromKey(decodedMsg.name)) {
                 COMPLETED -> {
+                    log.d(LOG_TAG, "Received Completed message.  Attempting to decode.")
                     checkoutCompletedEventDecoder.decode(decodedMsg).let { event ->
+                        log.d(LOG_TAG, "Decoded message $event.")
                         eventProcessor.onCheckoutViewComplete(event)
                     }
                 }
 
                 MODAL -> {
+                    log.d(LOG_TAG, "Received Modal message.")
                     val modalVisible = decodedMsg.body.toBooleanStrictOrNull()
                     modalVisible?.let {
+                        log.d(LOG_TAG, "Modal visible $it")
                         eventProcessor.onCheckoutViewModalToggled(modalVisible)
                     }
                 }
 
                 WEB_PIXELS -> {
+                    log.d(LOG_TAG, "Received WebPixel message. Attempting to decode.")
                     pixelEventDecoder.decode(decodedMsg)?.let { event ->
+                        log.d(LOG_TAG, "Decoded message $event.")
                         eventProcessor.onWebPixelEvent(event)
                     }
                 }
 
                 ERROR -> {
+                    log.d(LOG_TAG, "Received Error message. Attempting to decode.")
                     checkoutErrorDecoder.decode(decodedMsg)?.let { exception ->
+                        log.d(LOG_TAG, "Decoded message $exception.")
                         eventProcessor.onCheckoutViewFailedWithError(exception)
                     }
                 }
@@ -103,6 +113,7 @@ internal class CheckoutBridge(
                 else -> {}
             }
         } catch (e: Exception) {
+            log.d(LOG_TAG, "Failed to decode message with error: $e. Calling onCheckoutFailedWithError")
             eventProcessor.onCheckoutViewFailedWithError(
                 CheckoutSheetKitException(
                     errorDescription = "Error decoding message from checkout.",
@@ -117,8 +128,13 @@ internal class CheckoutBridge(
     @Suppress("SwallowedException")
     fun sendMessage(view: WebView, operation: SDKOperation) {
         val script = when (operation) {
-            is SDKOperation.Presented -> dispatchMessageTemplate("'${operation.key}'")
+            is SDKOperation.Presented -> {
+                log.d(LOG_TAG, "Sending presented message to checkout, informing it that the sheet is now visible.")
+                dispatchMessageTemplate("'${operation.key}'")
+            }
+
             is SDKOperation.Instrumentation -> {
+                log.d(LOG_TAG, "Sending instrumentation message to checkout.")
                 val body = Json.encodeToString(SdkToWebEvent(operation.payload))
                 dispatchMessageTemplate("'${operation.key}', $body")
             }
@@ -126,6 +142,7 @@ internal class CheckoutBridge(
         try {
             view.evaluateJavascript(script, null)
         } catch (e: Exception) {
+            log.d(LOG_TAG, "Failed to send message to checkout, invoking onCheckoutViewFailedWithError")
             eventProcessor.onCheckoutViewFailedWithError(
                 CheckoutSheetKitException(
                     errorDescription = "Failed to send '${operation.key}' message to checkout, some features may not work.",
@@ -137,6 +154,7 @@ internal class CheckoutBridge(
     }
 
     companion object {
+        private const val LOG_TAG = "CheckoutBridge"
         const val SCHEMA_VERSION_NUMBER: String = "8.1"
 
         private fun dispatchMessageTemplate(body: String) = """|

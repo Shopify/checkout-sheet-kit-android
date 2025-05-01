@@ -32,6 +32,7 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import androidx.activity.ComponentActivity
 import com.shopify.checkoutsheetkit.InstrumentationType.histogram
+import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
 import java.util.concurrent.CountDownLatch
 import kotlin.math.abs
 import kotlin.time.Duration.Companion.minutes
@@ -47,11 +48,13 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
     private val checkoutBridge = CheckoutBridge(CheckoutWebViewEventProcessor(NoopEventProcessor()))
     private var loadComplete = false
         set(value) {
+            log.d(LOG_TAG, "Setting loadComplete to $value.")
             field = value
             dispatchWhenPresentedAndLoaded(value, presented)
         }
     private var presented = false
         set(value) {
+            log.d(LOG_TAG, "Setting presented to $value.")
             field = value
             dispatchWhenPresentedAndLoaded(loadComplete, value)
         }
@@ -73,10 +76,12 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
     fun hasFinishedLoading() = loadComplete
 
     fun setEventProcessor(eventProcessor: CheckoutWebViewEventProcessor) {
+        log.d(LOG_TAG, "Setting event processor $eventProcessor.")
         checkoutBridge.setEventProcessor(eventProcessor)
     }
 
     fun notifyPresented() {
+        log.d(LOG_TAG, "Notify presented called.")
         presented = true
     }
 
@@ -86,15 +91,18 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+        log.d(LOG_TAG, "Attached to window. Adding JavaScript interface with name $JAVASCRIPT_INTERFACE_NAME.")
         addJavascriptInterface(checkoutBridge, JAVASCRIPT_INTERFACE_NAME)
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
+        log.d(LOG_TAG, "Detached from window. Removing JavaScript interface with name $JAVASCRIPT_INTERFACE_NAME.")
         removeJavascriptInterface(JAVASCRIPT_INTERFACE_NAME)
     }
 
     fun loadCheckout(url: String, isPreload: Boolean) {
+        log.d(LOG_TAG, "Loading checkout with url $url. IsPreload: $isPreload.")
         initLoadTime = System.currentTimeMillis()
         this.isPreload = isPreload
         Handler(Looper.getMainLooper()).post {
@@ -107,21 +115,25 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
 
         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)
+            log.d(LOG_TAG, "onPageStarted called $url.")
             checkoutBridge.getEventProcessor().onCheckoutViewLoadStarted()
         }
 
         override fun onPageFinished(view: WebView, url: String) {
             super.onPageFinished(view, url)
+            log.d(LOG_TAG, "onPageFinished called $url, emitting instrumentation message.")
             loadComplete = true
             val timeToLoad = System.currentTimeMillis() - initLoadTime
-            checkoutBridge.sendMessage(view, CheckoutBridge.SDKOperation.Instrumentation(
-                InstrumentationPayload(
-                    name= "checkout_finished_loading",
-                    value= timeToLoad,
-                    type = histogram,
-                    tags = mapOf("preloading" to isPreload.toString()),
+            checkoutBridge.sendMessage(
+                view, CheckoutBridge.SDKOperation.Instrumentation(
+                    InstrumentationPayload(
+                        name = "checkout_finished_loading",
+                        value = timeToLoad,
+                        type = histogram,
+                        tags = mapOf("preloading" to isPreload.toString()),
+                    )
                 )
-            ))
+            )
             getEventProcessor().onCheckoutViewLoadComplete()
         }
 
@@ -134,6 +146,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
                 request?.url?.isContactLink() == true ||
                 request?.url?.isDeepLink() == true
             ) {
+                log.d(LOG_TAG, "Overriding URL loading to invoke onCheckoutLinkClicked for request: $request.")
                 checkoutBridge.getEventProcessor().onCheckoutViewLinkClicked(request.trimmedUri())
                 return true
             }
@@ -145,7 +158,9 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
                 return false
             }
             val openExternallyParam = this.url.getQueryParameter(OPEN_EXTERNALLY_PARAM)
-            return setOf("true", "1").contains(openExternallyParam?.lowercase()?.trim())
+            val hasOpenExternallyParam = setOf("true", "1").contains(openExternallyParam?.lowercase()?.trim())
+            log.d(LOG_TAG, "open_externally param found on request URL.")
+            return hasOpenExternallyParam
         }
 
         private fun WebResourceRequest.trimmedUri(): Uri {
@@ -169,6 +184,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
     }
 
     companion object {
+        private const val LOG_TAG = "CheckoutWebView"
         private const val OPEN_EXTERNALLY_PARAM = "open_externally"
         private const val JAVASCRIPT_INTERFACE_NAME = "android"
 
@@ -210,7 +226,9 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             isPreload: Boolean,
         ): CheckoutWebView {
             val preloadingEnabled = ShopifyCheckoutSheetKit.configuration.preloading.enabled
+            log.d(LOG_TAG, "Fetch view called for url $url. Is preload: $isPreload. Preloading enabled: $preloadingEnabled.")
             if (!preloadingEnabled || cacheEntry?.isValid(url) != true) {
+                log.d(LOG_TAG, "Constructing new CheckoutWebView and calling loadCheckout.")
                 val view = CheckoutWebView(activity as Context).apply {
                     loadCheckout(url, isPreload)
                     if (isPreload) {
@@ -232,13 +250,20 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
                 return view
             }
 
+            log.d(LOG_TAG, "Returning previously cached view.")
             return cacheEntry!!.view
         }
 
         private fun setCacheEntry(cacheEntry: CheckoutWebViewCacheEntry) {
             if (this.cacheEntry == null) {
+                log.d(
+                    LOG_TAG,
+                    "Caching CheckoutWebView with TTL: ${cacheEntry.timeout} (note: a TTL of 0 is equivalent to not caching)."
+                )
+
                 this.cacheEntry = cacheEntry
             } else {
+                log.d(LOG_TAG, "Clearing WebView cache and destroying cached view.")
                 clearCache(cacheEntry)
             }
         }
@@ -257,7 +282,11 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         }
 
         internal val isStale: Boolean
-            get() = abs(timestamp - clock.currentTimeMillis()) >= timeout
+            get() {
+                val staleResult = abs(timestamp - clock.currentTimeMillis()) >= timeout
+                log.d(LOG_TAG, "Checking cache entry staleness. Is stale: $staleResult.")
+                return staleResult
+            }
     }
 
     internal class CheckoutWebViewCacheClock {

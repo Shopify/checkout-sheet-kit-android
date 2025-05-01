@@ -15,7 +15,8 @@
 - [Basic Usage](#basic-usage)
 - [Configuration](#configuration)
   - [Color Scheme](#color-scheme)
-    - [Checkout Dialog Title](#checkout-dialog-title)
+  - [Log Level](#log-level)
+  - [Checkout Dialog Title](#checkout-dialog-title)
 - [Preloading](#preloading)
   - [Important considerations](#important-considerations)
   - [Flash Sales](#flash-sales)
@@ -76,7 +77,7 @@ import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 To present a checkout to the buyer, your application must first obtain a checkout URL.
 The most common way is to use the [Storefront GraphQL API](https://shopify.dev/docs/api/storefront)
 to assemble a cart (via `cartCreate` and related update mutations) and load the
-[`checkoutUrl`](https://shopify.dev/docs/api/storefront/2023-10/objects/Cart#field-cart-checkouturl). Alternatively, a [cart permalink](https://help.shopify.com/en/manual/products/details/cart-permalink) can be provided. 
+[`checkoutUrl`](https://shopify.dev/docs/api/storefront/latest/objects/Cart#field-cart-checkouturl). Alternatively, a [cart permalink](https://help.shopify.com/en/manual/products/details/cart-permalink) can be provided.
 You can use any GraphQL client to obtain a checkout URL and we recommend
 Shopify's [Mobile Buy SDK for Android](https://github.com/Shopify/mobile-buy-sdk-android) to
 simplify the development workflow:
@@ -183,7 +184,17 @@ The colors that can be modified are:
 
 The current configuration can be obtained by calling `ShopifyCheckoutSheetKit.getConfiguration()`.
 
-#### Checkout Dialog Title
+### Log Level
+
+Enable additional debug logs via the `logLevel` configuration option.
+
+```kotlin
+ShopifyCheckoutSheetKit.configure {
+    it.logLevel = LogLevel.DEBUG
+}
+```
+
+### Checkout Dialog Title
 
 To customize the title of the Dialog that the checkout WebView is displayed within, or to provide different values for the various locales your app supports, override the `checkout_web_view_title` String resource in your application, e.g:
 
@@ -545,7 +556,7 @@ checkout sessions.
 
 ### Customer Account API
 
-The Customer Account API allows you to authenticate buyers and provide a personalized checkout experience. 
+The Customer Account API allows you to authenticate buyers and provide a personalized checkout experience.
 For detailed implementation instructions, see our [Customer Account API Authentication Guide](https://shopify.dev/docs/storefronts/headless/mobile-apps/checkout-sheet-kit/authenticate-checkouts).
 
 ---

@@ -45,6 +45,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
+import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
 import java.net.HttpURLConnection.HTTP_GONE
 import java.net.HttpURLConnection.HTTP_NOT_FOUND
 
@@ -74,21 +75,25 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
             WebSettingsCompat.setPaymentRequestEnabled(settings, true)
         }
 
-        webChromeClient = object: WebChromeClient() {
+        webChromeClient = object : WebChromeClient() {
             override fun onProgressChanged(view: WebView?, newProgress: Int) {
                 super.onProgressChanged(view, newProgress)
+                log.d(LOG_TAG, "On progress change called. New progress $newProgress.")
                 getEventProcessor().updateProgressBar(newProgress)
             }
 
             override fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {
+                log.d(LOG_TAG, "onGeolocationPermissionsShowPrompt called, origin $origin, invoking eventProcessor callback.")
                 getEventProcessor().onGeolocationPermissionsShowPrompt(origin, callback)
             }
 
             override fun onGeolocationPermissionsHidePrompt() {
+                log.d(LOG_TAG, "onGeolocationPermissionsHidePrompt called, invoking eventProcessor callback.")
                 getEventProcessor().onGeolocationPermissionsHidePrompt()
             }
 
             override fun onPermissionRequest(request: PermissionRequest) {
+                log.d(LOG_TAG, "onPermissionRequest called $request, invoking eventProcessor callback.")
                 getEventProcessor().onPermissionRequest(request)
             }
 
@@ -97,6 +102,7 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
                 filePathCallback: ValueCallback<Array<Uri>>,
                 fileChooserParams: FileChooserParams,
             ): Boolean {
+                log.d(LOG_TAG, "onShowFileChooser called, invoking eventProcessor callback.")
                 return getEventProcessor().onShowFileChooser(webView, filePathCallback, fileChooserParams)
             }
         }
@@ -109,6 +115,7 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (keyCode == KeyEvent.KEYCODE_BACK && canGoBack()) {
+            log.d(LOG_TAG, "Back key event detected, navigating back.")
             goBack()
             return true
         }
@@ -120,12 +127,15 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
         val version = ShopifyCheckoutSheetKit.version.split("-").first()
         val platform = ShopifyCheckoutSheetKit.configuration.platform
         val platformSuffix = if (platform != null) " ${platform.displayName}" else ""
-        return "ShopifyCheckoutSDK/${version} ($cspSchema;$theme;$variant)$platformSuffix"
+        val suffix = "ShopifyCheckoutSDK/${version} ($cspSchema;$theme;$variant)$platformSuffix"
+        log.d(LOG_TAG, "Setting User-Agent suffix $suffix")
+        return suffix
     }
 
     open inner class BaseWebViewClient : WebViewClient() {
         init {
             if (BuildConfig.DEBUG) {
+                log.d(LOG_TAG, "Setting web contents debugging enabled.")
                 setWebContentsDebuggingEnabled(true)
             }
         }
@@ -133,7 +143,7 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
         override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !detail.didCrash()) {
                 // Renderer was killed because system ran out of memory.
-
+                log.d(LOG_TAG, "onRenderProcessGone called, calling onCheckoutFailedWithError")
                 val eventProcessor = getEventProcessor()
                 eventProcessor.onCheckoutViewFailedWithError(
                     CheckoutSheetKitException(
@@ -195,9 +205,14 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
             responseHeaders: MutableMap<String, String> = mutableMapOf(),
         ) {
             if (request?.isForMainFrame == true) {
+                log.d(
+                    LOG_TAG,
+                    "Handling error for main frame. URL: ${request.url}, errorCode: $errorCode, errorDescription: $errorDescription"
+                )
                 val processor = getEventProcessor()
                 when {
                     errorCode == HTTP_NOT_FOUND && responseHeaders[DEPRECATED_REASON_HEADER]?.lowercase() == LIQUID_NOT_SUPPORTED -> {
+                        log.d(LOG_TAG, "Failing with liquid not supported error. Recoverable: false")
                         processor.onCheckoutViewFailedWithError(
                             ConfigurationException(
                                 errorDescription = "Storefronts using checkout.liquid are not supported. Please upgrade to Checkout " +
@@ -207,25 +222,35 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
                             )
                         )
                     }
-                    errorCode == HTTP_GONE -> processor.onCheckoutViewFailedWithError(
-                        CheckoutExpiredException(
-                            isRecoverable = false,
-                            errorCode = CheckoutExpiredException.CART_EXPIRED
-                        ),
-                    )
-                    else -> processor.onCheckoutViewFailedWithError(
-                        HttpException(
-                            errorDescription = errorDescription,
-                            statusCode = errorCode,
-                            isRecoverable = isRecoverable(errorCode)
-                        ),
-                    )
+
+                    errorCode == HTTP_GONE -> {
+                        log.d(LOG_TAG, "Failing with cart expired. Recoverable: false")
+                        processor.onCheckoutViewFailedWithError(
+                            CheckoutExpiredException(
+                                isRecoverable = false,
+                                errorCode = CheckoutExpiredException.CART_EXPIRED
+                            ),
+                        )
+                    }
+
+                    else -> {
+                        val recoverable = isRecoverable(errorCode)
+                        log.d(LOG_TAG, "Failing with other error. Code: $errorCode. Recoverable $recoverable")
+                        processor.onCheckoutViewFailedWithError(
+                            HttpException(
+                                errorDescription = errorDescription,
+                                statusCode = errorCode,
+                                isRecoverable = recoverable
+                            )
+                        )
+                    }
                 }
             }
         }
     }
 
     companion object {
+        private const val LOG_TAG = "BaseWebView"
         private const val DEPRECATED_REASON_HEADER = "X-Shopify-API-Deprecated-Reason"
         private const val LIQUID_NOT_SUPPORTED = "checkout_liquid_not_supported"
 
@@ -240,6 +265,7 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
 internal fun BaseWebView.removeFromParent() {
     val parent = this.parent
     if (parent is ViewGroup) {
+        log.d("BaseWebView", "Existing parent found for WebView, removing.")
         // Ensure view is not destroyed when removing from parent
         CheckoutWebViewContainer.retainCacheEntry = RetainCacheEntry.YES
         parent.removeView(this)
