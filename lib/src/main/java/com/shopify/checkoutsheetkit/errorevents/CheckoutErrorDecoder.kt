@@ -52,23 +52,27 @@ internal class CheckoutErrorDecoder @JvmOverloads constructor(
                 ConfigurationException(
                     errorDescription = this.reason ?: "Storefront configuration error.",
                     errorCode = if (this.code == STOREFRONT_PASSWORD_REQUIRED) {
-                        ConfigurationException.STOREFRONT_PASSWORD_REQUIRED } else  {
+                        ConfigurationException.STOREFRONT_PASSWORD_REQUIRED
+                    } else {
                         ConfigurationException.UNKNOWN
                     },
                     isRecoverable = false,
                 )
             }
+
             CheckoutErrorGroup.UNRECOVERABLE ->
                 ClientException(
                     errorDescription = this.reason,
                     isRecoverable = true,
                 )
+
             CheckoutErrorGroup.EXPIRED ->
                 CheckoutExpiredException(
                     errorDescription = this.reason,
                     errorCode = this.expiredErrorCode(),
                     isRecoverable = false,
                 )
+
             else -> {
                 // The remaining error groups are unsupported and will be ignored
                 null

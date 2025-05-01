@@ -175,6 +175,7 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
     }
 
     private fun Context.launchEmailApp(to: String) {
+        log.d(LOG_TAG, "Attempting to launch email app.")
         val intent = Intent(Intent.ACTION_SEND)
         intent.type = "vnd.android.cursor.item/email"
         intent.putExtra(Intent.EXTRA_EMAIL, arrayOf(to))
@@ -182,18 +183,21 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
     }
 
     private fun Context.launchBrowser(uri: Uri) {
+        log.d(LOG_TAG, "Attempting to launch browser for $uri.")
         val intent = Intent(Intent.ACTION_VIEW)
         intent.data = uri
         startActivity(intent)
     }
 
     private fun Context.launchPhoneApp(phone: String) {
+        log.d(LOG_TAG, "Attempting to launch phone app.")
         val intent = Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null))
         startActivity(intent)
     }
 
     @SuppressLint("QueryPermissionsNeeded")
     private fun Context.tryLaunchDeepLink(uri: Uri) {
+        log.d(LOG_TAG, "Attempting to launch deep link for uri $uri.")
         val intent = Intent(Intent.ACTION_VIEW)
         intent.data = uri
         if (context.packageManager.queryIntentActivities(intent, 0).isNotEmpty()) {
@@ -204,6 +208,7 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
     }
 
     private companion object {
+        private const val LOG_TAG = "DefaultCheckoutEventProcessor"
         private const val TAG = "DefaultCheckoutEventProcessor"
     }
 }

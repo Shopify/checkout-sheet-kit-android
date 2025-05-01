@@ -26,6 +26,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.widget.RelativeLayout
+import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
 
 internal class CheckoutWebViewContainer @JvmOverloads constructor(
     context: Context,
@@ -38,13 +39,16 @@ internal class CheckoutWebViewContainer @JvmOverloads constructor(
     // We should only clear the cache and destroy the WebView after it's been removed from it's parent
     override fun onViewRemoved(child: View?) {
         super.onViewRemoved(child)
+        log.d(LOG_TAG, "onViewRemoved called.")
         if (child is CheckoutWebView) {
-           if (retainCacheEntry == RetainCacheEntry.IF_NOT_STALE && CheckoutWebView.cacheEntry?.isStale == true) {
-               CheckoutWebView.clearCache()
-           }
+            if (retainCacheEntry == RetainCacheEntry.IF_NOT_STALE && CheckoutWebView.cacheEntry?.isStale == true) {
+                log.d(LOG_TAG, "Clearing WebView cache.")
+                CheckoutWebView.clearCache()
+            }
         }
 
         if (child is FallbackWebView) {
+            log.d(LOG_TAG, "Destroying Fallback WebView.")
             child.destroy()
         }
 
@@ -52,6 +56,7 @@ internal class CheckoutWebViewContainer @JvmOverloads constructor(
     }
 
     companion object {
+        private const val LOG_TAG = "CheckoutWebViewContainer"
         internal var retainCacheEntry = RetainCacheEntry.IF_NOT_STALE
     }
 }
@@ -61,6 +66,7 @@ internal enum class RetainCacheEntry {
      * Retain a WebView in the cache if it is not stale
      */
     IF_NOT_STALE,
+
     /**
      * Always retain the WebView in the cache, regardless of whether it is stale or not
      */
