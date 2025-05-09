@@ -52,7 +52,10 @@ class PixelEventDecoderTest {
             |        "data": {
             |            "checkout": {
             |                "order": {
-            |                    "id": "123"
+            |                    "id": "123",
+            |                    "customer": {
+            |                      "isFirstOrder": null
+            |                    }
             |                }
             |            }
             |        }
@@ -71,6 +74,7 @@ class PixelEventDecoderTest {
         assertThat(checkoutStartedEvent.timestamp).isEqualTo("2023-12-20T16:39:23+0000")
         assertThat(checkoutStartedEvent.id).isEqualTo("sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B")
         assertThat(checkoutStartedEvent.data?.checkout?.order?.id).isEqualTo("123")
+        assertThat(checkoutStartedEvent.data?.checkout?.order?.customer?.isFirstOrder).isNull()
 
         verifyNoInteractions(logWrapper)
     }
@@ -92,7 +96,11 @@ class PixelEventDecoderTest {
             |                   "currencyCode": "USD"
             |                },
             |                "order": {
-            |                    "id": "123"
+            |                    "id": "123",
+            |                    "customer": {
+            |                       "id": "456",
+            |                       "isFirstOrder": true
+            |                    }
             |                }
             |            }
             |        }
@@ -111,6 +119,7 @@ class PixelEventDecoderTest {
         assertThat(checkoutStarted.timestamp).isEqualTo("2023-12-20T16:39:23+0000")
         assertThat(checkoutStarted.id).isEqualTo("sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B")
         assertThat(checkoutStarted.data?.checkout?.order?.id).isEqualTo("123")
+        assertThat(checkoutStarted.data?.checkout?.order?.customer?.isFirstOrder).isTrue()
         assertThat(checkoutStarted.data?.checkout?.totalPrice?.amount).isEqualTo(123.3)
         assertThat(checkoutStarted.data?.checkout?.totalPrice?.currencyCode).isEqualTo("USD")
 

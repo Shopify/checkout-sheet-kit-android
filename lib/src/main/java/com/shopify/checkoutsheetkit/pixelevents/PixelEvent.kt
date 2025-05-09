@@ -40,8 +40,10 @@ internal class PixelEventWrapper(
 
 @Serializable
 public enum class EventType(public val typeName: String) {
-    @SerialName("standard") STANDARD("standard"),
-    @SerialName("custom") CUSTOM("custom");
+    @SerialName("standard")
+    STANDARD("standard"),
+    @SerialName("custom")
+    CUSTOM("custom");
 
     public companion object {
         public fun fromTypeName(typeName: String?): EventType? {
@@ -87,7 +89,7 @@ public data class StandardPixelEvent(
     public override val type: EventType? = null,
     public val context: Context? = null,
     public val data: StandardPixelEventData? = null,
-): PixelEvent
+) : PixelEvent
 
 @Serializable
 public data class StandardPixelEventData(
@@ -951,6 +953,8 @@ public data class OrderCustomer(
      * The ID of the customer.
      */
     public val id: String? = null,
+
+    public val isFirstOrder: Boolean? = null,
 )
 
 @Serializable
@@ -1056,7 +1060,7 @@ public data class CustomPixelEvent(
     // Clients are expected to define their own type for each custom event, and deserialize from String
     @Serializable(with = JsonObjectAsStringSerializer::class)
     public val customData: String? = null,
-): PixelEvent
+) : PixelEvent
 
 public object JsonObjectAsStringSerializer : KSerializer<String> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("WithCustomDefault", PrimitiveKind.STRING)
