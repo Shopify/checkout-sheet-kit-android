@@ -1,6 +1,6 @@
 # Changelog
 
-## 3.3.1 May 12, 2025
+## 3.4.0 May 12, 2025
 
 - Add the ability to enable debug logging to help diagnose issues.
 - Expose isFirstOrder in checkout web pixel events.
