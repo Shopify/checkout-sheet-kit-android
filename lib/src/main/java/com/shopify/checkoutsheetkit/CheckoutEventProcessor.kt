@@ -206,11 +206,19 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
     @SuppressLint("QueryPermissionsNeeded")
     private fun Context.tryLaunchDeepLink(uri: Uri) {
         log.d(LOG_TAG, "Attempting to launch deep link for uri $uri.")
-        val intent = Intent(Intent.ACTION_VIEW)
-        intent.data = uri
-        if (context.packageManager.queryIntentActivities(intent, 0).isNotEmpty()) {
+
+        val intent = try {
+            // ⚠️ Parse intent://...#Intent;...;end;
+            Intent.parseUri(uri.toString(), Intent.URI_INTENT_SCHEME)
+        } catch (e: Exception) {
+            log.e(TAG, "Failed to parse deep link intent: $uri", e)
+            return
+        }
+
+        try {
             startActivity(intent)
-        } else {
+        } catch (e: Exception) {
+            log.e(TAG, "Failed to start activity for deep link: $uri", e)
             log.w(TAG, "Unrecognized scheme for link clicked in checkout '$uri'")
         }
     }
