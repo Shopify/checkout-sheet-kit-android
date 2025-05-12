@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.3.1 May 12, 2025
+
+- Add the ability to enable debug logging to help diagnose issues.
+- Expose isFirstOrder in checkout web pixel events.
+
 ## 3.3.0 December 4, 2024
 
 - Expose [onGeolocationPermissionsShowPrompt()](<https://developer.android.com/reference/android/webkit/WebChromeClient#onGeolocationPermissionsShowPrompt(java.lang.String,%20android.webkit.GeolocationPermissions.Callback)>) and [onGeolocationPermissionsHidePrompt()](<https://developer.android.com/reference/android/webkit/WebChromeClient#onGeolocationPermissionsHidePrompt()>), allowing them to be implemented so customers can use the `Use my location` functionality to find nearby pickup points.
