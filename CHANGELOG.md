@@ -4,6 +4,7 @@
 
 - Add the ability to enable debug logging to help diagnose issues.
 - Expose isFirstOrder in checkout web pixel events.
+- Update test dependencies
 
 ## 3.3.0 December 4, 2024
 
