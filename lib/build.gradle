@@ -105,7 +105,7 @@ dependencies {
     //Implementation
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlin_serialization_version"
     implementation "androidx.appcompat:appcompat:$app_compat_version"
-    implementation "androidx.webkit:webkit:1.14.0-beta01"
+    implementation "androidx.webkit:webkit:1.14.0-rc01"
 }
 
 signing {
