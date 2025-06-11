@@ -22,6 +22,7 @@ ext {
 
     androidx_test_version = '1.6.1'
     androidx_junit_ext_version = '1.2.1'
+    androidx_webkit_version = '1.14.0'
 
     junit_version = '4.13.2'
     robolectric_version = '4.11.1'
@@ -105,6 +106,7 @@ dependencies {
     //Implementation
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlin_serialization_version"
     implementation "androidx.appcompat:appcompat:$app_compat_version"
+    implementation "androidx.webkit:webkit:$androidx_webkit_version"
 }
 
 signing {
