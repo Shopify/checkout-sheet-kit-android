@@ -1,7 +1,8 @@
 # Changelog
 
-## 3.4.0 May 12, 2025
+## 3.4.0 Jun 11, 2025
 
+- Enable Google Pay payment support.  
 - Add the ability to enable debug logging to help diagnose issues.
 - Expose isFirstOrder in checkout web pixel events.
 - Update test dependencies
