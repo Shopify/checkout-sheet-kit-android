@@ -43,6 +43,8 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.webkit.WebSettingsCompat
+import androidx.webkit.WebViewFeature
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
 import java.net.HttpURLConnection.HTTP_GONE
 import java.net.HttpURLConnection.HTTP_NOT_FOUND
@@ -67,6 +69,12 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
             domStorageEnabled = true
             allowContentAccess = true
         }
+
+        if (WebViewFeature.isFeatureSupported(
+                WebViewFeature.PAYMENT_REQUEST)) {
+            WebSettingsCompat.setPaymentRequestEnabled(settings, true)
+        }
+
         webChromeClient = object : WebChromeClient() {
             override fun onProgressChanged(view: WebView?, newProgress: Int) {
                 super.onProgressChanged(view, newProgress)
