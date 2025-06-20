@@ -98,15 +98,17 @@ class CheckoutBridgeTest {
         val webView = mock<WebView>()
         checkoutBridge.sendMessage(webView, CheckoutBridge.SDKOperation.Presented)
 
-        verify(webView).evaluateJavascript("""|
-        |if (window.MobileCheckoutSdk && window.MobileCheckoutSdk.dispatchMessage) {
-        |    window.MobileCheckoutSdk.dispatchMessage('presented');
+        verify(webView).evaluateJavascript(
+            """|
+        |if (window.Shopify?.CheckoutSheetProtocol?.postMessage) {
+        |    window.Shopify.CheckoutSheetProtocol.postMessage('presented');
         |} else {
         |    window.addEventListener('mobileCheckoutBridgeReady', function () {
-        |        window.MobileCheckoutSdk.dispatchMessage('presented');
+        |        window.Shopify.CheckoutSheetProtocol.postMessage('presented');
         |    }, {passive: true, once: true});
         |}
-        |""".trimMargin(), null)
+        |""".trimMargin(), null
+        )
     }
 
     @Test
@@ -138,11 +140,11 @@ class CheckoutBridgeTest {
         )
         val expectedPayload = """{"detail":{"name":"Test","value":123,"type":"histogram","tags":{"tag1":"value1","tag2":"value2"}}}"""
         val expectedJavascript = """|
-        |if (window.MobileCheckoutSdk && window.MobileCheckoutSdk.dispatchMessage) {
-        |    window.MobileCheckoutSdk.dispatchMessage('instrumentation', $expectedPayload);
+        |if (window.Shopify?.CheckoutSheetProtocol?.postMessage) {
+        |    window.Shopify.CheckoutSheetProtocol.postMessage('instrumentation', $expectedPayload);
         |} else {
         |    window.addEventListener('mobileCheckoutBridgeReady', function () {
-        |        window.MobileCheckoutSdk.dispatchMessage('instrumentation', $expectedPayload);
+        |        window.Shopify.CheckoutSheetProtocol.postMessage('instrumentation', $expectedPayload);
         |    }, {passive: true, once: true});
         |}
         |""".trimMargin()
@@ -177,7 +179,7 @@ class CheckoutBridgeTest {
         |""".trimMargin()
 
 
-       checkoutBridge.postMessage(eventString)
+        checkoutBridge.postMessage(eventString)
 
         val captor = argumentCaptor<PixelEvent>()
         verify(mockEventProcessor, timeout(2000).times(1)).onWebPixelEvent(captor.capture())
@@ -240,7 +242,7 @@ class CheckoutBridgeTest {
 
     @Test
     fun `should decode a barebones expired error payload and call processor#onCheckoutViewFailedWithError`() {
-        val eventString =  """|
+        val eventString = """|
             |{
             |   "name": "error",
             |   "body": "[{
@@ -287,6 +289,7 @@ class CheckoutBridgeTest {
         assertThat(error.isRecoverable).isTrue()
         assertThat(error.errorCode).isEqualTo(CheckoutUnavailableException.CLIENT_ERROR)
     }
+
     @Test
     fun `should decode a configuration error payload and call processor#onCheckoutViewFailedWithError - storefront pw required`() {
         val eventString = """|

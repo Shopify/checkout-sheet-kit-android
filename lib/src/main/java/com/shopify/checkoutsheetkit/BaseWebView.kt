@@ -59,7 +59,6 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
 
     abstract fun getEventProcessor(): CheckoutWebViewEventProcessor
     abstract val recoverErrors: Boolean
-    abstract val variant: String
     abstract val cspSchema: String
 
     private fun configureWebView() {
@@ -70,8 +69,7 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
             allowContentAccess = true
         }
 
-        if (WebViewFeature.isFeatureSupported(
-                WebViewFeature.PAYMENT_REQUEST)) {
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.PAYMENT_REQUEST)) {
             WebSettingsCompat.setPaymentRequestEnabled(settings, true)
         }
 
@@ -123,11 +121,10 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
     }
 
     internal fun userAgentSuffix(): String {
-        val theme = ShopifyCheckoutSheetKit.configuration.colorScheme.id
-        val version = ShopifyCheckoutSheetKit.version.split("-").first()
         val platform = ShopifyCheckoutSheetKit.configuration.platform
-        val platformSuffix = if (platform != null) " ${platform.displayName}" else ""
-        val suffix = "ShopifyCheckoutSDK/${version} ($cspSchema;$theme;$variant)$platformSuffix"
+        val platformPart = if (platform != null) "(${platform.displayName})" else "(Android)"
+        val version = ShopifyCheckoutSheetKit.version.split("-").first()
+        val suffix = "CheckoutKit/$version $platformPart CheckoutSheetProtocol/$cspSchema"
         log.d(LOG_TAG, "Setting User-Agent suffix $suffix")
         return suffix
     }
@@ -138,6 +135,33 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
                 log.d(LOG_TAG, "Setting web contents debugging enabled.")
                 setWebContentsDebuggingEnabled(true)
             }
+        }
+
+        override fun shouldOverrideUrlLoading(
+            view: WebView?,
+            request: WebResourceRequest?
+        ): Boolean {
+            if (request?.isForMainFrame == true && request.url?.isWebLink() == true) {
+                var headers = request.requestHeaders ?: mutableMapOf()
+                var shouldOverride = false
+
+                val colorScheme = ShopifyCheckoutSheetKit.configuration.colorScheme
+                val shouldHaveColorSchemeHeader = colorScheme !is ColorScheme.Web && colorScheme !is ColorScheme.Automatic
+                if (shouldHaveColorSchemeHeader && !headers.hasColorSchemeHeader()) {
+                    headers = headers.withColorScheme()
+                    shouldOverride = true
+                }
+                if (!headers.hasBrandingHeader()) {
+                    headers = headers.withBranding()
+                    shouldOverride = true
+                }
+
+                if (shouldOverride) {
+                    view?.loadUrl(request.url.toString(), headers)
+                    return true
+                }
+            }
+            return false
         }
 
         override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
