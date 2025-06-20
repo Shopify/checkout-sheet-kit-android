@@ -84,52 +84,37 @@ class CheckoutWebViewTest {
     }
 
     @Test
-    fun `user agent suffix includes ShopifyCheckoutSDK and version number`() {
+    fun `user agent suffix includes CheckoutKit and version number`() {
         ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Dark()
         val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
 
-        assertThat(view.settings.userAgentString).contains("ShopifyCheckoutSDK/${BuildConfig.SDK_VERSION} ")
+        assertThat(view.settings.userAgentString).matches(".*CheckoutKit/${BuildConfig.SDK_VERSION}.*")
     }
 
     @Test
-    fun `user agent suffix includes metadata for the schema version, theme, and variant - dark`() {
-        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Dark()
-        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
-
-        assertThat(view.settings.userAgentString).endsWith("(8.1;dark;standard)")
-    }
-
-    @Test
-    fun `user agent suffix includes metadata for the schema version, theme, and variant - light`() {
-        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Light()
-        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
-
-        assertThat(view.settings.userAgentString).endsWith("(8.1;light;standard)")
-    }
-
-    @Test
-    fun `user agent suffix includes metadata for the schema version, theme, and variant - web`() {
-        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Web()
-        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
-
-        assertThat(view.settings.userAgentString).endsWith("(8.1;web_default;standard)")
-    }
-
-    @Test
-    fun `user agent suffix includes metadata for the schema version, theme, and variant - automatic`() {
+    fun `user agent suffix includes platform - android`() {
         ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Automatic()
+        ShopifyCheckoutSheetKit.configuration.platform = null
         val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
 
-        assertThat(view.settings.userAgentString).endsWith("(8.1;automatic;standard)")
+        assertThat(view.settings.userAgentString).matches(".*CheckoutKit/${ShopifyCheckoutSheetKit.version} \\(Android\\).*")
     }
 
     @Test
-    fun `user agent suffix includes platform if specified`() {
+    fun `user agent suffix includes platform - react native`() {
         ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Automatic()
         ShopifyCheckoutSheetKit.configuration.platform = Platform.REACT_NATIVE
         val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
 
-        assertThat(view.settings.userAgentString).endsWith("(8.1;automatic;standard) ReactNative")
+        assertThat(view.settings.userAgentString).matches(".*CheckoutKit/${ShopifyCheckoutSheetKit.version} \\(ReactNative\\).*")
+    }
+
+    @Test
+    fun `user agent suffix includes metadata for the schema version`() {
+        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Dark()
+        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
+
+        assertThat(view.settings.userAgentString).matches(".*CheckoutSheetProtocol/\\d{4}-\\d{2}.*")
     }
 
     @Test
@@ -155,7 +140,7 @@ class CheckoutWebViewTest {
 
             val regex = Pattern.compile(
                 @Suppress("MaxLineLength")
-                """.*\.dispatchMessage\('instrumentation', \{"detail":\{"name":"checkout_finished_loading","value":\d*,"type":"histogram","tags":\{"preloading":"true"}}}\).*""",
+                """.*\.postMessage\('instrumentation', \{"detail":\{"name":"checkout_finished_loading","value":\d*,"type":"histogram","tags":\{"preloading":"true"}}}\).*""",
                 Pattern.DOTALL
             )
             assertThat(shadow.lastEvaluatedJavascript).matches(regex)
@@ -172,7 +157,7 @@ class CheckoutWebViewTest {
 
             val regex = Pattern.compile(
                 @Suppress("MaxLineLength")
-                """.*\.dispatchMessage\('instrumentation', \{"detail":\{"name":"checkout_finished_loading","value":\d*,"type":"histogram","tags":\{"preloading":"false"}}}\).*""",
+                """.*\.postMessage\('instrumentation', \{"detail":\{"name":"checkout_finished_loading","value":\d*,"type":"histogram","tags":\{"preloading":"false"}}}\).*""",
                 Pattern.DOTALL
             )
             assertThat(shadow.lastEvaluatedJavascript).matches(regex)
@@ -222,7 +207,7 @@ class CheckoutWebViewTest {
         spy.notifyPresented()
 
         verify(spy).evaluateJavascript(
-            contains("window.MobileCheckoutSdk.dispatchMessage('presented');"),
+            contains("window.Shopify.CheckoutSheetProtocol.postMessage('presented');"),
             eq(null)
         )
     }

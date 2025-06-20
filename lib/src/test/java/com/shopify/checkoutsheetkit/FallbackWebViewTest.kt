@@ -66,43 +66,18 @@ class FallbackWebViewTest {
         ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Dark()
         Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
             val view = FallbackWebView(activityController.get())
-            assertThat(view.settings.userAgentString).contains("ShopifyCheckoutSDK/${BuildConfig.SDK_VERSION} ")
+            assertThat(view.settings.userAgentString).contains("CheckoutSheetProtocol/")
         }
     }
 
     @Test
-    fun `user agent suffix includes metadata for the schema version, theme, and variant - dark`() {
-        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Dark()
-        Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
-            val view = FallbackWebView(activityController.get())
-            assertThat(view.settings.userAgentString).endsWith("(noconnect;dark;standard_recovery)")
-        }
-    }
-
-    @Test
-    fun `user agent suffix includes metadata for the schema version, theme, and variant - light`() {
+    fun `user agent suffix includes noconnect in place of schema version`() {
         ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Light()
         Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
             val view = FallbackWebView(activityController.get())
-            assertThat(view.settings.userAgentString).endsWith("(noconnect;light;standard_recovery)")
-        }
-    }
-
-    @Test
-    fun `user agent suffix includes metadata for the schema version, theme, and variant - web`() {
-        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Web()
-        Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
-            val view = FallbackWebView(activityController.get())
-            assertThat(view.settings.userAgentString).endsWith("(noconnect;web_default;standard_recovery)")
-        }
-    }
-
-    @Test
-    fun `user agent suffix includes metadata for the schema version, theme, and variant - automatic`() {
-        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Automatic()
-        Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
-            val view = FallbackWebView(activityController.get())
-            assertThat(view.settings.userAgentString).endsWith("(noconnect;automatic;standard_recovery)")
+            assertThat(view.settings.userAgentString).endsWith(
+                "CheckoutKit/${ShopifyCheckoutSheetKit.version} (Android) CheckoutSheetProtocol/noconnect"
+            )
         }
     }
 
@@ -112,7 +87,9 @@ class FallbackWebViewTest {
         ShopifyCheckoutSheetKit.configuration.platform = Platform.REACT_NATIVE
         Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
             val view = FallbackWebView(activityController.get())
-            assertThat(view.settings.userAgentString).endsWith("(noconnect;automatic;standard_recovery) ReactNative")
+            assertThat(view.settings.userAgentString).endsWith(
+                "CheckoutKit/${ShopifyCheckoutSheetKit.version} (ReactNative) CheckoutSheetProtocol/noconnect"
+            )
         }
     }
 
