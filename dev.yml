@@ -1,0 +1,44 @@
+name: checkout-sheet-kit-android
+
+type: android
+
+up:
+  - ruby
+  - custom:
+      name: Ensure sample app .env files exists
+      met?: |
+        ([ -f "./samples/MobileBuyIntegration/.env" ] && [ -f "./samples/SimpleCheckout/.env" ] || exit 1)
+      meet: ./scripts/setup_env.sh
+
+commands:
+  build:
+    desc: Build the library
+    run: ./gradlew :lib:build
+    subcommands:
+      samples:
+        desc: Build all sample applications
+        run: cd samples/MobileBuyIntegration && ./gradlew build && cd ../SimpleCheckout && ./gradlew build
+
+  test:
+    subcommands:
+      specific:
+        desc: Run specific test class
+        syntax: <TestClassName> (e.g. CheckoutBridgeTest)
+        run: ./gradlew :lib:testDebugUnitTest --tests "$1"
+    desc: Run all tests with clean build
+    run: ./gradlew clean test --console=plain
+
+  style:
+    desc: Run code formatting and linting
+    aliases: [lint]
+    run: ./gradlew detekt lintRelease
+
+check:
+  license-headers: ./scripts/check_license_headers.rb
+  detekt: ./gradlew detekt
+  android-lint: ./gradlew lintRelease
+
+open:
+  "GitHub": "https://github.com/Shopify/checkout-sheet-kit-android"
+  "Issues": "https://github.com/Shopify/checkout-sheet-kit-android/issues"
+  "PRs": "https://github.com/Shopify/checkout-sheet-kit-android/pulls"
