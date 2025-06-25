@@ -44,6 +44,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
     override val variant = "standard"
     override val cspSchema = CheckoutBridge.SCHEMA_VERSION_NUMBER
     var isPreload = false
+    var checkoutOptions: CheckoutOptions? = null
 
     private val checkoutBridge = CheckoutBridge(CheckoutWebViewEventProcessor(NoopEventProcessor()))
     private var loadComplete = false
@@ -107,6 +108,14 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         this.isPreload = isPreload
         Handler(Looper.getMainLooper()).post {
             val headers = if (isPreload) mutableMapOf("Sec-Purpose" to "prefetch") else mutableMapOf()
+
+            // Add app authentication header if config is provided
+            checkoutOptions?.appAuthentication?.let { appAuth ->
+                val headerValue = "{payload: ${appAuth.token}, version: v2}"
+                headers["Shopify-Checkout-Kit-Consumer"] = headerValue
+                log.d(LOG_TAG, "Added app authentication header for checkout")
+            }
+
             loadUrl(url, headers)
         }
     }
@@ -206,12 +215,13 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             url: String,
             activity: ComponentActivity,
             isPreload: Boolean = false,
+            checkoutOptions: CheckoutOptions? = null
         ): CheckoutWebView {
             var view: CheckoutWebView? = null
             val countDownLatch = CountDownLatch(1)
 
             activity.runOnUiThread {
-                view = fetchView(url, activity, isPreload)
+                view = fetchView(url, activity, isPreload, checkoutOptions)
                 countDownLatch.countDown()
             }
 
@@ -224,12 +234,14 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             url: String,
             activity: ComponentActivity,
             isPreload: Boolean,
+            checkoutOptions: CheckoutOptions? = null
         ): CheckoutWebView {
             val preloadingEnabled = ShopifyCheckoutSheetKit.configuration.preloading.enabled
             log.d(LOG_TAG, "Fetch view called for url $url. Is preload: $isPreload. Preloading enabled: $preloadingEnabled.")
             if (!preloadingEnabled || cacheEntry?.isValid(url) != true) {
                 log.d(LOG_TAG, "Constructing new CheckoutWebView and calling loadCheckout.")
                 val view = CheckoutWebView(activity as Context).apply {
+                    this.checkoutOptions = checkoutOptions
                     loadCheckout(url, isPreload)
                     if (isPreload) {
                         // Pauses processing that can be paused safely (e.g. geolocation, animations), but not JavaScript / network requests

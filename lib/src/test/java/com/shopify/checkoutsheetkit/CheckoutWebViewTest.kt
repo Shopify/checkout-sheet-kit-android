@@ -298,6 +298,63 @@ class CheckoutWebViewTest {
     }
 
     @Test
+    fun `sends authentication header when checkoutOptions appAuthentication is provided`() {
+        val appAuth = CheckoutOptions.AppAuthentication(token = "test-jwt-token")
+        val checkoutOptions = CheckoutOptions(appAuthentication = appAuth)
+        
+        val view = CheckoutWebView.cacheableCheckoutView(URL, activity, false, checkoutOptions)
+        
+        val shadow = shadowOf(view)
+        ShadowLooper.shadowMainLooper().runToEndOfTasks()
+        
+        val expectedHeaderValue = "{payload: test-jwt-token, version: v2}"
+        assertThat(shadow.lastAdditionalHttpHeaders.getOrDefault("Shopify-Checkout-Kit-Consumer", ""))
+            .isEqualTo(expectedHeaderValue)
+    }
+
+    @Test
+    fun `does not send authentication header when checkoutOptions appAuthentication is null`() {
+        val checkoutOptions = CheckoutOptions(appAuthentication = null)
+        
+        val view = CheckoutWebView.cacheableCheckoutView(URL, activity, false, checkoutOptions)
+        
+        val shadow = shadowOf(view)
+        ShadowLooper.shadowMainLooper().runToEndOfTasks()
+        
+        assertThat(shadow.lastAdditionalHttpHeaders.containsKey("Shopify-Checkout-Kit-Consumer"))
+            .isFalse()
+    }
+
+    @Test
+    fun `does not send authentication header when checkoutOptions is null`() {
+        val view = CheckoutWebView.cacheableCheckoutView(URL, activity, false, null)
+        
+        val shadow = shadowOf(view)
+        ShadowLooper.shadowMainLooper().runToEndOfTasks()
+        
+        assertThat(shadow.lastAdditionalHttpHeaders.containsKey("Shopify-Checkout-Kit-Consumer"))
+            .isFalse()
+    }
+
+    @Test
+    fun `sends both prefetch and authentication headers for preload with authentication`() {
+        val appAuth = CheckoutOptions.AppAuthentication(token = "preload-jwt-token")
+        val checkoutOptions = CheckoutOptions(appAuthentication = appAuth)
+        
+        val isPreload = true
+        val view = CheckoutWebView.cacheableCheckoutView(URL, activity, isPreload, checkoutOptions)
+        
+        val shadow = shadowOf(view)
+        ShadowLooper.shadowMainLooper().runToEndOfTasks()
+        
+        assertThat(shadow.lastAdditionalHttpHeaders.getOrDefault("Sec-Purpose", "")).isEqualTo("prefetch")
+        
+        val expectedAuthHeaderValue = "{payload: preload-jwt-token, version: v2}"
+        assertThat(shadow.lastAdditionalHttpHeaders.getOrDefault("Shopify-Checkout-Kit-Consumer", ""))
+            .isEqualTo(expectedAuthHeaderValue)
+    }
+
+    @Test
     fun `removeFromParent() should remove parent if a parent exists but not destroy WebView`() {
         withPreloadingEnabled {
             Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
