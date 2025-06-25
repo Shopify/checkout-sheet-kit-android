@@ -8,34 +8,37 @@
 
 **Shopify's Checkout Sheet Kit for Android** is a library that enables Android apps to provide the world's highest converting, customizable, one-page checkout within an app. The presented experience is a fully-featured checkout that preserves all of the store customizations: Checkout UI extensions, Functions, Web Pixels, and more. It also provides idiomatic defaults such as support for light and dark mode, and convenient developer APIs to embed, customize and follow the lifecycle of the checkout experience. Check out our developer blog to [learn how Checkout Sheet Kit is built](https://www.shopify.com/partners/blog/mobile-checkout-sdks-for-ios-and-android).
 
-- [Requirements](#requirements)
-- [Getting Started](#getting-started)
-  - [Gradle](#gradle)
-  - [Maven](#maven)
-- [Basic Usage](#basic-usage)
-- [Configuration](#configuration)
-  - [Color Scheme](#color-scheme)
-  - [Log Level](#log-level)
-  - [Checkout Dialog Title](#checkout-dialog-title)
-- [Preloading](#preloading)
-  - [Important considerations](#important-considerations)
-  - [Flash Sales](#flash-sales)
-  - [When to preload](#when-to-preload)
-  - [Cache invalidation](#cache-invalidation)
-  - [Lifecycle management for preloaded checkout](#lifecycle-management-for-preloaded-checkout)
-    - [Additional considerations for preloaded checkout](#additional-considerations-for-preloaded-checkout)
-- [Monitoring the lifecycle of a checkout session](#monitoring-the-lifecycle-of-a-checkout-session)
-  - [Error handling](#error-handling)
-    - [`CheckoutException`](#checkoutexception)
-    - [Exception Hierarchy](#exception-hierarchy)
-  - [Integrating with Web Pixels, monitoring behavioral data](#integrating-with-web-pixels-monitoring-behavioral-data)
-- [Integrating identity \& customer accounts](#integrating-identity--customer-accounts)
-  - [Cart: buyer bag, identity, and preferences](#cart-buyer-bag-identity-and-preferences)
-  - [Multipass](#multipass)
-  - [Shop Pay](#shop-pay)
-  - [Customer Account API](#customer-account-api)
-- [Contributing](#contributing)
-- [License](#license)
+- [Shopify Checkout Sheet Kit - Android](#shopify-checkout-sheet-kit---android)
+  - [Requirements](#requirements)
+  - [Getting Started](#getting-started)
+    - [Gradle](#gradle)
+    - [Maven](#maven)
+  - [Basic Usage](#basic-usage)
+  - [Configuration](#configuration)
+    - [Color Scheme](#color-scheme)
+    - [Log Level](#log-level)
+    - [Checkout Dialog Title](#checkout-dialog-title)
+  - [Preloading](#preloading)
+    - [Important considerations](#important-considerations)
+    - [Flash Sales](#flash-sales)
+    - [When to preload](#when-to-preload)
+    - [Cache invalidation](#cache-invalidation)
+    - [Lifecycle management for preloaded checkout](#lifecycle-management-for-preloaded-checkout)
+      - [Additional considerations for preloaded checkout](#additional-considerations-for-preloaded-checkout)
+  - [Monitoring the lifecycle of a checkout session](#monitoring-the-lifecycle-of-a-checkout-session)
+    - [Error handling](#error-handling)
+      - [`CheckoutException`](#checkoutexception)
+      - [Exception Hierarchy](#exception-hierarchy)
+    - [Integrating with Web Pixels, monitoring behavioral data](#integrating-with-web-pixels-monitoring-behavioral-data)
+  - [Integrating identity \& customer accounts](#integrating-identity--customer-accounts)
+    - [Cart: buyer bag, identity, and preferences](#cart-buyer-bag-identity-and-preferences)
+    - [Multipass](#multipass)
+    - [Shop Pay](#shop-pay)
+    - [Customer Account API](#customer-account-api)
+  - [App Authentication](#app-authentication)
+    - [How to generate the JWT](#how-to-generate-the-jwt)
+  - [Contributing](#contributing)
+  - [License](#license)
 
 ## Requirements
 
@@ -558,6 +561,80 @@ checkout sessions.
 
 The Customer Account API allows you to authenticate buyers and provide a personalized checkout experience.
 For detailed implementation instructions, see our [Customer Account API Authentication Guide](https://shopify.dev/docs/storefronts/headless/mobile-apps/checkout-sheet-kit/authenticate-checkouts).
+
+## App Authentication
+
+App Authentication allows your app to securely identify itself to Shopify Checkout Kit and access additional permissions or features granted by Shopify. If your integration requires App Authentication, you must generate a JWT (JSON Web Token) on your secure server and pass it to the SDK.
+
+### How to generate the JWT
+
+**Prerequisites:**
+1. Create a Shopify app in the [Shopify Partners Dashboard](https://partners.shopify.com/organizations) or CLI to obtain your `api_key` and `shared_secret`.
+2. Install the app on a merchant's shop to obtain an `access_token` via the OAuth flow.
+
+**Encrypt your access token:**
+- Use AES-128-CBC with your `shared_secret` to encrypt the `access_token`.
+- Derive encryption and signing keys from the SHA-256 hash of your `shared_secret`.
+- Base64 encode the result.
+
+<details>
+<summary>Pseudo-code (Ruby) for encrypting your access_token</summary>
+
+```ruby
+shared_secret = <your_shared_secret>
+access_token = <your_access_token>
+
+key_material = OpenSSL::Digest.new("sha256").digest(shared_secret)
+encryption_key = key_material[0,16]
+signature_key  = key_material[16,16]
+
+cipher = OpenSSL::Cipher.new("aes-128-cbc")
+cipher.encrypt
+cipher.key = encryption_key
+cipher.iv = iv = cipher.random_iv
+raw_encrypted_token = iv + cipher.update(access_token) + cipher.final
+
+signature = OpenSSL::HMAC.digest("sha256", signature_key, raw_encrypted_token)
+encrypted_access_token = Base64.urlsafe_encode64(raw_encrypted_token + signature)
+```
+</details>
+
+**Create the JWT payload:**
+
+```json
+{
+  "api_key": "<your_api_key>",
+  "access_token": "<your_encrypted_access_token>",
+  "iat": <epoch_seconds>,
+  "jti": "<unique_id>"
+}
+```
+
+**Sign the JWT:**
+
+```ruby
+require 'jwt'
+require 'securerandom'
+
+payload = {
+  api_key: '<your_api_key>',
+  access_token: '<your_encrypted_access_token>',
+  iat: Time.now.utc.to_i,
+  jti: SecureRandom.uuid
+}
+
+token = JWT.encode(payload, '<your_shared_secret>', 'HS256')
+```
+
+**Use the JWT in your Android app:**
+
+```kotlin
+val appAuth = CheckoutOptions.AppAuthentication(token = "<JWT_TOKEN>")
+val checkoutOptions = CheckoutOptions(appAuthentication = appAuth)
+ShopifyCheckoutSheetKit.present(checkoutUrl, context, checkoutEventProcessor, checkoutOptions)
+```
+
+> **Note:** The JWT should always be generated on a secure server, never on the device.
 
 ---
 

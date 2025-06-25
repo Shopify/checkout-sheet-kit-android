@@ -35,6 +35,7 @@ internal class FallbackWebView(context: Context, attributeSet: AttributeSet? = n
     override val recoverErrors = false
     override val variant = "standard_recovery"
     override val cspSchema = "noconnect"
+    var checkoutOptions: CheckoutOptions? = null
 
     init {
         log.d(LOG_TAG, "Initializing fallback web view.")
@@ -51,6 +52,19 @@ internal class FallbackWebView(context: Context, attributeSet: AttributeSet? = n
 
     override fun getEventProcessor(): CheckoutWebViewEventProcessor {
         return checkoutEventProcessor
+    }
+
+    fun loadCheckoutWithHeader(url: String) {
+        val headers = mutableMapOf<String, String>()
+
+        // Add app authentication header if config is provided
+        checkoutOptions?.appAuthentication?.let { appAuth ->
+            val headerValue = "{payload: ${appAuth.token}, version: v2}"
+            headers["Shopify-Checkout-Kit-Consumer"] = headerValue
+            log.d(LOG_TAG, "Added app authentication header for fallback checkout")
+        }
+
+        loadUrl(url, headers)
     }
 
     inner class FallbackWebViewClient : BaseWebView.BaseWebViewClient() {
