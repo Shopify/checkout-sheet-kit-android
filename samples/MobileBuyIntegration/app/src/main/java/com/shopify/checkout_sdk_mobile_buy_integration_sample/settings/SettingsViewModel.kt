@@ -25,6 +25,7 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.BuildConfig
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.withCustomCloseIcon
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.CustomerRepository
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.data.Settings
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.data.SettingsRepository
@@ -59,7 +60,7 @@ class SettingsViewModel(
 
     fun setColorScheme(colorScheme: ColorScheme) = viewModelScope.launch {
         ShopifyCheckoutSheetKit.configure {
-            it.colorScheme = colorScheme
+            it.colorScheme = colorScheme.withCustomCloseIcon()
         }
         settingsRepository.setColorScheme(colorScheme)
     }

@@ -1,11 +1,11 @@
 naming:
   EnumNaming:
     active: true
-    excludes: ['**/WebMessage.kt']
+    excludes: [ '**/WebMessage.kt' ]
 style:
   FunctionOnlyReturningConstant:
     active: true
-    excludes: ['**/WebViewController.kt']
+    excludes: [ '**/WebViewController.kt' ]
   MaxLineLength:
     active: true
     maxLineLength: 140
@@ -18,4 +18,4 @@ exceptions:
     active: false
 complexity:
   TooManyFunctions:
-    thresholdInClasses: 15
+    thresholdInClasses: 16

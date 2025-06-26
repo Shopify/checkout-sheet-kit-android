@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.4.1 Jun 26, 2025
+
+- Allow configuring a custom close icon, or setting close icon tint
+- Added helpers for customizing color schemes
+
 ## 3.4.0 Jun 11, 2025
 
 - Enable Google Pay payment support.  

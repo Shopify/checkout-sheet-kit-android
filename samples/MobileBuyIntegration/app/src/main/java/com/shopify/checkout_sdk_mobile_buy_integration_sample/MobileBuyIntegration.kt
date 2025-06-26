@@ -26,6 +26,7 @@ import android.app.Application
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.CookiePurger
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.di.setupDI
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.withCustomCloseIcon
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.ErrorRecovery
@@ -58,7 +59,7 @@ class MobileBuyIntegration : Application() {
             val settings = preferencesManager.userPreferencesFlow.first()
             ShopifyCheckoutSheetKit.configure {
                 it.logLevel = LogLevel.DEBUG
-                it.colorScheme = settings.colorScheme
+                it.colorScheme = settings.colorScheme.withCustomCloseIcon()
                 it.preloading = settings.preloading
                 it.errorRecovery = object : ErrorRecovery {
                     val logger: Logger by inject()

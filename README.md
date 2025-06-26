@@ -52,7 +52,7 @@ your project:
 ### Gradle
 
 ```groovy
-implementation "com.shopify:checkout-sheet-kit:3.4.0"
+implementation "com.shopify:checkout-sheet-kit:3.4.1"
 ```
 
 ### Maven
@@ -62,7 +62,7 @@ implementation "com.shopify:checkout-sheet-kit:3.4.0"
 <dependency>
    <groupId>com.shopify</groupId>
    <artifactId>checkout-sheet-kit</artifactId>
-   <version>3.4.0</version>
+   <version>3.4.1</version>
 </dependency>
 ```
 
@@ -175,12 +175,48 @@ val automatic = ColorScheme.Automatic(
 )
 ```
 
+**Close Icon Customization**
+
+The close icon in the checkout dialog header can be customized using the `customize` method for an ergonomic API:
+
+```kotlin
+ShopifyCheckoutSheetKit.configure {
+    it.colorScheme = ColorScheme.Light().customize {
+        // Option 1: Just tint the default close icon
+        closeIconTint = Color.ResourceId(R.color.my_custom_tint_color)
+        
+        // Option 2: Use a completely custom drawable
+        closeIcon = DrawableResource(R.drawable.my_custom_close_icon)
+    }
+}
+```
+
+For automatic theme switching, you can provide different customizations for light and dark modes:
+
+```kotlin
+ShopifyCheckoutSheetKit.configure {
+    it.colorScheme = ColorScheme.Automatic().customize(
+        light = {
+            closeIconTint = Color.ResourceId(R.color.light_tint)
+        },
+        dark = {
+            closeIconTint = Color.ResourceId(R.color.dark_tint)
+        }
+    )
+}
+```
+
+> [!Note]
+> If both `closeIcon` and `closeIconTint` are provided, the custom drawable (`closeIcon`) takes precedence and the tint is ignored.
+
 The colors that can be modified are:
 
 - headerBackground - Used to customize the background of the app bar on the dialog,
 - headerFont - Used to customize the font color of the header text within in the app bar,
 - webViewBackground - Used to customize the background color of the WebView,
 - progressIndicator - Used to customize the color of the progress indicator shown when checkout is loading.
+- closeIcon - Used to provide a completely custom close icon drawable
+- closeIconTint - Used to tint the default close icon with a custom color
 
 The current configuration can be obtained by calling `ShopifyCheckoutSheetKit.getConfiguration()`.
 
