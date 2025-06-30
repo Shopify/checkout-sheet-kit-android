@@ -25,10 +25,10 @@ ext {
     androidx_webkit_version = '1.14.0'
 
     junit_version = '4.13.2'
-    robolectric_version = '4.11.1'
+    robolectric_version = '4.15.1'
     mockito_core_version = '4.11.0'
     mockito_kotlin_version = '4.1.0'
-    assertj_version = '3.24.2'
+    assertj_version = '3.27.3'
     awaitility_version = '4.3.0'
 }
 
