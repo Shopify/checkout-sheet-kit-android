@@ -26,6 +26,7 @@ import android.content.Context
 import android.net.Uri
 import android.util.AttributeSet
 import android.webkit.WebView
+import androidx.core.net.toUri
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
 import com.shopify.checkoutsheetkit.lifecycleevents.emptyCompletedEvent
 
@@ -69,7 +70,7 @@ internal class FallbackWebView(context: Context, attributeSet: AttributeSet? = n
             log.d(LOG_TAG, "onPageFinished called.")
             getEventProcessor().onCheckoutViewLoadComplete()
 
-            val uri = Uri.parse(url)
+            val uri = url.toUri()
             if (isConfirmation(uri)) {
                 log.d(LOG_TAG, "Finished page has confirmationUrl. Emitting minimal checkout completed event.")
                 getEventProcessor().onCheckoutViewComplete(
