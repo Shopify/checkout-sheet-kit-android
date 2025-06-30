@@ -6,7 +6,7 @@ buildscript {
         activity_version = '1.8.2'
         coil_version = '2.6.0'
         kotlin_serialization_version = '1.6.2'
-        apollo_version = '4.1.0'
+        apollo_version = '4.3.1'
     }
 }
 plugins {
