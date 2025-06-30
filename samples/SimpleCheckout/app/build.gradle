@@ -43,7 +43,7 @@ apollo {
 
 android {
     namespace 'com.shopify.checkout_sdk_sample'
-    compileSdk 34
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.shopify.checkout_sdk_sample"
