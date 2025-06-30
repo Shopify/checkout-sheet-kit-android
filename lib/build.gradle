@@ -29,7 +29,7 @@ ext {
     mockito_core_version = '4.11.0'
     mockito_kotlin_version = '4.1.0'
     assertj_version = '3.24.2'
-    awaitility_version = '4.2.0'
+    awaitility_version = '4.3.0'
 }
 
 android {
