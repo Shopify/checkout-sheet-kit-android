@@ -9,19 +9,19 @@ updates:
   - package-ecosystem: gradle
     directory: "/"
     schedule:
-      interval: weekly
+      interval: daily
     open-pull-requests-limit: 10
   
   # SimpleCheckout sample
   - package-ecosystem: gradle
     directory: "/samples/SimpleCheckout"
     schedule:
-      interval: weekly
+      interval: daily
     open-pull-requests-limit: 5
   
   # MobileBuyIntegration sample
   - package-ecosystem: gradle
     directory: "/samples/MobileBuyIntegration"
     schedule:
-      interval: weekly
+      interval: daily
     open-pull-requests-limit: 5
