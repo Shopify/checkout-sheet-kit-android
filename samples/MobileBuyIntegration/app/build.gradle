@@ -32,7 +32,7 @@ if (!storefrontDomain || !accessToken) {
 
 android {
     namespace 'com.shopify.checkout_sdk_mobile_buy_integration_sample'
-    compileSdk 34
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.shopify.checkout_sdk_mobile_buy_integration_sample"
