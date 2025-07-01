@@ -62,9 +62,9 @@ import okhttp3.OkHttpClient
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
-import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.context.startKoin
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 fun setupDI(application: Application) {
@@ -86,7 +86,6 @@ val appModules = module {
     single {
         CustomerAccessTokenStore(
             appContext = androidApplication().applicationContext,
-            scope = CoroutineScope(Dispatchers.Default),
         )
     }
 

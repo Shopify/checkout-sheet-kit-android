@@ -29,6 +29,7 @@ package com.shopify.checkoutsheetkit
  * - Enabling/disabling preloading,
  * - Specifying the colorScheme that should be used for checkout.
  */
+@ConsistentCopyVisibility
 public data class Configuration internal constructor(
     var colorScheme: ColorScheme = ColorScheme.Automatic(),
     var preloading: Preloading = Preloading(),

@@ -2,7 +2,8 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'org.jetbrains.kotlin.plugin.serialization'
-    id "com.apollographql.apollo"
+    id 'com.apollographql.apollo'
+    id 'org.jetbrains.kotlin.plugin.compose'
 }
 
 def loadProperties() {

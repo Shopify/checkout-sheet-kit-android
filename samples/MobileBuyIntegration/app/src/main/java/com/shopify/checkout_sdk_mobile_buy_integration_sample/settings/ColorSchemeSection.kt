@@ -22,7 +22,7 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings
 
-import android.support.annotation.StringRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
