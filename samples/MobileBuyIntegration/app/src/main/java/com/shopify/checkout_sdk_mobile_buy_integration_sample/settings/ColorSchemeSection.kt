@@ -22,7 +22,6 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings
 
-import android.support.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -151,7 +150,7 @@ fun ColorSchemeOption(
 }
 
 private val ColorScheme.name: Int
-    @StringRes get() = when (this) {
+    get() = when (this) {
         is ColorScheme.Light -> R.string.color_scheme_light
         is ColorScheme.Dark -> R.string.color_scheme_dark
         is ColorScheme.Web -> R.string.color_scheme_web

@@ -109,7 +109,7 @@ class CartStorefrontApiClient(
         failureCallback: ((GraphError) -> Unit)? = {},
     ) {
         val mutation = Storefront.mutation { mutation ->
-            mutation.cartLinesAdd(lines, cartId) { cartLinesAddPayload ->
+            mutation.cartLinesAdd(cartId, lines) { cartLinesAddPayload ->
                 cartLinesAddPayload.cart { cartQuery ->
                     cartQueryFragment(cartQuery)
                 }.userErrors { errors ->

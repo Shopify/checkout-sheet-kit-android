@@ -23,7 +23,6 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components
 
 import android.content.Context
-import android.os.Build
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,11 +45,7 @@ fun MoneyText(
     textAlign: TextAlign = TextAlign.Start,
     includeSuffix: Boolean = true,
 ) {
-    val locale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        LocalConfiguration.current.locales.get(0)
-    } else {
-        LocalConfiguration.current.locale
-    }
+    val locale = LocalConfiguration.current.locales.get(0)
 
     Text(
         modifier = modifier,
@@ -79,11 +74,7 @@ fun MoneyRangeText(
     textAlign: TextAlign = TextAlign.Start,
     includeSuffix: Boolean = true,
 ) {
-    val locale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        LocalConfiguration.current.locales.get(0)
-    } else {
-        LocalConfiguration.current.locale
-    }
+    val locale = LocalConfiguration.current.locales.get(0)
 
     Text(
         modifier = modifier,
