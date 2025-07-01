@@ -185,7 +185,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
     companion object {
         private const val LOG_TAG = "CheckoutWebView"
         private const val OPEN_EXTERNALLY_PARAM = "open_externally"
-        private const val JAVASCRIPT_INTERFACE_NAME = "android"
+        private const val JAVASCRIPT_INTERFACE_NAME = "CheckoutSheetProtocolConsumer"
 
         internal var cacheEntry: CheckoutWebViewCacheEntry? = null
         internal var cacheClock = CheckoutWebViewCacheClock()
