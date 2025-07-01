@@ -38,7 +38,7 @@ android {
     defaultConfig {
         applicationId "com.shopify.checkout_sdk_mobile_buy_integration_sample"
         minSdk 28
-        targetSdk 34
+        targetSdk 36
         versionCode 34
         versionName "0.0.${versionCode}"
 
@@ -107,13 +107,11 @@ dependencies {
     implementation "androidx.compose.material3:material3-android:$material3_version"
     implementation "androidx.paging:paging-compose-android:$paging_version"
 
-    implementation "androidx.annotation:annotation:${annotation_version}"
-
     annotationProcessor "androidx.room:room-compiler:$room_version"
     ksp "androidx.room:room-compiler:$room_version"
 
     // SDK facilitating calling the Shopify Storefront API
-    implementation("com.shopify.mobilebuysdk:buy3:$mobile_buy_version")
+    implementation "com.shopify.mobilebuysdk:buy3:$mobile_buy_version"
 
     // Image loading library
     implementation "io.coil-kt:coil-compose:$coil_version"

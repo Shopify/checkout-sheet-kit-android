@@ -49,7 +49,7 @@ android {
     defaultConfig {
         applicationId "com.shopify.checkout_sdk_sample"
         minSdk 23
-        targetSdk 34
+        targetSdk 36
         versionCode 1
         versionName getVersionName()
 
