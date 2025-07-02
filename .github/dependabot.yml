@@ -11,6 +11,19 @@ updates:
     schedule:
       interval: daily
     open-pull-requests-limit: 10
+    ignore:
+      # Keep Kotlin on 1.9.x for compatibility
+      - dependency-name: "org.jetbrains.kotlin.*"
+        versions: [">=2.0.0"]
+      # Keep kotlinx-serialization on 1.6.x (compatible with Kotlin 1.9.x)
+      - dependency-name: "org.jetbrains.kotlinx:kotlinx-serialization-json"
+        versions: [">=1.7.0"]
+      # Keep Mockito on 4.x (requires JVM 1.8)
+      - dependency-name: "org.mockito:*"
+        versions: [">=5.0.0"]
+      # Keep JUnit on 4.x (JUnit 5 incompatible with Robolectric)
+      - dependency-name: "junit:junit"
+        versions: [">=5.0.0"]
   
   # SimpleCheckout sample
   - package-ecosystem: gradle
