@@ -21,6 +21,9 @@ updates:
       # Keep Mockito on 4.x (requires JVM 1.8)
       - dependency-name: "org.mockito:*"
         versions: [">=5.0.0"]
+      # Keep JUnit on 4.x (JUnit 5 incompatible with Robolectric)
+      - dependency-name: "junit:junit"
+        versions: [">=5.0.0"]
   
   # SimpleCheckout sample
   - package-ecosystem: gradle
