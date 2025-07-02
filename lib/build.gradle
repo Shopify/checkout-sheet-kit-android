@@ -17,7 +17,7 @@ def resolveEnvVarValue(name, defaultValue) {
 def versionName = resolveEnvVarValue("CHECKOUT_SHEET_KIT_VERSION", "3.4.1")
 
 ext {
-    app_compat_version = '1.6.1'
+    app_compat_version = '1.7.1'
     kotlin_serialization_version = '1.6.3'
 
     androidx_test_version = '1.6.1'
@@ -25,16 +25,16 @@ ext {
     androidx_webkit_version = '1.14.0'
 
     junit_version = '4.13.2'
-    robolectric_version = '4.11.1'
+    robolectric_version = '4.15.1'
     mockito_core_version = '4.11.0'
     mockito_kotlin_version = '4.1.0'
-    assertj_version = '3.24.2'
-    awaitility_version = '4.2.0'
+    assertj_version = '3.27.3'
+    awaitility_version = '4.3.0'
 }
 
 android {
     namespace 'com.shopify.checkoutsheetkit'
-    compileSdk 34
+    compileSdk 36
 
     defaultConfig {
         minSdk 23
@@ -88,14 +88,13 @@ android {
 }
 
 dependencies {
-    // Tests
     testImplementation "junit:junit:$junit_version"
     testImplementation "org.robolectric:robolectric:$robolectric_version"
-    // noinspection GradleDependency -- mockito 5 requires jvm target 1.11
+    // noinspection NewerVersionAvailable -- mockito 5 requires jvm target 1.11
     testImplementation "org.mockito:mockito-core:$mockito_core_version"
-    // noinspection GradleDependency -- mockito 5 requires jvm target 1.11
+    // noinspection NewerVersionAvailable -- mockito 5 requires jvm target 1.11
     testImplementation "org.mockito.kotlin:mockito-kotlin:$mockito_kotlin_version"
-    // noinspection GradleDependency -- mockito 5 requires jvm target 1.11
+    // noinspection NewerVersionAvailable -- mockito 5 requires jvm target 1.11
     testImplementation "org.mockito:mockito-android:$mockito_core_version"
     testImplementation "org.assertj:assertj-core:$assertj_version"
     testImplementation "org.awaitility:awaitility:$awaitility_version"

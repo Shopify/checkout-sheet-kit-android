@@ -71,20 +71,15 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsU
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsViewModel
 import com.shopify.checkoutsheetkit.ColorScheme
 import kotlinx.coroutines.launch
-import org.koin.androidx.compose.KoinAndroidContext
 import org.koin.androidx.compose.koinViewModel
-import org.koin.core.annotation.KoinExperimentalAPI
 
-@OptIn(KoinExperimentalAPI::class)
 @Composable
 fun CheckoutSdkApp() {
-    KoinAndroidContext {
-        val settingsViewModel = koinViewModel<SettingsViewModel>()
-        val cartViewModel = koinViewModel<CartViewModel>()
-        val logsViewModel = koinViewModel<LogsViewModel>()
+    val settingsViewModel = koinViewModel<SettingsViewModel>()
+    val cartViewModel = koinViewModel<CartViewModel>()
+    val logsViewModel = koinViewModel<LogsViewModel>()
 
-        CheckoutSdkAppRoot(settingsViewModel, cartViewModel, logsViewModel)
-    }
+    CheckoutSdkAppRoot(settingsViewModel, cartViewModel, logsViewModel)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

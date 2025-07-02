@@ -23,8 +23,8 @@
 package com.shopify.checkoutsheetkit
 
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.content.pm.ResolveInfo
 import android.net.Uri
 import androidx.activity.ComponentActivity
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
@@ -55,7 +55,7 @@ class DefaultCheckoutEventProcessorTest {
 
     @Test
     fun `onCheckoutLinkClicked with http scheme launches action view intent with uri as data`() {
-        val processor = processor(activity)
+        val processor = noopDefaultCheckoutEventProcessor(activity)
         val uri = Uri.parse("https://shopify.com")
 
         processor.onCheckoutLinkClicked(uri)
@@ -67,7 +67,7 @@ class DefaultCheckoutEventProcessorTest {
 
     @Test
     fun `onCheckoutLinkClicked with mailto scheme launches email intent with to address`() {
-        val processor = processor(activity)
+        val processor = noopDefaultCheckoutEventProcessor(activity)
         val uri = Uri.parse("mailto:test.user@shopify.com")
 
         processor.onCheckoutLinkClicked(uri)
@@ -79,7 +79,7 @@ class DefaultCheckoutEventProcessorTest {
 
     @Test
     fun `onCheckoutLinkClicked with tel scheme launches action dial intent with phone number`() {
-        val processor = processor(activity)
+        val processor = noopDefaultCheckoutEventProcessor(activity)
         val uri = Uri.parse("tel:0123456789")
 
         processor.onCheckoutLinkClicked(uri)
@@ -90,27 +90,21 @@ class DefaultCheckoutEventProcessorTest {
     }
 
     @Test
-    fun `onCheckoutLinkedClick with known deep link scheme logs warning`() {
-        val log = mock<LogWrapper>()
+    fun `onCheckoutLinkedClick with known deep link scheme`() {
         val uri = Uri.parse("geo:40.712776,-74.005974?q=Statue+of+Liberty")
-
-        val expectedIntent = Intent(Intent.ACTION_VIEW)
-        expectedIntent.data = uri
 
         val pm: PackageManager = RuntimeEnvironment.getApplication().packageManager
         val shadowPackageManager = shadowOf(pm)
-        shadowPackageManager.addResolveInfoForIntent(expectedIntent, ResolveInfo())
 
-        val processor = object: DefaultCheckoutEventProcessor(activity, log) {
-            override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {/* not implemented */}
-            override fun onCheckoutFailed(error: CheckoutException) {/* not implemented */}
-            override fun onCheckoutCanceled() {/* not implemented */}
-            override fun onWebPixelEvent(event: PixelEvent) {/* not implemented */}
+        val intentFilter = IntentFilter(Intent.ACTION_VIEW).apply {
+            addDataScheme("geo")
         }
+        shadowPackageManager.addIntentFilterForActivity(activity.componentName, intentFilter)
 
+        val processor = noopDefaultCheckoutEventProcessor(activity)
         processor.onCheckoutLinkClicked(uri)
 
-        val intent = shadowActivity.peekNextStartedActivityForResult().intent
+        val intent = shadowActivity.nextStartedActivity
         assertThat(intent.data).isEqualTo(uri)
         assertThat(intent.action).isEqualTo(Intent.ACTION_VIEW)
     }
@@ -118,12 +112,7 @@ class DefaultCheckoutEventProcessorTest {
     @Test
     fun `onCheckoutLinkedClick with unhandled scheme logs warning`() {
         val log = mock<LogWrapper>()
-        val processor = object: DefaultCheckoutEventProcessor(activity, log) {
-            override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {/* not implemented */}
-            override fun onCheckoutFailed(error: CheckoutException) {/* not implemented */}
-            override fun onCheckoutCanceled() {/* not implemented */}
-            override fun onWebPixelEvent(event: PixelEvent) {/* not implemented */}
-        }
+        val processor = noopDefaultCheckoutEventProcessor(activity, log)
 
         val uri = Uri.parse("ftp:random")
 
@@ -139,22 +128,24 @@ class DefaultCheckoutEventProcessorTest {
         var description = ""
         var recoverable: Boolean? = null
         val processor =
-                object : DefaultCheckoutEventProcessor(activity, log) {
-                    override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {
-                        /* not implemented */
-                    }
-                    override fun onCheckoutFailed(error: CheckoutException) {
-                        description = error.errorDescription
-                        recoverable = error.isRecoverable
-                    }
-                    override fun onCheckoutCanceled() {
-                        /* not implemented */
-                    }
-
-                    override fun onWebPixelEvent(event: PixelEvent) {
-                        /* not implemented */
-                    }
+            object : DefaultCheckoutEventProcessor(activity, log) {
+                override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {
+                    /* not implemented */
                 }
+
+                override fun onCheckoutFailed(error: CheckoutException) {
+                    description = error.errorDescription
+                    recoverable = error.isRecoverable
+                }
+
+                override fun onCheckoutCanceled() {
+                    /* not implemented */
+                }
+
+                override fun onWebPixelEvent(event: PixelEvent) {
+                    /* not implemented */
+                }
+            }
 
         val error = object : CheckoutUnavailableException("error description", "unknown", true) {}
 
@@ -162,14 +153,5 @@ class DefaultCheckoutEventProcessorTest {
 
         assertThat(description).isEqualTo("error description")
         assertThat(recoverable).isTrue()
-    }
-
-    private fun processor(activity: ComponentActivity): DefaultCheckoutEventProcessor {
-        return object: DefaultCheckoutEventProcessor(activity) {
-            override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {/* not implemented */}
-            override fun onCheckoutFailed(error: CheckoutException) {/* not implemented */}
-            override fun onCheckoutCanceled() {/* not implemented */}
-            override fun onWebPixelEvent(event: PixelEvent) {/* not implemented */}
-        }
     }
 }

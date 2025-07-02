@@ -28,7 +28,6 @@ import android.content.res.ColorStateList
 import android.content.res.Configuration.UI_MODE_NIGHT_MASK
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -47,6 +46,7 @@ import androidx.annotation.ColorInt
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.Toolbar
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.children
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
 
@@ -60,7 +60,7 @@ internal class CheckoutDialog(
         log.d(LOG_TAG, "Dialog start called.")
         setContentView(R.layout.dialog_checkout)
         window?.setLayout(MATCH_PARENT, WRAP_CONTENT)
-        window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        window?.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
         // Although this flag is deprecated in newest targets, it's properly
         // addressing the keyboard focus on the WebView within the dialog.
         // The non-deprecated alternative (insets listener) does notify about

@@ -23,64 +23,59 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.local
 
 import android.content.Context
-import android.content.SharedPreferences
-import androidx.core.content.edit
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.AccessToken
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 /**
- * Token Store backed by EncryptedSharedPreferences to allow storing an reusing tokens
+ * Token Store backed by DataStore with file-level encryption to allow storing and reusing tokens
  * until they have expired.
  */
 class CustomerAccessTokenStore(
-    scope: CoroutineScope,
     private val appContext: Context,
     private val json: Json = Json { ignoreUnknownKeys = true }
 ) {
-    private val storage = scope.async(Dispatchers.IO, start = CoroutineStart.LAZY) {
-        createEncryptedPrefs(appContext)
-    }
+    private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
+        name = PREFS_NAME,
+        produceMigrations = { listOf() }
+    )
+
+    private val tokenKey = stringPreferencesKey(KEY)
 
     /**
      * Find currently stored token
      */
-    suspend fun find(): AccessToken? = getStorage()
-        .getString(KEY, null)?.let { tokenString ->
-            json.decodeFromString<AccessToken>(tokenString)
+    suspend fun find(): AccessToken? = appContext.dataStore.data
+        .map { preferences ->
+            preferences[tokenKey]?.let { tokenString ->
+                json.decodeFromString<AccessToken>(tokenString)
+            }
         }
+        .first()
 
     /**
      * Save token to the store
      */
-    suspend fun save(accessToken: AccessToken) = getStorage()
-        .edit { putString(KEY, json.encodeToString(accessToken)) }
+    suspend fun save(accessToken: AccessToken) {
+        appContext.dataStore.edit { preferences ->
+            preferences[tokenKey] = json.encodeToString(accessToken)
+        }
+    }
 
     /**
      * Delete a token from the store
      */
-    suspend fun delete() = getStorage().edit { remove(KEY) }
-
-    private suspend fun getStorage() = storage.await()
-
-    private fun createEncryptedPrefs(context: Context): SharedPreferences {
-        val masterKey = MasterKey.Builder(context)
-            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-            .build()
-
-        return EncryptedSharedPreferences.create(
-            context,
-            PREFS_NAME,
-            masterKey,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
+    suspend fun delete() {
+        appContext.dataStore.edit { preferences ->
+            preferences.remove(tokenKey)
+        }
     }
 
     companion object {

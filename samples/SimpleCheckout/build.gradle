@@ -1,18 +1,19 @@
 buildscript {
     ext {
-        core_version = '1.12.0'
-        compose_ui_version = '1.6.5'
-        lifecycle_version = '2.7.0'
-        activity_version = '1.8.2'
-        coil_version = '2.6.0'
-        kotlin_serialization_version = '1.6.2'
-        apollo_version = '4.1.0'
+        core_version = '1.16.0'
+        compose_ui_version = '1.8.3'
+        lifecycle_version = '2.9.1'
+        activity_version = '1.10.1'
+        coil_version = '2.7.0'
+        kotlin_serialization_version = '1.8.1'
+        apollo_version = '4.3.1'
     }
 }
 plugins {
-    id 'com.android.application' version '8.3.0' apply false
-    id 'org.jetbrains.kotlin.android' version '1.9.22' apply false
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.22' apply false
-    id 'io.gitlab.arturbosch.detekt' version '1.23.0' apply false
-    id 'com.apollographql.apollo' version '4.1.0' apply false
+    id 'com.android.application' version '8.11.0' apply false
+    id 'org.jetbrains.kotlin.android' version '2.2.0' apply false
+    id 'org.jetbrains.kotlin.plugin.serialization' version '2.2.0' apply false
+    id 'io.gitlab.arturbosch.detekt' version '1.23.8' apply false
+    id 'com.apollographql.apollo' version '4.3.1' apply false
+    id 'org.jetbrains.kotlin.plugin.compose' version '2.2.0'
 }
