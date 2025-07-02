@@ -26,7 +26,7 @@ ext {
 
     junit_version = '4.13.2'
     robolectric_version = '4.15.1'
-    mockito_core_version = '4.11.0'
+    mockito_core_version = '5.18.0'
     mockito_kotlin_version = '4.1.0'
     assertj_version = '3.27.3'
     awaitility_version = '4.3.0'
