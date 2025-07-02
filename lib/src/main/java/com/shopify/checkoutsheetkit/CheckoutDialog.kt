@@ -31,6 +31,7 @@ import android.graphics.Color
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.view.MenuItem
 import android.view.View.GONE
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
@@ -42,7 +43,9 @@ import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import androidx.activity.ComponentActivity
 import androidx.annotation.ColorInt
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.Toolbar
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.children
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
@@ -77,13 +80,12 @@ internal class CheckoutDialog(
 
         val colorScheme = ShopifyCheckoutSheetKit.configuration.colorScheme
         log.d(LOG_TAG, "Configured colorScheme $colorScheme")
-        val header = findViewById<Toolbar>(R.id.checkoutSdkHeader)
-
-        header.apply {
+        findViewById<Toolbar>(R.id.checkoutSdkHeader).apply {
             log.d(LOG_TAG, "Applying configured header colors and inflating menu.")
             setBackgroundColor(colorScheme.headerBackgroundColor())
             setTitleTextColor(colorScheme.headerFontColor())
             inflateMenu(R.menu.checkout_menu)
+            menu.findItem(R.id.checkoutSdkCloseBtn).apply { setupCloseButton(colorScheme) }
         }
 
         findViewById<ProgressBar>(R.id.progressBar).apply {
@@ -107,12 +109,6 @@ internal class CheckoutDialog(
             removeWebViewFromContainer()
         }
 
-        header.setOnMenuItemClickListener {
-            log.d(LOG_TAG, "Menu click cancel invoked.")
-            cancel()
-            true
-        }
-
         setOnShowListener {
             log.d(LOG_TAG, "On show listener invoked, calling WebView notifyPresented.")
             checkoutWebView.notifyPresented()
@@ -120,6 +116,28 @@ internal class CheckoutDialog(
 
         log.d(LOG_TAG, "Showing dialog.")
         show()
+    }
+
+    private fun MenuItem.setupCloseButton(colorScheme: ColorScheme) {
+        val customCloseIcon = colorScheme.closeIcon(context.isDarkTheme())
+        if (customCloseIcon != null) {
+            log.d(LOG_TAG, "Setting custom menu item drawable.")
+            this.icon = AppCompatResources.getDrawable(context, customCloseIcon.id)
+        } else {
+            val customTint = colorScheme.closeIconTint(context.isDarkTheme())
+            val icon = this.icon
+            if (customTint != null && icon != null) {
+                log.d(LOG_TAG, "Setting menu item tint.")
+                val wrappedDrawable = DrawableCompat.wrap(icon)
+                DrawableCompat.setTint(wrappedDrawable.mutate(), customTint.getValue(context))
+            }
+        }
+
+        setOnMenuItemClickListener {
+            log.d(LOG_TAG, "Menu click cancel invoked.")
+            cancel()
+            true
+        }
     }
 
     private fun removeWebViewFromContainer() {

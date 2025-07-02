@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.4.1 Jul 03, 2025
+
+- Allow configuring a custom close icon, or setting close icon tint
+- Added helpers for customizing color schemes
+- Appcompat dependency update from (1.6.1 -> 1.7.1)
+- Android Gradle Plugin update (8.3 -> 8.11)
+- Update to compileSdk (34 -> 36)
+
 ## 3.4.0 Jun 11, 2025
 
 - Enable Google Pay payment support.  

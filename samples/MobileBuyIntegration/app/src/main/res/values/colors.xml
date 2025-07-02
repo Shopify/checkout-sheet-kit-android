@@ -4,4 +4,6 @@
     <color name="header_bg">#f0f0e8</color>
     <color name="header_font">#000</color>
     <color name="bright_progress_indicator">#ffff00</color>
+    <color name="light_theme_close_icon">#0000FF</color>
+    <color name="dark_theme_close_icon">#00CCFF</color>
 </resources>
