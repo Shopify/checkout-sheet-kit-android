@@ -18,7 +18,7 @@ def versionName = resolveEnvVarValue("CHECKOUT_SHEET_KIT_VERSION", "3.4.1")
 
 ext {
     app_compat_version = '1.7.1'
-    kotlin_serialization_version = '1.6.3'
+    kotlin_serialization_version = '1.9.0'
 
     androidx_test_version = '1.6.1'
     androidx_junit_ext_version = '1.2.1'
