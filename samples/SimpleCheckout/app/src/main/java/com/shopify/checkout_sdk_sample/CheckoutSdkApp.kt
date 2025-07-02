@@ -22,19 +22,17 @@
  */
 package com.shopify.checkout_sdk_sample
 
-import android.app.Activity
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalView
-import androidx.core.view.WindowCompat
 import com.shopify.checkout_sdk_sample.product.ProductView
 import com.shopify.checkoutsheetkit.ColorScheme
 import com.shopify.checkoutsheetkit.LogLevel
@@ -49,18 +47,9 @@ fun CheckoutSdkApp() {
         it.logLevel = LogLevel.DEBUG
     }
 
-    val view = LocalView.current
-    if (!view.isInEditMode) {
-        SideEffect {
-            val window = (view.context as Activity).window
-            window.statusBarColor = Color.White.toArgb()
-            WindowCompat
-                .getInsetsController(window, view)
-                .isAppearanceLightStatusBars = true
-        }
-    }
 
     Scaffold(
+        modifier = Modifier.windowInsetsPadding(WindowInsets.systemBars),
         topBar = {
             TopAppBar(
                 backgroundColor = Color.White,

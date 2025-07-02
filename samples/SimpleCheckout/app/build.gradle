@@ -6,6 +6,9 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.compose'
 }
 
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
+
 def loadProperties() {
     def props = new Properties()
     file('../.env').withInputStream {
@@ -76,9 +79,6 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    kotlinOptions {
-        jvmTarget = '1.8'
-    }
     buildFeatures {
         compose true
         buildConfig true
@@ -90,6 +90,12 @@ android {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
+    }
+}
+
+tasks.withType(KotlinJvmCompile).configureEach {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_1_8)
     }
 }
 

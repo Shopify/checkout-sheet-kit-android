@@ -22,7 +22,8 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme
 
-import android.app.Activity
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -30,7 +31,6 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
@@ -81,12 +81,12 @@ fun CheckoutSdkSampleTheme(
     }
 
     val view = LocalView.current
+    val activity = LocalActivity.current as ComponentActivity
+
     if (!view.isInEditMode) {
         SideEffect {
-            val window = (view.context as Activity).window
-            window.statusBarColor = colors.background.toArgb()
             WindowCompat
-                .getInsetsController(window, view)
+                .getInsetsController(activity.window, view)
                 .isAppearanceLightStatusBars = !darkTheme
         }
     }
