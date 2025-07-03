@@ -24,6 +24,7 @@ package com.shopify.checkout_sdk_sample.product
 
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -37,7 +38,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.shopify.checkout_sdk_sample.R
@@ -47,7 +47,7 @@ fun ProductView(
     productViewModel: ProductViewModel = viewModel()
 ) {
 
-    val activity = LocalContext.current as ComponentActivity
+    val activity = LocalActivity.current as ComponentActivity
 
     LaunchedEffect(key1 = true) {
         productViewModel.setEventProcessor(activity)

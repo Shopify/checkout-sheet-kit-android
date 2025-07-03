@@ -1,4 +1,5 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     id 'signing'
@@ -14,7 +15,7 @@ def resolveEnvVarValue(name, defaultValue) {
     return rawValue ? rawValue : defaultValue
 }
 
-def versionName = resolveEnvVarValue("CHECKOUT_SHEET_KIT_VERSION", "3.4.1")
+def versionName = resolveEnvVarValue("CHECKOUT_SHEET_KIT_VERSION", "3.5.0")
 
 ext {
     app_compat_version = '1.7.1'
@@ -38,7 +39,7 @@ android {
 
     defaultConfig {
         minSdk 23
-        targetSdk 33
+        targetSdk 35
         versionCode 1
         versionName
 
@@ -63,9 +64,6 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
-    }
     testOptions {
         unitTests.includeAndroidResources = true
         unitTests.all {
@@ -84,6 +82,15 @@ android {
     }
     buildFeatures {
         buildConfig true
+    }
+}
+
+tasks.withType(KotlinJvmCompile).configureEach {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_1_8)
+        if (!name.contains("Test")) {
+            freeCompilerArgs.add("-Xexplicit-api=strict")
+        }
     }
 }
 
@@ -121,11 +128,6 @@ detekt {
     config.setFrom('detekt.config.yml')
 }
 
-tasks.withType(KotlinCompile).configureEach {
-    if (!it.name.contains("Test")) {
-        kotlinOptions.freeCompilerArgs += "-Xexplicit-api=strict"
-    }
-}
 
 project.afterEvaluate {
     publishing {
