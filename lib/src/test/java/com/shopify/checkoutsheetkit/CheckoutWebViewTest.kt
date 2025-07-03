@@ -79,7 +79,7 @@ class CheckoutWebViewTest {
         assertThat(view.id).isNotNull
         assertThat(shadowOf(view).webViewClient.javaClass).isEqualTo(CheckoutWebView.CheckoutWebViewClient::class.java)
         assertThat(shadowOf(view).backgroundColor).isEqualTo(Color.TRANSPARENT)
-        assertThat(shadowOf(view).getJavascriptInterface("android").javaClass)
+        assertThat(shadowOf(view).getJavascriptInterface("CheckoutSheetProtocolConsumer").javaClass)
             .isEqualTo(CheckoutBridge::class.java)
     }
 
@@ -182,7 +182,7 @@ class CheckoutWebViewTest {
         val shadow = shadowOf(view)
         shadow.callOnAttachedToWindow()
 
-        assertThat(shadow.getJavascriptInterface("android").javaClass)
+        assertThat(shadow.getJavascriptInterface("CheckoutSheetProtocolConsumer").javaClass)
             .isEqualTo(CheckoutBridge::class.java)
     }
 
