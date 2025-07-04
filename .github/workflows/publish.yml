@@ -42,12 +42,12 @@ jobs:
         run: |
           TOKEN=$(echo -n "${{ secrets.OSSRH_USERNAME }}:${{ secrets.OSSRH_PASSWORD }}" | base64)
           RESPONSE=$(curl -s -H "Authorization: Bearer $TOKEN" \
-            "${OSSRH_API_BASE_URL}/manual/search/repositories?ip=any")
+            "${OSSRH_API_BASE_URL}/manual/search/repositories?ip=any&state=open")
           echo "Response: $RESPONSE"
 
           # Extract repository key from JSON response
           REPO_KEY=$(echo "$RESPONSE" | jq -r \
-            '.repositories[] | select(.state == "open") | .key' | head -1)
+            '.repositories[] | .key' | head -1)
           echo "Repository key: $REPO_KEY"
 
           if [ -z "$REPO_KEY" ]; then
