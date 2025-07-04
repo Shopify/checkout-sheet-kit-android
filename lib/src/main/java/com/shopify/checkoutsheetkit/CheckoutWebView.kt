@@ -41,8 +41,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
     BaseWebView(context, attributeSet) {
 
     override val recoverErrors = true
-    override val variant = "standard"
-    override val cspSchema = CheckoutBridge.SCHEMA_VERSION_NUMBER
+    override val cspSchema = CheckoutBridge.SCHEMA_VERSION
     var isPreload = false
 
     private val checkoutBridge = CheckoutBridge(CheckoutWebViewEventProcessor(NoopEventProcessor()))
@@ -106,8 +105,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         initLoadTime = System.currentTimeMillis()
         this.isPreload = isPreload
         Handler(Looper.getMainLooper()).post {
-            val headers = if (isPreload) mutableMapOf("Sec-Purpose" to "prefetch") else mutableMapOf()
-            loadUrl(url, headers)
+            loadUrl(url, checkoutKitHeaders(isPreload))
         }
     }
 
@@ -150,7 +148,8 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
                 checkoutBridge.getEventProcessor().onCheckoutViewLinkClicked(request.trimmedUri())
                 return true
             }
-            return false
+
+            return super.shouldOverrideUrlLoading(view, request)
         }
 
         private fun WebResourceRequest.hasExternalAnnotation(): Boolean {
@@ -186,7 +185,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
     companion object {
         private const val LOG_TAG = "CheckoutWebView"
         private const val OPEN_EXTERNALLY_PARAM = "open_externally"
-        private const val JAVASCRIPT_INTERFACE_NAME = "android"
+        private const val JAVASCRIPT_INTERFACE_NAME = "CheckoutSheetProtocolConsumer"
 
         internal var cacheEntry: CheckoutWebViewCacheEntry? = null
         internal var cacheClock = CheckoutWebViewCacheClock()
