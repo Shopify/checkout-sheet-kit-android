@@ -169,15 +169,8 @@ project.afterEvaluate {
 
         repositories {
             maven {
-                url "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-                credentials {
-                    username System.getenv("OSSRH_USERNAME")
-                    password System.getenv("OSSRH_PASSWORD")
-                }
-            }
-
-            maven {
-                url "https://oss.sonatype.org/content/repositories/snapshots/"
+                name = 'ossrh-staging-api'
+                url = "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
                 credentials {
                     username System.getenv("OSSRH_USERNAME")
                     password System.getenv("OSSRH_PASSWORD")
