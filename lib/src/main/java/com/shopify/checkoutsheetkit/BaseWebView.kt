@@ -142,22 +142,13 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
             request: WebResourceRequest?
         ): Boolean {
             if (request?.isForMainFrame == true && request.url?.isWebLink() == true) {
-                var headers = request.requestHeaders ?: mutableMapOf()
-                var shouldOverride = false
+                val headers = request.requestHeaders ?: mutableMapOf()
+                var url = request.url.toString()
 
-                val colorScheme = ShopifyCheckoutSheetKit.configuration.colorScheme
-                val shouldHaveColorSchemeHeader = colorScheme !is ColorScheme.Web && colorScheme !is ColorScheme.Automatic
-                if (shouldHaveColorSchemeHeader && !headers.hasColorSchemeHeader()) {
-                    headers = headers.withColorScheme()
-                    shouldOverride = true
-                }
-                if (!headers.hasBrandingHeader()) {
-                    headers = headers.withBranding()
-                    shouldOverride = true
-                }
-
-                if (shouldOverride) {
-                    view?.loadUrl(request.url.toString(), headers)
+                val needsEmbedParam = url.needsEmbedParam()
+                if (needsEmbedParam) {
+                    url = url.withEmbedParam()
+                    view?.loadUrl(url, headers)
                     return true
                 }
             }

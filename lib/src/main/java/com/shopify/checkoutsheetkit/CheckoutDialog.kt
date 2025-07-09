@@ -215,7 +215,7 @@ internal class CheckoutDialog(
             ShopifyCheckoutSheetKit.configuration.colorScheme,
             FallbackWebView(context).apply {
                 setEventProcessor(eventProcessor())
-                loadUrl(checkoutUrl, checkoutKitHeaders())
+                loadUrl(checkoutUrl.withEmbedParam(), checkoutKitHeaders())
             }
         )
         return true

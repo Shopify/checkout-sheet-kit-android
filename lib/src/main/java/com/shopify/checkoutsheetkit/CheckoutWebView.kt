@@ -105,7 +105,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         initLoadTime = System.currentTimeMillis()
         this.isPreload = isPreload
         Handler(Looper.getMainLooper()).post {
-            loadUrl(url, checkoutKitHeaders(isPreload))
+            loadUrl(url.withEmbedParam(), checkoutKitHeaders(isPreload))
         }
     }
 

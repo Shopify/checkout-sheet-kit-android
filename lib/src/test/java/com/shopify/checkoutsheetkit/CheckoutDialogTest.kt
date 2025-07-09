@@ -360,7 +360,7 @@ class CheckoutDialogTest {
 
         val layout = dialog.findViewById<RelativeLayout>(R.id.checkoutSdkContainer)
         val fallbackView = layout.children.first { it is FallbackWebView } as FallbackWebView
-        assertThat(shadowOf(fallbackView).lastLoadedUrl).isEqualTo(checkoutUrl)
+        assertThat(shadowOf(fallbackView).lastLoadedUrl).isEqualTo("https://shopify.com?embed=branding%3Dapp%2C%20color_scheme%3Dlight")
     }
 
     @Test
