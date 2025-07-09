@@ -40,6 +40,7 @@ class ShopifyCheckoutSheetKitTest {
     fun setUp() {
         ShopifyCheckoutSheetKit.configure {
             it.preloading = Preloading(enabled = false)
+            it.colorScheme = ColorScheme.Automatic()
         }
     }
 
@@ -148,7 +149,7 @@ class ShopifyCheckoutSheetKitTest {
                 assertThat(thirdEntry!!.key).isEqualTo("https://one.com")
                 assertThat(thirdEntry.isStale).isFalse()
 
-                assertThat(shadowOf(thirdEntry.view).lastLoadedUrl).isEqualTo("https://one.com")
+                assertThat(shadowOf(thirdEntry.view).lastLoadedUrl).isEqualTo("https://one.com?embed=branding%3Dapp")
             }
         }
     }
@@ -184,7 +185,7 @@ class ShopifyCheckoutSheetKitTest {
                 assertThat(thirdEntry?.key).isEqualTo("https://one.com")
                 assertThat(thirdEntry?.isStale).isTrue()
 
-                assertThat(shadowOf(thirdEntry?.view).lastLoadedUrl).isEqualTo("https://two.com")
+                assertThat(shadowOf(thirdEntry?.view).lastLoadedUrl).isEqualTo("https://two.com?embed=branding%3Dapp")
             }
         }
     }

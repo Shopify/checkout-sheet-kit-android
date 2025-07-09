@@ -22,15 +22,17 @@
  */
 package com.shopify.checkoutsheetkit
 
+import androidx.core.net.toUri
+
 internal object Headers {
     internal const val PURPOSE = "Sec-Purpose"
     internal const val PURPOSE_PREFETCH = "prefetch"
+}
 
-    internal const val PREFERS_COLOR_SCHEME = "Sec-CH-Prefers-Color-Scheme"
-
-    internal const val BRANDING = "X-Shopify-Checkout-Kit-Branding"
-    internal const val BRANDING_CHECKOUT_KIT = "CHECKOUT_KIT"
-    internal const val BRANDING_WEB = "WEB_DEFAULT"
+internal object QueryParams {
+    internal const val EMBED = "embed"
+    internal const val BRANDING_APP = "app"
+    internal const val BRANDING_SHOP = "shop"
 }
 
 internal fun checkoutKitHeaders(isPreload: Boolean = false): MutableMap<String, String> {
@@ -41,39 +43,33 @@ internal fun checkoutKitHeaders(isPreload: Boolean = false): MutableMap<String, 
     }
 
     return headers
-        .withColorScheme()
-        .withBranding()
 }
 
-internal fun MutableMap<String, String>.withColorScheme(): MutableMap<String, String> {
-    val headers = mutableMapOf<String, String>()
-    headers.putAll(this)
-
+internal fun String.withEmbedParam(): String {
     val colorScheme = ShopifyCheckoutSheetKit.configuration.colorScheme
+    val brandingValue = when (colorScheme) {
+        is ColorScheme.Web -> QueryParams.BRANDING_SHOP
+        else -> QueryParams.BRANDING_APP
+    }
+
+    val embedParts = mutableListOf<String>()
+    embedParts.add("branding=$brandingValue")
+
+    // Add color scheme if it's not Web or Automatic
     if (colorScheme !is ColorScheme.Web && colorScheme !is ColorScheme.Automatic) {
-        headers[Headers.PREFERS_COLOR_SCHEME] = colorScheme.id
+        embedParts.add("color_scheme=${colorScheme.id}")
     }
 
-    return headers
+    val embedValue = embedParts.joinToString(", ")
+
+    return this.toUri()
+        .buildUpon()
+        .appendQueryParameter(QueryParams.EMBED, embedValue)
+        .build()
+        .toString()
 }
 
-internal fun MutableMap<String, String>.withBranding(): MutableMap<String, String> {
-    val headers = mutableMapOf<String, String>()
-    headers.putAll(this)
-
-    val colorScheme = ShopifyCheckoutSheetKit.configuration.colorScheme
-    when (colorScheme) {
-        is ColorScheme.Web -> headers[Headers.BRANDING] = Headers.BRANDING_WEB
-        else -> headers[Headers.BRANDING] = Headers.BRANDING_CHECKOUT_KIT
-    }
-
-    return headers
-}
-
-internal fun MutableMap<String, String>.hasColorSchemeHeader() = hasHeader(Headers.PREFERS_COLOR_SCHEME)
-
-internal fun MutableMap<String, String>.hasBrandingHeader() = hasHeader(Headers.BRANDING)
-
-private fun MutableMap<String, String>.hasHeader(headerName: String) = this.keys.any {
-    it.equals(headerName, ignoreCase = true)
+internal fun String.needsEmbedParam(): Boolean {
+    val uri = this.toUri()
+    return uri.getQueryParameter(QueryParams.EMBED) == null
 }
