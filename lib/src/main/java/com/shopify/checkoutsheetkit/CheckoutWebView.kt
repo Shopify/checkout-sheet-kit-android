@@ -31,7 +31,6 @@ import android.util.AttributeSet
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import androidx.activity.ComponentActivity
-import com.shopify.checkoutsheetkit.InstrumentationType.histogram
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
 import java.util.concurrent.CountDownLatch
 import kotlin.math.abs
@@ -119,19 +118,8 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
 
         override fun onPageFinished(view: WebView, url: String) {
             super.onPageFinished(view, url)
-            log.d(LOG_TAG, "onPageFinished called $url, emitting instrumentation message.")
+            log.d(LOG_TAG, "onPageFinished called $url.")
             loadComplete = true
-            val timeToLoad = System.currentTimeMillis() - initLoadTime
-            checkoutBridge.sendMessage(
-                view, CheckoutBridge.SDKOperation.Instrumentation(
-                    InstrumentationPayload(
-                        name = "checkout_finished_loading",
-                        value = timeToLoad,
-                        type = histogram,
-                        tags = mapOf("preloading" to isPreload.toString()),
-                    )
-                )
-            )
             getEventProcessor().onCheckoutViewLoadComplete()
         }
 
