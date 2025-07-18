@@ -153,7 +153,7 @@ internal class CheckoutBridge(
         |if (window.Shopify?.CheckoutSheetProtocol?.postMessage) {
         |    window.Shopify.CheckoutSheetProtocol.postMessage($body);
         |} else {
-        |    window.addEventListener('mobileCheckoutBridgeReady', function () {
+        |    window.addEventListener('checkoutProtocolReady', function () {
         |        window.Shopify.CheckoutSheetProtocol.postMessage($body);
         |    }, {passive: true, once: true});
         |}
