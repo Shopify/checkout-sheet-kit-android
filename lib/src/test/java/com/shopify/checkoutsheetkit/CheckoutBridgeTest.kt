@@ -33,7 +33,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.eq
@@ -98,15 +97,17 @@ class CheckoutBridgeTest {
         val webView = mock<WebView>()
         checkoutBridge.sendMessage(webView, CheckoutBridge.SDKOperation.Presented)
 
-        verify(webView).evaluateJavascript("""|
-        |if (window.MobileCheckoutSdk && window.MobileCheckoutSdk.dispatchMessage) {
-        |    window.MobileCheckoutSdk.dispatchMessage('presented');
+        verify(webView).evaluateJavascript(
+            """|
+        |if (window.Shopify?.CheckoutSheetProtocol?.postMessage) {
+        |    window.Shopify.CheckoutSheetProtocol.postMessage('presented');
         |} else {
         |    window.addEventListener('mobileCheckoutBridgeReady', function () {
-        |        window.MobileCheckoutSdk.dispatchMessage('presented');
+        |        window.Shopify.CheckoutSheetProtocol.postMessage('presented');
         |    }, {passive: true, once: true});
         |}
-        |""".trimMargin(), null)
+        |""".trimMargin(), null
+        )
     }
 
     @Test
@@ -125,31 +126,6 @@ class CheckoutBridgeTest {
         )
         assertThat(error.isRecoverable).isTrue()
         assertThat(error.errorCode).isEqualTo(CheckoutSheetKitException.ERROR_SENDING_MESSAGE_TO_CHECKOUT)
-    }
-
-    @Test
-    fun `instrumentation sends message to the bridge`() {
-        val webView = mock<WebView>()
-        val payload = InstrumentationPayload(
-            name = "Test",
-            value = 123L,
-            type = InstrumentationType.histogram,
-            tags = mapOf("tag1" to "value1", "tag2" to "value2")
-        )
-        val expectedPayload = """{"detail":{"name":"Test","value":123,"type":"histogram","tags":{"tag1":"value1","tag2":"value2"}}}"""
-        val expectedJavascript = """|
-        |if (window.MobileCheckoutSdk && window.MobileCheckoutSdk.dispatchMessage) {
-        |    window.MobileCheckoutSdk.dispatchMessage('instrumentation', $expectedPayload);
-        |} else {
-        |    window.addEventListener('mobileCheckoutBridgeReady', function () {
-        |        window.MobileCheckoutSdk.dispatchMessage('instrumentation', $expectedPayload);
-        |    }, {passive: true, once: true});
-        |}
-        |""".trimMargin()
-
-        checkoutBridge.sendMessage(webView, CheckoutBridge.SDKOperation.Instrumentation(payload))
-
-        Mockito.verify(webView).evaluateJavascript(expectedJavascript, null)
     }
 
     @Test
@@ -177,7 +153,7 @@ class CheckoutBridgeTest {
         |""".trimMargin()
 
 
-       checkoutBridge.postMessage(eventString)
+        checkoutBridge.postMessage(eventString)
 
         val captor = argumentCaptor<PixelEvent>()
         verify(mockEventProcessor, timeout(2000).times(1)).onWebPixelEvent(captor.capture())
@@ -240,7 +216,7 @@ class CheckoutBridgeTest {
 
     @Test
     fun `should decode a barebones expired error payload and call processor#onCheckoutViewFailedWithError`() {
-        val eventString =  """|
+        val eventString = """|
             |{
             |   "name": "error",
             |   "body": "[{
@@ -287,6 +263,7 @@ class CheckoutBridgeTest {
         assertThat(error.isRecoverable).isTrue()
         assertThat(error.errorCode).isEqualTo(CheckoutUnavailableException.CLIENT_ERROR)
     }
+
     @Test
     fun `should decode a configuration error payload and call processor#onCheckoutViewFailedWithError - storefront pw required`() {
         val eventString = """|
