@@ -57,7 +57,7 @@ internal fun String.withEmbedParam(): String {
 
     // Add color scheme if it's not Web or Automatic
     if (colorScheme !is ColorScheme.Web && colorScheme !is ColorScheme.Automatic) {
-        embedParts.add("color_scheme=${colorScheme.id}")
+        embedParts.add("colorscheme=${colorScheme.id}")
     }
 
     val embedValue = embedParts.joinToString(", ")
