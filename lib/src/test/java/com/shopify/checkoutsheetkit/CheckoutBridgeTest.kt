@@ -102,7 +102,7 @@ class CheckoutBridgeTest {
         |if (window.Shopify?.CheckoutSheetProtocol?.postMessage) {
         |    window.Shopify.CheckoutSheetProtocol.postMessage('presented');
         |} else {
-        |    window.addEventListener('mobileCheckoutBridgeReady', function () {
+        |    window.addEventListener('checkoutProtocolReady', function () {
         |        window.Shopify.CheckoutSheetProtocol.postMessage('presented');
         |    }, {passive: true, once: true});
         |}

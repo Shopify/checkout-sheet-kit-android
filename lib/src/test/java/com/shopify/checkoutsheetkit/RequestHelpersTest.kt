@@ -76,7 +76,7 @@ class RequestHelpersTest {
 
         val result = "https://example.com".withEmbedParam()
 
-        assertThat(result).isEqualTo("https://example.com?embed=branding%3Dapp%2C%20color_scheme%3Ddark")
+        assertThat(result).isEqualTo("https://example.com?embed=branding%3Dapp%2C%20colorscheme%3Ddark")
     }
 
     @Test
@@ -98,7 +98,7 @@ class RequestHelpersTest {
 
         val result = "https://example.com?existing=value".withEmbedParam()
 
-        assertThat(result).isEqualTo("https://example.com?existing=value&embed=branding%3Dapp%2C%20color_scheme%3Ddark")
+        assertThat(result).isEqualTo("https://example.com?existing=value&embed=branding%3Dapp%2C%20colorscheme%3Ddark")
     }
 
     @Test
@@ -121,14 +121,14 @@ class RequestHelpersTest {
 
     @Test
     fun `needsEmbedParam returns false when embed parameter is present`() {
-        val needsEmbed = "https://example.com?embed=branding%3Dapp%2C%20color_scheme%3Ddark".needsEmbedParam()
+        val needsEmbed = "https://example.com?embed=branding%3Dapp%2C%20colorscheme%3Ddark".needsEmbedParam()
 
         assertThat(needsEmbed).isFalse
     }
 
     @Test
     fun `needsEmbedParam handles existing query parameters correctly`() {
-        val needsEmbed = "https://example.com?other=value&embed=branding%3Dapp%2C%20color_scheme%3Ddark&another=value".needsEmbedParam()
+        val needsEmbed = "https://example.com?other=value&embed=branding%3Dapp%2C%20colorscheme%3Ddark&another=value".needsEmbedParam()
 
         assertThat(needsEmbed).isFalse
     }
