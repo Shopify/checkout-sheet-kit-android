@@ -13,7 +13,7 @@ buildscript {
         mobile_buy_version = '2025.4.1'
         nav_version = '2.9.2'
         paging_version = '3.3.6'
-        room_version = '2.6.1'
+        room_version = '2.7.2'
         timber_version = '5.0.1'
     }
 }
