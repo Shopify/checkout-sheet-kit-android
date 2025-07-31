@@ -21,7 +21,7 @@ ext {
     app_compat_version = '1.7.1'
     kotlin_serialization_version = '1.6.3'
 
-    androidx_test_version = '1.6.1'
+    androidx_test_version = '1.7.0'
     androidx_junit_ext_version = '1.2.1'
     androidx_webkit_version = '1.14.0'
 
