@@ -36,6 +36,13 @@
     <string name="logout" translatable="false">Log out</string>
     <string name="login_retry" translatable="false">Retry</string>
 
+    <!-- Privacy Consent -->
+    <string name="privacy_consent_signals" translatable="false">Privacy Consent Signals</string>
+    <string name="marketing" translatable="false">Marketing</string>
+    <string name="analytics" translatable="false">Analytics</string>
+    <string name="preferences" translatable="false">Preferences</string>
+    <string name="sale_of_data" translatable="false">Sale of Data</string>
+
     <!-- Errors -->
     <string name="checkout_error" translatable="false">Checkout failed, please try again</string>
     <string name="collection_failed_to_load" translatable="false">Failed to load collection</string>

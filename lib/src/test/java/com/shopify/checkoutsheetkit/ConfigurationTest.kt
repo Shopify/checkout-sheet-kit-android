@@ -1,18 +1,18 @@
 /*
  * MIT License
- * 
+ *
  * Copyright 2023-present, Shopify Inc.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -44,6 +44,7 @@ class ConfigurationTest {
             it.colorScheme = initialConfiguration.colorScheme
             it.preloading = initialConfiguration.preloading
             it.errorRecovery = initialConfiguration.errorRecovery
+            it.privacyConsent = initialConfiguration.privacyConsent
         }
     }
 
@@ -143,6 +144,60 @@ class ConfigurationTest {
         )
 
         verify(mockFn).invoke()
+    }
+
+    @Test
+    fun `can set privacy consent via configure function - none`() {
+        ShopifyCheckoutSheetKit.configure {
+            it.privacyConsent = PrivacyConsent.none
+        }
+
+        assertThat(ShopifyCheckoutSheetKit.getConfiguration().privacyConsent).isEqualTo(PrivacyConsent.none)
+    }
+
+    @Test
+    fun `can set privacy consent via configure function - all`() {
+        ShopifyCheckoutSheetKit.configure {
+            it.privacyConsent = PrivacyConsent.all
+        }
+
+        assertThat(ShopifyCheckoutSheetKit.getConfiguration().privacyConsent).isEqualTo(PrivacyConsent.all)
+    }
+
+    @Test
+    fun `can set privacy consent via configure function - custom`() {
+        val customConsent = PrivacyConsent(marketing = true, analytics = false, preferences = true, saleOfData = false)
+        ShopifyCheckoutSheetKit.configure {
+            it.privacyConsent = customConsent
+        }
+
+        assertThat(ShopifyCheckoutSheetKit.getConfiguration().privacyConsent).isEqualTo(customConsent)
+    }
+
+    @Test
+    fun `privacy consent defaults to null`() {
+        assertThat(ShopifyCheckoutSheetKit.getConfiguration().privacyConsent).isNull()
+    }
+
+    @Test
+    fun `privacy consent withConsents adds specified consents`() {
+        val baseConsent = PrivacyConsent(marketing = true, analytics = false)
+        val updatedConsent = baseConsent.withConsents(PrivacyConsent.ConsentType.ANALYTICS, PrivacyConsent.ConsentType.PREFERENCES)
+
+        assertThat(updatedConsent.marketing).isTrue
+        assertThat(updatedConsent.analytics).isTrue
+        assertThat(updatedConsent.preferences).isTrue
+        assertThat(updatedConsent.saleOfData).isFalse
+    }
+
+    @Test
+    fun `privacy consent hasConsent returns correct values`() {
+        val consent = PrivacyConsent(marketing = true, analytics = false, preferences = true, saleOfData = false)
+
+        assertThat(consent.hasConsent(PrivacyConsent.ConsentType.MARKETING)).isTrue
+        assertThat(consent.hasConsent(PrivacyConsent.ConsentType.ANALYTICS)).isFalse
+        assertThat(consent.hasConsent(PrivacyConsent.ConsentType.PREFERENCES)).isTrue
+        assertThat(consent.hasConsent(PrivacyConsent.ConsentType.SALE_OF_DATA)).isFalse
     }
 
     private fun recoverableException(): CheckoutException {

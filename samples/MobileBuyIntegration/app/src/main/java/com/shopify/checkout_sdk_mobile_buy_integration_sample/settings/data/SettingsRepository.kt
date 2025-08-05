@@ -40,6 +40,7 @@ class SettingsRepository(
                 colorScheme = preferences.colorScheme,
                 preloading = preferences.preloading,
                 buyerIdentityDemoEnabled = preferences.buyerIdentityDemoEnabled,
+                privacyConsent = preferences.privacyConsent,
             )
         }
     }
@@ -64,5 +65,24 @@ class SettingsRepository(
      */
     suspend fun setBuyerIdentityDemoEnabled(enabled: Boolean) {
         preferencesManager.setBuyerIdentityDemoEnabled(enabled)
+    }
+
+    /**
+     * Update privacy consent preferences
+     */
+    suspend fun setPrivacyConsentMarketing(enabled: Boolean) {
+        preferencesManager.setPrivacyConsentMarketing(enabled)
+    }
+
+    suspend fun setPrivacyConsentAnalytics(enabled: Boolean) {
+        preferencesManager.setPrivacyConsentAnalytics(enabled)
+    }
+
+    suspend fun setPrivacyConsentPreferences(enabled: Boolean) {
+        preferencesManager.setPrivacyConsentPreferences(enabled)
+    }
+
+    suspend fun setPrivacyConsentSaleOfData(enabled: Boolean) {
+        preferencesManager.setPrivacyConsentSaleOfData(enabled)
     }
 }

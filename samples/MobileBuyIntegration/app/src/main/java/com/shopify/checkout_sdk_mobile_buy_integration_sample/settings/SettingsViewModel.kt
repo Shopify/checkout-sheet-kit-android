@@ -31,6 +31,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.data.Sett
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.data.SettingsRepository
 import com.shopify.checkoutsheetkit.ColorScheme
 import com.shopify.checkoutsheetkit.Preloading
+import com.shopify.checkoutsheetkit.PrivacyConsent
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -74,6 +75,36 @@ class SettingsViewModel(
 
     fun setBuyerIdentityDemoEnabled(enabled: Boolean) = viewModelScope.launch {
         settingsRepository.setBuyerIdentityDemoEnabled(enabled)
+    }
+
+    fun setPrivacyConsentMarketing(enabled: Boolean) = viewModelScope.launch {
+        updatePrivacyConsentInShopifySDK { it.copy(marketing = enabled) }
+        settingsRepository.setPrivacyConsentMarketing(enabled)
+    }
+
+    fun setPrivacyConsentAnalytics(enabled: Boolean) = viewModelScope.launch {
+        updatePrivacyConsentInShopifySDK { it.copy(analytics = enabled) }
+        settingsRepository.setPrivacyConsentAnalytics(enabled)
+    }
+
+    fun setPrivacyConsentPreferences(enabled: Boolean) = viewModelScope.launch {
+        updatePrivacyConsentInShopifySDK { it.copy(preferences = enabled) }
+        settingsRepository.setPrivacyConsentPreferences(enabled)
+    }
+
+    fun setPrivacyConsentSaleOfData(enabled: Boolean) = viewModelScope.launch {
+        updatePrivacyConsentInShopifySDK { it.copy(saleOfData = enabled) }
+        settingsRepository.setPrivacyConsentSaleOfData(enabled)
+    }
+
+    private fun updatePrivacyConsentInShopifySDK(update: (PrivacyConsent) -> PrivacyConsent) {
+        val currentState = _uiState.value
+        if (currentState is SettingsUiState.Loaded) {
+            val updatedConsent = update(currentState.settings.privacyConsent)
+            ShopifyCheckoutSheetKit.configure {
+                it.privacyConsent = updatedConsent
+            }
+        }
     }
 
     fun logout() = viewModelScope.launch {

@@ -1,18 +1,18 @@
 /*
  * MIT License
- * 
+ *
  * Copyright 2023-present, Shopify Inc.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -31,6 +31,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.shopify.checkoutsheetkit.ColorScheme
 import com.shopify.checkoutsheetkit.Preloading
+import com.shopify.checkoutsheetkit.PrivacyConsent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
@@ -46,11 +47,18 @@ class PreferencesManager(private val context: Context) {
         )
         val preloading = preferences[PRELOADING] ?: true
         val buyerIdentityDemoEnabled = preferences[BUYER_IDENTITY] ?: false
+        val privacyConsent = PrivacyConsent(
+            marketing = preferences[PRIVACY_MARKETING] ?: false,
+            analytics = preferences[PRIVACY_ANALYTICS] ?: false,
+            preferences = preferences[PRIVACY_PREFERENCES] ?: false,
+            saleOfData = preferences[PRIVACY_SALE_OF_DATA] ?: false
+        )
 
         UserPreferences(
             colorScheme = colorScheme,
             preloading = Preloading(preloading),
-            buyerIdentityDemoEnabled = buyerIdentityDemoEnabled
+            buyerIdentityDemoEnabled = buyerIdentityDemoEnabled,
+            privacyConsent = privacyConsent
         )
     }
 
@@ -60,6 +68,11 @@ class PreferencesManager(private val context: Context) {
     suspend fun setPreloadingEnabled(enabled: Boolean) = saveData(PRELOADING, enabled)
     suspend fun setBuyerIdentityDemoEnabled(enabled: Boolean) = saveData(BUYER_IDENTITY, enabled)
 
+    suspend fun setPrivacyConsentMarketing(enabled: Boolean) = saveData(PRIVACY_MARKETING, enabled)
+    suspend fun setPrivacyConsentAnalytics(enabled: Boolean) = saveData(PRIVACY_ANALYTICS, enabled)
+    suspend fun setPrivacyConsentPreferences(enabled: Boolean) = saveData(PRIVACY_PREFERENCES, enabled)
+    suspend fun setPrivacyConsentSaleOfData(enabled: Boolean) = saveData(PRIVACY_SALE_OF_DATA, enabled)
+
     private suspend fun <T> saveData(key: Preferences.Key<T>, value: T) = context.dataStore.edit {
         it[key] = value
     }
@@ -68,6 +81,10 @@ class PreferencesManager(private val context: Context) {
         private val COLOR_SCHEME = stringPreferencesKey("colorScheme")
         private val PRELOADING = booleanPreferencesKey("preloading")
         private val BUYER_IDENTITY = booleanPreferencesKey("buyerIdentity")
+        private val PRIVACY_MARKETING = booleanPreferencesKey("privacyMarketing")
+        private val PRIVACY_ANALYTICS = booleanPreferencesKey("privacyAnalytics")
+        private val PRIVACY_PREFERENCES = booleanPreferencesKey("privacyPreferences")
+        private val PRIVACY_SALE_OF_DATA = booleanPreferencesKey("privacySaleOfData")
 
         private val DEFAULT_COLOR_SCHEME = Json.encodeToString(
             ColorScheme.serializer(),
@@ -80,4 +97,5 @@ data class UserPreferences(
     val colorScheme: ColorScheme,
     val preloading: Preloading,
     val buyerIdentityDemoEnabled: Boolean,
+    val privacyConsent: PrivacyConsent,
 )
