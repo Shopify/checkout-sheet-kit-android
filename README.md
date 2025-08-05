@@ -1,4 +1,4 @@
-# Shopify Checkout Sheet Kit - Android
+# Shopify Checkout Kit - Android
 
 [![GitHub license](https://img.shields.io/badge/license-MIT-lightgrey.svg?style=flat)](/LICENSE)
 ![Tests](https://github.com/Shopify/checkout-sheet-kit-android/actions/workflows/test.yml/badge.svg?branch=main)
@@ -6,7 +6,9 @@
 
 ![image](https://github.com/Shopify/checkout-sheet-kit-android/assets/2034704/c6c726dc-a211-406b-b848-53ade91a164d)
 
-**Shopify's Checkout Sheet Kit for Android** is a library that enables Android apps to provide the world's highest converting, customizable, one-page checkout within an app. The presented experience is a fully-featured checkout that preserves all of the store customizations: Checkout UI extensions, Functions, Web Pixels, and more. It also provides idiomatic defaults such as support for light and dark mode, and convenient developer APIs to embed, customize and follow the lifecycle of the checkout experience. Check out our developer blog to [learn how Checkout Sheet Kit is built](https://www.shopify.com/partners/blog/mobile-checkout-sdks-for-ios-and-android).
+**Shopify's Checkout Kit for Android** is a library that enables Android apps to provide the world's highest converting, customizable, one-page checkout within an app. The presented experience is a fully-featured checkout that preserves all of the store customizations: Checkout UI extensions, Functions, Web Pixels, and more. It also provides idiomatic defaults such as support for light and dark mode, and convenient developer APIs to embed, customize and follow the lifecycle of the checkout experience. Check out our developer blog to [learn how Checkout Kit is built](https://www.shopify.com/partners/blog/mobile-checkout-sdks-for-ios-and-android).
+
+**Note**: We're in the process of renaming "Checkout Sheet Kit" to "Checkout Kit." The dev docs and README already use the new name, while the package itself will be updated in an upcoming version.
 
 - [Requirements](#requirements)
 - [Getting Started](#getting-started)
@@ -402,7 +404,7 @@ val processor = object : DefaultCheckoutEventProcessor(activity) {
 
 ### Error handling
 
-In the event of a checkout error occurring, the Checkout Sheet Kit _may_ attempt to retry to recover from the error. Recovery will happen in the background by discarding the failed WebView and creating a new "recovery" instance. Recovery will be attempted in the following scenarios:
+In the event of a checkout error occurring, the Checkout Kit _may_ attempt to retry to recover from the error. Recovery will happen in the background by discarding the failed WebView and creating a new "recovery" instance. Recovery will be attempted in the following scenarios:
 
 - The WebView receives a 5XX status code
 - An internal SDK error is emitted
@@ -440,15 +442,15 @@ ShopifyCheckoutSheetKit.configure {
 | Exception Class                | Error Code                     | Description                                                                   | Recommendation                                                                                    |
 | ------------------------------ | ------------------------------ | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | `ConfigurationException`       | 'checkout_liquid_not_migrated' | `checkout.liquid` is not supported.                                           | Upgrade to Extensibility.                                                                         |
-| `ConfigurationException`       | 'storefront_password_required' | Access to checkout is password protected.                                     | We are working on ways to enable the Checkout Sheet Kit for usage with password protected stores. |
+| `ConfigurationException`       | 'storefront_password_required' | Access to checkout is password protected.                                     | We are working on ways to enable the Checkout Kit for usage with password protected stores. |
 | `ConfigurationException`       | 'unknown'                      | Other configuration issue, see error details for more info.                   | Resolve the configuration issue in the error message.                                             |
 | `CheckoutExpiredException`     | 'cart_expired'                 | The cart or checkout is no longer available.                                  | Create a new cart and open a new checkout URL.                                                    |
 | `CheckoutExpiredException`     | 'cart_completed'               | The cart associated with the checkout has completed checkout.                 | Create new cart and open a new checkout URL.                                                      |
 | `CheckoutExpiredException`     | 'invalid_cart'                 | The cart associated with the checkout is invalid (e.g. empty).                | Create a new cart and open a new checkout URL.                                                    |
-| `CheckoutSheetKitException`    | 'error_receiving_message'      | Checkout Sheet Kit failed to receive a message from checkout.                 | Show checkout in a fallback WebView.                                                              |
-| `CheckoutSheetKitException`    | 'error_sending_message'        | Checkout Sheet Kit failed to send a message to checkout.                      | Show checkout in a fallback WebView.                                                              |
+| `CheckoutSheetKitException`    | 'error_receiving_message'      | Checkout Kit failed to receive a message from checkout.                 | Show checkout in a fallback WebView.                                                              |
+| `CheckoutSheetKitException`    | 'error_sending_message'        | Checkout Kit failed to send a message to checkout.                      | Show checkout in a fallback WebView.                                                              |
 | `CheckoutSheetKitException`    | 'render_process_gone'          | The render process for the checkout WebView is gone.                          | Show checkout in a fallback WebView.                                                              |
-| `CheckoutSheetKitException`    | 'unknown'                      | An error in Checkout Sheet Kit has occurred, see error details for more info. | Show checkout in a fallback WebView.                                                              |
+| `CheckoutSheetKitException`    | 'unknown'                      | An error in Checkout Kit has occurred, see error details for more info. | Show checkout in a fallback WebView.                                                              |
 | `HttpException`                | 'http_error'                   | An unexpected server error has been encountered.                              | Show checkout in a fallback WebView.                                                              |
 | `ClientException`              | 'client_error'                 | An unhandled client error was encountered.                                    | Show checkout in a fallback WebView.                                                              |
 | `CheckoutUnavailableException` | 'unknown'                      | Checkout is unavailable for another reason, see error details for more info.  | Show checkout in a fallback WebView.                                                              |
@@ -457,7 +459,7 @@ ShopifyCheckoutSheetKit.configure {
 
 ```mermaid
 ---
-title: Checkout Sheet Kit Exception Hierarchy
+title: Checkout Kit Exception Hierarchy
 ---
 classDiagram
     CheckoutException <|-- ConfigurationException
@@ -489,7 +491,7 @@ classDiagram
         note: "Unexpected client/web error"
     }
     class CheckoutSheetKitException{
-        note: "Error in Checkout Sheet Kit code"
+        note: "Error in Checkout Kit code"
     }
 ```
 
@@ -604,4 +606,4 @@ see [guidelines and instructions](.github/CONTRIBUTING.md).
 
 ## License
 
-Shopify's Checkout Sheet Kit is provided under an [MIT License](LICENSE).
+Shopify's Checkout Kit is provided under an [MIT License](LICENSE).
