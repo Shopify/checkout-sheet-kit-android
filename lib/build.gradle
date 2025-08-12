@@ -34,13 +34,13 @@ ext {
 }
 
 android {
-    namespace 'com.shopify.checkoutsheetkit'
-    compileSdk 36
+    namespace = 'com.shopify.checkoutsheetkit'
+    compileSdk = 36
 
     defaultConfig {
-        minSdk 23
-        targetSdk 35
-        versionCode 1
+        minSdk = 23
+        targetSdk = 35
+        versionCode = 1
         versionName
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -48,8 +48,8 @@ android {
     }
 
     lintOptions {
-        checkDependencies true
-        warningsAsErrors true
+        checkDependencies = true
+        warningsAsErrors = true
         warning 'LintBaseline'
     }
 
@@ -81,7 +81,7 @@ android {
         }
     }
     buildFeatures {
-        buildConfig true
+        buildConfig = true
     }
 }
 
@@ -137,9 +137,9 @@ project.afterEvaluate {
                     name = "CheckoutSheetKit"
                     description = "Shopify's Checkout Sheet Kit makes it simple to render checkouts inside your mobile app."
                     url = "https://github.com/Shopify/checkout-sheet-kit-android"
-                    groupId "com.shopify"
-                    artifactId "checkout-sheet-kit"
-                    version versionName
+                    groupId = "com.shopify"
+                    artifactId = "checkout-sheet-kit"
+                    version = versionName
 
                     licenses {
                         license {
@@ -172,8 +172,8 @@ project.afterEvaluate {
                 name = 'ossrh-staging-api'
                 url = "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
                 credentials {
-                    username System.getenv("OSSRH_USERNAME")
-                    password System.getenv("OSSRH_PASSWORD")
+                    username = System.getenv("OSSRH_USERNAME")
+                    password = System.getenv("OSSRH_PASSWORD")
                 }
             }
         }

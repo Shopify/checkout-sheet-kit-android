@@ -35,19 +35,19 @@ if (!storefrontDomain || !accessToken) {
 }
 
 android {
-    namespace 'com.shopify.checkout_sdk_mobile_buy_integration_sample'
-    compileSdk 36
+    namespace = 'com.shopify.checkout_sdk_mobile_buy_integration_sample'
+    compileSdk = 36
 
     defaultConfig {
         applicationId "com.shopify.checkout_sdk_mobile_buy_integration_sample"
-        minSdk 28
-        targetSdk 36
-        versionCode 34
-        versionName "0.0.${versionCode}"
+        minSdk = 28
+        targetSdk = 36
+        versionCode = 34
+        versionName = "0.0.${versionCode}"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
-            useSupportLibrary true
+            useSupportLibrary = true
         }
         buildConfigField "String", "storefrontDomain", "\"$storefrontDomain\""
         buildConfigField "String", "storefrontAccessToken", "\"$accessToken\""
@@ -59,20 +59,20 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled = false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
-            debuggable true
+            debuggable = true
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     buildFeatures {
-        compose true
-        buildConfig true
+        compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion '1.5.8'
@@ -86,7 +86,7 @@ android {
 
 tasks.withType(KotlinJvmCompile).configureEach {
     compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_11)
+        jvmTarget = JvmTarget.JVM_11
     }
 }
 

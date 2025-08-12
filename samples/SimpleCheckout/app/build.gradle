@@ -46,42 +46,42 @@ apollo {
 }
 
 android {
-    namespace 'com.shopify.checkout_sdk_sample'
-    compileSdk 36
+    namespace = 'com.shopify.checkout_sdk_sample'
+    compileSdk = 36
 
     defaultConfig {
-        applicationId "com.shopify.checkout_sdk_sample"
-        minSdk 23
-        targetSdk 36
-        versionCode 1
-        versionName getVersionName()
+        applicationId = "com.shopify.checkout_sdk_sample"
+        minSdk = 23
+        targetSdk = 36
+        versionCode = 1
+        versionName = getVersionName()
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
-            useSupportLibrary true
+            useSupportLibrary = true
         }
     }
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled = false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             buildConfigField('String', 'storefrontDomain', '"' + storefrontDomain + '"')
             buildConfigField('String', 'storefrontAccessToken', '"' + accessToken + '"')
         }
         debug {
-            debuggable true
+            debuggable = true
             buildConfigField('String', 'storefrontDomain', '"' + storefrontDomain + '"')
             buildConfigField('String', 'storefrontAccessToken', '"' + accessToken + '"')
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
     buildFeatures {
-        compose true
-        buildConfig true
+        compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion '1.5.8'
