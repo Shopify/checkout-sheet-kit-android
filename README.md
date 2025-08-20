@@ -15,6 +15,8 @@
   - [Gradle](#gradle)
   - [Maven](#maven)
 - [Basic Usage](#basic-usage)
+- [Jetpack Compose Usage](#jetpack-compose-usage)
+  - [Simplified Compose API](#simplified-compose-api)
 - [Configuration](#configuration)
   - [Color Scheme](#color-scheme)
   - [Log Level](#log-level)
@@ -45,6 +47,23 @@
 - Android SDK 23+
 - The SDK is not compatible with checkout.liquid. The Shopify Store must be migrated for extensibility
 
+## Project Structure
+
+This project uses the following Gradle build setup:
+
+- **`lib/`** - Core Checkout Kit Android library
+- **`compose/`** - Provides a Jetpack Compose component wrapper for the core library  
+- **`build-logic/`** - Custom Gradle convention plugins for consistent build configuration
+- **`gradle/libs.versions.toml`** - Centralized dependency version management using Gradle version catalogs
+- **`samples/`** - Sample applications that demonstrate library usage
+
+### Build System Architecture
+
+The project employs Gradle's convention plugins and version catalogs to ensure consistency across modules:
+
+- **Convention Plugins**: Shared build script configurations in `build-logic/` eliminate duplicated configuration
+- **Version Catalogs**: Shared version and dependency definitions in `gradle/libs.versions.toml` prevent version conflicts
+
 ## Getting Started
 
 The SDK is an [open source Android library](https://central.sonatype.com/artifact/com.shopify/checkout-sheet-kit). As a quick start, see
@@ -53,18 +72,33 @@ your project:
 
 ### Gradle
 
+**Core Library (View-based)**
 ```groovy
-implementation "com.shopify:checkout-sheet-kit:3.5.0"
+implementation "com.shopify:checkout-sheet-kit:3.6.0-rc1"
+```
+
+**Jetpack Compose**
+```groovy
+implementation "com.shopify:checkout-sheet-kit-compose:3.6.0-rc1"
 ```
 
 ### Maven
 
+**Core Library (View-based)**
 ```xml
-
 <dependency>
    <groupId>com.shopify</groupId>
    <artifactId>checkout-sheet-kit</artifactId>
-   <version>3.5.0</version>
+   <version>3.6.0-rc1</version>
+</dependency>
+```
+
+**Jetpack Compose**
+```xml
+<dependency>
+   <groupId>com.shopify</groupId>
+   <artifactId>checkout-sheet-kit-compose</artifactId>
+   <version>3.6.0-rc1</version>
 </dependency>
 ```
 
@@ -120,6 +154,65 @@ fun presentCheckout() {
 > [!TIP]
 > To help optimize and deliver the best experience the SDK also provides a
 > [preloading API](#preloading) that can be used to initialize the checkout session ahead of time.
+
+## Jetpack Compose Usage
+
+For applications using Jetpack Compose, you can use the `CheckoutView` composable provided by the `checkout-sheet-kit-compose` module:
+
+```kotlin
+import com.shopify.checkoutsheetkit.compose.CheckoutView
+```
+
+The `CheckoutView` composable provides a declarative API for embedding checkout into your Compose UI:
+
+```kotlin
+@Composable
+fun MyCheckoutScreen() {
+    val checkoutUrl = "https://yourshop.myshopify.com/checkouts/..."
+    var showCheckout by remember { mutableStateOf(false) }
+
+    CheckoutView(
+        url = if (showCheckout) checkoutUrl else "",
+        isVisible = showCheckout,
+        onComplete = { checkoutCompletedEvent ->
+            // Handle successful checkout completion
+            showCheckout = false
+        },
+        onCancel = {
+            // Handle checkout cancellation
+            showCheckout = false
+        },
+        onFail = { error ->
+            // Handle checkout errors
+            showCheckout = false
+        },
+        onPixelEvent = { event ->
+            // Handle web pixel events for analytics
+        },
+    )
+
+    // Your UI content
+    Button(
+        onClick = { showCheckout = true }
+    ) {
+        Text("Checkout")
+    }
+}
+```
+
+### Simplified Compose API
+
+For basic usage, you can use the simplified overload that omits optional parameters:
+
+```kotlin
+CheckoutView(
+    url = if (showCheckout) checkoutUrl else "",
+    isVisible = showCheckout,
+    onComplete = { showCheckout = false },
+    onCancel = { showCheckout = false },
+    onFail = { showCheckout = false }
+)
+```
 
 ## Configuration
 

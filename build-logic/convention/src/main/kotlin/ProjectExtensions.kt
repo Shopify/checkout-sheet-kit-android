@@ -20,31 +20,11 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.details
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
-import kotlinx.serialization.json.Json
+import org.gradle.api.Project
+import org.gradle.api.artifacts.VersionCatalog
+import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.kotlin.dsl.getByType
 
-@Composable
-fun CheckoutCompletedDetails(
-    event: CheckoutCompletedEvent?,
-    prettyJson: Json,
-) {
-    LogDetails(
-        header = "Details",
-        message = prettyJson.encodeDataToString(event),
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(color = MaterialTheme.colorScheme.surface)
-    )
-}
-
-private inline fun <reified T> Json.encodeDataToString(el: T?, default: String = "n/a"): String {
-    if (el == null) return default
-    return encodeToString(el)
-}
+val Project.libs: VersionCatalog
+    get() = extensions.getByType<VersionCatalogsExtension>().named("libs")

@@ -1,6 +1,7 @@
 import org.gradle.api.initialization.resolve.RepositoriesMode
 
 pluginManagement {
+    includeBuild("../../build-logic")
     repositories {
         gradlePluginPortal()
         google()
@@ -12,6 +13,11 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+    }
+    versionCatalogs {
+        libs {
+            from(files("../../gradle/libs.versions.toml"))
+        }
     }
 }
 rootProject.name = "checkout-sdk-sample"

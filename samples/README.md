@@ -12,9 +12,10 @@ to `.env` and update the contained values to match your Shopify storefront.
 
 This project demonstrates how to use
 the [Mobile Buy SDK](https://github.com/Shopify/mobile-buy-sdk-android) in conjunction with
-the `Shopify Checkout Sheet Kit` library.
+the `Shopify Checkout Sheet Kit Compose` library.
 
-### SimpleAppIntegration
+### SimpleCheckout
 
-This project demonstrates how to use the `Shopify Checkout Sheet Kit` library with a custom built Storefront
-GraphQL API client.
+This project demonstrates how to use 
+the `Shopify Checkout Sheet Kit` library with an [Apollo](https://www.apollographql.com/docs/kotlin) 
+based Storefront GraphQL API client.

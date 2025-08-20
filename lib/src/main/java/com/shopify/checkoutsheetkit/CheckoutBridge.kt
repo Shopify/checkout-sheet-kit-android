@@ -33,7 +33,6 @@ import com.shopify.checkoutsheetkit.errorevents.CheckoutErrorDecoder
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEventDecoder
 import com.shopify.checkoutsheetkit.pixelevents.PixelEventDecoder
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 internal class CheckoutBridge(
