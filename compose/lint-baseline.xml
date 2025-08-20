@@ -12,16 +12,6 @@
             column="23"/>
     </issue>
 
-    <issue
-        id="NewerVersionAvailable"
-        message="A newer version of org.mockito:mockito-android than 4.11.0 is available: 5.19.0"
-        errorLine1="mockito = &quot;4.11.0&quot;"
-        errorLine2="          ~~~~~~~~">
-        <location
-            file="../gradle/libs.versions.toml"
-            line="23"
-            column="11"/>
-    </issue>
 
     <issue
         id="NewerVersionAvailable"
