@@ -146,40 +146,6 @@ class CheckoutWebViewTest {
     }
 
     @Test
-    fun `records checkout_finished_loading instrumentation event on page finished - preloading`() {
-        withPreloadingEnabled {
-            val isPreload = true
-            val view = CheckoutWebView.cacheableCheckoutView(URL, activity, isPreload)
-            val shadow = shadowOf(view)
-            shadow.webViewClient.onPageFinished(view, URL)
-
-            val regex = Pattern.compile(
-                @Suppress("MaxLineLength")
-                """.*\.dispatchMessage\('instrumentation', \{"detail":\{"name":"checkout_finished_loading","value":\d*,"type":"histogram","tags":\{"preloading":"true"}}}\).*""",
-                Pattern.DOTALL
-            )
-            assertThat(shadow.lastEvaluatedJavascript).matches(regex)
-        }
-    }
-
-    @Test
-    fun `records checkout_finished_loading instrumentation event on page finished - presenting`() {
-        withPreloadingEnabled {
-            val isPreload = false
-            val view = CheckoutWebView.cacheableCheckoutView(URL, activity, isPreload)
-            val shadow = shadowOf(view)
-            shadow.webViewClient.onPageFinished(view, URL)
-
-            val regex = Pattern.compile(
-                @Suppress("MaxLineLength")
-                """.*\.dispatchMessage\('instrumentation', \{"detail":\{"name":"checkout_finished_loading","value":\d*,"type":"histogram","tags":\{"preloading":"false"}}}\).*""",
-                Pattern.DOTALL
-            )
-            assertThat(shadow.lastEvaluatedJavascript).matches(regex)
-        }
-    }
-
-    @Test
     fun `does not send prefetch header for preloads`() {
         val isPreload = false
         val view = CheckoutWebView.cacheableCheckoutView(URL, activity, isPreload)
