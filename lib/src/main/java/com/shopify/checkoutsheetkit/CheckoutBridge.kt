@@ -65,7 +65,6 @@ internal class CheckoutBridge(
 
     sealed class SDKOperation(val key: String) {
         data object Presented : SDKOperation("presented")
-        class Instrumentation(val payload: InstrumentationPayload) : SDKOperation("instrumentation")
     }
 
     // Allows Web to postMessages back to the SDK
@@ -142,12 +141,6 @@ internal class CheckoutBridge(
                 log.d(LOG_TAG, "Sending presented message to checkout, informing it that the sheet is now visible.")
                 dispatchMessageTemplate("'${operation.key}'")
             }
-
-            is SDKOperation.Instrumentation -> {
-                log.d(LOG_TAG, "Sending instrumentation message to checkout.")
-                val body = Json.encodeToString(SdkToWebEvent(operation.payload))
-                dispatchMessageTemplate("'${operation.key}', $body")
-            }
         }
         try {
             view.evaluateJavascript(script, null)
@@ -185,20 +178,6 @@ internal class CheckoutBridge(
 internal data class SdkToWebEvent<T>(
     val detail: T
 )
-
-@Serializable
-internal data class InstrumentationPayload(
-    val name: String,
-    val value: Long,
-    val type: InstrumentationType,
-    val tags: Map<String, String>
-)
-
-@Suppress("EnumEntryName", "EnumNaming")
-@Serializable
-internal enum class InstrumentationType {
-    histogram
-}
 
 @Serializable
 internal data class WebToSdkEvent(
