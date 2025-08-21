@@ -10,3 +10,5 @@
 local.properties
 .env
 upload-keystore.jks
+build/
+.kotlin/

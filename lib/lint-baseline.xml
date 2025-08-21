@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.12.1" type="baseline" client="gradle" dependencies="true" name="AGP (8.12.1)" variant="all" version="8.12.1">
+
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of org.jetbrains.kotlinx:kotlinx-serialization-json than 1.8.1 is available: 1.9.0"
+        errorLine1="kotlinSerialization = &quot;1.8.1&quot;"
+        errorLine2="                      ~~~~~~~">
+        <location
+            file="../gradle/libs.versions.toml"
+            line="15"
+            column="23"/>
+    </issue>
+
+
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of org.mockito:mockito-core than 4.11.0 is available: 5.19.0"
+        errorLine1="mockito = &quot;4.11.0&quot;"
+        errorLine2="          ~~~~~~~~">
+        <location
+            file="../gradle/libs.versions.toml"
+            line="23"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="NewerVersionAvailable"
+        message="A newer version of org.mockito.kotlin:mockito-kotlin than 4.1.0 is available: 6.0.0"
+        errorLine1="mockitoKotlin = &quot;4.1.0&quot;"
+        errorLine2="                ~~~~~~~">
+        <location
+            file="../gradle/libs.versions.toml"
+            line="24"
+            column="17"/>
+    </issue>
+
+</issues>

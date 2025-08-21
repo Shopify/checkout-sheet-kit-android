@@ -35,7 +35,6 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarEve
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.CustomerRepository
-import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -104,15 +103,6 @@ class CartViewModel(
 
     fun clearCart() {
         _cartState.value = CartState.Empty
-    }
-
-    fun <T : DefaultCheckoutEventProcessor> presentCheckout(
-        url: String,
-        activity: ComponentActivity,
-        eventProcessor: T
-    ) {
-        Timber.i("Presenting checkout with $url")
-        ShopifyCheckoutSheetKit.present(url, activity, eventProcessor)
     }
 
     fun preloadCheckout(

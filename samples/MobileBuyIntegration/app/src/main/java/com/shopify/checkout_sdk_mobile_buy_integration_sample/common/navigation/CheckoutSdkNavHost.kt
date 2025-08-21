@@ -23,7 +23,6 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -31,7 +30,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.MobileBuyEventProcessor
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.home.HomeView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.LogsView
@@ -125,16 +123,9 @@ fun CheckoutSdkNavHost(
         }
 
         composable(Screen.Cart.route) {
-            val activity = LocalContext.current
             CartView(
-                cartViewModel = cartViewModel,
                 navController = navController,
-                checkoutEventProcessor = MobileBuyEventProcessor(
-                    cartViewModel,
-                    navController,
-                    logger,
-                    activity,
-                )
+                cartViewModel = cartViewModel,
             )
         }
 

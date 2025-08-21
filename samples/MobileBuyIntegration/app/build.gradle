@@ -91,8 +91,8 @@ tasks.withType(KotlinJvmCompile).configureEach {
 }
 
 dependencies {
-    // Checkout SDK
-    implementation project(':lib')
+    // Checkout SDK Compose Wrapper
+    implementation project(':compose')
 
     implementation "androidx.appcompat:appcompat:$app_compat_version"
     implementation "androidx.core:core-ktx:$core_version"

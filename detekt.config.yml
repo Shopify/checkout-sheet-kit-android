@@ -2,6 +2,9 @@ naming:
   EnumNaming:
     active: true
     excludes: [ '**/WebMessage.kt' ]
+  FunctionNaming:
+    active: true
+    ignoreAnnotated: ['Composable']
 style:
   FunctionOnlyReturningConstant:
     active: true
@@ -17,5 +20,10 @@ exceptions:
   TooGenericExceptionCaught:
     active: false
 complexity:
+  LongParameterList:
+    active: true
+    functionThreshold: 10
+    constructorThreshold: 11
+    ignoreDefaultParameters: true
   TooManyFunctions:
     thresholdInClasses: 16

@@ -49,6 +49,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,32 +60,44 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.MainActivity
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartAmount
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartLine
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartState
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarController
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarEvent
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.analytics.Analytics
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.analytics.toAnalyticsEvent
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodyMedium
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodySmall
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.MoneyText
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.ProgressIndicator
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.horizontalPadding
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.verticalPadding
-import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
+import com.shopify.checkoutsheetkit.compose.CheckoutView
+import com.shopify.checkoutsheetkit.pixelevents.CustomPixelEvent
+import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
+/**
+ * Cart view that displays cart items and handles checkout using the CheckoutView composable.
+ */
 @Composable
-fun <T : DefaultCheckoutEventProcessor> CartView(
+fun CartView(
     navController: NavController,
-    checkoutEventProcessor: T,
     cartViewModel: CartViewModel,
 ) {
-
     val state = cartViewModel.cartState.collectAsState().value
     val loading = cartViewModel.loadingState.collectAsState().value
-
     val activity = LocalActivity.current as ComponentActivity
-    var mutableQuantity by remember { mutableStateOf<Map<String, Int>>(mutableMapOf()) }
+    val coroutineScope = rememberCoroutineScope()
+
+    var showCheckout by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = true) {
         cartViewModel.preloadCheckout(activity)
@@ -93,6 +106,63 @@ fun <T : DefaultCheckoutEventProcessor> CartView(
     if (loading) {
         ProgressIndicator()
     }
+
+    CheckoutView(
+        url = if (showCheckout && state is CartState.Cart) state.checkoutUrl else "",
+        isVisible = showCheckout,
+        onComplete = { checkoutCompletedEvent ->
+            Timber.d("Checkout completed: ${checkoutCompletedEvent.orderDetails.id}")
+            showCheckout = false
+            cartViewModel.clearCart()
+            coroutineScope.launch {
+                navController.popBackStack(Screen.Product.route, false)
+                SnackbarController.sendEvent(
+                    SnackbarEvent(R.string.cart_checkout_completed)
+                )
+            }
+        },
+        onCancel = {
+            showCheckout = false
+        },
+        onFail = { error ->
+            Timber.e("Checkout failed: ${error.message}")
+            showCheckout = false
+
+            if (!error.isRecoverable) {
+                cartViewModel.clearCart()
+                coroutineScope.launch {
+                    SnackbarController.sendEvent(
+                        SnackbarEvent(R.string.checkout_error)
+                    )
+                }
+            }
+
+            coroutineScope.launch {
+                SnackbarController.sendEvent(
+                    SnackbarEvent(R.string.cart_checkout_failed)
+                )
+            }
+        },
+        onPixelEvent = { event ->
+            Timber.d("Web pixel event: $event")
+
+            // Handle pixel events (transform, augment, and process)
+            val analyticsEvent = when (event) {
+                is StandardPixelEvent -> event.toAnalyticsEvent()
+                is CustomPixelEvent -> event.toAnalyticsEvent()
+            }
+
+            analyticsEvent?.let {
+                Analytics.record(analyticsEvent)
+            }
+        },
+        onGeolocationPermissionRequest = { origin, callback ->
+            (activity as MainActivity).onGeolocationPermissionsShowPrompt(origin, callback)
+        },
+        onShowFileChooser = { webView, filePathCallback, fileChooserParams ->
+            (activity as MainActivity).onShowFileChooser(filePathCallback, fileChooserParams)
+        }
+    )
 
     Column(
         Modifier
@@ -106,10 +176,6 @@ fun <T : DefaultCheckoutEventProcessor> CartView(
             }
 
             is CartState.Cart -> {
-                mutableQuantity = state.cartLines.associate {
-                    it.title to it.quantity
-                }
-
                 Column(modifier = Modifier.padding(top = 4.dp)) {
                     CartLines(
                         lines = state.cartLines,
@@ -117,11 +183,7 @@ fun <T : DefaultCheckoutEventProcessor> CartView(
                         modifyLineItem = cartViewModel::modifyLineItem,
                         continueShopping = { cartViewModel.continueShopping(navController) },
                         checkout = {
-                            cartViewModel.presentCheckout(
-                                state.checkoutUrl,
-                                activity,
-                                checkoutEventProcessor
-                            )
+                            showCheckout = true
                         },
                         totalAmount = state.cartTotals.totalAmount,
                         totalAmountEstimated = state.cartTotals.totalAmountEstimated,

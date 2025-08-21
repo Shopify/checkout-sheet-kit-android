@@ -1,0 +1,77 @@
+[versions]
+# SDK Versions
+compileSdk = "36"
+minSdk = "23"
+targetSdk = "35"
+
+# Library Version
+checkoutSheetKit = "3.6.0-rc1"
+
+# Plugin versions
+androidGradlePlugin = "8.12.1"
+kotlin = "2.2.10"
+ksp = "2.2.10-2.0.2"
+detekt = "1.23.8"
+
+# Library versions
+appcompat = "1.7.1"
+kotlinSerialization = "1.8.1"
+webkit = "1.14.0"
+composeBom = "2025.08.00"
+activityCompose = "1.10.1"
+
+# Test versions
+junit = "4.13.2"
+robolectric = "4.15.1"
+mockito = "4.11.0"
+mockitoKotlin = "4.1.0"
+assertj = "3.27.4"
+awaitility = "4.3.0"
+androidxTest = "1.7.0"
+androidxJunitExt = "1.3.0"
+
+[libraries]
+# Gradle plugins
+android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
+kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+detekt-gradlePlugin = { group = "io.gitlab.arturbosch.detekt", name = "detekt-gradle-plugin", version.ref = "detekt" }
+ksp-gradlePlugin = { group = "com.google.devtools.ksp", name = "com.google.devtools.ksp.gradle.plugin", version.ref = "ksp" }
+
+# Core Android dependencies
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+androidx-webkit = { group = "androidx.webkit", name = "webkit", version.ref = "webkit" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinSerialization" }
+
+# Compose dependencies
+compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
+activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+
+# Test dependencies
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
+mockito-kotlin = { group = "org.mockito.kotlin", name = "mockito-kotlin", version.ref = "mockitoKotlin" }
+assertj-core = { group = "org.assertj", name = "assertj-core", version.ref = "assertj" }
+awaitility = { group = "org.awaitility", name = "awaitility", version.ref = "awaitility" }
+androidx-test-core-ktx = { group = "androidx.test", name = "core-ktx", version.ref = "androidxTest" }
+androidx-test-ext-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "androidxJunitExt" }
+
+[bundles]
+test-common = ["junit", "robolectric", "mockito-core", "mockito-kotlin", "assertj-core", "awaitility"]
+androidtest-common = ["androidx-test-core-ktx", "androidx-test-ext-junit-ktx"]
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+
+# Custom convention plugins
+checkout-android-library = { id = "checkout.android.library", version = "unspecified" }
+checkout-android-library-compose = { id = "checkout.android.library.compose", version = "unspecified" }
+checkout-publishing = { id = "checkout.publishing", version = "unspecified" }
