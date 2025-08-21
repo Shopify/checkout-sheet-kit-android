@@ -65,7 +65,7 @@ internal typealias PresentCheckout = (String, ComponentActivity, DefaultCheckout
  * @param onGeolocationPermissionHide Called when geolocation permission prompt should be hidden (optional)
  */
 @Composable
-public fun CheckoutView(
+public fun ShopifyCheckout(
     url: String,
     isVisible: Boolean,
     onComplete: (CheckoutCompletedEvent) -> Unit,

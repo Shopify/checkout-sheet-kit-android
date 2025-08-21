@@ -46,15 +46,15 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = android.app.Application::class)
-class CheckoutViewTest {
+class ShopifyCheckoutTest {
 
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
-    fun `CheckoutView initializes without crashing when not visible`() {
+    fun `ShopifyCheckout initializes without crashing when not visible`() {
         composeTestRule.setContent {
-            CheckoutView(
+            ShopifyCheckout(
                 url = "https://example.myshopify.com/checkouts/test",
                 isVisible = false,
                 onComplete = { },
@@ -69,9 +69,9 @@ class CheckoutViewTest {
     }
 
     @Test
-    fun `CheckoutView simplified overload initializes without crashing when not visible`() {
+    fun `ShopifyCheckout simplified overload initializes without crashing when not visible`() {
         composeTestRule.setContent {
-            CheckoutView(
+            ShopifyCheckout(
                 url = "https://example.myshopify.com/checkouts/test",
                 isVisible = false,
                 onComplete = { },
@@ -85,12 +85,12 @@ class CheckoutViewTest {
     }
 
     @Test
-    fun `CheckoutView calls onCancel when isVisible changes from true to false`() {
+    fun `ShopifyCheckout calls onCancel when isVisible changes from true to false`() {
         var canceledCalled = false
         var isVisible by mutableStateOf(true)
 
         composeTestRule.setContent {
-            CheckoutView(
+            ShopifyCheckout(
                 url = "https://example.myshopify.com/checkouts/test",
                 isVisible = isVisible,
                 onComplete = { },
@@ -110,9 +110,9 @@ class CheckoutViewTest {
 
 
     @Test
-    fun `CheckoutView handles empty checkout URL`() {
+    fun `ShopifyCheckout handles empty checkout URL`() {
         composeTestRule.setContent {
-            CheckoutView(
+            ShopifyCheckout(
                 url = "",
                 isVisible = true,
                 onComplete = { },
@@ -126,7 +126,7 @@ class CheckoutViewTest {
     }
 
     @Test
-    fun `CheckoutView properly wires callbacks to ComposeCheckoutEventProcessor`() {
+    fun `ShopifyCheckout properly wires callbacks to ComposeCheckoutEventProcessor`() {
         // Capture the processor and mock the dialog
         var capturedProcessor: DefaultCheckoutEventProcessor? = null
         val mockDialog = mock<CheckoutSheetKitDialog>()
@@ -143,7 +143,7 @@ class CheckoutViewTest {
         var failedError: CheckoutException? = null
 
         composeTestRule.setContent {
-            CheckoutView(
+            ShopifyCheckout(
                 url = "https://example.myshopify.com/checkouts/test",
                 isVisible = true,
                 onComplete = { completedEvent = it },
@@ -181,7 +181,7 @@ class CheckoutViewTest {
     }
 
     @Test
-    fun `CheckoutView presents checkout when isVisible changes from false to true`() {
+    fun `ShopifyCheckout presents checkout when isVisible changes from false to true`() {
         var presentCalled = false
         var capturedUrl: String? = null
         val mockDialog = mock<CheckoutSheetKitDialog>()
@@ -195,7 +195,7 @@ class CheckoutViewTest {
             }
 
         composeTestRule.setContent {
-            CheckoutView(
+            ShopifyCheckout(
                 url = "https://example.myshopify.com/checkouts/test",
                 isVisible = isVisible,
                 onComplete = { },
@@ -220,7 +220,7 @@ class CheckoutViewTest {
     }
 
     @Test
-    fun `CheckoutView handles URL changes while visible`() {
+    fun `ShopifyCheckout handles URL changes while visible`() {
         var presentCallCount = 0
         var lastCapturedUrl: String? = null
         val mockDialog = mock<CheckoutSheetKitDialog>()
@@ -234,7 +234,7 @@ class CheckoutViewTest {
             }
 
         composeTestRule.setContent {
-            CheckoutView(
+            ShopifyCheckout(
                 url = url,
                 isVisible = true,
                 onComplete = { },
@@ -260,7 +260,7 @@ class CheckoutViewTest {
     }
 
     @Test
-    fun `CheckoutView calls dismiss on dialog when component is disposed`() {
+    fun `ShopifyCheckout calls dismiss on dialog when component is disposed`() {
         val mockDialog = mock<CheckoutSheetKitDialog>()
         var showCheckout by mutableStateOf(true)
 
@@ -269,7 +269,7 @@ class CheckoutViewTest {
 
         composeTestRule.setContent {
             if (showCheckout) {
-                CheckoutView(
+                ShopifyCheckout(
                     url = "https://example.myshopify.com/checkouts/test",
                     isVisible = true,
                     onComplete = { },

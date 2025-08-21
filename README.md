@@ -157,13 +157,13 @@ fun presentCheckout() {
 
 ## Jetpack Compose Usage
 
-For applications using Jetpack Compose, you can use the `CheckoutView` composable provided by the `checkout-sheet-kit-compose` module:
+For applications using Jetpack Compose, you can use the `ShopifyCheckout` composable provided by the `checkout-sheet-kit-compose` module:
 
 ```kotlin
-import com.shopify.checkoutsheetkit.compose.CheckoutView
+import com.shopify.checkoutsheetkit.compose.ShopifyCheckout
 ```
 
-The `CheckoutView` composable provides a declarative API for embedding checkout into your Compose UI:
+The `ShopifyCheckout` composable provides a declarative API for embedding checkout into your Compose UI:
 
 ```kotlin
 @Composable
@@ -171,7 +171,7 @@ fun MyCheckoutScreen() {
     val checkoutUrl = "https://yourshop.myshopify.com/checkouts/..."
     var showCheckout by remember { mutableStateOf(false) }
 
-    CheckoutView(
+    ShopifyCheckout(
         url = if (showCheckout) checkoutUrl else "",
         isVisible = showCheckout,
         onComplete = { checkoutCompletedEvent ->
@@ -205,7 +205,7 @@ fun MyCheckoutScreen() {
 For basic usage, you can use the simplified overload that omits optional parameters:
 
 ```kotlin
-CheckoutView(
+ShopifyCheckout(
     url = if (showCheckout) checkoutUrl else "",
     isVisible = showCheckout,
     onComplete = { showCheckout = false },
