@@ -31,6 +31,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.AccessToken
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 /**

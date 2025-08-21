@@ -28,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 @Composable

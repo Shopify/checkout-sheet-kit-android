@@ -32,6 +32,7 @@ import com.shopify.checkoutsheetkit.pixelevents.CustomPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEventData
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 @Composable
