@@ -128,31 +128,6 @@ class CheckoutBridgeTest {
     }
 
     @Test
-    fun `instrumentation sends message to the bridge`() {
-        val webView = mock<WebView>()
-        val payload = InstrumentationPayload(
-            name = "Test",
-            value = 123L,
-            type = InstrumentationType.histogram,
-            tags = mapOf("tag1" to "value1", "tag2" to "value2")
-        )
-        val expectedPayload = """{"detail":{"name":"Test","value":123,"type":"histogram","tags":{"tag1":"value1","tag2":"value2"}}}"""
-        val expectedJavascript = """|
-        |if (window.MobileCheckoutSdk && window.MobileCheckoutSdk.dispatchMessage) {
-        |    window.MobileCheckoutSdk.dispatchMessage('instrumentation', $expectedPayload);
-        |} else {
-        |    window.addEventListener('mobileCheckoutBridgeReady', function () {
-        |        window.MobileCheckoutSdk.dispatchMessage('instrumentation', $expectedPayload);
-        |    }, {passive: true, once: true});
-        |}
-        |""".trimMargin()
-
-        checkoutBridge.sendMessage(webView, CheckoutBridge.SDKOperation.Instrumentation(payload))
-
-        Mockito.verify(webView).evaluateJavascript(expectedJavascript, null)
-    }
-
-    @Test
     fun `calls onPixelEvent when valid webPixels event received`() {
         val eventString = """|
             |{
