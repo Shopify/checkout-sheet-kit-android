@@ -170,6 +170,11 @@ public class InteropTest {
                 public void onCheckoutCanceled() {
 
                 }
+
+                @Override
+                public void onAddressChangeRequested(@NonNull CheckoutAddressChangeRequestedEvent event) {
+
+                }
             };
 
             assertThat(processor).isNotNull();
@@ -307,6 +312,11 @@ public class InteropTest {
 
                         @Override
                         public void onCheckoutCanceled() {
+                            // do nothing
+                        }
+
+                        @Override
+                        public void onAddressChangeRequested(@NonNull CheckoutAddressChangeRequestedEvent event) {
                             // do nothing
                         }
                     }

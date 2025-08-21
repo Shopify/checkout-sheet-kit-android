@@ -44,7 +44,7 @@
     <string name="cart_error_creating" translatable="false">Failed to create cart</string>
     <string name="cart_error_updating" translatable="false">Failed to update cart</string>
     <string name="login_error" translatable="false">An error occurred when completing log in</string>
-    <string name="customer_failed_to_load" translatable="false">Failed to load customer</string>R
+    <string name="customer_failed_to_load" translatable="false">Failed to load customer</string>
 
     <!-- File chooser title - if an app is installed that requires media upload -->
     <string name="filechooser_title">Select or Capture Image</string>

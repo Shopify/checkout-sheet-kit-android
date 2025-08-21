@@ -95,6 +95,14 @@ public interface CheckoutEventProcessor {
      * Called when the client should hide the location permissions prompt, e.g. if th request is cancelled
      */
     public fun onGeolocationPermissionsHidePrompt()
+
+    /**
+     * Called when checkout requests that the buyer change their delivery address.
+     *
+     * By default the request is cancelled. Override to present custom UI and provide a response
+     * via [CheckoutAddressChangeRequestedEvent.respondWith] (or cancel explicitly).
+     */
+    public fun onAddressChangeRequested(event: CheckoutAddressChangeRequestedEvent)
 }
 
 internal class NoopEventProcessor : CheckoutEventProcessor {
@@ -128,6 +136,9 @@ internal class NoopEventProcessor : CheckoutEventProcessor {
     }
 
     override fun onGeolocationPermissionsHidePrompt() {/* noop */
+    }
+
+    override fun onAddressChangeRequested(event: CheckoutAddressChangeRequestedEvent) {/* noop */
     }
 }
 

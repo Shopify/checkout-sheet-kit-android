@@ -145,6 +145,10 @@ class DefaultCheckoutEventProcessorTest {
                 override fun onWebPixelEvent(event: PixelEvent) {
                     /* not implemented */
                 }
+
+                override fun onAddressChangeRequested(event: CheckoutAddressChangeRequestedEvent) {
+                    /* not implemented */
+                }
             }
 
         val error = object : CheckoutUnavailableException("error description", "unknown", true) {}

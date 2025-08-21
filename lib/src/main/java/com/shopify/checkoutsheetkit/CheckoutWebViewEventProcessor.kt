@@ -115,6 +115,12 @@ internal class CheckoutWebViewEventProcessor(
         eventProcessor.onWebPixelEvent(event)
     }
 
+    open fun onAddressChangeRequested(event: CheckoutAddressChangeRequestedEvent) {
+        onMainThread {
+            eventProcessor.onAddressChangeRequested(event)
+        }
+    }
+
     companion object {
         private const val LOG_TAG = "CheckoutWebViewEventProcessor"
     }
