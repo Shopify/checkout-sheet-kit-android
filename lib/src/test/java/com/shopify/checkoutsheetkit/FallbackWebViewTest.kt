@@ -140,4 +140,53 @@ class FallbackWebViewTest {
             assertThat(view.recoverErrors).isFalse()
         }
     }
+
+    @Test
+    fun `sends authentication header when checkoutOptions appAuthentication is provided`() {
+        Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
+            val view = FallbackWebView(activityController.get())
+            val appAuth = CheckoutOptions.AppAuthentication(token = "fallback-jwt-token")
+            val checkoutOptions = CheckoutOptions(appAuthentication = appAuth)
+
+            view.checkoutOptions = checkoutOptions
+            view.loadCheckoutWithHeader("https://test.myshopify.com/checkout")
+
+            val shadow = shadowOf(view)
+
+            val expectedAuthHeaderValue = "{payload: fallback-jwt-token, version: v2}"
+            assertThat(shadow.lastAdditionalHttpHeaders.getOrDefault("Shopify-Checkout-Kit-Consumer", ""))
+                .isEqualTo(expectedAuthHeaderValue)
+        }
+    }
+
+    @Test
+    fun `does not send authentication header when checkoutOptions appAuthentication is null`() {
+        Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
+            val view = FallbackWebView(activityController.get())
+            val checkoutOptions = CheckoutOptions(appAuthentication = null)
+
+            view.checkoutOptions = checkoutOptions
+            view.loadCheckoutWithHeader("https://test.myshopify.com/checkout")
+
+            val shadow = shadowOf(view)
+
+            assertThat(shadow.lastAdditionalHttpHeaders.containsKey("Shopify-Checkout-Kit-Consumer"))
+                .isFalse()
+        }
+    }
+
+    @Test
+    fun `does not send authentication header when checkoutOptions is null`() {
+        Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
+            val view = FallbackWebView(activityController.get())
+
+            view.checkoutOptions = null
+            view.loadCheckoutWithHeader("https://test.myshopify.com/checkout")
+
+            val shadow = shadowOf(view)
+
+            assertThat(shadow.lastAdditionalHttpHeaders.containsKey("Shopify-Checkout-Kit-Consumer"))
+                .isFalse()
+        }
+    }
 }

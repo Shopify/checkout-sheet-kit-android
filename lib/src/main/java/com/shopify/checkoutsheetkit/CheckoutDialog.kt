@@ -54,6 +54,7 @@ internal class CheckoutDialog(
     private val checkoutUrl: String,
     private val checkoutEventProcessor: CheckoutEventProcessor,
     context: Context,
+    private val checkoutOptions: CheckoutOptions? = null
 ) : Dialog(context) {
 
     fun start(context: ComponentActivity) {
@@ -72,6 +73,7 @@ internal class CheckoutDialog(
         val checkoutWebView = CheckoutWebView.cacheableCheckoutView(
             checkoutUrl,
             context,
+            checkoutOptions = checkoutOptions
         )
 
         checkoutWebView.onResume()
@@ -211,11 +213,13 @@ internal class CheckoutDialog(
         ShopifyCheckoutSheetKit.configuration.errorRecovery.preRecoveryActions(exception, checkoutUrl)
 
         log.d(LOG_TAG, "Adding fallback WebView to container.")
+        val options = checkoutOptions
         addWebViewToContainer(
             ShopifyCheckoutSheetKit.configuration.colorScheme,
             FallbackWebView(context).apply {
+                checkoutOptions = options
                 setEventProcessor(eventProcessor())
-                loadUrl(checkoutUrl)
+                loadCheckoutWithHeader(checkoutUrl)
             }
         )
         return true
