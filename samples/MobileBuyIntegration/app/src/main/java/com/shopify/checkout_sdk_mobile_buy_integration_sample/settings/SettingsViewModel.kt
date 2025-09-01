@@ -35,6 +35,7 @@ import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(
@@ -46,14 +47,18 @@ class SettingsViewModel(
 
     init {
         viewModelScope.launch {
-            settingsRepository.observeSettings().collect { settings ->
-                val token = customerRepository.getCustomerAccessToken()
-                _uiState.value = SettingsUiState.Loaded(
+            combine(
+                settingsRepository.observeSettings(),
+                customerRepository.isAuthenticated
+            ) { settings, isAuthenticated ->
+                SettingsUiState.Loaded(
                     settings = settings,
                     sdkVersion = ShopifyCheckoutSheetKit.version,
                     sampleAppVersion = BuildConfig.VERSION_NAME,
-                    isAuthenticated = token != null
+                    isAuthenticated = isAuthenticated
                 )
+            }.collect { uiState ->
+                _uiState.value = uiState
             }
         }
     }
@@ -77,11 +82,7 @@ class SettingsViewModel(
     }
 
     fun logout() = viewModelScope.launch {
-        val state = _uiState.value
-        if (state is SettingsUiState.Loaded) {
-            customerRepository.logout()
-            _uiState.value = state.copy(isAuthenticated = false)
-        }
+        customerRepository.logout()
     }
 }
 
