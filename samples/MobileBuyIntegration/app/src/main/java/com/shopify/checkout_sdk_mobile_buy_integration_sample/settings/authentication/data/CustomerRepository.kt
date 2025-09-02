@@ -27,6 +27,13 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentic
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.network.CustomerAccountsApiRestClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.network.CustomerResponse
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.network.OAuthTokenResult
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /**
@@ -37,6 +44,16 @@ class CustomerRepository(
     private val graphQLClient: CustomerAccountsApiGraphQLClient,
     private val localTokenStore: CustomerAccessTokenStore,
 ) {
+
+    private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val _isAuthenticated = MutableStateFlow(false)
+    val isAuthenticated: StateFlow<Boolean> = _isAuthenticated.asStateFlow()
+
+    init {
+        repositoryScope.launch {
+            updateAuthenticationState()
+        }
+    }
 
     /**
      * Returns a customer using a Customer Accounts API access token
@@ -92,7 +109,11 @@ class CustomerRepository(
         }
 
         Timber.i("No locally stored token found, fetching remote token")
-        return restClient.fetchAccessToken(code, codeVerifier).toToken()
+        val newToken = restClient.fetchAccessToken(code, codeVerifier).toToken()
+        if (newToken != null) {
+            updateAuthenticationState()
+        }
+        return newToken
     }
 
     suspend fun logout() {
@@ -100,6 +121,7 @@ class CustomerRepository(
         Timber.i("Logging out and deleting stored token")
         restClient.logout(idToken)
         localTokenStore.delete()
+        updateAuthenticationState()
     }
 
     private suspend fun OAuthTokenResult.toToken(): AccessToken? {
@@ -115,5 +137,11 @@ class CustomerRepository(
                 null
             }
         }
+    }
+
+    private suspend fun updateAuthenticationState() {
+        val token = localTokenStore.find()
+        val isAuthenticated = token != null && !token.hasExpired()
+        _isAuthenticated.value = isAuthenticated
     }
 }
