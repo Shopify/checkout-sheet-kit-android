@@ -34,7 +34,6 @@ internal class FallbackWebView(context: Context, attributeSet: AttributeSet? = n
     BaseWebView(context, attributeSet) {
 
     override val recoverErrors = false
-    override val variant = "standard_recovery"
     override val cspSchema = "noconnect"
 
     init {
