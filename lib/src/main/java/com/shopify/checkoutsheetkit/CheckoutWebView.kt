@@ -106,7 +106,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         initLoadTime = System.currentTimeMillis()
         this.isPreload = isPreload
         Handler(Looper.getMainLooper()).post {
-            val headers = if (isPreload) mutableMapOf("Sec-Purpose" to "prefetch") else mutableMapOf()
+            val headers = if (isPreload) mutableMapOf("Shopify-Purpose" to "prefetch") else mutableMapOf()
             loadUrl(url, headers)
         }
     }
