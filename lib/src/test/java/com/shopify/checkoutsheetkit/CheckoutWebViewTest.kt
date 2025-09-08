@@ -141,7 +141,7 @@ class CheckoutWebViewTest {
             val shadow = shadowOf(view)
             ShadowLooper.shadowMainLooper().runToEndOfTasks()
 
-            assertThat(shadow.lastAdditionalHttpHeaders.getOrDefault("Sec-Purpose", "")).isEqualTo("prefetch")
+            assertThat(shadow.lastAdditionalHttpHeaders.getOrDefault("Shopify-Purpose", "")).isEqualTo("prefetch")
         }
     }
 
@@ -187,7 +187,7 @@ class CheckoutWebViewTest {
         val shadow = shadowOf(view)
         ShadowLooper.shadowMainLooper().runToEndOfTasks()
 
-        assertThat(shadow.lastAdditionalHttpHeaders.getOrDefault("Sec-Purpose", "")).isEqualTo("")
+        assertThat(shadow.lastAdditionalHttpHeaders.getOrDefault("Shopify-Purpose", "")).isEqualTo("")
     }
 
     @Test
