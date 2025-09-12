@@ -191,6 +191,10 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         internal var cacheEntry: CheckoutWebViewCacheEntry? = null
         internal var cacheClock = CheckoutWebViewCacheClock()
 
+        fun currentEntry(): CheckoutWebViewCacheEntry? {
+            return cacheEntry
+        }
+
         fun markCacheEntryStale() {
             cacheEntry = cacheEntry?.copy(timeout = -1)
         }
