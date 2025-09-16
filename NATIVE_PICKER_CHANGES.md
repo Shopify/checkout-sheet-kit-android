@@ -19,8 +19,8 @@ The native picker feature allows clients to provide custom address/payment selec
 ### Core Components
 
 #### 1. ShopifyCheckoutController (`ShopifyCheckoutController.kt`)
-- New controller class providing `presentCheckoutWithController()` method
-- Requires `FragmentActivity` for proper fragment management
+- New controller class providing `present()` method
+- Works with any `ComponentActivity` for broad compatibility
 - Handles address change intents by triggering custom screen navigation
 
 #### 2. CheckoutScreen Sealed Class (`CheckoutScreen.kt`)
@@ -57,7 +57,7 @@ data class CheckoutScreenConfig(
 - Manages transitions between WebView and custom screens
 - Preserves WebView state using pause/resume lifecycle
 - Handles title changes and restoration
-- Uses hybrid fragment management (manual view creation + FragmentManager context)
+- Uses manual fragment management (direct onCreateView/onViewCreated calls)
 
 #### 6. CheckoutControllerDialog (`CheckoutControllerDialog.kt`)
 - Extended dialog with navigation capabilities
@@ -83,27 +83,26 @@ data class CheckoutScreenConfig(
 The MobileBuyIntegration sample was updated to demonstrate the controller approach:
 
 ```kotlin
-// Convert FragmentActivity requirement
-class MainActivity : FragmentActivity() { ... }
+// Works with ComponentActivity - no special requirements
+class MainActivity : ComponentActivity() { ... }
 
-// Using the controller
-val controller = ShopifyCheckoutController { event ->
-    val screen = CheckoutScreen.FragmentScreen(
-        fragment = AddressSelectionFragment().apply {
-            onAddressSelected = { address ->
-                event.respondWith(address.toDeliveryAddressChangePayload())
-            }
-        },
+// Create controller with address screen factory
+val controller = ShopifyCheckoutController(checkoutUrl, this, eventProcessor)
+controller.deliveryAddressScreen = { event ->
+    val fragment = AddressSelectionFragment().apply {
+        onAddressSelected = { address ->
+            event.respondWith(address.toDeliveryAddressChangePayload())
+        }
+        onCancel = { event.cancel() }
+    }
+    CheckoutScreen.FragmentScreen(
+        fragment = fragment,
         config = CheckoutScreenConfig(title = "Select Address")
     )
-    screen
 }
 
-ShopifyCheckoutSheetKit.presentCheckoutWithController(
-    checkoutUrl = checkoutUrl,
-    context = this,
-    controller = controller
-)
+// Present the controller
+controller.present(this)
 ```
 
 ## Technical Decisions
@@ -115,12 +114,12 @@ ShopifyCheckoutSheetKit.presentCheckoutWithController(
 ### Resource Management
 - Avoided `FragmentContainerView` due to cross-module resource ID conflicts
 - Used `FrameLayout` with manual fragment view management
-- Hybrid approach: FragmentManager for context + manual view creation
+- Direct fragment instantiation without FragmentManager overhead
 
 ### Fragment Lifecycle
-- Temporary fragments tagged as `"temp_fragment"`
 - Manual `onCreateView`/`onViewCreated` calls for proper lifecycle
-- Fragment cleanup on navigation back
+- Simple view cleanup on navigation back
+- Context resolution via container/inflater instead of requireContext()
 
 ### Title Management
 - Direct toolbar manipulation (`findViewById<Toolbar>`) instead of dialog title
@@ -138,13 +137,13 @@ ShopifyCheckoutSheetKit.presentCheckoutWithController(
 ## Files Modified/Created
 
 ### New Files
-- `ShopifyCheckoutController.kt`
-- `CheckoutScreen.kt`  
-- `RespondableEvent.kt`
-- `CheckoutAddressChangeIntentDecoder.kt`
-- `CheckoutNavigationManager.kt`
-- `CheckoutControllerDialog.kt`
-- `res/layout/dialog_checkout_controller.xml`
+- `ShopifyCheckoutController.kt` - Main controller API for native picker integration; manages screen factories and handles address change events
+- `CheckoutScreen.kt` - Sealed class hierarchy defining different screen types (Fragment, Activity, Composable) with UI configuration
+- `RespondableEvent.kt` - Abstract base for events requiring user response; provides type-safe response/cancellation methods
+- `CheckoutAddressChangeIntentDecoder.kt` - JSON decoder for address change events from WebView; creates respondable event instances with callbacks
+- `CheckoutNavigationManager.kt` - Manages transitions between WebView and custom screens; handles WebView pause/resume, title changes, and manual fragment lifecycle
+- `CheckoutControllerDialog.kt` - Extended dialog with navigation capabilities; replaces event processors and coordinates between WebView and navigation manager
+- `res/layout/dialog_checkout_controller.xml` - Enhanced layout with navigation container for hosting custom screens alongside WebView
 
 ### Modified Files
 - `CheckoutBridge.kt` - Added address change intent handling
@@ -160,6 +159,94 @@ ShopifyCheckoutSheetKit.presentCheckoutWithController(
 4. **Enhanced Configuration**: More UI customization options
 5. **Animation Support**: Custom transition animations
 
-## Testing
+## Architecture Decisions
 
-All existing unit tests pass, ensuring backward compatibility. The implementation follows existing patterns and conventions within the codebase.
+### Fragment Management Approach
+
+During implementation, we evaluated two approaches for fragment lifecycle management:
+
+#### Option 1: Full FragmentManager Integration (Initial Implementation)
+```kotlin
+// Requires FragmentActivity
+public fun present(activity: FragmentActivity): CheckoutSheetKitDialog? {
+    val fragmentManager = activity.supportFragmentManager
+    // Full fragment lifecycle support
+}
+```
+
+**Pros:**
+- Complete fragment lifecycle callbacks (onStart, onResume, onPause, onStop, onDestroy)
+- Automatic state saving/restoration
+- Fragment Result API support
+- Standard Android fragment behavior
+
+**Cons:**
+- Requires `FragmentActivity` - limits compatibility
+- Complex for React Native wrappers (would need custom FragmentActivity)
+- Overkill for simple address/payment pickers
+
+#### Option 2: Manual Fragment Management (Final Implementation)
+```kotlin
+// Works with any ComponentActivity
+public fun present(activity: ComponentActivity): CheckoutSheetKitDialog? {
+    // Manual onCreateView()/onViewCreated() calls
+    val fragmentView = fragment.onCreateView(inflater, container, null)
+    fragment.onViewCreated(fragmentView, null)
+}
+```
+
+**Pros:**
+- Broader compatibility - works with `ComponentActivity`
+- React Native friendly - no FragmentActivity requirement
+- Simpler API - no casting needed
+- Sufficient for simple picker UI patterns
+
+**Cons:**
+- Limited lifecycle callbacks (only onCreateView/onViewCreated)
+- No automatic state persistence across configuration changes
+- Fragments must use `container?.context ?: inflater.context` instead of `requireContext()`
+
+### Decision Rationale
+
+We chose **Option 2 (Manual Fragment Management)** because:
+
+1. **Primary Use Case Analysis**: Address/payment pickers are typically simple, short-lived UI components that don't need complex lifecycle management
+2. **Broader Ecosystem Support**: React Native and other frameworks can integrate without custom FragmentActivity implementations
+3. **Pragmatic Tradeoff**: The lost functionality (full lifecycle) is rarely needed for selection screens
+4. **Future Flexibility**: We can add a second API with full FragmentManager support if needed
+
+### Fragment Compatibility Guidelines
+
+For fragments to work with manual management:
+
+```kotlin
+class CompatibleFragment : Fragment() {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        // ✅ Use container/inflater context
+        val context = container?.context ?: inflater.context
+        
+        // ❌ Avoid requireContext() - may fail without FragmentManager
+        // val context = requireContext()
+        
+        return createView(context)
+    }
+    
+    // ✅ Simple UI creation and event handling work fine
+    // ❌ Avoid complex lifecycle-dependent operations
+}
+```
+
+### When Full FragmentManager May Be Needed
+
+Consider using traditional FragmentManager approach for:
+
+- **Complex Lifecycle Needs**: Fragments with background tasks, sensors, location services
+- **State Persistence**: Multi-step forms requiring state across configuration changes  
+- **Fragment Communication**: Heavy use of Fragment Result API or parent/child fragment communication
+- **Animation Management**: Complex view animations tied to fragment lifecycle
+
+For these cases, we recommend using the standard `ShopifyCheckoutSheetKit.present()` method with custom checkout logic rather than the controller approach.
