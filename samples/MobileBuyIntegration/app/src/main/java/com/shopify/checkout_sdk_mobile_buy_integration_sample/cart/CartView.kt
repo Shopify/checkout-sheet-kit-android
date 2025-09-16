@@ -78,7 +78,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.horizontalPadding
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.verticalPadding
-import com.shopify.checkoutsheetkit.compose.CheckoutView
+import com.shopify.checkoutsheetkit.compose.ShopifyCheckout
 import com.shopify.checkoutsheetkit.pixelevents.CustomPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent
 import kotlinx.coroutines.launch
@@ -96,7 +96,6 @@ fun CartView(
     val loading = cartViewModel.loadingState.collectAsState().value
     val activity = LocalActivity.current as ComponentActivity
     val coroutineScope = rememberCoroutineScope()
-
     var showCheckout by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = true) {
@@ -107,63 +106,63 @@ fun CartView(
         ProgressIndicator()
     }
 
-    CheckoutView(
-        url = if (showCheckout && state is CartState.Cart) state.checkoutUrl else "",
-        isVisible = showCheckout,
-        onComplete = { checkoutCompletedEvent ->
-            Timber.d("Checkout completed: ${checkoutCompletedEvent.orderDetails.id}")
-            showCheckout = false
-            cartViewModel.clearCart()
-            coroutineScope.launch {
-                navController.popBackStack(Screen.Product.route, false)
-                SnackbarController.sendEvent(
-                    SnackbarEvent(R.string.cart_checkout_completed)
-                )
-            }
-        },
-        onCancel = {
-            showCheckout = false
-        },
-        onFail = { error ->
-            Timber.e("Checkout failed: ${error.message}")
-            showCheckout = false
-
-            if (!error.isRecoverable) {
+    if (showCheckout) {
+        ShopifyCheckout(
+            url = if (state is CartState.Cart) state.checkoutUrl else "",
+            onComplete = { checkoutCompletedEvent ->
+                Timber.d("Checkout completed: ${checkoutCompletedEvent.orderDetails.id}")
+                showCheckout = false
                 cartViewModel.clearCart()
                 coroutineScope.launch {
+                    navController.popBackStack(Screen.Product.route, false)
                     SnackbarController.sendEvent(
-                        SnackbarEvent(R.string.checkout_error)
+                        SnackbarEvent(R.string.cart_checkout_completed)
                     )
                 }
-            }
+            },
+            onCancel = {
+                showCheckout = false
+            },
+            onFail = { error ->
+                Timber.e("Checkout failed: ${error.message}")
+                showCheckout = false
 
-            coroutineScope.launch {
-                SnackbarController.sendEvent(
-                    SnackbarEvent(R.string.cart_checkout_failed)
-                )
-            }
-        },
-        onPixelEvent = { event ->
-            Timber.d("Web pixel event: $event")
+                if (!error.isRecoverable) {
+                    cartViewModel.clearCart()
+                    coroutineScope.launch {
+                        SnackbarController.sendEvent(
+                            SnackbarEvent(R.string.checkout_error)
+                        )
+                    }
+                }
 
-            // Handle pixel events (transform, augment, and process)
-            val analyticsEvent = when (event) {
-                is StandardPixelEvent -> event.toAnalyticsEvent()
-                is CustomPixelEvent -> event.toAnalyticsEvent()
-            }
+                coroutineScope.launch {
+                    SnackbarController.sendEvent(
+                        SnackbarEvent(R.string.cart_checkout_failed)
+                    )
+                }
+            },
+            onPixelEvent = { event ->
+                Timber.d("Web pixel event: $event")
 
-            analyticsEvent?.let {
-                Analytics.record(analyticsEvent)
-            }
-        },
-        onGeolocationPermissionRequest = { origin, callback ->
-            (activity as MainActivity).onGeolocationPermissionsShowPrompt(origin, callback)
-        },
-        onShowFileChooser = { webView, filePathCallback, fileChooserParams ->
-            (activity as MainActivity).onShowFileChooser(filePathCallback, fileChooserParams)
-        }
-    )
+                // Handle pixel events (transform, augment, and process)
+                val analyticsEvent = when (event) {
+                    is StandardPixelEvent -> event.toAnalyticsEvent()
+                    is CustomPixelEvent -> event.toAnalyticsEvent()
+                }
 
+                analyticsEvent?.let {
+                    Analytics.record(analyticsEvent)
+                }
+            },
+            onGeolocationPermissionRequest = { origin, callback ->
+                (activity as MainActivity).onGeolocationPermissionsShowPrompt(origin, callback)
+            },
+            onShowFileChooser = { webView, filePathCallback, fileChooserParams ->
+                (activity as MainActivity).onShowFileChooser(filePathCallback, fileChooserParams)
+            }
+        )
+    }
     Column(
         Modifier
             .fillMaxSize()

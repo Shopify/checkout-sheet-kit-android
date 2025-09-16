@@ -52,11 +52,10 @@ class ShopifyCheckoutTest {
     val composeTestRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
-    fun `ShopifyCheckout initializes without crashing when not visible`() {
+    fun `ShopifyCheckout initializes without crashing`() {
         composeTestRule.setContent {
             ShopifyCheckout(
                 url = "https://example.myshopify.com/checkouts/test",
-                isVisible = false,
                 onComplete = { },
                 onCancel = { },
                 onFail = { },
@@ -64,48 +63,53 @@ class ShopifyCheckoutTest {
             )
         }
 
-        // Should initialize without crashing when not visible
+        // Should initialize without crashing
         composeTestRule.waitForIdle()
     }
 
     @Test
-    fun `ShopifyCheckout simplified overload initializes without crashing when not visible`() {
+    fun `ShopifyCheckout simplified overload initializes without crashing`() {
         composeTestRule.setContent {
             ShopifyCheckout(
                 url = "https://example.myshopify.com/checkouts/test",
-                isVisible = false,
                 onComplete = { },
                 onCancel = { },
                 onFail = { },
             )
         }
 
-        // Should initialize without crashing when not visible
+        // Should initialize without crashing
         composeTestRule.waitForIdle()
     }
 
     @Test
-    fun `ShopifyCheckout calls onCancel when isVisible changes from true to false`() {
-        var canceledCalled = false
-        var isVisible by mutableStateOf(true)
+    fun `ShopifyCheckout dismisses dialog when component is removed from composition`() {
+        val mockDialog = mock<CheckoutSheetKitDialog>()
+        var showCheckout by mutableStateOf(true)
+
+        val mockPresentCheckout: PresentCheckout =
+            { _, _, _ -> mockDialog }
 
         composeTestRule.setContent {
-            ShopifyCheckout(
-                url = "https://example.myshopify.com/checkouts/test",
-                isVisible = isVisible,
-                onComplete = { },
-                onCancel = { canceledCalled = true },
-                onFail = { }
-            )
+            if (showCheckout) {
+                ShopifyCheckout(
+                    url = "https://example.myshopify.com/checkouts/test",
+                    onComplete = { },
+                    onCancel = { },
+                    onFail = { },
+                    presentCheckout = mockPresentCheckout
+                )
+            }
         }
 
         composeTestRule.waitForIdle()
 
-        // Change visibility to false
-        isVisible = false
+        // Remove from composition
+        showCheckout = false
         composeTestRule.waitForIdle()
 
-        assertThat(canceledCalled).isTrue()
+        // Verify that dismiss was called on the dialog during disposal
+        verify(mockDialog).dismiss()
     }
 
 
@@ -114,7 +118,6 @@ class ShopifyCheckoutTest {
         composeTestRule.setContent {
             ShopifyCheckout(
                 url = "",
-                isVisible = true,
                 onComplete = { },
                 onCancel = { },
                 onFail = { },
@@ -145,7 +148,6 @@ class ShopifyCheckoutTest {
         composeTestRule.setContent {
             ShopifyCheckout(
                 url = "https://example.myshopify.com/checkouts/test",
-                isVisible = true,
                 onComplete = { completedEvent = it },
                 onCancel = { canceledCalled = true },
                 onFail = { failedError = it },
@@ -181,11 +183,11 @@ class ShopifyCheckoutTest {
     }
 
     @Test
-    fun `ShopifyCheckout presents checkout when isVisible changes from false to true`() {
+    fun `ShopifyCheckout presents checkout when component is added to composition`() {
         var presentCalled = false
         var capturedUrl: String? = null
         val mockDialog = mock<CheckoutSheetKitDialog>()
-        var isVisible by mutableStateOf(false)
+        var showCheckout by mutableStateOf(false)
 
         val mockPresentCheckout: PresentCheckout =
             { url, _, _ ->
@@ -195,23 +197,24 @@ class ShopifyCheckoutTest {
             }
 
         composeTestRule.setContent {
-            ShopifyCheckout(
-                url = "https://example.myshopify.com/checkouts/test",
-                isVisible = isVisible,
-                onComplete = { },
-                onCancel = { },
-                onFail = { },
-                presentCheckout = mockPresentCheckout
-            )
+            if (showCheckout) {
+                ShopifyCheckout(
+                    url = "https://example.myshopify.com/checkouts/test",
+                    onComplete = { },
+                    onCancel = { },
+                    onFail = { },
+                    presentCheckout = mockPresentCheckout
+                )
+            }
         }
 
         composeTestRule.waitForIdle()
 
-        // Initially not visible, so present should not be called
+        // Initially not shown, so present should not be called
         assertThat(presentCalled).isFalse()
 
-        // Change to visible
-        isVisible = true
+        // Add to composition
+        showCheckout = true
         composeTestRule.waitForIdle()
 
         // Now present should be called with correct URL
@@ -220,7 +223,7 @@ class ShopifyCheckoutTest {
     }
 
     @Test
-    fun `ShopifyCheckout handles URL changes while visible`() {
+    fun `ShopifyCheckout handles URL changes while in composition`() {
         var presentCallCount = 0
         var lastCapturedUrl: String? = null
         val mockDialog = mock<CheckoutSheetKitDialog>()
@@ -236,7 +239,6 @@ class ShopifyCheckoutTest {
         composeTestRule.setContent {
             ShopifyCheckout(
                 url = url,
-                isVisible = true,
                 onComplete = { },
                 onCancel = { },
                 onFail = { },
@@ -250,7 +252,7 @@ class ShopifyCheckoutTest {
         assertThat(presentCallCount).isEqualTo(1)
         assertThat(lastCapturedUrl).isEqualTo("https://example.myshopify.com/checkouts/test1")
 
-        // Change URL while visible - should trigger new presentation
+        // Change URL while in composition - should trigger new presentation
         url = "https://example.myshopify.com/checkouts/test2"
         composeTestRule.waitForIdle()
 
@@ -271,11 +273,10 @@ class ShopifyCheckoutTest {
             if (showCheckout) {
                 ShopifyCheckout(
                     url = "https://example.myshopify.com/checkouts/test",
-                    isVisible = true,
                     onComplete = { },
                     onCancel = { },
                     onFail = { },
-                        presentCheckout = mockPresentCheckout
+                    presentCheckout = mockPresentCheckout
                 )
             }
         }

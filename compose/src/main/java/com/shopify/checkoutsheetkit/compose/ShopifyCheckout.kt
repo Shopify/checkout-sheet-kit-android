@@ -53,7 +53,6 @@ internal typealias PresentCheckout = (String, ComponentActivity, DefaultCheckout
  * for checkout events.
  *
  * @param url The URL of the checkout to be presented
- * @param isVisible Whether the checkout should be visible
  * @param onComplete Called when checkout is successfully completed
  * @param onCancel Called when checkout is canceled by the user or dismissed programmatically
  * @param onFail Called when checkout fails with an error
@@ -67,7 +66,6 @@ internal typealias PresentCheckout = (String, ComponentActivity, DefaultCheckout
 @Composable
 public fun ShopifyCheckout(
     url: String,
-    isVisible: Boolean,
     onComplete: (CheckoutCompletedEvent) -> Unit,
     onCancel: () -> Unit,
     onFail: (CheckoutException) -> Unit,
@@ -83,33 +81,27 @@ public fun ShopifyCheckout(
     val activity = LocalActivity.current as ComponentActivity
     var dialog by remember { mutableStateOf<CheckoutSheetKitDialog?>(null) }
 
-    LaunchedEffect(isVisible, url) {
-        if (isVisible) {
-            // If URL changed while visible, dismiss old dialog first
-            if (dialog != null) {
-                dialog?.dismiss()
-                dialog = null
-            }
-            
-            val eventProcessor = ComposeCheckoutEventProcessor(
-                context = activity,
-                checkoutCompletedCallback = onComplete,
-                checkoutCanceledCallback = onCancel,
-                checkoutFailedCallback = onFail,
-                linkClickedCallback = onLinkClicked,
-                webPixelEventCallback = onPixelEvent,
-                permissionRequestCallback = onPermissionRequest,
-                fileChooserCallback = onShowFileChooser,
-                geolocationRequestCallback = onGeolocationPermissionRequest,
-                geolocationHideCallback = onGeolocationPermissionHide,
-            )
-
-            dialog = presentCheckout(url, activity, eventProcessor)
-        } else if (dialog != null) {
+    LaunchedEffect(url) {
+        // If URL changed while visible, dismiss old dialog first
+        if (dialog != null) {
             dialog?.dismiss()
             dialog = null
-            onCancel()
         }
+        
+        val eventProcessor = ComposeCheckoutEventProcessor(
+            context = activity,
+            checkoutCompletedCallback = onComplete,
+            checkoutCanceledCallback = onCancel,
+            checkoutFailedCallback = onFail,
+            linkClickedCallback = onLinkClicked,
+            webPixelEventCallback = onPixelEvent,
+            permissionRequestCallback = onPermissionRequest,
+            fileChooserCallback = onShowFileChooser,
+            geolocationRequestCallback = onGeolocationPermissionRequest,
+            geolocationHideCallback = onGeolocationPermissionHide,
+        )
+
+        dialog = presentCheckout(url, activity, eventProcessor)
     }
 
     DisposableEffect(Unit) {
