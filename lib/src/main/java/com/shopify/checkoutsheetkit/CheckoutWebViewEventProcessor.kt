@@ -40,12 +40,13 @@ import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
  * Event processor that can handle events internally, delegate to the CheckoutEventProcessor
  * passed into ShopifyCheckoutSheetKit.present(), or preprocess arguments and then delegate
  */
-internal class CheckoutWebViewEventProcessor(
+internal open class CheckoutWebViewEventProcessor(
     private val eventProcessor: CheckoutEventProcessor,
     private val toggleHeader: (Boolean) -> Unit = {},
     private val closeCheckoutDialogWithError: (CheckoutException) -> Unit = { CheckoutWebView.clearCache() },
     private val setProgressBarVisibility: (Int) -> Unit = {},
     private val updateProgressBarPercentage: (Int) -> Unit = {},
+    private val addressChangeHandler: ((CheckoutAddressChangeIntentEvent) -> Unit)? = null,
 ) {
     fun onCheckoutViewComplete(checkoutCompletedEvent: CheckoutCompletedEvent) {
         log.d(LOG_TAG, "Clearing WebView cache after checkout completion.")
@@ -115,6 +116,23 @@ internal class CheckoutWebViewEventProcessor(
     fun onWebPixelEvent(event: PixelEvent) {
         log.d(LOG_TAG, "Calling onWebPixelEvent for $event.")
         eventProcessor.onWebPixelEvent(event)
+    }
+
+    open fun onAddressChangeIntent(event: CheckoutAddressChangeIntentEvent) {
+        if (addressChangeHandler != null) {
+            log.d(LOG_TAG, "Routing address change intent to navigation handler")
+            addressChangeHandler.invoke(event)
+        } else {
+            log.d(LOG_TAG, "Address change intent received but no handler configured - no-op")
+        }
+    }
+
+    open fun onAddressResponseComplete() {
+        log.d(LOG_TAG, "Address response completed - override in subclass to handle navigation")
+    }
+
+    open fun onAddressCancelled() {
+        log.d(LOG_TAG, "Address selection cancelled - override in subclass to handle navigation")
     }
 
     private fun onMainThread(block: () -> Unit) {

@@ -23,6 +23,7 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.cart
 
 import androidx.activity.ComponentActivity
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
@@ -37,6 +38,11 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.Preferenc
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.CustomerRepository
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
+import com.shopify.checkoutsheetkit.ShopifyCheckoutController
+import com.shopify.checkoutsheetkit.CheckoutScreen
+import com.shopify.checkoutsheetkit.CheckoutScreenConfig
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.AddressSelectionFragment
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.toDeliveryAddressChangePayload
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -111,8 +117,35 @@ class CartViewModel(
         activity: ComponentActivity,
         eventProcessor: T
     ) {
-        Timber.i("Presenting checkout with $url")
-        ShopifyCheckoutSheetKit.present(url, activity, eventProcessor)
+        // Cast to FragmentActivity - MainActivity extends FragmentActivity so this should work
+        val fragmentActivity = activity as FragmentActivity
+        val controller = ShopifyCheckoutController(url, fragmentActivity, eventProcessor)
+        
+        // Configure address selection screen
+        controller.deliveryAddressScreen = { event ->
+            Timber.i("Creating address selection screen for event type: ${event.addressType}")
+            
+            val fragment = AddressSelectionFragment().apply {
+                onAddressSelected = { address ->
+                    Timber.i("Address selected: ${address.firstName} ${address.lastName}")
+                    // Convert client address to library format
+                    event.respondWith(address.toDeliveryAddressChangePayload())
+                }
+                
+                onCancel = {
+                    Timber.i("Address selection cancelled")
+                    event.cancel()
+                }
+            }
+            
+            CheckoutScreen.FragmentScreen(
+                fragment,
+                CheckoutScreenConfig(title = "Select Address")
+            )
+        }
+        
+        // Present the controller
+        controller.present(fragmentActivity)
     }
 
     fun preloadCheckout(

@@ -1,0 +1,46 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/checkoutSdkHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:contentInsetStart="22dp"
+        android:paddingEnd="4dp"
+        android:minHeight="?attr/actionBarSize"
+        app:title="@string/checkout_web_view_title"
+        android:theme="@style/Theme.AppCompat.DayNight"
+        android:elevation="4dp" />
+
+    <!-- WebView Container - same as original dialog -->
+    <com.shopify.checkoutsheetkit.CheckoutWebViewContainer
+        android:id="@+id/checkoutSdkContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:layout_below="@id/checkoutSdkHeader"
+        android:visibility="visible">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:max="100"
+            android:indeterminate="false" />
+
+    </com.shopify.checkoutsheetkit.CheckoutWebViewContainer>
+
+    <!-- Navigation Container for custom screens -->
+    <FrameLayout
+        android:id="@+id/checkoutNavigationContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/checkoutSdkHeader"
+        android:background="@android:color/transparent"
+        android:visibility="gone" />
+
+</RelativeLayout>

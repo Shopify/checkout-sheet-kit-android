@@ -84,31 +84,25 @@ internal class CheckoutBridge(
             when (CheckoutWebOperation.fromKey(decodedMsg.name)) {
                 ADDRESS_CHANGE_INTENT -> {
                     log.d(LOG_TAG, "ADDRESS CHANGE INTENT $message")
-
-                    CheckoutWebView.currentEntry()?.let {
-                        Handler(Looper.getMainLooper()).post {
-                            sendMessage(
-                                view = it.view,
-                                operation = SDKOperation.DeliveryAddressChange(
-                                    payload = DeliveryAddressChangePayload(
-                                        delivery = CartDelivery(
-                                        addresses = listOf(
-                                            CartSelectableAddressInput(
-                                                address = CartDeliveryAddressInput(
-                                                    firstName = "Test",
-                                                    lastName = "User",
-                                                    address1 = "620 King Street West",
-                                                    city = "Toronto",
-                                                    provinceCode = "ON",
-                                                    countryCode = "CA",
-                                                    zip = "M6K0C6",
-                                                )
-                                            )
-                                        )
-                                    ))
-                                )
-                            )
-                        }
+                    
+                    val onResponse = { payload: DeliveryAddressChangePayload ->
+                        log.d(LOG_TAG, "Address change response received: $payload")
+                        // Send the response back to the WebView
+                        sendAddressResponse(payload)
+                        // Navigate back to checkout
+                        eventProcessor.onAddressResponseComplete()
+                    }
+                    
+                    val onCancel = {
+                        log.d(LOG_TAG, "Address change cancelled")
+                        // Send cancellation response back to the WebView
+                        sendAddressCancellation()
+                        // Navigate back to checkout
+                        eventProcessor.onAddressCancelled()
+                    }
+                    
+                    CheckoutAddressChangeIntentDecoder().decode(decodedMsg, onResponse, onCancel)?.let { event ->
+                        eventProcessor.onAddressChangeIntent(event)
                     }
                 }
 
@@ -193,6 +187,21 @@ internal class CheckoutBridge(
         }
     }
 
+    private fun sendAddressResponse(payload: DeliveryAddressChangePayload) {        
+        CheckoutWebView.currentEntry()?.let { cacheEntry ->
+            Handler(Looper.getMainLooper()).post {
+                sendMessage(cacheEntry.view, SDKOperation.DeliveryAddressChange(payload))
+            }
+        }
+    }
+
+    private fun sendAddressCancellation() {
+        log.d(LOG_TAG, "Address change was cancelled - not sending response to WebView")
+        // For cancellation, we typically don't send anything back to the WebView
+        // The checkout will remain in its current state
+    }
+
+
     companion object {
         private const val LOG_TAG = "CheckoutBridge"
         const val SCHEMA_VERSION_NUMBER: String = "8.1"
@@ -223,31 +232,31 @@ internal data class InstrumentationPayload(
 )
 
 @Serializable
-internal data class DeliveryAddressChangePayload(
+public data class DeliveryAddressChangePayload(
     val delivery: CartDelivery,
 )
 
 @Serializable
-internal data class CartDelivery(
-    val addresses: List<CartSelectableAddressInput>,
+public class CartDelivery(
+    public val addresses: List<CartSelectableAddressInput>,
 )
 
 @Serializable
-internal data class CartSelectableAddressInput(
-    val address: CartDeliveryAddressInput,
+public data class CartSelectableAddressInput(
+    public val address: CartDeliveryAddressInput,
 )
 
 @Serializable
-internal data class CartDeliveryAddressInput(
-    val firstName: String? = null,
-    val lastName: String? = null,
-    val address1: String? = null,
-    val address2: String? = null,
-    val city: String? = null,
-    val countryCode: String? = null,
-    val phone: String? = null,
-    val provinceCode: String? = null,
-    val zip: String? = null,
+public data class CartDeliveryAddressInput(
+    public val firstName: String? = null,
+    public val lastName: String? = null,
+    public val address1: String? = null,
+    public val address2: String? = null,
+    public val city: String? = null,
+    public val countryCode: String? = null,
+    public val phone: String? = null,
+    public val provinceCode: String? = null,
+    public val zip: String? = null,
 )
 
 @Suppress("EnumEntryName", "EnumNaming")
