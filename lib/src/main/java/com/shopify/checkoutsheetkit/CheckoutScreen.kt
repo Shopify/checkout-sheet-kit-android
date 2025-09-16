@@ -22,7 +22,6 @@
  */
 package com.shopify.checkoutsheetkit
 
-import android.content.Intent
 import androidx.fragment.app.Fragment
 
 /**
@@ -37,6 +36,9 @@ public data class CheckoutScreenConfig(
 /**
  * Represents different types of screens that can be presented during checkout for
  * custom address or payment selection.
+ * 
+ * Note: This sealed class is designed for future extensibility. Additional screen types
+ * (ActivityScreen, ComposableScreen) will be added in future versions.
  */
 public sealed class CheckoutScreen {
     /**
@@ -47,27 +49,6 @@ public sealed class CheckoutScreen {
      */
     public data class FragmentScreen(
         val fragment: Fragment, 
-        val config: CheckoutScreenConfig = CheckoutScreenConfig()
-    ) : CheckoutScreen()
-
-    /**
-     * A screen implemented as an Android Activity.
-     * Currently not supported - will be added in a future version.
-     * 
-     * @param intent The intent to launch the activity
-     * @param config UI configuration for this screen
-     */
-    public data class ActivityScreen(
-        val intent: Intent,
-        val config: CheckoutScreenConfig = CheckoutScreenConfig()
-    ) : CheckoutScreen()
-
-    /**
-     * A screen implemented using Jetpack Compose.
-     * Currently not supported - will be added in a future version.
-     */
-    public data class ComposableScreen(
-        val content: Any, // Placeholder for @Composable function type
         val config: CheckoutScreenConfig = CheckoutScreenConfig()
     ) : CheckoutScreen()
 }

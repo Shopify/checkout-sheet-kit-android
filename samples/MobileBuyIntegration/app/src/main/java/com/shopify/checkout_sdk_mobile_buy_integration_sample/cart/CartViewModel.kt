@@ -116,11 +116,11 @@ class CartViewModel(
         activity: ComponentActivity,
         eventProcessor: T
     ) {
-        // Create controller with ComponentActivity - no casting needed
-        val controller = ShopifyCheckoutController(url, activity, eventProcessor)
+        // Create controller
+        val controller = ShopifyCheckoutController(url, eventProcessor)
         
         // Configure address selection screen
-        controller.deliveryAddressScreen = { event ->
+        controller.addressScreen = { event ->
             Timber.i("Creating address selection screen for event type: ${event.addressType}")
             
             val fragment = AddressSelectionFragment().apply {

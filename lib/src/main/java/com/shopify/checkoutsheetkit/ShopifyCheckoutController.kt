@@ -40,21 +40,18 @@ import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
  */
 public class ShopifyCheckoutController(
     private val checkoutUrl: String,
-    private val context: ComponentActivity,
     private val checkoutEventProcessor: CheckoutEventProcessor
 ) {
     /**
-     * Factory function to create a screen for delivery address selection.
-     * Called when the checkout requires delivery address information.
+     * Factory function to create a screen for address selection.
+     * Called when the checkout requires address information.
      * 
      * Currently only supports [CheckoutScreen.FragmentScreen].
-     * [CheckoutScreen.ActivityScreen] and [CheckoutScreen.ComposableScreen] will
-     * be supported in future versions.
      * 
      * @param event The address change event containing type information and response methods
      * @return A [CheckoutScreen] instance defining the UI to present
      */
-    public var deliveryAddressScreen: ((CheckoutAddressChangeIntentEvent) -> CheckoutScreen)? = null
+    public var addressScreen: ((CheckoutAddressChangeIntentEvent) -> CheckoutScreen)? = null
 
     private var dialog: CheckoutControllerDialog? = null
     private var navigationManager: CheckoutNavigationManager? = null
@@ -63,7 +60,8 @@ public class ShopifyCheckoutController(
      * Present the checkout with navigation support.
      * 
      * @param activity The ComponentActivity context for presentation
-     * @return An instance of [CheckoutSheetKitDialog] if successfully created and displayed
+     * @return [CheckoutSheetKitDialog] for controlling the presented checkout, 
+     *         or `null` if the activity is destroyed/finishing and checkout cannot be presented
      */
     public fun present(activity: ComponentActivity): CheckoutSheetKitDialog? {
         log.d(LOG_TAG, "Present called with checkoutUrl $checkoutUrl.")
@@ -77,7 +75,7 @@ public class ShopifyCheckoutController(
         dialog = CheckoutControllerDialog(
             checkoutUrl = checkoutUrl,
             checkoutEventProcessor = checkoutEventProcessor,
-            context = context,
+            context = activity,
             navigationManager = navigationManager!!,
             controller = this
         )
@@ -98,9 +96,9 @@ public class ShopifyCheckoutController(
     internal fun handleAddressChangeIntent(event: CheckoutAddressChangeIntentEvent) {
         log.d(LOG_TAG, "Handling address change intent with type: ${event.addressType}")
         
-        val screenProvider = deliveryAddressScreen
+        val screenProvider = addressScreen
         if (screenProvider == null) {
-            log.w(LOG_TAG, "No deliveryAddressScreen provider configured, falling back to default behavior")
+            log.w(LOG_TAG, "No addressScreen provider configured, falling back to default behavior")
             event.cancel()
             return
         }
@@ -109,7 +107,11 @@ public class ShopifyCheckoutController(
             val screen = screenProvider(event)
             // Dispatch to main thread since JavaScript bridge calls happen on background thread
             Handler(Looper.getMainLooper()).post {
-                navigationManager?.navigateToCustomScreen(screen)
+                val navigationSuccess = navigationManager?.navigateToCustomScreen(screen) ?: false
+                if (!navigationSuccess) {
+                    log.e(LOG_TAG, "Navigation to custom screen failed")
+                    event.cancel()
+                }
             }
         } catch (e: Exception) {
             log.e(LOG_TAG, "Failed to create address screen", e)

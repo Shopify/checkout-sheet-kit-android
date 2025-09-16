@@ -66,40 +66,39 @@ internal class CheckoutNavigationManager {
 
     /**
      * Navigate to a custom screen, hiding the WebView while preserving its state.
+     * @return true if navigation was successful, false if it failed
      */
-    fun navigateToCustomScreen(screen: CheckoutScreen) {
-        when (screen) {
+    fun navigateToCustomScreen(screen: CheckoutScreen): Boolean {
+        return when (screen) {
             is CheckoutScreen.FragmentScreen -> {
                 navigateToFragment(screen.fragment, screen.config)
-            }
-            is CheckoutScreen.ActivityScreen -> {
-                throw UnsupportedOperationException("ActivityScreen is not yet supported")
-            }
-            is CheckoutScreen.ComposableScreen -> {
-                throw UnsupportedOperationException("ComposableScreen is not yet supported")
             }
         }
     }
 
-    private fun navigateToFragment(fragment: Fragment, config: CheckoutScreenConfig) {
-        val container = navigationContainer ?: error("Navigation container not initialized")
+    private fun navigateToFragment(fragment: Fragment, config: CheckoutScreenConfig): Boolean {
+        val container = navigationContainer
+        if (container == null) {
+            log.e(LOG_TAG, "Navigation container not initialized - cannot navigate to fragment")
+            return false
+        }
 
         log.d(LOG_TAG, "Navigating to fragment: ${fragment::class.java.simpleName}")
 
-        // Apply UI configuration
-        applyScreenConfig(config)
-
-        // Pause WebView to preserve resources while maintaining bridge connection
-        pauseWebView()
-
-        // Store current fragment for cleanup later
-        currentFragment = fragment
-
-        // Hide WebView container and show navigation container
-        webViewContainer?.visibility = View.GONE
-        container.visibility = View.VISIBLE
-
         try {
+            // Apply UI configuration
+            applyScreenConfig(config)
+
+            // Pause WebView to preserve resources while maintaining bridge connection
+            pauseWebView()
+
+            // Store current fragment for cleanup later
+            currentFragment = fragment
+
+            // Hide WebView container and show navigation container
+            webViewContainer?.visibility = View.GONE
+            container.visibility = View.VISIBLE
+
             // Create fragment view directly without FragmentManager
             val fragmentView = fragment.onCreateView(
                 android.view.LayoutInflater.from(container.context),
@@ -111,13 +110,21 @@ internal class CheckoutNavigationManager {
                 container.removeAllViews()
                 container.addView(fragmentView)
                 fragment.onViewCreated(fragmentView, null)
-                log.d(LOG_TAG, "Fragment navigation completed")
+                log.d(LOG_TAG, "Fragment navigation completed successfully")
+                return true
             } else {
-                log.e(LOG_TAG, "Fragment.onCreateView returned null")
+                log.e(LOG_TAG, "Fragment.onCreateView returned null - navigation failed")
+                currentFragment = null
+                return false
             }
         } catch (e: Exception) {
-            log.e(LOG_TAG, "Fragment navigation failed", e)
+            log.e(LOG_TAG, "Fragment navigation failed with exception", e)
             currentFragment = null
+            // Restore WebView visibility on error
+            container.visibility = View.GONE
+            webViewContainer?.visibility = View.VISIBLE
+            resumeWebView()
+            return false
         }
     }
 
