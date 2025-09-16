@@ -19,24 +19,34 @@ The native picker feature allows clients to provide custom address/payment selec
 ### Core Components
 
 #### 1. ShopifyCheckoutController (`ShopifyCheckoutController.kt`)
-- New controller class providing `present()` method
-- Works with any `ComponentActivity` for broad compatibility
+- New controller class with Android-idiomatic Builder pattern API
+- Works with any `ComponentActivity` for broad compatibility  
 - Handles address change intents by triggering custom screen navigation
+- Immutable configuration with validation and comprehensive documentation
 
 #### 2. CheckoutScreen Sealed Class (`CheckoutScreen.kt`)
 ```kotlin
 sealed class CheckoutScreen {
-    data class FragmentScreen(
-        val fragment: Fragment, 
+    data class Fragment(
+        val view: androidx.fragment.app.Fragment, 
         val config: CheckoutScreenConfig = CheckoutScreenConfig()
     ) : CheckoutScreen()
 }
 
 data class CheckoutScreenConfig(
-    val title: String? = null
-)
+    val title: String? = null,
+    @StringRes val titleRes: Int? = null
+) {
+    companion object {
+        @JvmStatic
+        fun withTitle(@StringRes titleRes: Int): CheckoutScreenConfig
+        
+        @JvmStatic
+        fun withTitle(title: String): CheckoutScreenConfig
+    }
+}
 ```
-Note: Designed for future extensibility. Additional screen types (ActivityScreen, ComposableScreen) will be added in future versions.
+Note: Designed for future extensibility. Additional screen types (Activity, Composable) will be added in future versions.
 
 #### 3. RespondableEvent System (`RespondableEvent.kt`)
 - Abstract base class for events requiring user response
@@ -82,20 +92,21 @@ The MobileBuyIntegration sample was updated to demonstrate the controller approa
 ```kotlin
 class MainActivity : ComponentActivity() { ... }
 
-// Create controller
-val controller = ShopifyCheckoutController(checkoutUrl, eventProcessor)
-controller.addressScreen = { event ->
-    val fragment = AddressSelectionFragment().apply {
-        onAddressSelected = { address ->
-            event.respondWith(address.toDeliveryAddressChangePayload())
+// Create controller using Builder pattern
+val controller = ShopifyCheckoutController.Builder(checkoutUrl, eventProcessor)
+    .setAddressScreenProvider { event ->
+        val fragment = AddressSelectionFragment().apply {
+            onAddressSelected = { address ->
+                event.respondWith(address.toDeliveryAddressChangePayload())
+            }
+            onCancel = { event.cancel() }
         }
-        onCancel = { event.cancel() }
+        CheckoutScreen.Fragment(
+            view = fragment,
+            config = CheckoutScreenConfig.withTitle(R.string.address_selection_title)
+        )
     }
-    CheckoutScreen.FragmentScreen(
-        fragment = fragment,
-        config = CheckoutScreenConfig(title = "Select Address")
-    )
-}
+    .build()
 
 // Present the controller
 controller.present(this)
@@ -125,16 +136,55 @@ controller.present(this)
 ## API Design Principles
 
 1. **Opt-in Feature**: Maintains backward compatibility with existing `present()` method
-2. **Library Control**: Navigation managed by SDK, not client callbacks
+2. **Library Control**: Navigation managed by SDK, not client callbacks  
 3. **Type Safety**: Non-null `DeliveryAddressChangePayload` requirement
 4. **Extensibility**: Sealed class design for future screen types
 5. **Resource Preservation**: WebView bridge maintained during navigation
+6. **Android Idioms**: Builder pattern with fluent API and immutable configuration
+
+### Android-Idiomatic Builder Pattern
+
+The controller uses a Builder pattern following Android SDK conventions:
+
+```kotlin
+// Android-idiomatic approach
+val controller = ShopifyCheckoutController.Builder(checkoutUrl, eventProcessor)
+    .setAddressScreenProvider { event ->
+        // Configure address screen
+        // Using string resource (recommended)
+        CheckoutScreen.Fragment(
+            view = fragment, 
+            config = CheckoutScreenConfig.withTitle(R.string.address_title)
+        )
+        
+        // Using direct string (for dynamic titles)
+        CheckoutScreen.Fragment(
+            view = fragment,
+            config = CheckoutScreenConfig.withTitle("Dynamic Title")
+        )
+    }
+    .build()
+
+// Future extensibility
+val controller = ShopifyCheckoutController.Builder(checkoutUrl, eventProcessor)
+    .setAddressScreenProvider { event -> ... }
+    .setPaymentScreenProvider { event -> ... }  // Future enhancement
+    .build()
+```
+
+**Benefits:**
+- **Immutable Configuration**: No accidental modifications after creation
+- **Input Validation**: Required parameters validated at build time
+- **Method Chaining**: Fluent API with IDE autocomplete support
+- **Extensible**: Easy to add new configuration options without breaking changes
+- **Thread Safe**: No mutable state after construction
+- **Android Familiar**: Consistent with `AlertDialog.Builder`, `Notification.Builder`, etc.
 
 ## Files Modified/Created
 
 ### New Files
-- `ShopifyCheckoutController.kt` - Main controller API for native picker integration; manages screen factories and handles address change events
-- `CheckoutScreen.kt` - Sealed class defining FragmentScreen type with UI configuration; designed for future extensibility
+- `ShopifyCheckoutController.kt` - Main controller API with Android-idiomatic Builder pattern; manages address screen providers and handles address change events
+- `CheckoutScreen.kt` - Sealed class defining Fragment type with UI configuration; designed for future extensibility
 - `RespondableEvent.kt` - Abstract base for events requiring user response; provides type-safe response/cancellation methods
 - `CheckoutAddressChangeIntentDecoder.kt` - JSON decoder for address change events from WebView; creates respondable event instances with callbacks
 - `CheckoutNavigationManager.kt` - Manages transitions between WebView and custom screens; handles WebView pause/resume, title changes, and manual fragment lifecycle
@@ -164,7 +214,7 @@ During implementation, we evaluated two approaches for fragment lifecycle manage
 #### Option 1: Full FragmentManager Integration (Initial Implementation)
 ```kotlin
 // Requires FragmentActivity
-public fun present(activity: FragmentActivity): CheckoutSheetKitDialog? {
+fun present(activity: FragmentActivity): CheckoutSheetKitDialog? {
     val fragmentManager = activity.supportFragmentManager
     // Full fragment lifecycle support
 }
@@ -184,7 +234,7 @@ public fun present(activity: FragmentActivity): CheckoutSheetKitDialog? {
 #### Option 2: Manual Fragment Management (Final Implementation)
 ```kotlin
 // Works with any ComponentActivity
-public fun present(activity: ComponentActivity): CheckoutSheetKitDialog? {
+fun present(activity: ComponentActivity): CheckoutSheetKitDialog? {
     // Manual onCreateView()/onViewCreated() calls
     val fragmentView = fragment.onCreateView(inflater, container, null)
     fragment.onViewCreated(fragmentView, null)

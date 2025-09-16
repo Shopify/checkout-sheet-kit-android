@@ -4,6 +4,9 @@
 
     <!-- Override Checkout Sheet Kit Default Title -->
     <string name="checkout_web_view_title">Buy Now!</string>
+    
+    <!-- Native Address Picker -->
+    <string name="address_selection_title">Select Address</string>
 
     <!-- Navigation -->
     <string name="navigation_home" translatable="false">Home</string>

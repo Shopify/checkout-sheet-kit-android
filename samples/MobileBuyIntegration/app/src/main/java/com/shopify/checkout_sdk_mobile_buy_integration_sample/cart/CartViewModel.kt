@@ -116,31 +116,30 @@ class CartViewModel(
         activity: ComponentActivity,
         eventProcessor: T
     ) {
-        // Create controller
-        val controller = ShopifyCheckoutController(url, eventProcessor)
-        
-        // Configure address selection screen
-        controller.addressScreen = { event ->
-            Timber.i("Creating address selection screen for event type: ${event.addressType}")
-            
-            val fragment = AddressSelectionFragment().apply {
-                onAddressSelected = { address ->
-                    Timber.i("Address selected: ${address.firstName} ${address.lastName}")
-                    // Convert client address to library format
-                    event.respondWith(address.toDeliveryAddressChangePayload())
+        // Create controller using Builder pattern
+        val controller = ShopifyCheckoutController.Builder(url, eventProcessor)
+            .setAddressScreenProvider { event ->
+                Timber.i("Creating address selection screen for event type: ${event.addressType}")
+                
+                val fragment = AddressSelectionFragment().apply {
+                    onAddressSelected = { address ->
+                        Timber.i("Address selected: ${address.firstName} ${address.lastName}")
+                        // Convert client address to library format
+                        event.respondWith(address.toDeliveryAddressChangePayload())
+                    }
+                    
+                    onCancel = {
+                        Timber.i("Address selection cancelled")
+                        event.cancel()
+                    }
                 }
                 
-                onCancel = {
-                    Timber.i("Address selection cancelled")
-                    event.cancel()
-                }
+                CheckoutScreen.Fragment(
+                    view = fragment,
+                    config = CheckoutScreenConfig.withTitle(R.string.address_selection_title)
+                )
             }
-            
-            CheckoutScreen.FragmentScreen(
-                fragment,
-                CheckoutScreenConfig(title = "Select Address")
-            )
-        }
+            .build()
         
         // Present the controller
         controller.present(activity)

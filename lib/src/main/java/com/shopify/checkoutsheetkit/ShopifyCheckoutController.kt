@@ -22,7 +22,6 @@
  */
 package com.shopify.checkoutsheetkit
 
-import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import androidx.activity.ComponentActivity
@@ -37,22 +36,14 @@ import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
  * This is an opt-in alternative to [ShopifyCheckoutSheetKit.present] that allows
  * clients to provide custom UI for address and payment selection while maintaining
  * library-controlled navigation and WebView state.
+ * 
+ * Use [ShopifyCheckoutController.Builder] to create instances.
  */
-public class ShopifyCheckoutController(
+public class ShopifyCheckoutController private constructor(
     private val checkoutUrl: String,
-    private val checkoutEventProcessor: CheckoutEventProcessor
+    private val checkoutEventProcessor: CheckoutEventProcessor,
+    private val addressScreenProvider: ((CheckoutAddressChangeIntentEvent) -> CheckoutScreen)?
 ) {
-    /**
-     * Factory function to create a screen for address selection.
-     * Called when the checkout requires address information.
-     * 
-     * Currently only supports [CheckoutScreen.FragmentScreen].
-     * 
-     * @param event The address change event containing type information and response methods
-     * @return A [CheckoutScreen] instance defining the UI to present
-     */
-    public var addressScreen: ((CheckoutAddressChangeIntentEvent) -> CheckoutScreen)? = null
-
     private var dialog: NavigationAwareCheckoutDialog? = null
     private var navigationManager: CheckoutNavigationManager? = null
 
@@ -96,15 +87,14 @@ public class ShopifyCheckoutController(
     internal fun handleAddressChangeIntent(event: CheckoutAddressChangeIntentEvent) {
         log.d(LOG_TAG, "Handling address change intent with type: ${event.addressType}")
         
-        val screenProvider = addressScreen
-        if (screenProvider == null) {
+        if (addressScreenProvider == null) {
             log.w(LOG_TAG, "No addressScreen provider configured, falling back to default behavior")
             event.cancel()
             return
         }
 
         try {
-            val screen = screenProvider(event)
+            val screen = addressScreenProvider.invoke(event)
             // Dispatch to main thread since JavaScript bridge calls happen on background thread
             Handler(Looper.getMainLooper()).post {
                 val navigationSuccess = navigationManager?.navigateToCustomScreen(screen) ?: false
@@ -119,6 +109,63 @@ public class ShopifyCheckoutController(
         }
     }
 
+    /**
+     * Builder for creating [ShopifyCheckoutController] instances with Android-idiomatic patterns.
+     * 
+     * Example usage:
+     * ```kotlin
+     * val controller = ShopifyCheckoutController.Builder(checkoutUrl, eventProcessor)
+     *     .setAddressScreenProvider { event ->
+     *         CheckoutScreen.Fragment(
+     *             view = MyAddressFragment(),
+     *             config = CheckoutScreenConfig.withTitle(R.string.address_title)
+     *         )
+     *     }
+     *     .build()
+     * 
+     * controller.present(this)
+     * ```
+     */
+    public class Builder(
+        private val checkoutUrl: String,
+        private val checkoutEventProcessor: CheckoutEventProcessor
+    ) {
+        private var addressScreenProvider: ((CheckoutAddressChangeIntentEvent) -> CheckoutScreen)? = null
+        
+        init {
+            require(checkoutUrl.isNotBlank()) { "Checkout URL cannot be blank" }
+        }
+        
+        /**
+         * Set a provider for creating address selection screens.
+         * 
+         * The provider function will be called whenever the checkout requires address selection.
+         * It receives a [CheckoutAddressChangeIntentEvent] which contains the address type information
+         * and methods to respond with the selected address or cancel the operation.
+         * 
+         * @param provider Function that creates a [CheckoutScreen] when address selection is needed
+         * @return This builder instance for method chaining
+         */
+        public fun setAddressScreenProvider(
+            provider: (CheckoutAddressChangeIntentEvent) -> CheckoutScreen
+        ): Builder = apply {
+            this.addressScreenProvider = provider
+        }
+        
+        /**
+         * Build the [ShopifyCheckoutController] instance.
+         * 
+         * @return Configured controller ready for presentation
+         */
+        public fun build(): ShopifyCheckoutController {
+            return ShopifyCheckoutController(
+                checkoutUrl = checkoutUrl,
+                checkoutEventProcessor = checkoutEventProcessor,
+                addressScreenProvider = addressScreenProvider
+            )
+        }
+    }
+    
     private companion object {
         private const val LOG_TAG = "ShopifyCheckoutController"
     }

@@ -22,6 +22,7 @@
  */
 package com.shopify.checkoutsheetkit
 
+import android.content.Context
 import android.view.View
 import androidx.fragment.app.Fragment
 import android.widget.FrameLayout
@@ -42,6 +43,7 @@ internal class CheckoutNavigationManager {
     private var onTitleChanged: ((String?) -> Unit)? = null
     private var originalTitle: String? = null
     private var getCurrentTitle: (() -> String?)? = null
+    private var context: Context? = null
 
     /**
      * Initialize the navigation manager with the required components.
@@ -50,12 +52,14 @@ internal class CheckoutNavigationManager {
         webViewContainer: View,
         navigationContainer: FrameLayout,
         checkoutWebView: BaseWebView,
+        context: Context,
         onTitleChanged: ((String?) -> Unit)? = null,
         getCurrentTitle: (() -> String?)? = null
     ) {
         this.webViewContainer = webViewContainer
         this.navigationContainer = navigationContainer
         this.checkoutWebView = checkoutWebView
+        this.context = context
         this.onTitleChanged = onTitleChanged
         this.getCurrentTitle = getCurrentTitle
         
@@ -70,8 +74,8 @@ internal class CheckoutNavigationManager {
      */
     fun navigateToCustomScreen(screen: CheckoutScreen): Boolean {
         return when (screen) {
-            is CheckoutScreen.FragmentScreen -> {
-                navigateToFragment(screen.fragment, screen.config)
+            is CheckoutScreen.Fragment -> {
+                navigateToFragment(screen.view, screen.config)
             }
         }
     }
@@ -177,8 +181,21 @@ internal class CheckoutNavigationManager {
     }
 
     private fun applyScreenConfig(config: CheckoutScreenConfig) {
-        log.d(LOG_TAG, "Applying screen config: ${config.title}")
-        config.title?.let { newTitle ->
+        // Determine the title to use (resource takes precedence)
+        val resolvedTitle = when {
+            config.titleRes != null && context != null -> {
+                try {
+                    context!!.getString(config.titleRes)
+                } catch (e: Exception) {
+                    log.w(LOG_TAG, "Failed to resolve string resource ${config.titleRes}, falling back to title string")
+                    config.title
+                }
+            }
+            else -> config.title
+        }
+        
+        log.d(LOG_TAG, "Applying screen config with resolved title: $resolvedTitle")
+        resolvedTitle?.let { newTitle ->
             // Store original title if we haven't already
             if (originalTitle == null) {
                 originalTitle = getCurrentTitle()

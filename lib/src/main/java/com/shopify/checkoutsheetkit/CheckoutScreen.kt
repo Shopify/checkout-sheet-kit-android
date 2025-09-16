@@ -22,33 +22,60 @@
  */
 package com.shopify.checkoutsheetkit
 
+import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 
 /**
  * UI configuration for custom checkout screens.
  * 
  * @param title The title to display in the toolbar (null keeps current title)
+ * @param titleRes String resource ID for the title (takes precedence over title if both provided)
  */
 public data class CheckoutScreenConfig(
-    val title: String? = null
-)
+    val title: String? = null,
+    @StringRes val titleRes: Int? = null
+) {
+    public companion object {
+        /**
+         * Create a config with a string resource title.
+         * 
+         * @param titleRes String resource ID for the title
+         * @return CheckoutScreenConfig with the specified title resource
+         */
+        @JvmStatic
+        public fun withTitle(@StringRes titleRes: Int): CheckoutScreenConfig {
+            return CheckoutScreenConfig(titleRes = titleRes)
+        }
+        
+        /**
+         * Create a config with a direct string title.
+         * 
+         * @param title Direct string for the title
+         * @return CheckoutScreenConfig with the specified title string
+         */
+        @JvmStatic
+        public fun withTitle(title: String): CheckoutScreenConfig {
+            return CheckoutScreenConfig(title = title)
+        }
+    }
+}
 
 /**
  * Represents different types of screens that can be presented during checkout for
  * custom address or payment selection.
  * 
  * Note: This sealed class is designed for future extensibility. Additional screen types
- * (ActivityScreen, ComposableScreen) will be added in future versions.
+ * (Activity, Composable) will be added in future versions.
  */
 public sealed class CheckoutScreen {
     /**
      * A screen implemented as an Android Fragment.
      * 
-     * @param fragment The fragment to be presented
+     * @param view The fragment to be presented
      * @param config UI configuration for this screen
      */
-    public data class FragmentScreen(
-        val fragment: Fragment, 
+    public data class Fragment(
+        val view: androidx.fragment.app.Fragment, 
         val config: CheckoutScreenConfig = CheckoutScreenConfig()
     ) : CheckoutScreen()
 }

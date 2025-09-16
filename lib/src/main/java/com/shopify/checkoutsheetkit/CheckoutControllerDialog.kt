@@ -111,6 +111,7 @@ internal class NavigationAwareCheckoutDialog(
                 webViewContainer = webViewContainer,
                 navigationContainer = navigationContainer,
                 checkoutWebView = checkoutWebView,
+                context = context,
                 onTitleChanged = { newTitle ->
                     log.d(LOG_TAG, "Updating dialog title to: $newTitle")
                     // Update the toolbar title directly instead of dialog title
