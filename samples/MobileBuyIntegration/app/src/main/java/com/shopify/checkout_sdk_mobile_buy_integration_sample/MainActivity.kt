@@ -31,7 +31,6 @@ import android.webkit.ValueCallback
 import android.webkit.WebChromeClient.FileChooserParams
 import android.webkit.WebView.setWebContentsDebuggingEnabled
 import androidx.activity.ComponentActivity
-import androidx.fragment.app.FragmentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
@@ -40,7 +39,7 @@ import androidx.core.content.ContextCompat
 import timber.log.Timber
 import timber.log.Timber.DebugTree
 
-class MainActivity : FragmentActivity() {
+class MainActivity : ComponentActivity() {
     // Launchers
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
     private lateinit var showFileChooserLauncher: ActivityResultLauncher<FileChooserParams>

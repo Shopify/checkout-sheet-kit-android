@@ -25,7 +25,6 @@ package com.shopify.checkoutsheetkit
 import android.content.Context
 import android.widget.RelativeLayout
 import androidx.activity.ComponentActivity
-import androidx.fragment.app.FragmentActivity
 import android.widget.FrameLayout
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
 
@@ -54,9 +53,7 @@ internal class CheckoutControllerDialog(
         replaceEventProcessor()
         
         // Setup navigation after parent setup is complete
-        // Cast to FragmentActivity since our controller guarantees this
-        val fragmentActivity = context as FragmentActivity
-        setupNavigation(fragmentActivity)
+        setupNavigation()
     }
 
     private fun replaceEventProcessor() {
@@ -95,12 +92,9 @@ internal class CheckoutControllerDialog(
         }
     }
 
-    private fun setupNavigation(context: FragmentActivity) {
+    private fun setupNavigation() {
         val webViewContainer = findViewById<RelativeLayout>(R.id.checkoutSdkContainer)
         val navigationContainer = findViewById<FrameLayout>(R.id.checkoutNavigationContainer)
-        
-        // Use the activity's fragment manager but ensure we're using the correct context
-        val fragmentManager = context.supportFragmentManager
 
         log.d(LOG_TAG, "Setting up navigation - webViewContainer: $webViewContainer, navigationContainer: $navigationContainer")
 
@@ -109,7 +103,6 @@ internal class CheckoutControllerDialog(
             return
         }
 
-
         // Get the checkout WebView that was created by parent
         val checkoutWebView = getCurrentCheckoutWebView()
         
@@ -117,7 +110,6 @@ internal class CheckoutControllerDialog(
             navigationManager.initialize(
                 webViewContainer = webViewContainer,
                 navigationContainer = navigationContainer,
-                fragmentManager = fragmentManager,
                 checkoutWebView = checkoutWebView,
                 onTitleChanged = { newTitle ->
                     log.d(LOG_TAG, "Updating dialog title to: $newTitle")

@@ -26,7 +26,6 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import androidx.activity.ComponentActivity
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
@@ -41,7 +40,7 @@ import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
  */
 public class ShopifyCheckoutController(
     private val checkoutUrl: String,
-    private val context: FragmentActivity,
+    private val context: ComponentActivity,
     private val checkoutEventProcessor: CheckoutEventProcessor
 ) {
     /**
@@ -63,10 +62,10 @@ public class ShopifyCheckoutController(
     /**
      * Present the checkout with navigation support.
      * 
-     * @param activity The FragmentActivity context for presentation (required for fragment navigation)
+     * @param activity The ComponentActivity context for presentation
      * @return An instance of [CheckoutSheetKitDialog] if successfully created and displayed
      */
-    public fun present(activity: FragmentActivity): CheckoutSheetKitDialog? {
+    public fun present(activity: ComponentActivity): CheckoutSheetKitDialog? {
         log.d(LOG_TAG, "Present called with checkoutUrl $checkoutUrl.")
         if (activity.isDestroyed || activity.isFinishing) {
             log.d(LOG_TAG, "Context is destroyed or finishing, returning null.")

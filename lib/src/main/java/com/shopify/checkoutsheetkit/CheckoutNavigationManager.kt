@@ -25,7 +25,6 @@ package com.shopify.checkoutsheetkit
 import android.view.View
 import androidx.fragment.app.Fragment
 import android.widget.FrameLayout
-import androidx.fragment.app.FragmentManager
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
 import java.lang.Boolean.TRUE
 
@@ -36,8 +35,8 @@ import java.lang.Boolean.TRUE
 internal class CheckoutNavigationManager {
     private var webViewContainer: View? = null
     private var navigationContainer: FrameLayout? = null
-    private var fragmentManager: FragmentManager? = null
     private var checkoutWebView: BaseWebView? = null
+    private var currentFragment: Fragment? = null
     private var isWebViewPaused = false
     private var currentEvent: CheckoutAddressChangeIntentEvent? = null
     private var onTitleChanged: ((String?) -> Unit)? = null
@@ -50,14 +49,12 @@ internal class CheckoutNavigationManager {
     fun initialize(
         webViewContainer: View,
         navigationContainer: FrameLayout,
-        fragmentManager: FragmentManager,
         checkoutWebView: BaseWebView,
         onTitleChanged: ((String?) -> Unit)? = null,
         getCurrentTitle: (() -> String?)? = null
     ) {
         this.webViewContainer = webViewContainer
         this.navigationContainer = navigationContainer
-        this.fragmentManager = fragmentManager
         this.checkoutWebView = checkoutWebView
         this.onTitleChanged = onTitleChanged
         this.getCurrentTitle = getCurrentTitle
@@ -85,7 +82,6 @@ internal class CheckoutNavigationManager {
     }
 
     private fun navigateToFragment(fragment: Fragment, config: CheckoutScreenConfig) {
-        val manager = fragmentManager ?: error("FragmentManager not initialized")
         val container = navigationContainer ?: error("Navigation container not initialized")
 
         log.d(LOG_TAG, "Navigating to fragment: ${fragment::class.java.simpleName}")
@@ -96,17 +92,15 @@ internal class CheckoutNavigationManager {
         // Pause WebView to preserve resources while maintaining bridge connection
         pauseWebView()
 
+        // Store current fragment for cleanup later
+        currentFragment = fragment
+
         // Hide WebView container and show navigation container
         webViewContainer?.visibility = View.GONE
         container.visibility = View.VISIBLE
 
         try {
-            // Attach fragment to FragmentManager to provide proper context
-            val tempTransaction = manager.beginTransaction()
-            tempTransaction.add(fragment, "temp_fragment")
-            tempTransaction.commitNowAllowingStateLoss()
-            
-            // Create fragment view and add to container
+            // Create fragment view directly without FragmentManager
             val fragmentView = fragment.onCreateView(
                 android.view.LayoutInflater.from(container.context),
                 container,
@@ -123,6 +117,7 @@ internal class CheckoutNavigationManager {
             }
         } catch (e: Exception) {
             log.e(LOG_TAG, "Fragment navigation failed", e)
+            currentFragment = null
         }
     }
 
@@ -130,7 +125,6 @@ internal class CheckoutNavigationManager {
      * Navigate back to the checkout WebView from a custom screen.
      */
     fun navigateBackToCheckout() {
-        val manager = fragmentManager ?: return
         val container = navigationContainer ?: return
 
         log.d(LOG_TAG, "Navigating back to checkout WebView")
@@ -142,16 +136,9 @@ internal class CheckoutNavigationManager {
         container.visibility = View.GONE
         webViewContainer?.visibility = View.VISIBLE
 
-        // Clear the container view
+        // Clear the container view and reset current fragment
         container.removeAllViews()
-        
-        // Remove the temporary fragment from FragmentManager
-        val tempFragment = manager.findFragmentByTag("temp_fragment")
-        if (tempFragment != null) {
-            manager.beginTransaction()
-                .remove(tempFragment)
-                .commitAllowingStateLoss()
-        }
+        currentFragment = null
 
         // Resume WebView
         resumeWebView()

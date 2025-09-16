@@ -45,7 +45,7 @@ class AddressSelectionFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val context = requireContext()
+        val context = container?.context ?: inflater.context
         
         // Create a simple linear layout programmatically for demo
         return LinearLayout(context).apply {

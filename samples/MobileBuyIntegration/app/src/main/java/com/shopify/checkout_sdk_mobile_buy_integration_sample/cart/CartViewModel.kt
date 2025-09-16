@@ -23,7 +23,6 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.cart
 
 import androidx.activity.ComponentActivity
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
@@ -117,9 +116,8 @@ class CartViewModel(
         activity: ComponentActivity,
         eventProcessor: T
     ) {
-        // Cast to FragmentActivity - MainActivity extends FragmentActivity so this should work
-        val fragmentActivity = activity as FragmentActivity
-        val controller = ShopifyCheckoutController(url, fragmentActivity, eventProcessor)
+        // Create controller with ComponentActivity - no casting needed
+        val controller = ShopifyCheckoutController(url, activity, eventProcessor)
         
         // Configure address selection screen
         controller.deliveryAddressScreen = { event ->
@@ -145,7 +143,7 @@ class CartViewModel(
         }
         
         // Present the controller
-        controller.present(fragmentActivity)
+        controller.present(activity)
     }
 
     fun preloadCheckout(
