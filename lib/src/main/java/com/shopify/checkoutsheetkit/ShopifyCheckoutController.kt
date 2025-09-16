@@ -53,7 +53,7 @@ public class ShopifyCheckoutController(
      */
     public var addressScreen: ((CheckoutAddressChangeIntentEvent) -> CheckoutScreen)? = null
 
-    private var dialog: CheckoutControllerDialog? = null
+    private var dialog: NavigationAwareCheckoutDialog? = null
     private var navigationManager: CheckoutNavigationManager? = null
 
     /**
@@ -72,7 +72,7 @@ public class ShopifyCheckoutController(
 
         navigationManager = CheckoutNavigationManager()
 
-        dialog = CheckoutControllerDialog(
+        dialog = NavigationAwareCheckoutDialog(
             checkoutUrl = checkoutUrl,
             checkoutEventProcessor = checkoutEventProcessor,
             context = activity,
@@ -88,7 +88,7 @@ public class ShopifyCheckoutController(
             }
         })
 
-        log.d(LOG_TAG, "Starting CheckoutControllerDialog.")
+        log.d(LOG_TAG, "Starting NavigationAwareCheckoutDialog.")
         dialog?.start(activity)
         return CheckoutSheetKitDialog { dialog?.dismiss() }
     }

@@ -32,7 +32,7 @@ import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
  * Extended checkout dialog that supports navigation to custom screens.
  * Reuses CheckoutDialog functionality while adding navigation capabilities.
  */
-internal class CheckoutControllerDialog(
+internal class NavigationAwareCheckoutDialog(
     checkoutUrl: String,
     checkoutEventProcessor: CheckoutEventProcessor,
     context: Context,
@@ -41,7 +41,7 @@ internal class CheckoutControllerDialog(
 ) : CheckoutDialog(checkoutUrl, checkoutEventProcessor, context) {
 
     override fun start(context: ComponentActivity) {
-        log.d(LOG_TAG, "CheckoutControllerDialog start called.")
+        log.d(LOG_TAG, "NavigationAwareCheckoutDialog start called.")
         
         // Use the enhanced layout with navigation container
         setContentView(R.layout.dialog_checkout_controller)
@@ -129,6 +129,6 @@ internal class CheckoutControllerDialog(
     }
 
     companion object {
-        private const val LOG_TAG = "CheckoutControllerDialog"
+        private const val LOG_TAG = "NavigationAwareCheckoutDialog"
     }
 }

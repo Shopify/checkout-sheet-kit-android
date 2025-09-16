@@ -12,7 +12,7 @@ The native picker feature allows clients to provide custom address/payment selec
 - **WebView state preservation**: Bridge connection maintained during navigation to prevent data loss
 - **Type-safe APIs**: Strongly typed events and responses using kotlinx serialization
 - **Title customization**: Dynamic toolbar title changes (e.g., "Buy Now!" → "Select Address")
-- **Fragment support**: Initial implementation supports Android Fragments with placeholders for Activities and Compose
+- **Fragment support**: Implementation supports Android Fragments; designed for future extensibility
 
 ## Implementation Details
 
@@ -30,16 +30,13 @@ sealed class CheckoutScreen {
         val fragment: Fragment, 
         val config: CheckoutScreenConfig = CheckoutScreenConfig()
     ) : CheckoutScreen()
-    
-    // Placeholders for future implementation
-    data class ActivityScreen(...)
-    data class ComposableScreen(...)
 }
 
 data class CheckoutScreenConfig(
     val title: String? = null
 )
 ```
+Note: Designed for future extensibility. Additional screen types (ActivityScreen, ComposableScreen) will be added in future versions.
 
 #### 3. RespondableEvent System (`RespondableEvent.kt`)
 - Abstract base class for events requiring user response
@@ -59,9 +56,9 @@ data class CheckoutScreenConfig(
 - Handles title changes and restoration
 - Uses manual fragment management (direct onCreateView/onViewCreated calls)
 
-#### 6. CheckoutControllerDialog (`CheckoutControllerDialog.kt`)
-- Extended dialog with navigation capabilities
-- Custom event processor with address change handling
+#### 6. NavigationAwareCheckoutDialog (`NavigationAwareCheckoutDialog.kt`)
+- Navigation-aware checkout dialog extending CheckoutDialog
+- Custom event processor with address change handling  
 - Enhanced layout (`dialog_checkout_controller.xml`) with navigation container
 - Toolbar title manipulation instead of dialog title
 
@@ -83,12 +80,11 @@ data class CheckoutScreenConfig(
 The MobileBuyIntegration sample was updated to demonstrate the controller approach:
 
 ```kotlin
-// Works with ComponentActivity - no special requirements
 class MainActivity : ComponentActivity() { ... }
 
-// Create controller with address screen factory
-val controller = ShopifyCheckoutController(checkoutUrl, this, eventProcessor)
-controller.deliveryAddressScreen = { event ->
+// Create controller
+val controller = ShopifyCheckoutController(checkoutUrl, eventProcessor)
+controller.addressScreen = { event ->
     val fragment = AddressSelectionFragment().apply {
         onAddressSelected = { address ->
             event.respondWith(address.toDeliveryAddressChangePayload())
@@ -138,11 +134,11 @@ controller.present(this)
 
 ### New Files
 - `ShopifyCheckoutController.kt` - Main controller API for native picker integration; manages screen factories and handles address change events
-- `CheckoutScreen.kt` - Sealed class hierarchy defining different screen types (Fragment, Activity, Composable) with UI configuration
+- `CheckoutScreen.kt` - Sealed class defining FragmentScreen type with UI configuration; designed for future extensibility
 - `RespondableEvent.kt` - Abstract base for events requiring user response; provides type-safe response/cancellation methods
 - `CheckoutAddressChangeIntentDecoder.kt` - JSON decoder for address change events from WebView; creates respondable event instances with callbacks
 - `CheckoutNavigationManager.kt` - Manages transitions between WebView and custom screens; handles WebView pause/resume, title changes, and manual fragment lifecycle
-- `CheckoutControllerDialog.kt` - Extended dialog with navigation capabilities; replaces event processors and coordinates between WebView and navigation manager
+- `NavigationAwareCheckoutDialog.kt` - Navigation-aware checkout dialog; extends CheckoutDialog with custom screen support and enhanced event processing
 - `res/layout/dialog_checkout_controller.xml` - Enhanced layout with navigation container for hosting custom screens alongside WebView
 
 ### Modified Files
