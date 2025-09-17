@@ -87,30 +87,51 @@ Note: Designed for future extensibility. Additional screen types (Activity, Comp
 
 ## Sample Integration
 
-The MobileBuyIntegration sample was updated to demonstrate the controller approach:
+The MobileBuyIntegration sample demonstrates the DSL approach:
+
+### DSL Approach
 
 ```kotlin
 class MainActivity : ComponentActivity() { ... }
 
-// Create controller using Builder pattern
-val controller = ShopifyCheckoutController.Builder(checkoutUrl, eventProcessor)
-    .setAddressScreenProvider { event ->
-        val fragment = AddressSelectionFragment().apply {
-            onAddressSelected = { address ->
-                event.respondWith(address.toDeliveryAddressChangePayload())
-            }
-            onCancel = { event.cancel() }
+// Create controller using DSL syntax
+val controller = checkoutController(checkoutUrl, eventProcessor) {
+    addressScreen {
+        fragment(AddressSelectionFragment()) {
+            titleRes = R.string.address_selection_title
         }
-        CheckoutScreen.Fragment(
-            view = fragment,
-            config = CheckoutScreenConfig.withTitle(R.string.address_selection_title)
-        )
     }
-    .build()
+}
 
 // Present the controller
 controller.present(this)
 ```
+
+### Fragment with Interface-Based Event Handling
+
+```kotlin
+class AddressSelectionFragment : Fragment(), CheckoutAddressRequestReceiver {
+    private var addressEvent: CheckoutAddressChangeIntentEvent? = null
+    
+    override fun onAddressChangeRequest(event: CheckoutAddressChangeIntentEvent) {
+        this.addressEvent = event
+        // Configure UI to respond with event.respondWith() or event.cancel()
+    }
+    
+    private fun onAddressSelected(address: ClientDefinedAddress) {
+        addressEvent?.let { event ->
+            event.respondWith(address.toDeliveryAddressChangePayload())
+        }
+    }
+    
+    private fun onCancel() {
+        addressEvent?.cancel()
+    }
+}
+```
+
+> [!NOTE]  
+> A traditional Builder pattern (`ShopifyCheckoutController.Builder`) is also available for Java compatibility.
 
 ## Technical Decisions
 
@@ -140,50 +161,15 @@ controller.present(this)
 3. **Type Safety**: Non-null `DeliveryAddressChangePayload` requirement
 4. **Extensibility**: Sealed class design for future screen types
 5. **Resource Preservation**: WebView bridge maintained during navigation
-6. **Android Idioms**: Builder pattern with fluent API and immutable configuration
-
-### Android-Idiomatic Builder Pattern
-
-The controller uses a Builder pattern following Android SDK conventions:
-
-```kotlin
-// Android-idiomatic approach
-val controller = ShopifyCheckoutController.Builder(checkoutUrl, eventProcessor)
-    .setAddressScreenProvider { event ->
-        // Configure address screen
-        // Using string resource (recommended)
-        CheckoutScreen.Fragment(
-            view = fragment, 
-            config = CheckoutScreenConfig.withTitle(R.string.address_title)
-        )
-        
-        // Using direct string (for dynamic titles)
-        CheckoutScreen.Fragment(
-            view = fragment,
-            config = CheckoutScreenConfig.withTitle("Dynamic Title")
-        )
-    }
-    .build()
-
-// Future extensibility
-val controller = ShopifyCheckoutController.Builder(checkoutUrl, eventProcessor)
-    .setAddressScreenProvider { event -> ... }
-    .setPaymentScreenProvider { event -> ... }  // Future enhancement
-    .build()
-```
-
-**Benefits:**
-- **Immutable Configuration**: No accidental modifications after creation
-- **Input Validation**: Required parameters validated at build time
-- **Method Chaining**: Fluent API with IDE autocomplete support
-- **Extensible**: Easy to add new configuration options without breaking changes
-- **Thread Safe**: No mutable state after construction
-- **Android Familiar**: Consistent with `AlertDialog.Builder`, `Notification.Builder`, etc.
+6. **Android Idioms**: DSL patterns following Android conventions with Builder available for Java compatibility
+7. **Interface-Based Events**: Clean separation between event delivery and handling logic
 
 ## Files Modified/Created
 
 ### New Files
 - `ShopifyCheckoutController.kt` - Main controller API with Android-idiomatic Builder pattern; manages address screen providers and handles address change events
+- `CheckoutControllerDsl.kt` - DSL syntax for creating controllers with `checkoutController()` function; provides Android-idiomatic configuration
+- `CheckoutAddressRequestReceiver.kt` - Interface for fragments to receive address change requests; automatic event injection when fragment implements interface
 - `CheckoutScreen.kt` - Sealed class defining Fragment type with UI configuration; designed for future extensibility
 - `RespondableEvent.kt` - Abstract base for events requiring user response; provides type-safe response/cancellation methods
 - `CheckoutAddressChangeIntentDecoder.kt` - JSON decoder for address change events from WebView; creates respondable event instances with callbacks

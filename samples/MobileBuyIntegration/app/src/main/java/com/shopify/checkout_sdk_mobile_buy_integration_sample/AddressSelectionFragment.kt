@@ -30,15 +30,22 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import com.shopify.checkoutsheetkit.CheckoutAddressRequestReceiver
+import com.shopify.checkoutsheetkit.CheckoutAddressChangeIntentEvent
+import timber.log.Timber
 
 /**
  * Demo fragment for address selection in the controller navigation flow.
  * In a real app, this would show a proper address picker UI.
  */
-class AddressSelectionFragment : Fragment() {
+class AddressSelectionFragment : Fragment(), CheckoutAddressRequestReceiver {
     
-    var onAddressSelected: ((ClientDefinedAddress) -> Unit)? = null
-    var onCancel: (() -> Unit)? = null
+    private var addressEvent: CheckoutAddressChangeIntentEvent? = null
+    
+    override fun onAddressChangeRequest(event: CheckoutAddressChangeIntentEvent) {
+        this.addressEvent = event
+        Timber.i("Address change request received for address type: ${event.addressType}")
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -104,7 +111,10 @@ class AddressSelectionFragment : Fragment() {
                     this.layoutParams = layoutParams
                     
                     setOnClickListener {
-                        onAddressSelected?.invoke(address)
+                        addressEvent?.let { event ->
+                            Timber.i("Address selected: ${address.firstName} ${address.lastName}")
+                            event.respondWith(address.toDeliveryAddressChangePayload())
+                        }
                     }
                 })
             }
@@ -122,7 +132,10 @@ class AddressSelectionFragment : Fragment() {
                 this.layoutParams = layoutParams
                 
                 setOnClickListener {
-                    onCancel?.invoke()
+                    addressEvent?.let { event ->
+                        Timber.i("Address selection cancelled")
+                        event.cancel()
+                    }
                 }
             })
         }

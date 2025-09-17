@@ -123,6 +123,15 @@ public class ShopifyCheckoutController private constructor(
      *     }
      *     .build()
      * 
+     * // Or use the DSL approach:
+     * val controller = checkoutController(checkoutUrl, eventProcessor) {
+     *     addressScreen {
+     *         fragment(MyAddressFragment()) {
+     *             titleRes = R.string.address_title
+     *         }
+     *     }
+     * }
+     * 
      * controller.present(this)
      * ```
      */
