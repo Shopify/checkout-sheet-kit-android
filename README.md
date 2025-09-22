@@ -10,35 +10,34 @@
 
 **Note**: We're in the process of renaming "Checkout Sheet Kit" to "Checkout Kit." The dev docs and README already use the new name, while the package itself will be updated in an upcoming version.
 
-- [Shopify Checkout Kit - Android](#shopify-checkout-kit---android)
-  - [Requirements](#requirements)
-  - [Getting Started](#getting-started)
-    - [Gradle](#gradle)
-    - [Maven](#maven)
-  - [Basic Usage](#basic-usage)
-  - [Configuration](#configuration)
-    - [Color Scheme](#color-scheme)
-    - [Log Level](#log-level)
-    - [Checkout Dialog Title](#checkout-dialog-title)
-  - [Preloading](#preloading)
-    - [Important considerations](#important-considerations)
-    - [Flash Sales](#flash-sales)
-    - [When to preload](#when-to-preload)
-    - [Cache invalidation](#cache-invalidation)
-    - [Lifecycle management for preloaded checkout](#lifecycle-management-for-preloaded-checkout)
-      - [Additional considerations for preloaded checkout](#additional-considerations-for-preloaded-checkout)
-  - [Monitoring the lifecycle of a checkout session](#monitoring-the-lifecycle-of-a-checkout-session)
-    - [Error handling](#error-handling)
-      - [`CheckoutException`](#checkoutexception)
-      - [Exception Hierarchy](#exception-hierarchy)
-    - [Integrating with Web Pixels, monitoring behavioral data](#integrating-with-web-pixels-monitoring-behavioral-data)
-  - [Integrating identity \& customer accounts](#integrating-identity--customer-accounts)
-    - [Cart: buyer bag, identity, and preferences](#cart-buyer-bag-identity-and-preferences)
-    - [Multipass](#multipass)
-    - [Shop Pay](#shop-pay)
-    - [Customer Account API](#customer-account-api)
-  - [Contributing](#contributing)
-  - [License](#license)
+- [Requirements](#requirements)
+- [Getting Started](#getting-started)
+  - [Gradle](#gradle)
+  - [Maven](#maven)
+- [Basic Usage](#basic-usage)
+- [Configuration](#configuration)
+  - [Color Scheme](#color-scheme)
+  - [Log Level](#log-level)
+  - [Checkout Dialog Title](#checkout-dialog-title)
+- [Preloading](#preloading)
+  - [Important considerations](#important-considerations)
+  - [Flash Sales](#flash-sales)
+  - [When to preload](#when-to-preload)
+  - [Cache invalidation](#cache-invalidation)
+  - [Lifecycle management for preloaded checkout](#lifecycle-management-for-preloaded-checkout)
+    - [Additional considerations for preloaded checkout](#additional-considerations-for-preloaded-checkout)
+- [Monitoring the lifecycle of a checkout session](#monitoring-the-lifecycle-of-a-checkout-session)
+  - [Error handling](#error-handling)
+    - [`CheckoutException`](#checkoutexception)
+    - [Exception Hierarchy](#exception-hierarchy)
+  - [Integrating with Web Pixels, monitoring behavioral data](#integrating-with-web-pixels-monitoring-behavioral-data)
+- [Integrating identity \& customer accounts](#integrating-identity--customer-accounts)
+  - [Cart: buyer bag, identity, and preferences](#cart-buyer-bag-identity-and-preferences)
+  - [Multipass](#multipass)
+  - [Shop Pay](#shop-pay)
+  - [Customer Account API](#customer-account-api)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Requirements
 
@@ -187,7 +186,7 @@ ShopifyCheckoutSheetKit.configure {
     it.colorScheme = ColorScheme.Light().customize {
         // Option 1: Just tint the default close icon
         closeIconTint = Color.ResourceId(R.color.my_custom_tint_color)
-        
+
         // Option 2: Use a completely custom drawable
         closeIcon = DrawableResource(R.drawable.my_custom_close_icon)
     }
@@ -440,21 +439,21 @@ ShopifyCheckoutSheetKit.configure {
 
 #### `CheckoutException`
 
-| Exception Class                | Error Code                     | Description                                                                   | Recommendation                                                                                    |
-| ------------------------------ | ------------------------------ | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `ConfigurationException`       | 'checkout_liquid_not_migrated' | `checkout.liquid` is not supported.                                           | Upgrade to Extensibility.                                                                         |
-| `ConfigurationException`       | 'storefront_password_required' | Access to checkout is password protected.                                     | We are working on ways to enable the Checkout Kit for usage with password protected stores. |
-| `ConfigurationException`       | 'unknown'                      | Other configuration issue, see error details for more info.                   | Resolve the configuration issue in the error message.                                             |
-| `CheckoutExpiredException`     | 'cart_expired'                 | The cart or checkout is no longer available.                                  | Create a new cart and open a new checkout URL.                                                    |
-| `CheckoutExpiredException`     | 'cart_completed'               | The cart associated with the checkout has completed checkout.                 | Create new cart and open a new checkout URL.                                                      |
-| `CheckoutExpiredException`     | 'invalid_cart'                 | The cart associated with the checkout is invalid (e.g. empty).                | Create a new cart and open a new checkout URL.                                                    |
-| `CheckoutSheetKitException`    | 'error_receiving_message'      | Checkout Kit failed to receive a message from checkout.                 | Show checkout in a fallback WebView.                                                              |
-| `CheckoutSheetKitException`    | 'error_sending_message'        | Checkout Kit failed to send a message to checkout.                      | Show checkout in a fallback WebView.                                                              |
-| `CheckoutSheetKitException`    | 'render_process_gone'          | The render process for the checkout WebView is gone.                          | Show checkout in a fallback WebView.                                                              |
-| `CheckoutSheetKitException`    | 'unknown'                      | An error in Checkout Kit has occurred, see error details for more info. | Show checkout in a fallback WebView.                                                              |
-| `HttpException`                | 'http_error'                   | An unexpected server error has been encountered.                              | Show checkout in a fallback WebView.                                                              |
-| `ClientException`              | 'client_error'                 | An unhandled client error was encountered.                                    | Show checkout in a fallback WebView.                                                              |
-| `CheckoutUnavailableException` | 'unknown'                      | Checkout is unavailable for another reason, see error details for more info.  | Show checkout in a fallback WebView.                                                              |
+| Exception Class                | Error Code                     | Description                                                                  | Recommendation                                                                              |
+| ------------------------------ | ------------------------------ | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `ConfigurationException`       | 'checkout_liquid_not_migrated' | `checkout.liquid` is not supported.                                          | Upgrade to Extensibility.                                                                   |
+| `ConfigurationException`       | 'storefront_password_required' | Access to checkout is password protected.                                    | We are working on ways to enable the Checkout Kit for usage with password protected stores. |
+| `ConfigurationException`       | 'unknown'                      | Other configuration issue, see error details for more info.                  | Resolve the configuration issue in the error message.                                       |
+| `CheckoutExpiredException`     | 'cart_expired'                 | The cart or checkout is no longer available.                                 | Create a new cart and open a new checkout URL.                                              |
+| `CheckoutExpiredException`     | 'cart_completed'               | The cart associated with the checkout has completed checkout.                | Create new cart and open a new checkout URL.                                                |
+| `CheckoutExpiredException`     | 'invalid_cart'                 | The cart associated with the checkout is invalid (e.g. empty).               | Create a new cart and open a new checkout URL.                                              |
+| `CheckoutSheetKitException`    | 'error_receiving_message'      | Checkout Kit failed to receive a message from checkout.                      | Show checkout in a fallback WebView.                                                        |
+| `CheckoutSheetKitException`    | 'error_sending_message'        | Checkout Kit failed to send a message to checkout.                           | Show checkout in a fallback WebView.                                                        |
+| `CheckoutSheetKitException`    | 'render_process_gone'          | The render process for the checkout WebView is gone.                         | Show checkout in a fallback WebView.                                                        |
+| `CheckoutSheetKitException`    | 'unknown'                      | An error in Checkout Kit has occurred, see error details for more info.      | Show checkout in a fallback WebView.                                                        |
+| `HttpException`                | 'http_error'                   | An unexpected server error has been encountered.                             | Show checkout in a fallback WebView.                                                        |
+| `ClientException`              | 'client_error'                 | An unhandled client error was encountered.                                   | Show checkout in a fallback WebView.                                                        |
+| `CheckoutUnavailableException` | 'unknown'                      | Checkout is unavailable for another reason, see error details for more info. | Show checkout in a fallback WebView.                                                        |
 
 #### Exception Hierarchy
 
