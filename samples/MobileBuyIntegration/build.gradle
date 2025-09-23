@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        activity_version = '1.10.1'
+        activity_version = '1.11.0'
         app_compat_version = '1.7.1'
         compose_ui_version = '1.9.1'
         coil_version = '2.7.0'
