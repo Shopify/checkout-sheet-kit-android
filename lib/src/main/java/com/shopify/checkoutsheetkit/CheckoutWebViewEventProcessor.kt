@@ -23,8 +23,6 @@
 package com.shopify.checkoutsheetkit
 
 import android.net.Uri
-import android.os.Handler
-import android.os.Looper
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
 import android.webkit.GeolocationPermissions
@@ -115,12 +113,6 @@ internal class CheckoutWebViewEventProcessor(
     fun onWebPixelEvent(event: PixelEvent) {
         log.d(LOG_TAG, "Calling onWebPixelEvent for $event.")
         eventProcessor.onWebPixelEvent(event)
-    }
-
-    private fun onMainThread(block: () -> Unit) {
-        Handler(Looper.getMainLooper()).post {
-            block()
-        }
     }
 
     companion object {

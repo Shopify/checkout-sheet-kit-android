@@ -81,7 +81,9 @@ internal class CheckoutBridge(
                     log.d(LOG_TAG, "Received Completed message.  Attempting to decode.")
                     checkoutCompletedEventDecoder.decode(decodedMsg).let { event ->
                         log.d(LOG_TAG, "Decoded message $event.")
-                        eventProcessor.onCheckoutViewComplete(event)
+                        onMainThread {
+                            eventProcessor.onCheckoutViewComplete(event)
+                        }
                     }
                 }
 
@@ -90,7 +92,9 @@ internal class CheckoutBridge(
                     val modalVisible = decodedMsg.body.toBooleanStrictOrNull()
                     modalVisible?.let {
                         log.d(LOG_TAG, "Modal visible $it")
-                        eventProcessor.onCheckoutViewModalToggled(modalVisible)
+                        onMainThread {
+                            eventProcessor.onCheckoutViewModalToggled(modalVisible)
+                        }
                     }
                 }
 
@@ -98,7 +102,9 @@ internal class CheckoutBridge(
                     log.d(LOG_TAG, "Received WebPixel message. Attempting to decode.")
                     pixelEventDecoder.decode(decodedMsg)?.let { event ->
                         log.d(LOG_TAG, "Decoded message $event.")
-                        eventProcessor.onWebPixelEvent(event)
+                        onMainThread {
+                            eventProcessor.onWebPixelEvent(event)
+                        }
                     }
                 }
 
@@ -106,7 +112,9 @@ internal class CheckoutBridge(
                     log.d(LOG_TAG, "Received Error message. Attempting to decode.")
                     checkoutErrorDecoder.decode(decodedMsg)?.let { exception ->
                         log.d(LOG_TAG, "Decoded message $exception.")
-                        eventProcessor.onCheckoutViewFailedWithError(exception)
+                        onMainThread {
+                            eventProcessor.onCheckoutViewFailedWithError(exception)
+                        }
                     }
                 }
 
@@ -114,13 +122,15 @@ internal class CheckoutBridge(
             }
         } catch (e: Exception) {
             log.d(LOG_TAG, "Failed to decode message with error: $e. Calling onCheckoutFailedWithError")
-            eventProcessor.onCheckoutViewFailedWithError(
-                CheckoutSheetKitException(
-                    errorDescription = "Error decoding message from checkout.",
-                    errorCode = CheckoutSheetKitException.ERROR_RECEIVING_MESSAGE_FROM_CHECKOUT,
-                    isRecoverable = true,
-                ),
-            )
+            onMainThread {
+                eventProcessor.onCheckoutViewFailedWithError(
+                    CheckoutSheetKitException(
+                        errorDescription = "Error decoding message from checkout.",
+                        errorCode = CheckoutSheetKitException.ERROR_RECEIVING_MESSAGE_FROM_CHECKOUT,
+                        isRecoverable = true,
+                    ),
+                )
+            }
         }
     }
 
@@ -143,13 +153,15 @@ internal class CheckoutBridge(
             view.evaluateJavascript(script, null)
         } catch (e: Exception) {
             log.d(LOG_TAG, "Failed to send message to checkout, invoking onCheckoutViewFailedWithError")
-            eventProcessor.onCheckoutViewFailedWithError(
-                CheckoutSheetKitException(
-                    errorDescription = "Failed to send '${operation.key}' message to checkout, some features may not work.",
-                    errorCode = CheckoutSheetKitException.ERROR_SENDING_MESSAGE_TO_CHECKOUT,
-                    isRecoverable = true,
+            onMainThread {
+                eventProcessor.onCheckoutViewFailedWithError(
+                    CheckoutSheetKitException(
+                        errorDescription = "Failed to send '${operation.key}' message to checkout, some features may not work.",
+                        errorCode = CheckoutSheetKitException.ERROR_SENDING_MESSAGE_TO_CHECKOUT,
+                        isRecoverable = true,
+                    )
                 )
-            )
+            }
         }
     }
 
