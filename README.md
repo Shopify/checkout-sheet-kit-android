@@ -43,6 +43,7 @@
 
 - JDK 17+
 - Android SDK 23+
+- Chrome >= 80
 
 ## Getting Started
 
