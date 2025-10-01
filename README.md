@@ -54,7 +54,7 @@ your project:
 ### Gradle
 
 ```groovy
-implementation "com.shopify:checkout-sheet-kit:3.5.2"
+implementation "com.shopify:checkout-sheet-kit:3.5.3"
 ```
 
 ### Maven
@@ -64,7 +64,7 @@ implementation "com.shopify:checkout-sheet-kit:3.5.2"
 <dependency>
    <groupId>com.shopify</groupId>
    <artifactId>checkout-sheet-kit</artifactId>
-   <version>3.5.2</version>
+   <version>3.5.3</version>
 </dependency>
 ```
 
@@ -441,7 +441,6 @@ ShopifyCheckoutSheetKit.configure {
 
 | Exception Class                | Error Code                     | Description                                                                  | Recommendation                                                                              |
 | ------------------------------ | ------------------------------ | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `ConfigurationException`       | 'checkout_liquid_not_migrated' | `checkout.liquid` is not supported.                                          | Upgrade to Extensibility.                                                                   |
 | `ConfigurationException`       | 'storefront_password_required' | Access to checkout is password protected.                                    | We are working on ways to enable the Checkout Kit for usage with password protected stores. |
 | `ConfigurationException`       | 'unknown'                      | Other configuration issue, see error details for more info.                  | Resolve the configuration issue in the error message.                                       |
 | `CheckoutExpiredException`     | 'cart_expired'                 | The cart or checkout is no longer available.                                 | Create a new cart and open a new checkout URL.                                              |

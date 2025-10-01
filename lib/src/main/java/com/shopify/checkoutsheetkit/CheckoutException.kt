@@ -117,7 +117,6 @@ public class ConfigurationException @JvmOverloads constructor(
     isRecoverable: Boolean,
 ) : CheckoutException(errorDescription ?: "Checkout is unavailable due to a configuration issue.", errorCode, isRecoverable) {
         public companion object {
-            public const val CHECKOUT_LIQUID_NOT_MIGRATED: String = "checkout_liquid_not_migrated"
             public const val STOREFRONT_PASSWORD_REQUIRED: String = "storefront_password_required"
             public const val UNKNOWN: String = "unknown"
         }

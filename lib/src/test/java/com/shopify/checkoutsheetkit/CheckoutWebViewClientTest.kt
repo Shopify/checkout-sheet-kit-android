@@ -178,25 +178,6 @@ class CheckoutWebViewClientTest {
     }
 
     @Test
-    fun `should call event processor calls onCheckoutViewFailedWithError on http error for main frame - 404 and deprecated header`() {
-        val mockRequest = mockWebRequest(Uri.parse("https://checkout-sdk.myshopify.com"), true)
-        val mockResponse = mockWebResourceResponse(
-            status = HttpURLConnection.HTTP_NOT_FOUND,
-            headers = mutableMapOf("X-Shopify-API-Deprecated-Reason" to "checkout_liquid_not_supported")
-        )
-
-        triggerOnReceivedHttpError(mockRequest, mockResponse)
-
-        val captor = argumentCaptor<CheckoutException>()
-        verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
-        assertThat(captor.firstValue)
-            .isInstanceOf(ConfigurationException::class.java)
-            .isNotRecoverable()
-            .hasErrorCode(ConfigurationException.CHECKOUT_LIQUID_NOT_MIGRATED)
-            .hasDescription("Storefronts using checkout.liquid are not supported. Please upgrade to Checkout Extensibility.")
-    }
-
-    @Test
     fun `should call event processor calls onCheckoutViewFailedWithError on http error for main frame - 500`() {
         val mockRequest = mockWebRequest(Uri.parse("https://checkout-sdk.myshopify.com"), true)
         val mockResponse = mockWebResourceResponse(
