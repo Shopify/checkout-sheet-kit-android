@@ -23,6 +23,12 @@
 package com.shopify.checkoutsheetkit
 
 import androidx.activity.ComponentActivity
+import android.net.Uri
+import com.shopify.checkoutsheetkit.BuildConfig
+import com.shopify.checkoutsheetkit.CheckoutBridge
+import com.shopify.checkoutsheetkit.EmbedFieldKey
+import com.shopify.checkoutsheetkit.EmbedFieldValue
+import com.shopify.checkoutsheetkit.QueryParamKey
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.After
 import org.junit.Before
@@ -40,6 +46,7 @@ class ShopifyCheckoutSheetKitTest {
     fun setUp() {
         ShopifyCheckoutSheetKit.configure {
             it.preloading = Preloading(enabled = false)
+            it.colorScheme = ColorScheme.Automatic()
         }
     }
 
@@ -148,7 +155,7 @@ class ShopifyCheckoutSheetKitTest {
                 assertThat(thirdEntry!!.key).isEqualTo("https://one.com")
                 assertThat(thirdEntry.isStale).isFalse()
 
-                assertThat(shadowOf(thirdEntry.view).lastLoadedUrl).isEqualTo("https://one.com")
+                assertEmbed(shadowOf(thirdEntry.view).lastLoadedUrl, "https://one.com", defaultEmbed())
             }
         }
     }
@@ -184,8 +191,46 @@ class ShopifyCheckoutSheetKitTest {
                 assertThat(thirdEntry?.key).isEqualTo("https://one.com")
                 assertThat(thirdEntry?.isStale).isTrue()
 
-                assertThat(shadowOf(thirdEntry?.view).lastLoadedUrl).isEqualTo("https://two.com")
+                assertEmbed(shadowOf(thirdEntry?.view).lastLoadedUrl, "https://two.com", defaultEmbed())
             }
         }
+    }
+
+    private fun assertEmbed(actualUrl: String?, expectedBase: String, expectedEmbed: Map<String, String>) {
+        assertThat(actualUrl).isNotNull
+        val uri = Uri.parse(actualUrl)
+        val base = buildString {
+            append(uri.scheme)
+            append("://")
+            append(uri.host)
+            if (uri.port != -1) {
+                append(":")
+                append(uri.port)
+            }
+            append(uri.path ?: "")
+        }
+        assertThat(base).isEqualTo(expectedBase)
+
+        val embedParam = uri.getQueryParameter(QueryParamKey.EMBED)
+        assertThat(embedParam).isNotNull
+
+        val actualMap = embedParam!!.split(", ").associate { entry ->
+            val parts = entry.split("=")
+            parts[0] to parts[1]
+        }
+
+        assertThat(actualMap).containsExactlyInAnyOrderEntriesOf(expectedEmbed)
+    }
+
+    private fun defaultEmbed(): Map<String, String> {
+        val sdkVersion = ShopifyCheckoutSheetKit.version.split("-").first()
+        return mapOf(
+            EmbedFieldKey.PROTOCOL to CheckoutBridge.SCHEMA_VERSION,
+            EmbedFieldKey.BRANDING to EmbedFieldValue.BRANDING_APP,
+            EmbedFieldKey.LIBRARY to "CheckoutKit/${BuildConfig.SDK_VERSION}",
+            EmbedFieldKey.SDK to sdkVersion,
+            EmbedFieldKey.PLATFORM to Platform.ANDROID.displayName,
+            EmbedFieldKey.ENTRY to EmbedFieldValue.ENTRY_SHEET,
+        )
     }
 }

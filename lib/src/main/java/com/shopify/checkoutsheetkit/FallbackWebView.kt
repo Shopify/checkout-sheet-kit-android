@@ -34,13 +34,11 @@ internal class FallbackWebView(context: Context, attributeSet: AttributeSet? = n
     BaseWebView(context, attributeSet) {
 
     override val recoverErrors = false
-    override val variant = "standard_recovery"
     override val cspSchema = "noconnect"
 
     init {
         log.d(LOG_TAG, "Initializing fallback web view.")
         webViewClient = FallbackWebViewClient()
-        settings.userAgentString = "${settings.userAgentString} ${userAgentSuffix()}"
     }
 
     private var checkoutEventProcessor = CheckoutWebViewEventProcessor(NoopEventProcessor())

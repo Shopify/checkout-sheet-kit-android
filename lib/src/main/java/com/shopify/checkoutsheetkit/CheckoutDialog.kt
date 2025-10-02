@@ -50,15 +50,21 @@ import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.children
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
 
-internal class CheckoutDialog(
-    private val checkoutUrl: String,
-    private val checkoutEventProcessor: CheckoutEventProcessor,
+internal open class CheckoutDialog(
+    protected val checkoutUrl: String,
+    protected val checkoutEventProcessor: CheckoutEventProcessor,
     context: Context,
 ) : Dialog(context) {
 
-    fun start(context: ComponentActivity) {
+    protected var checkoutWebView: CheckoutWebView? = null
+
+    open fun start(context: ComponentActivity) {
         log.d(LOG_TAG, "Dialog start called.")
         setContentView(R.layout.dialog_checkout)
+        setupDialog(context)
+    }
+
+    protected fun setupDialog(context: ComponentActivity) {
         window?.setLayout(MATCH_PARENT, WRAP_CONTENT)
         window?.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
         // Although this flag is deprecated in newest targets, it's properly
@@ -69,14 +75,14 @@ internal class CheckoutDialog(
         window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
         log.d(LOG_TAG, "Finding or creating new WebView.")
-        val checkoutWebView = CheckoutWebView.cacheableCheckoutView(
+        checkoutWebView = CheckoutWebView.cacheableCheckoutView(
             checkoutUrl,
             context,
         )
 
-        checkoutWebView.onResume()
+        checkoutWebView?.onResume()
         log.d(LOG_TAG, "Setting event processor on WebView.")
-        checkoutWebView.setEventProcessor(eventProcessor())
+        checkoutWebView?.setEventProcessor(eventProcessor())
 
         val colorScheme = ShopifyCheckoutSheetKit.configuration.colorScheme
         log.d(LOG_TAG, "Configured colorScheme $colorScheme")
@@ -91,13 +97,20 @@ internal class CheckoutDialog(
         findViewById<ProgressBar>(R.id.progressBar).apply {
             log.d(LOG_TAG, "Setting progress tint.")
             progressTintList = ColorStateList.valueOf(colorScheme.progressIndicatorColor())
-            if (checkoutWebView.hasFinishedLoading()) {
+            if (checkoutWebView?.hasFinishedLoading() == true) {
                 log.d(LOG_TAG, "Page has finished loading, hiding progress bar.")
                 this.visibility = INVISIBLE
             }
         }
 
-        addWebViewToContainer(colorScheme, checkoutWebView)
+        checkoutWebView?.let { addWebViewToContainer(colorScheme, it) }
+        setupListeners()
+
+        log.d(LOG_TAG, "Showing dialog.")
+        show()
+    }
+
+    private fun setupListeners() {
         setOnCancelListener {
             log.d(LOG_TAG, "Cancel listener invoked, invoking onCheckoutCanceled.")
             CheckoutWebViewContainer.retainCacheEntry = RetainCacheEntry.IF_NOT_STALE
@@ -111,12 +124,11 @@ internal class CheckoutDialog(
 
         setOnShowListener {
             log.d(LOG_TAG, "On show listener invoked, calling WebView notifyPresented.")
-            checkoutWebView.notifyPresented()
+            checkoutWebView?.notifyPresented()
         }
-
-        log.d(LOG_TAG, "Showing dialog.")
-        show()
     }
+
+    protected fun getCurrentCheckoutWebView(): CheckoutWebView? = checkoutWebView
 
     private fun MenuItem.setupCloseButton(colorScheme: ColorScheme) {
         val customCloseIcon = colorScheme.closeIcon(context.isDarkTheme())
@@ -164,7 +176,7 @@ internal class CheckoutDialog(
         }
     }
 
-    private fun toggleHeader(modalVisible: Boolean) {
+    protected fun toggleHeader(modalVisible: Boolean) {
         Handler(Looper.getMainLooper()).post {
             log.d(LOG_TAG, "Toggling header based on modal visibility state. Modal visible: $modalVisible.")
             findViewById<Toolbar>(R.id.checkoutSdkHeader).visibility = if (modalVisible) GONE else VISIBLE
@@ -172,7 +184,7 @@ internal class CheckoutDialog(
         }
     }
 
-    private fun updateProgressBarPercentage(percentage: Int) {
+    protected fun updateProgressBarPercentage(percentage: Int) {
         log.d(LOG_TAG, "Updating progress bar percentage, $percentage.")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             findViewById<ProgressBar>(R.id.progressBar).setProgress(percentage, true)
@@ -181,7 +193,7 @@ internal class CheckoutDialog(
         }
     }
 
-    private fun setProgressBarVisibility(visibility: Int) {
+    protected fun setProgressBarVisibility(visibility: Int) {
         log.d(LOG_TAG, "Setting progress bar visibility $visibility.")
         findViewById<ProgressBar>(R.id.progressBar).visibility = visibility
     }
@@ -215,13 +227,13 @@ internal class CheckoutDialog(
             ShopifyCheckoutSheetKit.configuration.colorScheme,
             FallbackWebView(context).apply {
                 setEventProcessor(eventProcessor())
-                loadUrl(checkoutUrl)
+                loadUrl(checkoutUrl.withEmbedParam(isRecovery = true), CheckoutWebView.requestHeaders())
             }
         )
         return true
     }
 
-    private fun eventProcessor(): CheckoutWebViewEventProcessor {
+    protected open fun createEventProcessor(): CheckoutWebViewEventProcessor {
         return CheckoutWebViewEventProcessor(
             eventProcessor = checkoutEventProcessor,
             toggleHeader = ::toggleHeader,
@@ -230,6 +242,8 @@ internal class CheckoutDialog(
             updateProgressBarPercentage = ::updateProgressBarPercentage,
         )
     }
+
+    private fun eventProcessor(): CheckoutWebViewEventProcessor = createEventProcessor()
 
     @ColorInt
     private fun ColorScheme.headerBackgroundColor() =

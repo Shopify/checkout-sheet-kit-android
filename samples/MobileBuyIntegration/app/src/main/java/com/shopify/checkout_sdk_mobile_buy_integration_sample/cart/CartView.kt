@@ -72,6 +72,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.horizontalPadding
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.verticalPadding
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
+import com.shopify.checkoutsheetkit.CheckoutAddressChangeRequestedEvent
 
 @Composable
 fun <T : DefaultCheckoutEventProcessor> CartView(
@@ -82,6 +83,7 @@ fun <T : DefaultCheckoutEventProcessor> CartView(
 
     val state = cartViewModel.cartState.collectAsState().value
     val loading = cartViewModel.loadingState.collectAsState().value
+    val addressEvent = cartViewModel.addressChangeEvent.collectAsState().value
 
     val activity = LocalActivity.current as ComponentActivity
     var mutableQuantity by remember { mutableStateOf<Map<String, Int>>(mutableMapOf()) }
@@ -127,6 +129,14 @@ fun <T : DefaultCheckoutEventProcessor> CartView(
                         totalAmountEstimated = state.cartTotals.totalAmountEstimated,
                         modifier = Modifier.weight(1f, false),
                     )
+
+                    addressEvent?.let { event ->
+                        AddressSelectionPanel(
+                            event = event,
+                            onAddressSelected = cartViewModel::respondToAddressChange,
+                            onDismiss = cartViewModel::cancelAddressSelection,
+                        )
+                    }
                 }
             }
         }
@@ -241,6 +251,104 @@ private fun CartLines(
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun AddressSelectionPanel(
+    event: CheckoutAddressChangeRequestedEvent,
+    onAddressSelected: (SampleAddress) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val sampleAddresses = remember {
+        listOf(
+            SampleAddress(
+                firstName = "Avery",
+                lastName = "Johnson",
+                address1 = "151 O'Connor St",
+                city = "Ottawa",
+                province = "ON",
+                country = "CA",
+                postalCode = "K2P 2L8",
+                phone = "+1 613-555-1020"
+            ),
+            SampleAddress(
+                firstName = "Morgan",
+                lastName = "Lee",
+                address1 = "350 King St W",
+                address2 = "Suite 200",
+                city = "Toronto",
+                province = "ON",
+                country = "CA",
+                postalCode = "M5V 3X5"
+            ),
+            SampleAddress(
+                firstName = "Riley",
+                lastName = "Martinez",
+                address1 = "700 Burrard St",
+                city = "Vancouver",
+                province = "BC",
+                country = "CA",
+                postalCode = "V6C 0A5"
+            )
+        )
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = verticalPadding)
+            .padding(bottom = 16.dp)
+    ) {
+        Text(
+            text = "Select a delivery address",
+            style = MaterialTheme.typography.titleMedium,
+        )
+
+        Text(
+            text = "Requested type: ${event.addressType.uppercase()}. Choose an address to send back to checkout.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.outline,
+            modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
+        )
+
+        sampleAddresses.forEach { address ->
+            Button(
+                onClick = { onAddressSelected(address) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
+                shape = RectangleShape
+            ) {
+                Column(Modifier.fillMaxWidth()) {
+                    Text(
+                        text = "${address.firstName} ${address.lastName}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        textAlign = TextAlign.Start,
+                    )
+                    Text(
+                        text = listOfNotNull(
+                            address.address1,
+                            address.address2,
+                            "${address.city}, ${address.province}",
+                            address.postalCode,
+                            address.country,
+                            address.phone
+                        ).joinToString(separator = "\n"),
+                        style = MaterialTheme.typography.bodySmall,
+                        textAlign = TextAlign.Start,
+                    )
+                }
+            }
+        }
+
+        Button(
+            onClick = onDismiss,
+            modifier = Modifier.wrapContentSize(Alignment.Center),
+            shape = RectangleShape
+        ) {
+            Text(text = "Cancel")
         }
     }
 }

@@ -37,17 +37,13 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.contains
-import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito.mock
-import org.mockito.Mockito.spy
 import org.mockito.Mockito.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.shadows.ShadowLooper
-import java.util.regex.Pattern
 
 @RunWith(RobolectricTestRunner::class)
 class CheckoutWebViewTest {
@@ -64,7 +60,7 @@ class CheckoutWebViewTest {
 
     @After
     fun tearDown() {
-        ShopifyCheckoutSheetKit.configuration.platform = null
+        ShopifyCheckoutSheetKit.configuration.platform = Platform.ANDROID
     }
 
     @Test
@@ -79,57 +75,9 @@ class CheckoutWebViewTest {
         assertThat(view.id).isNotNull
         assertThat(shadowOf(view).webViewClient.javaClass).isEqualTo(CheckoutWebView.CheckoutWebViewClient::class.java)
         assertThat(shadowOf(view).backgroundColor).isEqualTo(Color.TRANSPARENT)
-        assertThat(shadowOf(view).getJavascriptInterface("android").javaClass)
+        val shadowView = shadowOf(view)
+        assertThat(shadowView.getJavascriptInterface("CheckoutEmbedder").javaClass)
             .isEqualTo(CheckoutBridge::class.java)
-    }
-
-    @Test
-    fun `user agent suffix includes ShopifyCheckoutSDK and version number`() {
-        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Dark()
-        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
-
-        assertThat(view.settings.userAgentString).contains("ShopifyCheckoutSDK/${BuildConfig.SDK_VERSION} ")
-    }
-
-    @Test
-    fun `user agent suffix includes metadata for the schema version, theme, and variant - dark`() {
-        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Dark()
-        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
-
-        assertThat(view.settings.userAgentString).endsWith("(8.1;dark;standard)")
-    }
-
-    @Test
-    fun `user agent suffix includes metadata for the schema version, theme, and variant - light`() {
-        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Light()
-        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
-
-        assertThat(view.settings.userAgentString).endsWith("(8.1;light;standard)")
-    }
-
-    @Test
-    fun `user agent suffix includes metadata for the schema version, theme, and variant - web`() {
-        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Web()
-        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
-
-        assertThat(view.settings.userAgentString).endsWith("(8.1;web_default;standard)")
-    }
-
-    @Test
-    fun `user agent suffix includes metadata for the schema version, theme, and variant - automatic`() {
-        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Automatic()
-        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
-
-        assertThat(view.settings.userAgentString).endsWith("(8.1;automatic;standard)")
-    }
-
-    @Test
-    fun `user agent suffix includes platform if specified`() {
-        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Automatic()
-        ShopifyCheckoutSheetKit.configuration.platform = Platform.REACT_NATIVE
-        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
-
-        assertThat(view.settings.userAgentString).endsWith("(8.1;automatic;standard) ReactNative")
     }
 
     @Test
@@ -163,7 +111,7 @@ class CheckoutWebViewTest {
         val shadow = shadowOf(view)
         shadow.callOnAttachedToWindow()
 
-        assertThat(shadow.getJavascriptInterface("android").javaClass)
+        assertThat(shadow.getJavascriptInterface("CheckoutEmbedder").javaClass)
             .isEqualTo(CheckoutBridge::class.java)
     }
 
@@ -174,23 +122,7 @@ class CheckoutWebViewTest {
         val shadow = shadowOf(view)
         shadow.callOnDetachedFromWindow()
 
-        assertThat(shadow.getJavascriptInterface("android")).isNull()
-    }
-
-    @Test
-    fun `sends presented message each time when view is loaded if it has been presented`() {
-        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
-
-        val shadow = shadowOf(view)
-        shadow.webViewClient.onPageFinished(view, "https://anything")
-
-        val spy = spy(view)
-        spy.notifyPresented()
-
-        verify(spy).evaluateJavascript(
-            contains("window.MobileCheckoutSdk.dispatchMessage('presented');"),
-            eq(null)
-        )
+        assertThat(shadow.getJavascriptInterface("CheckoutEmbedder")).isNull()
     }
 
     @Test

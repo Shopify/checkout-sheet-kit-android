@@ -31,6 +31,7 @@ import android.widget.RelativeLayout
 import androidx.activity.ComponentActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.children
+import com.shopify.checkoutsheetkit.BuildConfig
 import com.shopify.checkoutsheetkit.lifecycleevents.emptyCompletedEvent
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.fail
@@ -360,7 +361,11 @@ class CheckoutDialogTest {
 
         val layout = dialog.findViewById<RelativeLayout>(R.id.checkoutSdkContainer)
         val fallbackView = layout.children.first { it is FallbackWebView } as FallbackWebView
-        assertThat(shadowOf(fallbackView).lastLoadedUrl).isEqualTo(checkoutUrl)
+        val protocolValue = CheckoutBridge.SCHEMA_VERSION
+        val version = ShopifyCheckoutSheetKit.version.split("-").first()
+        val libraryVersion = BuildConfig.SDK_VERSION
+        val expectedEmbed = android.net.Uri.encode("protocol=$protocolValue, branding=app, library=CheckoutKit/$libraryVersion, sdk=$version, platform=android, entry=sheet, colorscheme=light, recovery=true")
+        assertThat(shadowOf(fallbackView).lastLoadedUrl).isEqualTo("https://shopify.com?embed=$expectedEmbed")
     }
 
     @Test
@@ -406,7 +411,7 @@ class CheckoutDialogTest {
 
         assertThat(closeMenuItem).isNotNull
         assertThat(closeMenuItem.icon).isNotNull
-        
+
         // Verify the custom icon was actually applied
         val shadowDrawable = shadowOf(closeMenuItem.icon)
         assertThat(shadowDrawable.createdFromResId).isEqualTo(android.R.drawable.ic_delete)
@@ -430,7 +435,7 @@ class CheckoutDialogTest {
 
         assertThat(closeMenuItem).isNotNull
         assertThat(closeMenuItem.icon).isNotNull
-        
+
         // Verify this is not our custom icon (the main behavior we're testing)
         // Note: In Robolectric tests, tint application to menu items can be inconsistent,
         // but the key thing is that the icon logic branch was taken correctly
@@ -453,7 +458,7 @@ class CheckoutDialogTest {
 
         assertThat(closeMenuItem).isNotNull
         assertThat(closeMenuItem.icon).isNotNull
-        
+
         // Verify no custom modifications were applied
         val shadowDrawable = shadowOf(closeMenuItem.icon)
         assertThat(shadowDrawable.createdFromResId).isNotEqualTo(android.R.drawable.ic_delete) // Not our custom icon
@@ -494,11 +499,11 @@ class CheckoutDialogTest {
 
         assertThat(closeMenuItem).isNotNull
         assertThat(closeMenuItem.icon).isNotNull
-        
+
         // Verify the custom icon was applied (not the default)
         val shadowDrawable = shadowOf(closeMenuItem.icon)
         assertThat(shadowDrawable.createdFromResId).isEqualTo(android.R.drawable.ic_delete)
-        
+
         // Custom icon should be applied, tint should be ignored
     }
 

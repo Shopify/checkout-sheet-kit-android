@@ -59,7 +59,6 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
 
     abstract fun getEventProcessor(): CheckoutWebViewEventProcessor
     abstract val recoverErrors: Boolean
-    abstract val variant: String
     abstract val cspSchema: String
 
     private fun configureWebView() {
@@ -70,8 +69,7 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
             allowContentAccess = true
         }
 
-        if (WebViewFeature.isFeatureSupported(
-                WebViewFeature.PAYMENT_REQUEST)) {
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.PAYMENT_REQUEST)) {
             WebSettingsCompat.setPaymentRequestEnabled(settings, true)
         }
 
@@ -122,22 +120,30 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
         return super.onKeyDown(keyCode, event)
     }
 
-    internal fun userAgentSuffix(): String {
-        val theme = ShopifyCheckoutSheetKit.configuration.colorScheme.id
-        val version = ShopifyCheckoutSheetKit.version.split("-").first()
-        val platform = ShopifyCheckoutSheetKit.configuration.platform
-        val platformSuffix = if (platform != null) " ${platform.displayName}" else ""
-        val suffix = "ShopifyCheckoutSDK/${version} ($cspSchema;$theme;$variant)$platformSuffix"
-        log.d(LOG_TAG, "Setting User-Agent suffix $suffix")
-        return suffix
-    }
-
     open inner class BaseWebViewClient : WebViewClient() {
         init {
             if (BuildConfig.DEBUG) {
                 log.d(LOG_TAG, "Setting web contents debugging enabled.")
                 setWebContentsDebuggingEnabled(true)
             }
+        }
+
+        override fun shouldOverrideUrlLoading(
+            view: WebView?,
+            request: WebResourceRequest?
+        ): Boolean {
+            if (request?.isForMainFrame == true && request.url?.isWebLink() == true) {
+                val headers = request.requestHeaders ?: mutableMapOf()
+                var url = request.url.toString()
+
+                val needsEmbedParam = url.needsEmbedParam()
+                if (needsEmbedParam) {
+                    url = url.withEmbedParam()
+                    view?.loadUrl(url, headers)
+                    return true
+                }
+            }
+            return false
         }
 
         override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {

@@ -22,6 +22,7 @@
  */
 package com.shopify.checkoutsheetkit
 
+import android.net.Uri
 import android.os.Looper
 import androidx.activity.ComponentActivity
 import org.assertj.core.api.Assertions.assertThat
@@ -35,6 +36,11 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import kotlin.time.Duration.Companion.minutes
+import com.shopify.checkoutsheetkit.BuildConfig
+import com.shopify.checkoutsheetkit.CheckoutBridge
+import com.shopify.checkoutsheetkit.EmbedFieldKey
+import com.shopify.checkoutsheetkit.EmbedFieldValue
+import com.shopify.checkoutsheetkit.QueryParamKey
 
 @RunWith(RobolectricTestRunner::class)
 class CheckoutWebViewCacheTest {
@@ -46,6 +52,9 @@ class CheckoutWebViewCacheTest {
     fun setUp() {
         CheckoutWebView.clearCache()
         shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+        ShopifyCheckoutSheetKit.configure {
+            it.colorScheme = ColorScheme.Automatic()
+        }
 
         activity = Robolectric.buildActivity(ComponentActivity::class.java).get()
         eventProcessor = eventProcessor()
@@ -57,7 +66,7 @@ class CheckoutWebViewCacheTest {
             val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
             assertThat(view).isNotNull
             shadowOf(Looper.getMainLooper()).runToEndOfTasks()
-            assertThat(shadowOf(view).lastLoadedUrl).isEqualTo(URL)
+            assertEmbed(shadowOf(view).lastLoadedUrl, URL, defaultEmbed())
         }
     }
 
@@ -69,8 +78,8 @@ class CheckoutWebViewCacheTest {
             shadowOf(Looper.getMainLooper()).runToEndOfTasks()
 
             assertThat(viewOne).isEqualTo(viewTwo)
-            assertThat(shadowOf(viewOne).lastLoadedUrl).isEqualTo(URL)
-            assertThat(shadowOf(viewTwo).lastLoadedUrl).isEqualTo(URL)
+            assertEmbed(shadowOf(viewOne).lastLoadedUrl, URL, defaultEmbed())
+            assertEmbed(shadowOf(viewTwo).lastLoadedUrl, URL, defaultEmbed())
         }
     }
 
@@ -103,8 +112,8 @@ class CheckoutWebViewCacheTest {
             shadowOf(Looper.getMainLooper()).runToEndOfTasks()
 
             assertThat(viewOne).isNotEqualTo(viewTwo)
-            assertThat(shadowOf(viewOne).lastLoadedUrl).isEqualTo(URL)
-            assertThat(shadowOf(viewTwo).lastLoadedUrl).isEqualTo(newUrl)
+            assertEmbed(shadowOf(viewOne).lastLoadedUrl, URL, defaultEmbed())
+            assertEmbed(shadowOf(viewTwo).lastLoadedUrl, newUrl, defaultEmbed())
             assertThat(shadowOf(viewOne).wasDestroyCalled()).isTrue
             assertThat(shadowOf(viewTwo).wasDestroyCalled()).isFalse
         }
@@ -112,16 +121,18 @@ class CheckoutWebViewCacheTest {
 
     @Test
     fun `cacheableCheckoutView returns the a new view for each call if preloading disabled`() {
+//        withSpecificColorScheme(ColorScheme.Automatic()) {
         val viewOne = CheckoutWebView.cacheableCheckoutView(URL, activity, true)
         val viewTwo = CheckoutWebView.cacheableCheckoutView(URL, activity, true)
         shadowOf(Looper.getMainLooper()).runToEndOfTasks()
 
         assertThat(viewOne).isNotEqualTo(viewTwo)
-        assertThat(shadowOf(viewOne).lastLoadedUrl).isEqualTo(URL)
-        assertThat(shadowOf(viewTwo).lastLoadedUrl).isEqualTo(URL)
+        assertEmbed(shadowOf(viewOne).lastLoadedUrl, URL, defaultEmbed())
+        assertEmbed(shadowOf(viewTwo).lastLoadedUrl, URL, defaultEmbed())
 
         assertThat(shadowOf(viewOne).wasDestroyCalled()).isTrue
         assertThat(shadowOf(viewTwo).wasDestroyCalled()).isFalse
+//        }
     }
 
     @Test
@@ -161,8 +172,8 @@ class CheckoutWebViewCacheTest {
             shadowOf(Looper.getMainLooper()).runToEndOfTasks()
 
             assertThat(viewOne).isNotEqualTo(viewTwo)
-            assertThat(shadowOf(viewOne).lastLoadedUrl).isEqualTo(URL)
-            assertThat(shadowOf(viewTwo).lastLoadedUrl).isEqualTo(URL)
+            assertEmbed(shadowOf(viewOne).lastLoadedUrl, URL, defaultEmbed())
+            assertEmbed(shadowOf(viewTwo).lastLoadedUrl, URL, defaultEmbed())
         }
     }
 
@@ -194,5 +205,43 @@ class CheckoutWebViewCacheTest {
 
     companion object {
         private const val URL = "https://a.checkout.testurl"
+
+        private fun assertEmbed(actualUrl: String?, expectedBase: String, expectedEmbed: Map<String, String>) {
+            assertThat(actualUrl).isNotNull
+            val uri = Uri.parse(actualUrl)
+            val base = buildString {
+                append(uri.scheme)
+                append("://")
+                append(uri.host)
+                if (uri.port != -1) {
+                    append(":")
+                    append(uri.port)
+                }
+                append(uri.path ?: "")
+            }
+            assertThat(base).isEqualTo(expectedBase)
+
+            val embedParam = uri.getQueryParameter(QueryParamKey.EMBED)
+            assertThat(embedParam).isNotNull
+
+            val actualMap = embedParam!!.split(", ").associate { entry ->
+                val parts = entry.split("=")
+                parts[0] to parts[1]
+            }
+
+            assertThat(actualMap).containsExactlyInAnyOrderEntriesOf(expectedEmbed)
+        }
+
+        private fun defaultEmbed(): Map<String, String> {
+            val sdkVersion = ShopifyCheckoutSheetKit.version.split("-").first()
+            return mapOf(
+                EmbedFieldKey.PROTOCOL to CheckoutBridge.SCHEMA_VERSION,
+                EmbedFieldKey.BRANDING to EmbedFieldValue.BRANDING_APP,
+                EmbedFieldKey.LIBRARY to "CheckoutKit/${BuildConfig.SDK_VERSION}",
+                EmbedFieldKey.SDK to sdkVersion,
+                EmbedFieldKey.PLATFORM to Platform.ANDROID.displayName,
+                EmbedFieldKey.ENTRY to EmbedFieldValue.ENTRY_SHEET,
+            )
+        }
     }
 }

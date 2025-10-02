@@ -39,6 +39,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
+import com.shopify.checkoutsheetkit.CheckoutAddressChangeRequestedEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
 import com.shopify.checkoutsheetkit.pixelevents.CustomPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
@@ -82,6 +83,14 @@ class MobileBuyEventProcessor(
     override fun onCheckoutCanceled() {
         // optionally respond to checkout being canceled/closed
         logger.log("Checkout canceled")
+    }
+
+    override fun onAddressChangeRequested(event: CheckoutAddressChangeRequestedEvent) {
+        logger.log("Checkout requested address change for type ${event.addressType}")
+        cartViewModel.onAddressChangeRequested(event)
+        GlobalScope.launch(Dispatchers.Main) {
+            navController.navigate(Screen.Cart.route)
+        }
     }
 
     override fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {

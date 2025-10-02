@@ -40,8 +40,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
     BaseWebView(context, attributeSet) {
 
     override val recoverErrors = true
-    override val variant = "standard"
-    override val cspSchema = CheckoutBridge.SCHEMA_VERSION_NUMBER
+    override val cspSchema = CheckoutBridge.SCHEMA_VERSION
     var isPreload = false
 
     private val checkoutBridge = CheckoutBridge(CheckoutWebViewEventProcessor(NoopEventProcessor()))
@@ -49,27 +48,16 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         set(value) {
             log.d(LOG_TAG, "Setting loadComplete to $value.")
             field = value
-            dispatchWhenPresentedAndLoaded(value, presented)
         }
     private var presented = false
         set(value) {
             log.d(LOG_TAG, "Setting presented to $value.")
             field = value
-            dispatchWhenPresentedAndLoaded(loadComplete, value)
         }
-
-    private fun dispatchWhenPresentedAndLoaded(loadComplete: Boolean, hasBeenPresented: Boolean) {
-        if (loadComplete && hasBeenPresented) {
-            checkoutBridge.sendMessage(this, CheckoutBridge.SDKOperation.Presented)
-        }
-    }
-
-    private var initLoadTime: Long = -1
 
     init {
         webViewClient = CheckoutWebViewClient()
         addJavascriptInterface(checkoutBridge, JAVASCRIPT_INTERFACE_NAME)
-        settings.userAgentString = "${settings.userAgentString} ${userAgentSuffix()}"
     }
 
     fun hasFinishedLoading() = loadComplete
@@ -90,23 +78,27 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        log.d(LOG_TAG, "Attached to window. Adding JavaScript interface with name $JAVASCRIPT_INTERFACE_NAME.")
+        log.d(
+            LOG_TAG,
+            "Attached to window. Adding JavaScript interface with name $JAVASCRIPT_INTERFACE_NAME.",
+        )
         addJavascriptInterface(checkoutBridge, JAVASCRIPT_INTERFACE_NAME)
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        log.d(LOG_TAG, "Detached from window. Removing JavaScript interface with name $JAVASCRIPT_INTERFACE_NAME.")
+        log.d(
+            LOG_TAG,
+            "Detached from window. Removing JavaScript interface with name $JAVASCRIPT_INTERFACE_NAME.",
+        )
         removeJavascriptInterface(JAVASCRIPT_INTERFACE_NAME)
     }
 
     fun loadCheckout(url: String, isPreload: Boolean) {
         log.d(LOG_TAG, "Loading checkout with url $url. IsPreload: $isPreload.")
-        initLoadTime = System.currentTimeMillis()
         this.isPreload = isPreload
         Handler(Looper.getMainLooper()).post {
-            val headers = if (isPreload) mutableMapOf("Shopify-Purpose" to "prefetch") else mutableMapOf()
-            loadUrl(url, headers)
+            loadUrl(url.withEmbedParam(), requestHeaders(isPreload))
         }
     }
 
@@ -138,7 +130,8 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
                 checkoutBridge.getEventProcessor().onCheckoutViewLinkClicked(request.trimmedUri())
                 return true
             }
-            return false
+
+            return super.shouldOverrideUrlLoading(view, request)
         }
 
         private fun WebResourceRequest.hasExternalAnnotation(): Boolean {
@@ -174,10 +167,16 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
     companion object {
         private const val LOG_TAG = "CheckoutWebView"
         private const val OPEN_EXTERNALLY_PARAM = "open_externally"
-        private const val JAVASCRIPT_INTERFACE_NAME = "android"
+        private const val JAVASCRIPT_INTERFACE_NAME = "CheckoutEmbedder"
+        private const val PREFETCH_HEADER_KEY = "Shopify-Purpose"
+        private const val PREFETCH_HEADER_VALUE = "prefetch"
 
         internal var cacheEntry: CheckoutWebViewCacheEntry? = null
         internal var cacheClock = CheckoutWebViewCacheClock()
+
+        fun currentEntry(): CheckoutWebViewCacheEntry? {
+            return cacheEntry
+        }
 
         fun markCacheEntryStale() {
             cacheEntry = cacheEntry?.copy(timeout = -1)
@@ -254,6 +253,14 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
                 log.d(LOG_TAG, "Clearing WebView cache and destroying cached view.")
                 clearCache(cacheEntry)
             }
+        }
+
+        internal fun requestHeaders(isPreload: Boolean = false): MutableMap<String, String> {
+            val headers = mutableMapOf<String, String>()
+            if (isPreload) {
+                headers[PREFETCH_HEADER_KEY] = PREFETCH_HEADER_VALUE
+            }
+            return headers
         }
     }
 

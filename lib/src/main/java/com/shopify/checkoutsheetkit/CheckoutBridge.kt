@@ -22,27 +22,29 @@
  */
 package com.shopify.checkoutsheetkit
 
+import android.os.Handler
+import android.os.Looper
 import android.webkit.JavascriptInterface
-import android.webkit.WebView
-import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.COMPLETED
-import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.ERROR
-import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.MODAL
-import com.shopify.checkoutsheetkit.CheckoutBridge.CheckoutWebOperation.WEB_PIXELS
+import com.shopify.checkoutsheetkit.CheckoutMessageContract.EVENT_ADDRESS_CHANGE_REQUESTED
+import com.shopify.checkoutsheetkit.CheckoutMessageContract.EVENT_COMPLETED
+import com.shopify.checkoutsheetkit.CheckoutMessageContract.METHOD_SET_DELIVERY_ADDRESS
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
-import com.shopify.checkoutsheetkit.errorevents.CheckoutErrorDecoder
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEventDecoder
-import com.shopify.checkoutsheetkit.pixelevents.PixelEventDecoder
+import com.shopify.checkoutsheetkit.lifecycleevents.DeliveryAddressChangeMessage
+import com.shopify.checkoutsheetkit.lifecycleevents.DeliveryAddressChangePayload
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 
 internal class CheckoutBridge(
     private var eventProcessor: CheckoutWebViewEventProcessor,
     private val decoder: Json = Json { ignoreUnknownKeys = true },
-    private val pixelEventDecoder: PixelEventDecoder = PixelEventDecoder(decoder, log),
     private val checkoutCompletedEventDecoder: CheckoutCompletedEventDecoder = CheckoutCompletedEventDecoder(decoder, log),
-    private val checkoutErrorDecoder: CheckoutErrorDecoder = CheckoutErrorDecoder(decoder, log),
 ) {
+
+    private val messageParser = CheckoutMessageParser(decoder, log)
+    private val deliveryAddressMessage = DeliveryAddressChangeMessage(decoder)
+    private val addressChangeRequestedDecoder = CheckoutAddressChangeRequestedDecoder(decoder)
 
     fun setEventProcessor(eventProcessor: CheckoutWebViewEventProcessor) {
         this.eventProcessor = eventProcessor
@@ -50,74 +52,24 @@ internal class CheckoutBridge(
 
     fun getEventProcessor(): CheckoutWebViewEventProcessor = this.eventProcessor
 
-    enum class CheckoutWebOperation(val key: String) {
-        COMPLETED("completed"),
-        MODAL("checkoutBlockingEvent"),
-        WEB_PIXELS("webPixels"),
-        ERROR("error");
-
-        companion object {
-            fun fromKey(key: String): CheckoutWebOperation? {
-                return entries.find { it.key == key }
-            }
-        }
-    }
-
-    sealed class SDKOperation(val key: String) {
-        data object Presented : SDKOperation("presented")
-    }
-
     // Allows Web to postMessages back to the SDK
     @Suppress("SwallowedException")
     @JavascriptInterface
     fun postMessage(message: String) {
         try {
             log.d(LOG_TAG, "Received message from checkout.")
-            val decodedMsg = decoder.decodeFromString<WebToSdkEvent>(message)
-
-            when (CheckoutWebOperation.fromKey(decodedMsg.name)) {
-                COMPLETED -> {
-                    log.d(LOG_TAG, "Received Completed message.  Attempting to decode.")
-                    checkoutCompletedEventDecoder.decode(decodedMsg).let { event ->
-                        log.d(LOG_TAG, "Decoded message $event.")
-                        onMainThread {
-                            eventProcessor.onCheckoutViewComplete(event)
-                        }
-                    }
+            when (val checkoutMessage = messageParser.parse(message)) {
+                is CheckoutMessageParser.CheckoutMessage.AddressChangeRequested -> {
+                    handleAddressChangeRequested(checkoutMessage.params)
                 }
 
-                MODAL -> {
-                    log.d(LOG_TAG, "Received Modal message.")
-                    val modalVisible = decodedMsg.body.toBooleanStrictOrNull()
-                    modalVisible?.let {
-                        log.d(LOG_TAG, "Modal visible $it")
-                        onMainThread {
-                            eventProcessor.onCheckoutViewModalToggled(modalVisible)
-                        }
-                    }
+                is CheckoutMessageParser.CheckoutMessage.Completed -> {
+                    handleCheckoutCompleted(checkoutMessage.params)
                 }
 
-                WEB_PIXELS -> {
-                    log.d(LOG_TAG, "Received WebPixel message. Attempting to decode.")
-                    pixelEventDecoder.decode(decodedMsg)?.let { event ->
-                        log.d(LOG_TAG, "Decoded message $event.")
-                        onMainThread {
-                            eventProcessor.onWebPixelEvent(event)
-                        }
-                    }
+                null -> {
+                    log.d(LOG_TAG, "Unsupported message received. Ignoring.")
                 }
-
-                ERROR -> {
-                    log.d(LOG_TAG, "Received Error message. Attempting to decode.")
-                    checkoutErrorDecoder.decode(decodedMsg)?.let { exception ->
-                        log.d(LOG_TAG, "Decoded message $exception.")
-                        onMainThread {
-                            eventProcessor.onCheckoutViewFailedWithError(exception)
-                        }
-                    }
-                }
-
-                else -> {}
             }
         } catch (e: Exception) {
             log.d(LOG_TAG, "Failed to decode message with error: $e. Calling onCheckoutFailedWithError")
@@ -133,51 +85,87 @@ internal class CheckoutBridge(
         }
     }
 
-    // Send messages from SDK to Web
-    @Suppress("SwallowedException")
-    fun sendMessage(view: WebView, operation: SDKOperation) {
-        val script = when (operation) {
-            is SDKOperation.Presented -> {
-                log.d(LOG_TAG, "Sending presented message to checkout, informing it that the sheet is now visible.")
-                dispatchMessageTemplate("'${operation.key}'")
+    private fun handleCheckoutCompleted(params: JsonObject) {
+        log.d(LOG_TAG, "Received completed message. Attempting to decode.")
+
+        val event = checkoutCompletedEventDecoder.decode(
+            WebToSdkEvent(
+                name = EVENT_COMPLETED,
+                body = params.toString(),
+            ),
+        )
+
+        log.d(LOG_TAG, "Decoded message $event.")
+        onMainThread {
+            eventProcessor.onCheckoutViewComplete(event)
+        }
+    }
+
+    private fun handleAddressChangeRequested(params: JsonObject) {
+        log.d(LOG_TAG, "Handling address change requested message.")
+
+        val onResponse = { payload: DeliveryAddressChangePayload ->
+            log.d(LOG_TAG, "Address change response received: $payload")
+            sendAddressResponse(payload)
+        }
+
+        val onCancel = {
+            log.d(LOG_TAG, "Address change cancelled")
+        }
+
+        val legacyMessage = WebToSdkEvent(
+            name = EVENT_ADDRESS_CHANGE_REQUESTED,
+            body = params.toString(),
+        )
+
+        addressChangeRequestedDecoder.decode(legacyMessage, onResponse, onCancel)?.let { event ->
+            onMainThread {
+                eventProcessor.onAddressChangeRequested(event)
             }
         }
-        try {
-            view.evaluateJavascript(script, null)
-        } catch (e: Exception) {
-            log.d(LOG_TAG, "Failed to send message to checkout, invoking onCheckoutViewFailedWithError")
-            onMainThread {
-                eventProcessor.onCheckoutViewFailedWithError(
-                    CheckoutSheetKitException(
-                        errorDescription = "Failed to send '${operation.key}' message to checkout, some features may not work.",
-                        errorCode = CheckoutSheetKitException.ERROR_SENDING_MESSAGE_TO_CHECKOUT,
-                        isRecoverable = true,
+    }
+
+    private fun sendAddressResponse(payload: DeliveryAddressChangePayload) {
+        CheckoutWebView.currentEntry()?.let { cacheEntry ->
+            Handler(Looper.getMainLooper()).post {
+                val messagePayload = deliveryAddressMessage.encodeSetDeliveryAddress(payload)
+                val script = postMessageDispatchTemplate(messagePayload)
+
+                try {
+                    cacheEntry.view.evaluateJavascript(script, null)
+                } catch (e: Exception) {
+                    log.d(LOG_TAG, "Failed to send address message to checkout, invoking onCheckoutViewFailedWithError")
+                    eventProcessor.onCheckoutViewFailedWithError(
+                        CheckoutSheetKitException(
+                            errorDescription = "Failed to send '$METHOD_SET_DELIVERY_ADDRESS' message to checkout.",
+                            errorCode = CheckoutSheetKitException.ERROR_SENDING_MESSAGE_TO_CHECKOUT,
+                            isRecoverable = true,
+                        ),
                     )
-                )
+                }
             }
         }
     }
 
     companion object {
         private const val LOG_TAG = "CheckoutBridge"
-        const val SCHEMA_VERSION_NUMBER: String = "8.1"
+        const val SCHEMA_VERSION: String = "2025-10"
 
-        private fun dispatchMessageTemplate(body: String) = """|
-        |if (window.MobileCheckoutSdk && window.MobileCheckoutSdk.dispatchMessage) {
-        |    window.MobileCheckoutSdk.dispatchMessage($body);
-        |} else {
-        |    window.addEventListener('mobileCheckoutBridgeReady', function () {
-        |        window.MobileCheckoutSdk.dispatchMessage($body);
-        |    }, {passive: true, once: true});
-        |}
+        private fun postMessageDispatchTemplate(body: String) = """|
+        |(function() {
+        |    try {
+        |        if (window && window.postMessage) {
+        |            window.postMessage($body, '*');
+        |        }
+        |    } catch (error) {
+        |        if (window && window.console && window.console.error) {
+        |            window.console.error('Failed to dispatch message to checkout', error);
+        |        }
+        |    }
+        |})();
         |""".trimMargin()
     }
 }
-
-@Serializable
-internal data class SdkToWebEvent<T>(
-    val detail: T
-)
 
 @Serializable
 internal data class WebToSdkEvent(

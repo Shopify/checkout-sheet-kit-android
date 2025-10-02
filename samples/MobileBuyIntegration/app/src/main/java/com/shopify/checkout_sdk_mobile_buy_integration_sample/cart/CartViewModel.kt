@@ -35,7 +35,12 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarEve
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.CustomerRepository
+import com.shopify.checkoutsheetkit.CheckoutAddressChangeRequestedEvent
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
+import com.shopify.checkoutsheetkit.lifecycleevents.CartDelivery
+import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryAddressInput
+import com.shopify.checkoutsheetkit.lifecycleevents.CartSelectableAddressInput
+import com.shopify.checkoutsheetkit.lifecycleevents.DeliveryAddressChangePayload
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -58,6 +63,8 @@ class CartViewModel(
     val loadingState: StateFlow<Boolean> = _loadingState
 
     private var demoBuyerIdentityEnabled = false
+    private val _addressChangeEvent = MutableStateFlow<CheckoutAddressChangeRequestedEvent?>(null)
+    val addressChangeEvent: StateFlow<CheckoutAddressChangeRequestedEvent?> = _addressChangeEvent.asStateFlow()
 
     init {
         // clear cart when buyer identity demo setting toggled
@@ -106,12 +113,31 @@ class CartViewModel(
         _cartState.value = CartState.Empty
     }
 
+    fun onAddressChangeRequested(event: CheckoutAddressChangeRequestedEvent) {
+        Timber.i("Address change requested for type ${event.addressType}")
+        _addressChangeEvent.value?.cancel()
+        _addressChangeEvent.value = event
+    }
+
+    fun respondToAddressChange(address: SampleAddress) {
+        val event = _addressChangeEvent.value ?: return
+        Timber.i("Responding to address change with ${address.firstName} ${address.lastName}")
+        event.respondWith(address.toDeliveryAddressChangePayload())
+        _addressChangeEvent.value = null
+    }
+
+    fun cancelAddressSelection() {
+        val event = _addressChangeEvent.value ?: return
+        Timber.i("Cancelling address change request")
+        event.cancel()
+        _addressChangeEvent.value = null
+    }
+
     fun <T : DefaultCheckoutEventProcessor> presentCheckout(
         url: String,
         activity: ComponentActivity,
         eventProcessor: T
     ) {
-        Timber.i("Presenting checkout with $url")
         ShopifyCheckoutSheetKit.present(url, activity, eventProcessor)
     }
 
@@ -165,4 +191,38 @@ class CartViewModel(
             onComplete(Result.failure(e))
         }
     }
+}
+
+data class SampleAddress(
+    val firstName: String,
+    val lastName: String,
+    val address1: String,
+    val address2: String? = null,
+    val city: String,
+    val province: String,
+    val country: String,
+    val postalCode: String,
+    val phone: String? = null,
+)
+
+private fun SampleAddress.toDeliveryAddressChangePayload(): DeliveryAddressChangePayload {
+    return DeliveryAddressChangePayload(
+        delivery = CartDelivery(
+            addresses = listOf(
+                CartSelectableAddressInput(
+                    address = CartDeliveryAddressInput(
+                        firstName = firstName,
+                        lastName = lastName,
+                        address1 = address1,
+                        address2 = address2,
+                        city = city,
+                        provinceCode = province,
+                        countryCode = country,
+                        zip = postalCode,
+                        phone = phone,
+                    )
+                )
+            )
+        )
+    )
 }

@@ -38,7 +38,7 @@ import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
  * Event processor that can handle events internally, delegate to the CheckoutEventProcessor
  * passed into ShopifyCheckoutSheetKit.present(), or preprocess arguments and then delegate
  */
-internal class CheckoutWebViewEventProcessor(
+internal open class CheckoutWebViewEventProcessor(
     private val eventProcessor: CheckoutEventProcessor,
     private val toggleHeader: (Boolean) -> Unit = {},
     private val closeCheckoutDialogWithError: (CheckoutException) -> Unit = { CheckoutWebView.clearCache() },
@@ -113,6 +113,12 @@ internal class CheckoutWebViewEventProcessor(
     fun onWebPixelEvent(event: PixelEvent) {
         log.d(LOG_TAG, "Calling onWebPixelEvent for $event.")
         eventProcessor.onWebPixelEvent(event)
+    }
+
+    open fun onAddressChangeRequested(event: CheckoutAddressChangeRequestedEvent) {
+        onMainThread {
+            eventProcessor.onAddressChangeRequested(event)
+        }
     }
 
     companion object {
