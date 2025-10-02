@@ -184,7 +184,6 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
                     request,
                     errorResponse.statusCode,
                     errorResponse.reasonPhrase.ifBlank { "HTTP ${errorResponse.statusCode} Error" },
-                    errorResponse.responseHeaders,
                 )
             }
         }
@@ -202,7 +201,6 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
             request: WebResourceRequest?,
             errorCode: Int,
             errorDescription: String,
-            responseHeaders: MutableMap<String, String> = mutableMapOf(),
         ) {
             if (request?.isForMainFrame == true) {
                 log.d(
@@ -211,18 +209,6 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
                 )
                 val processor = getEventProcessor()
                 when {
-                    errorCode == HTTP_NOT_FOUND && responseHeaders[DEPRECATED_REASON_HEADER]?.lowercase() == LIQUID_NOT_SUPPORTED -> {
-                        log.d(LOG_TAG, "Failing with liquid not supported error. Recoverable: false")
-                        processor.onCheckoutViewFailedWithError(
-                            ConfigurationException(
-                                errorDescription = "Storefronts using checkout.liquid are not supported. Please upgrade to Checkout " +
-                                    "Extensibility.",
-                                errorCode = ConfigurationException.CHECKOUT_LIQUID_NOT_MIGRATED,
-                                isRecoverable = false,
-                            )
-                        )
-                    }
-
                     errorCode == HTTP_GONE -> {
                         log.d(LOG_TAG, "Failing with cart expired. Recoverable: false")
                         processor.onCheckoutViewFailedWithError(
@@ -251,9 +237,6 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
 
     companion object {
         private const val LOG_TAG = "BaseWebView"
-        private const val DEPRECATED_REASON_HEADER = "X-Shopify-API-Deprecated-Reason"
-        private const val LIQUID_NOT_SUPPORTED = "checkout_liquid_not_supported"
-
         private const val TOO_MANY_REQUESTS = 429
         private val CLIENT_ERROR = 400..499
     }
