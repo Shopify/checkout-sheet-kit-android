@@ -66,6 +66,8 @@ class CartViewModel(
     private val _addressChangeEvent = MutableStateFlow<CheckoutAddressChangeRequestedEvent?>(null)
     val addressChangeEvent: StateFlow<CheckoutAddressChangeRequestedEvent?> = _addressChangeEvent.asStateFlow()
 
+    private var checkoutDialog: com.shopify.checkoutsheetkit.CheckoutSheetKitDialog? = null
+
     init {
         // clear cart when buyer identity demo setting toggled
         viewModelScope.launch {
@@ -117,6 +119,7 @@ class CartViewModel(
         Timber.i("Address change requested for type ${event.addressType}")
         _addressChangeEvent.value?.cancel()
         _addressChangeEvent.value = event
+        checkoutDialog?.hide()
     }
 
     fun respondToAddressChange(address: SampleAddress) {
@@ -124,6 +127,7 @@ class CartViewModel(
         Timber.i("Responding to address change with ${address.firstName} ${address.lastName}")
         event.respondWith(address.toDeliveryAddressChangePayload())
         _addressChangeEvent.value = null
+        checkoutDialog?.show()
     }
 
     fun cancelAddressSelection() {
@@ -131,6 +135,7 @@ class CartViewModel(
         Timber.i("Cancelling address change request")
         event.cancel()
         _addressChangeEvent.value = null
+        checkoutDialog?.show()
     }
 
     fun <T : DefaultCheckoutEventProcessor> presentCheckout(
@@ -138,7 +143,7 @@ class CartViewModel(
         activity: ComponentActivity,
         eventProcessor: T
     ) {
-        ShopifyCheckoutSheetKit.present(url, activity, eventProcessor)
+        checkoutDialog = ShopifyCheckoutSheetKit.present(url, activity, eventProcessor)
     }
 
     fun preloadCheckout(

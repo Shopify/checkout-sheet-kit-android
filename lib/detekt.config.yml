@@ -18,4 +18,4 @@ exceptions:
     active: false
 complexity:
   TooManyFunctions:
-    thresholdInClasses: 16
+    thresholdInClasses: 23

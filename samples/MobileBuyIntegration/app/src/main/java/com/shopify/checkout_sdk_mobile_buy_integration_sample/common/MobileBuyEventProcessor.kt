@@ -88,9 +88,6 @@ class MobileBuyEventProcessor(
     override fun onAddressChangeRequested(event: CheckoutAddressChangeRequestedEvent) {
         logger.log("Checkout requested address change for type ${event.addressType}")
         cartViewModel.onAddressChangeRequested(event)
-        GlobalScope.launch(Dispatchers.Main) {
-            navController.navigate(Screen.Cart.route)
-        }
     }
 
     override fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {

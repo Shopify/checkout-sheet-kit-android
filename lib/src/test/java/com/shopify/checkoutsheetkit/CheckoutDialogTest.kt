@@ -127,20 +127,24 @@ class CheckoutDialogTest {
     }
 
     @Test
-    fun `present returns interface allowing dismissal of the dialog`() {
+    fun `present returns interface allowing hiding and showing of the dialog`() {
         val dialogHandle = ShopifyCheckoutSheetKit.present("https://shopify.com", activity, processor)
 
         val dialog = ShadowDialog.getLatestDialog()
         assertThat(dialog.isShowing).isTrue()
         assertThat(dialog.containsChildOfType(CheckoutWebView::class.java)).isTrue()
 
-        dialogHandle?.dismiss()
+        dialogHandle?.hide()
         ShadowLooper.runUiThreadTasks()
 
         assertThat(dialog.isShowing).isFalse()
-        await().atMost(2, TimeUnit.SECONDS).until {
-            !dialog.containsChildOfType(CheckoutWebView::class.java)
-        }
+        // WebView should still be attached when hidden (not dismissed)
+        assertThat(dialog.containsChildOfType(CheckoutWebView::class.java)).isTrue()
+
+        dialogHandle?.show()
+        ShadowLooper.runUiThreadTasks()
+
+        assertThat(dialog.isShowing).isTrue()
     }
 
     @Test
@@ -364,7 +368,10 @@ class CheckoutDialogTest {
         val protocolValue = CheckoutBridge.SCHEMA_VERSION
         val version = ShopifyCheckoutSheetKit.version.split("-").first()
         val libraryVersion = BuildConfig.SDK_VERSION
-        val expectedEmbed = android.net.Uri.encode("protocol=$protocolValue, branding=app, library=CheckoutKit/$libraryVersion, sdk=$version, platform=android, entry=sheet, colorscheme=light, recovery=true")
+        val expectedEmbed = android.net.Uri.encode(
+            "protocol=$protocolValue, branding=app, library=CheckoutKit/$libraryVersion, " +
+                "sdk=$version, platform=android, entry=sheet, colorscheme=light, recovery=true"
+        )
         assertThat(shadowOf(fallbackView).lastLoadedUrl).isEqualTo("https://shopify.com?embed=$expectedEmbed")
     }
 

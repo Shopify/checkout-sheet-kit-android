@@ -49,6 +49,7 @@ import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.children
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
+import java.lang.ref.WeakReference
 
 internal open class CheckoutDialog(
     protected val checkoutUrl: String,
@@ -57,9 +58,12 @@ internal open class CheckoutDialog(
 ) : Dialog(context) {
 
     protected var checkoutWebView: CheckoutWebView? = null
+    private var isDestroyed = false
+    private var activityRef: WeakReference<ComponentActivity>? = null
 
     open fun start(context: ComponentActivity) {
         log.d(LOG_TAG, "Dialog start called.")
+        this.activityRef = WeakReference(context)
         setContentView(R.layout.dialog_checkout)
         setupDialog(context)
     }
@@ -120,6 +124,7 @@ internal open class CheckoutDialog(
         setOnDismissListener {
             log.d(LOG_TAG, "Dismiss listener invoked.")
             removeWebViewFromContainer()
+            isDestroyed = true
         }
 
         setOnShowListener {
@@ -129,6 +134,31 @@ internal open class CheckoutDialog(
     }
 
     protected fun getCurrentCheckoutWebView(): CheckoutWebView? = checkoutWebView
+
+    internal fun temporaryHide() {
+        log.d(LOG_TAG, "Temporarily hiding dialog.")
+        hide()
+    }
+
+    internal fun safeShow() {
+        val act = activityRef?.get()
+        log.d(
+            LOG_TAG,
+            "Safe show check: activity=$act, isFinishing=${act?.isFinishing}, " +
+                "isDestroyed=${act?.isDestroyed}, dialogDestroyed=$isDestroyed"
+        )
+        val canShow = isActivityAlive(act) && !isDestroyed
+        if (canShow) {
+            log.d(LOG_TAG, "Safe show called, showing dialog.")
+            show()
+        } else {
+            log.w(LOG_TAG, "Cannot show dialog - activity is finishing/destroyed or dialog is destroyed.")
+        }
+    }
+
+    private fun isActivityAlive(activity: ComponentActivity?): Boolean {
+        return activity != null && !activity.isFinishing && !activity.isDestroyed
+    }
 
     private fun MenuItem.setupCloseButton(colorScheme: ColorScheme) {
         val customCloseIcon = colorScheme.closeIcon(context.isDarkTheme())

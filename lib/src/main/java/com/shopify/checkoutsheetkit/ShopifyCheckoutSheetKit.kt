@@ -147,19 +147,29 @@ public object ShopifyCheckoutSheetKit {
 
         log.d("ShopifyCheckoutSheetKit", "Starting Dialog.")
         dialog.start(context)
-        return CheckoutSheetKitDialog { dialog.dismiss() }
+        return CheckoutSheetKitDialog(
+            hide = { dialog.temporaryHide() },
+            show = { dialog.safeShow() }
+        )
     }
 }
 
 /**
- * A checkout sheet dialog. Use the [dismiss] method to dismiss the presented dialog
+ * A checkout sheet dialog. Use [hide] to temporarily hide the dialog and [show] to re-show it.
  */
-@FunctionalInterface
-public fun interface CheckoutSheetKitDialog {
+public class CheckoutSheetKitDialog internal constructor(
+    private val hide: () -> Unit,
+    private val show: () -> Unit
+) {
     /**
-     * Dismisses the checkout sheet dialog.
+     * Temporarily hides the checkout sheet dialog. Can be re-shown using [show].
      */
-    public fun dismiss()
+    public fun hide(): Unit = hide.invoke()
+
+    /**
+     * Shows the checkout sheet dialog. Can be used to re-show a previously hidden dialog.
+     */
+    public fun show(): Unit = show.invoke()
 }
 
 private fun CheckoutWebView.isInViewHierarchy(): Boolean {

@@ -22,6 +22,7 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.android.controller.ActivityController;
 import org.robolectric.shadows.ShadowDialog;
+import org.robolectric.shadows.ShadowLooper;
 
 import java.util.function.Function;
 
@@ -289,7 +290,7 @@ public class InteropTest {
 
     @Test
     public void presentReturnsAHandleToAllowDismissingDialog() {
-        try (ActivityController<ComponentActivity> controller = Robolectric.buildActivity(ComponentActivity.class)) {
+        try (ActivityController<ComponentActivity> controller = Robolectric.buildActivity(ComponentActivity.class).create().start()) {
             ComponentActivity activity = controller.get();
             CheckoutSheetKitDialog dialog = ShopifyCheckoutSheetKit.present(
                     "https://shopify.dev",
@@ -315,8 +316,13 @@ public class InteropTest {
             assertThat(dialog).isNotNull();
             assertThat(ShadowDialog.getLatestDialog().isShowing()).isTrue();
 
-            dialog.dismiss();
+            dialog.hide();
+            ShadowLooper.runUiThreadTasks();
             assertThat(ShadowDialog.getLatestDialog().isShowing()).isFalse();
+
+            dialog.show();
+            ShadowLooper.runUiThreadTasks();
+            assertThat(ShadowDialog.getLatestDialog().isShowing()).isTrue();
         }
     }
 
