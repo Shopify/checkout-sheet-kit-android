@@ -47,6 +47,7 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.Toolbar
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.graphics.drawable.toDrawable
+import androidx.core.net.toUri
 import androidx.core.view.children
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
 
@@ -111,7 +112,7 @@ internal class CheckoutDialog(
 
         setOnShowListener {
             log.d(LOG_TAG, "On show listener invoked, calling WebView notifyPresented.")
-            checkoutWebView.notifyPresented()
+//            checkoutWebView?.notifyPresented()
         }
 
         log.d(LOG_TAG, "Showing dialog.")
@@ -215,7 +216,7 @@ internal class CheckoutDialog(
             ShopifyCheckoutSheetKit.configuration.colorScheme,
             FallbackWebView(context).apply {
                 setEventProcessor(eventProcessor())
-                loadUrl(checkoutUrl)
+                loadUrl(checkoutUrl.toUri().withEmbedParam(isRecovery = true))
             }
         )
         return true

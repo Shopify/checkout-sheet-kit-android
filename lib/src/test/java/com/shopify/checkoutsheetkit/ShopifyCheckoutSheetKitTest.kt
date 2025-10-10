@@ -23,7 +23,8 @@
 package com.shopify.checkoutsheetkit
 
 import androidx.activity.ComponentActivity
-import org.assertj.core.api.Assertions.assertThat
+import androidx.core.net.toUri
+import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -40,6 +41,7 @@ class ShopifyCheckoutSheetKitTest {
     fun setUp() {
         ShopifyCheckoutSheetKit.configure {
             it.preloading = Preloading(enabled = false)
+            it.colorScheme = ColorScheme.Automatic()
         }
     }
 
@@ -148,7 +150,9 @@ class ShopifyCheckoutSheetKitTest {
                 assertThat(thirdEntry!!.key).isEqualTo("https://one.com")
                 assertThat(thirdEntry.isStale).isFalse()
 
-                assertThat(shadowOf(thirdEntry.view).lastLoadedUrl).isEqualTo("https://one.com")
+                assertThat(shadowOf(thirdEntry.view).lastLoadedUrl?.toUri())
+                    .hasBaseUrl("https://one.com")
+                    .withEmbedParameters()
             }
         }
     }
@@ -184,8 +188,11 @@ class ShopifyCheckoutSheetKitTest {
                 assertThat(thirdEntry?.key).isEqualTo("https://one.com")
                 assertThat(thirdEntry?.isStale).isTrue()
 
-                assertThat(shadowOf(thirdEntry?.view).lastLoadedUrl).isEqualTo("https://two.com")
+                assertThat(shadowOf(thirdEntry?.view).lastLoadedUrl?.toUri())
+                    .hasBaseUrl("https://two.com")
+                    .withEmbedParameters()
             }
         }
     }
+
 }

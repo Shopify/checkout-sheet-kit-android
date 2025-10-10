@@ -59,8 +59,6 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
 
     abstract fun getEventProcessor(): CheckoutWebViewEventProcessor
     abstract val recoverErrors: Boolean
-    abstract val variant: String
-    abstract val cspSchema: String
 
     private fun configureWebView() {
         visibility = VISIBLE
@@ -122,22 +120,22 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
         return super.onKeyDown(keyCode, event)
     }
 
-    internal fun userAgentSuffix(): String {
-        val theme = ShopifyCheckoutSheetKit.configuration.colorScheme.id
-        val version = ShopifyCheckoutSheetKit.version.split("-").first()
-        val platform = ShopifyCheckoutSheetKit.configuration.platform
-        val platformSuffix = if (platform != null) " ${platform.displayName}" else ""
-        val suffix = "ShopifyCheckoutSDK/${version} ($cspSchema;$theme;$variant)$platformSuffix"
-        log.d(LOG_TAG, "Setting User-Agent suffix $suffix")
-        return suffix
-    }
-
     open inner class BaseWebViewClient : WebViewClient() {
         init {
             if (BuildConfig.DEBUG) {
                 log.d(LOG_TAG, "Setting web contents debugging enabled.")
                 setWebContentsDebuggingEnabled(true)
             }
+        }
+
+        override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+            val requestUri = request?.url
+            if (request?.isForMainFrame == true && requestUri?.isWebLink() == true && requestUri.needsEmbedParam()) {
+                val headers = request.requestHeaders ?: mutableMapOf()
+                view?.loadUrl(requestUri.withEmbedParam(), headers)
+                return true
+            }
+            return false
         }
 
         override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {

@@ -29,8 +29,7 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebViewClient.ERROR_BAD_URL
 import androidx.activity.ComponentActivity
-import com.shopify.checkoutsheetkit.CheckoutExceptionAssert.Companion.assertThat
-import org.assertj.core.api.Assertions.assertThat
+import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
