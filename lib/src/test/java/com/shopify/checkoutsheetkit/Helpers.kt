@@ -23,8 +23,11 @@
 package com.shopify.checkoutsheetkit
 
 import android.app.Activity
+import android.net.Uri
+import androidx.core.net.toUri
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
 import org.assertj.core.api.AbstractAssert
+import org.assertj.core.api.Assertions
 
 fun withPreloadingEnabled(block: () -> Unit) {
     try {
@@ -37,11 +40,6 @@ fun withPreloadingEnabled(block: () -> Unit) {
 
 class CheckoutExceptionAssert(actual: CheckoutException) :
     AbstractAssert<CheckoutExceptionAssert, CheckoutException>(actual, CheckoutExceptionAssert::class.java) {
-    companion object {
-        fun assertThat(actual: CheckoutException): CheckoutExceptionAssert {
-            return CheckoutExceptionAssert(actual)
-        }
-    }
 
     fun isRecoverable(): CheckoutExceptionAssert {
         isNotNull()
@@ -112,5 +110,107 @@ fun noopDefaultCheckoutEventProcessor(activity: Activity, log: LogWrapper = LogW
         override fun onCheckoutCanceled() {
             // no-op
         }
+
+        override fun onAddressChangeRequested(event: CheckoutAddressChangeRequestedEvent) {
+            // no-op
+        }
+    }
+}
+
+class EmbedParamAssert(actual: Uri?) :
+    AbstractAssert<EmbedParamAssert, Uri?>(actual, EmbedParamAssert::class.java) {
+
+    fun hasBaseUrl(expected: String): EmbedParamAssert {
+        val uri = actualUri()
+        val scheme = uri.scheme?.let { "$it://" } ?: ""
+        val authority = uri.encodedAuthority.orEmpty()
+        val path = uri.encodedPath.takeUnless { it.isNullOrEmpty() } ?: ""
+        val base = "$scheme$authority$path"
+        if (base != expected) {
+            failWithMessage("Expected base URL to be <%s> but was <%s>", expected, base)
+        }
+        return this
+    }
+
+    fun hasQueryParameter(key: String, expectedValue: String): EmbedParamAssert {
+        val uri = actualUri()
+        val actualValue = uri.getQueryParameter(key)
+        if (actualValue != expectedValue) {
+            failWithMessage(
+                "Expected query parameter <%s> to have value <%s> but was <%s>",
+                key,
+                expectedValue,
+                actualValue,
+            )
+        }
+        return this
+    }
+
+    fun hasEmbedParamExactly(expected: Map<String, String>): EmbedParamAssert {
+        val actualMap = embedMap()
+        if (actualMap != expected) {
+            failWithMessage("Expected embed param <%s> but was <%s>", expected, actualMap)
+        }
+        return this
+    }
+
+    fun withEmbedParameters(vararg expectedEntries: Pair<String, String>): EmbedParamAssert {
+        val includeRecovery = expectedEntries.any { (key, value) ->
+            key == EmbedFieldKey.RECOVERY && value.equals("true", ignoreCase = true)
+        }
+
+        val expected = defaultEmbed(includeRecovery).toMutableMap()
+        expectedEntries.forEach { (key, value) ->
+            expected[key] = value
+        }
+
+        return hasEmbedParamExactly(expected)
+    }
+
+    fun withoutEmbedParameters(vararg keys: String): EmbedParamAssert {
+        val actualMap = embedMap()
+        keys.forEach { key ->
+            if (actualMap.containsKey(key)) {
+                failWithMessage("Expected embed parameter <%s> to be absent", key)
+            }
+        }
+        return this
+    }
+
+    private fun actualUri(): Uri {
+        isNotNull
+        return actual!!
+    }
+
+    private fun embedMap(): Map<String, String> {
+        val uri = actualUri()
+        val encoded = uri.getQueryParameter(QueryParamKey.EMBED)
+        if (encoded == null) {
+            failWithMessage("Expected query parameter '%s' to be present", QueryParamKey.EMBED)
+            return emptyMap()
+        }
+
+        val decoded = Uri.decode(encoded).trim()
+        return parseEmbed(decoded)
+    }
+
+    private fun defaultEmbed(includeRecovery: Boolean): Map<String, String> {
+        val embedValue = EmbedParamBuilder.build(isRecovery = includeRecovery)
+        return parseEmbed(embedValue)
+    }
+
+    private fun parseEmbed(value: String): Map<String, String> {
+        if (value.isEmpty()) {
+            return emptyMap()
+        }
+
+        return value.split(", ")
+            .filter { it.isNotEmpty() }
+            .associate { entry ->
+                val parts = entry.split("=", limit = 2)
+                val key = parts[0]
+                val entryValue = parts.getOrElse(1) { "" }
+                key to entryValue
+            }
     }
 }

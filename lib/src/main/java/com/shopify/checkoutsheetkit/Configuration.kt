@@ -33,7 +33,7 @@ public data class Configuration internal constructor(
     var colorScheme: ColorScheme = ColorScheme.Automatic(),
     var preloading: Preloading = Preloading(),
     var errorRecovery: ErrorRecovery = object : ErrorRecovery {},
-    var platform: Platform? = null,
+    var platform: Platform = Platform.ANDROID,
     var logLevel: LogLevel = LogLevel.WARN,
 )
 
@@ -61,5 +61,6 @@ public interface ErrorRecovery {
 }
 
 public enum class Platform(public val displayName: String) {
-    REACT_NATIVE("ReactNative")
+    ANDROID("android"),
+    REACT_NATIVE("react-native"),
 }

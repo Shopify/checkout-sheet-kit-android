@@ -24,7 +24,8 @@ package com.shopify.checkoutsheetkit
 
 import android.os.Looper
 import androidx.activity.ComponentActivity
-import org.assertj.core.api.Assertions.assertThat
+import androidx.core.net.toUri
+import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
 import org.assertj.core.api.Assertions.assertThatNoException
 import org.junit.Before
 import org.junit.Test
@@ -46,6 +47,9 @@ class CheckoutWebViewCacheTest {
     fun setUp() {
         CheckoutWebView.clearCache()
         shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+        ShopifyCheckoutSheetKit.configure {
+            it.colorScheme = ColorScheme.Automatic()
+        }
 
         activity = Robolectric.buildActivity(ComponentActivity::class.java).get()
         eventProcessor = eventProcessor()
@@ -57,7 +61,9 @@ class CheckoutWebViewCacheTest {
             val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
             assertThat(view).isNotNull
             shadowOf(Looper.getMainLooper()).runToEndOfTasks()
-            assertThat(shadowOf(view).lastLoadedUrl).isEqualTo(URL)
+            assertThat(shadowOf(view).lastLoadedUrl?.toUri())
+                .hasBaseUrl(URL)
+                .withEmbedParameters()
         }
     }
 
@@ -69,8 +75,12 @@ class CheckoutWebViewCacheTest {
             shadowOf(Looper.getMainLooper()).runToEndOfTasks()
 
             assertThat(viewOne).isEqualTo(viewTwo)
-            assertThat(shadowOf(viewOne).lastLoadedUrl).isEqualTo(URL)
-            assertThat(shadowOf(viewTwo).lastLoadedUrl).isEqualTo(URL)
+            assertThat(shadowOf(viewOne).lastLoadedUrl?.toUri())
+                .hasBaseUrl(URL)
+                .withEmbedParameters()
+            assertThat(shadowOf(viewTwo).lastLoadedUrl?.toUri())
+                .hasBaseUrl(URL)
+                .withEmbedParameters()
         }
     }
 
@@ -103,8 +113,12 @@ class CheckoutWebViewCacheTest {
             shadowOf(Looper.getMainLooper()).runToEndOfTasks()
 
             assertThat(viewOne).isNotEqualTo(viewTwo)
-            assertThat(shadowOf(viewOne).lastLoadedUrl).isEqualTo(URL)
-            assertThat(shadowOf(viewTwo).lastLoadedUrl).isEqualTo(newUrl)
+            assertThat(shadowOf(viewOne).lastLoadedUrl?.toUri())
+                .hasBaseUrl(URL)
+                .withEmbedParameters()
+            assertThat(shadowOf(viewTwo).lastLoadedUrl?.toUri())
+                .hasBaseUrl(newUrl)
+                .withEmbedParameters()
             assertThat(shadowOf(viewOne).wasDestroyCalled()).isTrue
             assertThat(shadowOf(viewTwo).wasDestroyCalled()).isFalse
         }
@@ -117,8 +131,12 @@ class CheckoutWebViewCacheTest {
         shadowOf(Looper.getMainLooper()).runToEndOfTasks()
 
         assertThat(viewOne).isNotEqualTo(viewTwo)
-        assertThat(shadowOf(viewOne).lastLoadedUrl).isEqualTo(URL)
-        assertThat(shadowOf(viewTwo).lastLoadedUrl).isEqualTo(URL)
+        assertThat(shadowOf(viewOne).lastLoadedUrl?.toUri())
+            .hasBaseUrl(URL)
+            .withEmbedParameters()
+        assertThat(shadowOf(viewTwo).lastLoadedUrl?.toUri())
+            .hasBaseUrl(URL)
+            .withEmbedParameters()
 
         assertThat(shadowOf(viewOne).wasDestroyCalled()).isTrue
         assertThat(shadowOf(viewTwo).wasDestroyCalled()).isFalse
@@ -161,8 +179,12 @@ class CheckoutWebViewCacheTest {
             shadowOf(Looper.getMainLooper()).runToEndOfTasks()
 
             assertThat(viewOne).isNotEqualTo(viewTwo)
-            assertThat(shadowOf(viewOne).lastLoadedUrl).isEqualTo(URL)
-            assertThat(shadowOf(viewTwo).lastLoadedUrl).isEqualTo(URL)
+            assertThat(shadowOf(viewOne).lastLoadedUrl?.toUri())
+                .hasBaseUrl(URL)
+                .withEmbedParameters()
+            assertThat(shadowOf(viewTwo).lastLoadedUrl?.toUri())
+                .hasBaseUrl(URL)
+                .withEmbedParameters()
         }
     }
 
