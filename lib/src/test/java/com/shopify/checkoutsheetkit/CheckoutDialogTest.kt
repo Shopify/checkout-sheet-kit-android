@@ -31,8 +31,8 @@ import android.widget.RelativeLayout
 import androidx.activity.ComponentActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.children
+import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
 import com.shopify.checkoutsheetkit.lifecycleevents.emptyCompletedEvent
-import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.fail
 import org.awaitility.Awaitility.await
 import org.junit.After
@@ -360,7 +360,11 @@ class CheckoutDialogTest {
 
         val layout = dialog.findViewById<RelativeLayout>(R.id.checkoutSdkContainer)
         val fallbackView = layout.children.first { it is FallbackWebView } as FallbackWebView
-        assertThat(shadowOf(fallbackView).lastLoadedUrl).isEqualTo(checkoutUrl)
+        val loadedUrl = shadowOf(fallbackView).lastLoadedUrl
+
+        assertThat(android.net.Uri.parse(loadedUrl))
+            .hasBaseUrl("https://shopify.com")
+            .withEmbedParameters(EmbedFieldKey.RECOVERY to "true")
     }
 
     @Test
