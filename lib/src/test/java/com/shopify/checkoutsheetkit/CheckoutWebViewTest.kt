@@ -76,7 +76,7 @@ class CheckoutWebViewTest {
         assertThat(shadowOf(view).webViewClient.javaClass).isEqualTo(CheckoutWebView.CheckoutWebViewClient::class.java)
         assertThat(shadowOf(view).backgroundColor).isEqualTo(Color.TRANSPARENT)
         val shadowView = shadowOf(view)
-        assertThat(shadowView.getJavascriptInterface("CheckoutEmbedder").javaClass)
+        assertThat(shadowView.getJavascriptInterface("EmbeddedCheckoutProtocolConsumer").javaClass)
             .isEqualTo(CheckoutBridge::class.java)
     }
 
