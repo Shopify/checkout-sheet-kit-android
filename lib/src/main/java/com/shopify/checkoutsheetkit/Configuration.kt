@@ -62,5 +62,5 @@ public interface ErrorRecovery {
 
 public enum class Platform(public val displayName: String) {
     ANDROID("android"),
-    REACT_NATIVE("react-native"),
+    REACT_NATIVE("react-native-android"),
 }
