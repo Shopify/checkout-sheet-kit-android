@@ -111,6 +111,16 @@ class EmbedParamsTest {
     }
 
     @Test
+    fun `withEmbedParam sets platform to react-native-android when using React Native`() {
+        ShopifyCheckoutSheetKit.configure {
+            it.platform = Platform.REACT_NATIVE
+        }
+
+        assertThat("https://example.com".toUri().withEmbedParam().toUri())
+            .withEmbedParameters(EmbedFieldKey.PLATFORM to "react-native-android")
+    }
+
+    @Test
     fun `withEmbedParam includes recovery flag when requested`() {
         ShopifyCheckoutSheetKit.configure {
             it.colorScheme = ColorScheme.Light()
