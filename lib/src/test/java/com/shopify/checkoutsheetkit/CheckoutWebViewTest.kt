@@ -111,7 +111,7 @@ class CheckoutWebViewTest {
         val shadow = shadowOf(view)
         shadow.callOnAttachedToWindow()
 
-        assertThat(shadow.getJavascriptInterface("CheckoutEmbedder").javaClass)
+        assertThat(shadow.getJavascriptInterface("EmbeddedCheckoutProtocolConsumer").javaClass)
             .isEqualTo(CheckoutBridge::class.java)
     }
 
@@ -122,7 +122,7 @@ class CheckoutWebViewTest {
         val shadow = shadowOf(view)
         shadow.callOnDetachedFromWindow()
 
-        assertThat(shadow.getJavascriptInterface("CheckoutEmbedder")).isNull()
+        assertThat(shadow.getJavascriptInterface("EmbeddedCheckoutProtocolConsumer")).isNull()
     }
 
     @Test
