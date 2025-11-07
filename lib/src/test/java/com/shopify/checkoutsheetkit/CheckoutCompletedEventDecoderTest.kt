@@ -23,15 +23,12 @@
 
 package com.shopify.checkoutsheetkit
 
-import com.shopify.checkoutsheetkit.lifecycleevents.Address
-import com.shopify.checkoutsheetkit.lifecycleevents.CartLine
-import com.shopify.checkoutsheetkit.lifecycleevents.CartLineImage
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent.DiscountValue.MoneyValue
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent.DiscountValue.PercentageValue
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent.Money
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent.PricingPercentageValue
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEventDecoder
-import com.shopify.checkoutsheetkit.lifecycleevents.DeliveryDetails
-import com.shopify.checkoutsheetkit.lifecycleevents.DeliveryInfo
-import com.shopify.checkoutsheetkit.lifecycleevents.PaymentMethod
-import com.shopify.checkoutsheetkit.lifecycleevents.Price
-import com.shopify.checkoutsheetkit.pixelevents.MoneyV2
 import kotlinx.serialization.json.Json
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -45,144 +42,91 @@ class CheckoutCompletedEventDecoderTest {
     private val mockLogWrapper = mock<LogWrapper>()
 
     private val decoder = CheckoutCompletedEventDecoder(
-        decoder = Json { ignoreUnknownKeys = true},
+        decoder = Json { ignoreUnknownKeys = true },
         log = mockLogWrapper
     )
 
     @Test
-    fun `should decode completion event order id`() {
+    fun `should decode order confirmation details`() {
         val result = decoder.decode(EXAMPLE_EVENT.toWebToSdkEvent())
-        val orderDetails = result.orderDetails
+        val orderConfirmation = result.orderConfirmation
 
-        assertThat(orderDetails.id).isEqualTo("gid://shopify/OrderIdentity/9697125302294")
+        assertThat(orderConfirmation.order.id).isEqualTo("gid://shopify/Order/9697125302294")
+        assertThat(orderConfirmation.number).isEqualTo("1001")
+        assertThat(orderConfirmation.isFirstOrder).isTrue()
+        assertThat(orderConfirmation.url).isEqualTo("https://shopify.com/order-confirmation/9697125302294")
     }
 
     @Test
-    fun `should decode completion event order cart lines`() {
+    fun `should decode cart line details`() {
         val result = decoder.decode(EXAMPLE_EVENT.toWebToSdkEvent())
-        val orderDetails = result.orderDetails
+        val line = result.cart.lines.single()
 
-        assertThat(orderDetails.cart.lines).isEqualTo(
-            listOf(
-                CartLine(
-                    image = CartLineImage(
-                        sm = "https://cdn.shopify.com/s/files/1/0692/3996/3670/files/41bc5767-d56f-432c-ac5f-6b9eeee3ba0e.truncated...",
-                        md = "https://cdn.shopify.com/s/files/1/0692/3996/3670/files/41bc5767-d56f-432c-ac5f-6b9eeee3ba0e.truncated...",
-                        lg = "https://cdn.shopify.com/s/files/1/0692/3996/3670/files/41bc5767-d56f-432c-ac5f-6b9eeee3ba0e.truncated...",
-                        altText = null,
-                    ),
-                    quantity = 1,
-                    title = "The Box: How the Shipping Container Made the World Smaller and the World Economy Bigger",
-                    price = MoneyV2(
-                        amount = 8.0,
-                        currencyCode = "GBP",
-                    ),
-                    merchandiseId = "gid://shopify/ProductVariant/43835075002390",
-                    productId = "gid://shopify/Product/8013997834262"
-                )
-            )
+        assertThat(line.id).isEqualTo("gid://shopify/CartLine/1")
+        assertThat(line.quantity).isEqualTo(1)
+        assertThat(line.merchandise.title).isEqualTo("The Box: How the Shipping Container Made the World Smaller and the World Economy Bigger")
+        assertThat(line.merchandise.product.title).isEqualTo("The Box")
+        assertThat(line.merchandise.image?.url).isEqualTo("https://cdn.shopify.com/s/files/1/0692/3996/3670/files/product-image_256x256.jpg")
+        assertThat(line.merchandise.selectedOptions).containsExactly(
+            CheckoutCompletedEvent.SelectedOption(name = "Format", value = "Hardcover")
         )
+
+        val discountAllocation = line.discountAllocations.single()
+        assertThat(discountAllocation.discountedAmount).isEqualTo(Money(amount = "1.00", currencyCode = "GBP"))
+        assertThat(discountAllocation.discountApplication.value).isInstanceOf(PercentageValue::class.java)
+        assertThat((discountAllocation.discountApplication.value as PercentageValue).percentage)
+            .isEqualTo(PricingPercentageValue(percentage = 10.0))
     }
 
     @Test
-    fun `should decode completion event order price`() {
+    fun `should decode cart level cost and discounts`() {
         val result = decoder.decode(EXAMPLE_EVENT.toWebToSdkEvent())
-        val orderDetails = result.orderDetails
+        val cart = result.cart
 
-        assertThat(orderDetails.cart.price).isEqualTo(
-            Price(
-                total = MoneyV2(
-                    amount = 13.99,
-                    currencyCode = "GBP",
-                ),
-                subtotal = MoneyV2(
-                    amount = 8.0,
-                    currencyCode = "GBP",
-                ),
-                taxes = MoneyV2(
-                    amount = 0.0,
-                    currencyCode = "GBP",
-                ),
-                shipping = MoneyV2(
-                    amount = 5.99,
-                    currencyCode = "GBP",
-                ),
-                discounts = emptyList(),
-            )
+        assertThat(cart.cost.subtotalAmount).isEqualTo(Money(amount = "8.00", currencyCode = "GBP"))
+        assertThat(cart.cost.totalAmount).isEqualTo(Money(amount = "13.99", currencyCode = "GBP"))
+        assertThat(cart.discountCodes).containsExactly(
+            CheckoutCompletedEvent.CartDiscountCode(code = "SUMMER", applicable = true)
         )
+        val giftCard = cart.appliedGiftCards.single()
+        assertThat(giftCard.amountUsed).isEqualTo(Money(amount = "10.00", currencyCode = "GBP"))
+        assertThat(giftCard.balance).isEqualTo(Money(amount = "15.00", currencyCode = "GBP"))
+        assertThat(giftCard.lastCharacters).isEqualTo("ABCD")
+
+        val allocation = cart.discountAllocations.single()
+        assertThat(allocation.discountApplication.value).isInstanceOf(MoneyValue::class.java)
+        assertThat((allocation.discountApplication.value as MoneyValue).money)
+            .isEqualTo(Money(amount = "2.00", currencyCode = "GBP"))
     }
 
     @Test
-    fun `should decode completion event email`() {
+    fun `should decode cart buyer identity and delivery details`() {
         val result = decoder.decode(EXAMPLE_EVENT.toWebToSdkEvent())
-        val orderDetails = result.orderDetails
+        val cart = result.cart
 
-        assertThat(orderDetails.email).isEqualTo("a.user@shopify.com")
+        assertThat(cart.buyerIdentity.email).isEqualTo("a.user@shopify.com")
+        assertThat(cart.buyerIdentity.customer?.firstName).isEqualTo("Andrew")
+        assertThat(cart.buyerIdentity.countryCode).isEqualTo("GB")
+
+        val deliveryGroup = cart.deliveryGroups.single()
+        assertThat(deliveryGroup.groupType).isEqualTo(CheckoutCompletedEvent.CartDeliveryGroupType.ONE_TIME_PURCHASE)
+        assertThat(deliveryGroup.deliveryAddress.city).isEqualTo("Swansea")
+        assertThat(deliveryGroup.deliveryOptions.single().deliveryMethodType)
+            .isEqualTo(CheckoutCompletedEvent.CartDeliveryMethodType.SHIPPING)
+        assertThat(deliveryGroup.selectedDeliveryOption?.handle).isEqualTo("standard-shipping")
+
+        val deliveryAddress = cart.delivery.addresses.single().address
+        assertThat(deliveryAddress.address1).isEqualTo("100 Street Avenue")
+        assertThat(deliveryAddress.provinceCode).isEqualTo("WLS")
+        assertThat(deliveryAddress.zip).isEqualTo("SA1 1AB")
     }
 
     @Test
-    fun `should decode completion event billing address`() {
-        val result = decoder.decode(EXAMPLE_EVENT.toWebToSdkEvent())
-        val orderDetails = result.orderDetails
+    fun `should fall back to empty event on decode failure`() {
+        val result = decoder.decode("not-json".toWebToSdkEvent())
 
-        assertThat(orderDetails.billingAddress).isEqualTo(
-            Address(
-                city = "Swansea",
-                countryCode = "GB",
-                postalCode = "SA1 1AB",
-                address1 = "100 Street Avenue",
-                firstName = "Andrew",
-                lastName = "Person",
-                zoneCode = "WLS",
-                phone = "+447915123456",
-            )
-        )
-    }
-
-    @Test
-    fun `should decode completion event payment methods`() {
-        val result = decoder.decode(EXAMPLE_EVENT.toWebToSdkEvent())
-        val orderDetails = result.orderDetails
-
-        assertThat(orderDetails.paymentMethods).isEqualTo(
-            listOf(
-                PaymentMethod(
-                    type = "wallet",
-                    details = mapOf(
-                        "amount" to "13.99",
-                        "currency" to "GBP",
-                        "name" to "SHOP_PAY",
-                    )
-                )
-            )
-        )
-    }
-
-    @Test
-    fun `should decode completion event deliveries`() {
-        val result = decoder.decode(EXAMPLE_EVENT.toWebToSdkEvent())
-        val orderDetails = result.orderDetails
-
-        assertThat(orderDetails.deliveries).isEqualTo(
-            listOf(
-                DeliveryInfo(
-                    method = "SHIPPING",
-                    details = DeliveryDetails(
-                        location = Address(
-                            city = "Swansea",
-                            countryCode = "GB",
-                            postalCode = "SA1 1AB",
-                            address1 = "100 Street Avenue",
-                            name = "Andrew",
-                            firstName = "Andrew",
-                            lastName = "Person",
-                            zoneCode = "WLS",
-                            phone = "+447915123456",
-                        )
-                    )
-                )
-            )
-        )
+        assertThat(result.orderConfirmation.order.id).isEmpty()
+        assertThat(result.cart.lines).isEmpty()
     }
 
     private fun String.toWebToSdkEvent(): WebToSdkEvent {
@@ -195,142 +139,193 @@ class CheckoutCompletedEventDecoderTest {
     companion object {
         private val EXAMPLE_EVENT = """
             {
-              "flowType": "regular",
-              "orderDetails": {
-                "id": "gid://shopify/OrderIdentity/9697125302294",
-                "cart": {
-                  "token": "123",
-                  "lines": [
-                    {
-                      "image": {
-                        "sm": "https://cdn.shopify.com/s/files/1/0692/3996/3670/files/41bc5767-d56f-432c-ac5f-6b9eeee3ba0e.truncated...",
-                        "md": "https://cdn.shopify.com/s/files/1/0692/3996/3670/files/41bc5767-d56f-432c-ac5f-6b9eeee3ba0e.truncated...",
-                        "lg": "https://cdn.shopify.com/s/files/1/0692/3996/3670/files/41bc5767-d56f-432c-ac5f-6b9eeee3ba0e.truncated..."
-                      },
-                      "quantity": 1,
-                      "title": "The Box: How the Shipping Container Made the World Smaller and the World Economy Bigger",
-                      "price": {
-                        "amount": 8,
-                        "currencyCode": "GBP"
-                      },
-                      "merchandiseId": "gid://shopify/ProductVariant/43835075002390",
-                      "productId": "gid://shopify/Product/8013997834262"
-                    }
-                  ],
-                  "price": {
-                    "total": {
-                      "amount": 13.99,
-                      "currencyCode": "GBP"
-                    },
-                    "subtotal": {
-                      "amount": 8,
-                      "currencyCode": "GBP"
-                    },
-                    "taxes": {
-                      "amount": 0,
-                      "currencyCode": "GBP"
-                    },
-                    "shipping": {
-                      "amount": 5.99,
-                      "currencyCode": "GBP"
-                    }
-                  }
+              "orderConfirmation": {
+                "url": "https://shopify.com/order-confirmation/9697125302294",
+                "order": {
+                  "id": "gid://shopify/Order/9697125302294"
                 },
-                "email": "a.user@shopify.com",
-                "shippingAddress": {
-                  "city": "Swansea",
-                  "countryCode": "GB",
-                  "postalCode": "SA1 1AB",
-                  "address1": "100 Street Avenue",
-                  "firstName": "Andrew",
-                  "lastName": "Person",
-                  "name": "Andrew",
-                  "zoneCode": "WLS",
-                  "phone": "+447915123456",
-                  "coordinates": {
-                    "latitude": 54.5936785,
-                    "longitude": -3.013167399999999
-                  }
-                },
-                "billingAddress": {
-                  "city": "Swansea",
-                  "countryCode": "GB",
-                  "postalCode": "SA1 1AB",
-                  "address1": "100 Street Avenue",
-                  "firstName": "Andrew",
-                  "lastName": "Person",
-                  "zoneCode": "WLS",
-                  "phone": "+447915123456"
-                },
-                "paymentMethods": [
-                  {
-                    "type": "wallet",
-                    "details": {
-                      "amount": "13.99",
-                      "currency": "GBP",
-                      "name": "SHOP_PAY"
-                    }
-                  }
-                ],
-                "deliveries": [
-                  {
-                    "method": "SHIPPING",
-                    "details": {
-                      "location": {
-                        "city": "Swansea",
-                        "countryCode": "GB",
-                        "postalCode": "SA1 1AB",
-                        "address1": "100 Street Avenue",
-                        "firstName": "Andrew",
-                        "lastName": "Person",
-                        "name": "Andrew",
-                        "zoneCode": "WLS",
-                        "phone": "+447915123456",
-                        "coordinates": {
-                          "latitude": 54.5936785,
-                          "longitude": -3.013167399999999
-                        }
-                      }
-                    }
-                  }
-                ]
+                "number": "1001",
+                "isFirstOrder": true
               },
-              "orderId": "gid://shopify/OrderIdentity/9697125302294",
               "cart": {
+                "id": "gid://shopify/Cart/123",
                 "lines": [
                   {
-                    "image": {
-                      "sm": "https://cdn.shopify.com/s/files/1/0692/3996/3670/files/41bc5767-d56f-432c-ac5f-6b9eeee3ba0e.__CR0_0_300_300_PT0_SX300_V1_64x64.jpg?v=1689689735",
-                      "md": "https://cdn.shopify.com/s/files/1/0692/3996/3670/files/41bc5767-d56f-432c-ac5f-6b9eeee3ba0e.__CR0_0_300_300_PT0_SX300_V1_128x128.jpg?v=1689689735",
-                      "lg": "https://cdn.shopify.com/s/files/1/0692/3996/3670/files/41bc5767-d56f-432c-ac5f-6b9eeee3ba0e.__CR0_0_300_300_PT0_SX300_V1_256x256.jpg?v=1689689735"
-                    },
+                    "id": "gid://shopify/CartLine/1",
                     "quantity": 1,
-                    "title": "The Box: How the Shipping Container Made the World Smaller and the World Economy Bigger",
-                    "price": {
-                      "amount": 8,
-                      "currencyCode": "GBP"
+                    "merchandise": {
+                      "id": "gid://shopify/ProductVariant/43835075002390",
+                      "title": "The Box: How the Shipping Container Made the World Smaller and the World Economy Bigger",
+                      "product": {
+                        "id": "gid://shopify/Product/8013997834262",
+                        "title": "The Box"
+                      },
+                      "image": {
+                        "url": "https://cdn.shopify.com/s/files/1/0692/3996/3670/files/product-image_256x256.jpg",
+                        "altText": "Front cover"
+                      },
+                      "selectedOptions": [
+                        {
+                          "name": "Format",
+                          "value": "Hardcover"
+                        }
+                      ]
                     },
-                    "merchandiseId": "gid://shopify/ProductVariant/43835075002390",
-                    "productId": "gid://shopify/Product/8013997834262"
+                    "cost": {
+                      "amountPerQuantity": {
+                        "amount": "8.00",
+                        "currencyCode": "GBP"
+                      },
+                      "subtotalAmount": {
+                        "amount": "8.00",
+                        "currencyCode": "GBP"
+                      },
+                      "totalAmount": {
+                        "amount": "8.00",
+                        "currencyCode": "GBP"
+                      }
+                    },
+                    "discountAllocations": [
+                      {
+                        "discountedAmount": {
+                          "amount": "1.00",
+                          "currencyCode": "GBP"
+                        },
+                        "discountApplication": {
+                          "allocationMethod": "ACROSS",
+                          "targetSelection": "ALL",
+                          "targetType": "LINE_ITEM",
+                          "value": {
+                            "percentage": 10.0
+                          }
+                        },
+                        "targetType": "LINE_ITEM"
+                      }
+                    ]
                   }
                 ],
-                "price": {
-                  "total": {
-                    "amount": 13.99,
+                "cost": {
+                  "subtotalAmount": {
+                    "amount": "8.00",
                     "currencyCode": "GBP"
                   },
-                  "subtotal": {
-                    "amount": 8,
-                    "currencyCode": "GBP"
-                  },
-                  "taxes": {
-                    "amount": 0,
-                    "currencyCode": "CAD"
-                  },
-                  "shipping": {
-                    "amount": 5.99,
+                  "totalAmount": {
+                    "amount": "13.99",
                     "currencyCode": "GBP"
                   }
+                },
+                "buyerIdentity": {
+                  "email": "a.user@shopify.com",
+                  "phone": "+447915123456",
+                  "customer": {
+                    "id": "gid://shopify/Customer/12345",
+                    "firstName": "Andrew",
+                    "lastName": "Person",
+                    "email": "a.user@shopify.com",
+                    "phone": "+447915123456"
+                  },
+                  "countryCode": "GB"
+                },
+                "deliveryGroups": [
+                  {
+                    "deliveryAddress": {
+                      "address1": "100 Street Avenue",
+                      "address2": "Unit 5",
+                      "city": "Swansea",
+                      "province": "Wales",
+                      "country": "United Kingdom",
+                      "countryCodeV2": "GB",
+                      "zip": "SA1 1AB",
+                      "firstName": "Andrew",
+                      "lastName": "Person",
+                      "phone": "+447915123456",
+                      "company": "Shopify"
+                    },
+                    "deliveryOptions": [
+                      {
+                        "code": "standard",
+                        "title": "Standard Shipping",
+                        "description": "Arrives in 3-5 business days",
+                        "handle": "standard-shipping",
+                        "estimatedCost": {
+                          "amount": "5.99",
+                          "currencyCode": "GBP"
+                        },
+                        "deliveryMethodType": "SHIPPING"
+                      }
+                    ],
+                    "selectedDeliveryOption": {
+                      "code": "standard",
+                      "title": "Standard Shipping",
+                      "description": "Arrives in 3-5 business days",
+                      "handle": "standard-shipping",
+                      "estimatedCost": {
+                        "amount": "5.99",
+                        "currencyCode": "GBP"
+                      },
+                      "deliveryMethodType": "SHIPPING"
+                    },
+                    "groupType": "ONE_TIME_PURCHASE"
+                  }
+                ],
+                "discountCodes": [
+                  {
+                    "code": "SUMMER",
+                    "applicable": true
+                  }
+                ],
+                "appliedGiftCards": [
+                  {
+                    "amountUsed": {
+                      "amount": "10.00",
+                      "currencyCode": "GBP"
+                    },
+                    "balance": {
+                      "amount": "15.00",
+                      "currencyCode": "GBP"
+                    },
+                    "lastCharacters": "ABCD",
+                    "presentmentAmountUsed": {
+                      "amount": "10.00",
+                      "currencyCode": "GBP"
+                    }
+                  }
+                ],
+                "discountAllocations": [
+                  {
+                    "discountedAmount": {
+                      "amount": "2.00",
+                      "currencyCode": "GBP"
+                    },
+                    "discountApplication": {
+                      "allocationMethod": "ACROSS",
+                      "targetSelection": "ALL",
+                      "targetType": "SHIPPING_LINE",
+                      "value": {
+                        "amount": "2.00",
+                        "currencyCode": "GBP"
+                      }
+                    },
+                    "targetType": "SHIPPING_LINE"
+                  }
+                ],
+                "delivery": {
+                  "addresses": [
+                    {
+                      "address": {
+                        "address1": "100 Street Avenue",
+                        "address2": "Unit 5",
+                        "city": "Swansea",
+                        "company": "Shopify",
+                        "countryCode": "GB",
+                        "firstName": "Andrew",
+                        "lastName": "Person",
+                        "phone": "+447915123456",
+                        "provinceCode": "WLS",
+                        "zip": "SA1 1AB"
+                      }
+                    }
+                  ]
                 }
               }
             }

@@ -24,13 +24,7 @@ package com.shopify.checkoutsheetkit.lifecycleevents
 
 import com.shopify.checkoutsheetkit.LogWrapper
 import com.shopify.checkoutsheetkit.WebToSdkEvent
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-
-@Serializable
-public data class CheckoutCompletedEvent(
-    public val orderDetails: OrderDetails
-)
 
 internal class CheckoutCompletedEventDecoder @JvmOverloads constructor(
     private val decoder: Json,

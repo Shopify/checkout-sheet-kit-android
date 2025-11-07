@@ -22,10 +22,7 @@
  */
 package com.shopify.checkoutsheetkit
 
-import com.shopify.checkoutsheetkit.lifecycleevents.CartInfo
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
-import com.shopify.checkoutsheetkit.lifecycleevents.OrderDetails
-import com.shopify.checkoutsheetkit.lifecycleevents.Price
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
@@ -113,19 +110,31 @@ class CheckoutBridgeTest {
     @Test
     fun `postMessage handles checkout completed JSON-RPC message`() {
         val params = CheckoutCompletedEvent(
-            orderDetails = OrderDetails(
-                cart = CartInfo(
-                    lines = emptyList(),
-                    price = Price(),
-                    token = "token-123",
+            orderConfirmation = CheckoutCompletedEvent.OrderConfirmation(
+                url = null,
+                order = CheckoutCompletedEvent.OrderConfirmation.Order(id = "order-id-123"),
+                number = null,
+                isFirstOrder = false
+            ),
+            cart = CheckoutCompletedEvent.Cart(
+                id = "cart-id-123",
+                lines = emptyList(),
+                cost = CheckoutCompletedEvent.CartCost(
+                    subtotalAmount = CheckoutCompletedEvent.Money(amount = "0.00", currencyCode = "USD"),
+                    totalAmount = CheckoutCompletedEvent.Money(amount = "0.00", currencyCode = "USD")
                 ),
-                id = "order-id-123",
+                buyerIdentity = CheckoutCompletedEvent.CartBuyerIdentity(),
+                deliveryGroups = emptyList(),
+                discountCodes = emptyList(),
+                appliedGiftCards = emptyList(),
+                discountAllocations = emptyList(),
+                delivery = CheckoutCompletedEvent.CartDelivery(addresses = emptyList())
             )
         )
 
         val jsonRpcMessage = """{
             "jsonrpc":"2.0",
-            "method":"checkout.completed",
+            "method":"checkout.complete",
             "params":${Json.encodeToString(params)}
         }""".trimIndent()
 

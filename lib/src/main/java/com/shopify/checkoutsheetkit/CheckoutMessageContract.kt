@@ -31,8 +31,5 @@ internal object CheckoutMessageContract {
     const val VERSION = "2.0"
 
     const val METHOD_ADDRESS_CHANGE_REQUESTED = "checkout.addressChangeRequested"
-    const val METHOD_COMPLETED = "checkout.completed"
-
-    const val EVENT_ADDRESS_CHANGE_REQUESTED = "addressChangeRequested"
-    const val EVENT_COMPLETED = "completed"
+    const val METHOD_COMPLETED = "checkout.complete"
 }
