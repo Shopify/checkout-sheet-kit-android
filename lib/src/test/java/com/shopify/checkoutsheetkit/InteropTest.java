@@ -7,7 +7,7 @@ import androidx.annotation.NonNull;
 
 import com.shopify.checkoutsheetkit.errorevents.CheckoutErrorDecoder;
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent;
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEventDecoder;
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEventDecoder;
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent;
 import com.shopify.checkoutsheetkit.pixelevents.PixelEventDecoder;
 import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent;
@@ -211,7 +211,7 @@ public class InteropTest {
             b.setIgnoreUnknownKeys(true);
             return null;
         });
-        CheckoutCompletedEventDecoder decoder = new CheckoutCompletedEventDecoder(json);
+        CheckoutCompleteEventDecoder decoder = new CheckoutCompleteEventDecoder(json);
 
         CheckoutCompleteEvent event = decoder.decode(webEvent);
 

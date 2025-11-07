@@ -26,7 +26,7 @@ import com.shopify.checkoutsheetkit.LogWrapper
 import com.shopify.checkoutsheetkit.WebToSdkEvent
 import kotlinx.serialization.json.Json
 
-internal class CheckoutCompletedEventDecoder @JvmOverloads constructor(
+internal class CheckoutCompleteEventDecoder @JvmOverloads constructor(
     private val decoder: Json,
     private val log: LogWrapper = LogWrapper()
 ) {

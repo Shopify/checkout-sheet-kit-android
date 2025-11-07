@@ -318,8 +318,14 @@ public data class CheckoutCompleteEvent(
                 ?: error("DiscountValueSerializer only supports JSON encoding")
 
             when (value) {
-                is DiscountValue.MoneyValue -> jsonEncoder.encodeSerializableValue(Money.serializer(), value.money)
-                is DiscountValue.PercentageValue -> jsonEncoder.encodeSerializableValue(PricingPercentageValue.serializer(), value.percentage)
+                is DiscountValue.MoneyValue -> jsonEncoder.encodeSerializableValue(
+                    Money.serializer(),
+                    value.money
+                )
+                is DiscountValue.PercentageValue -> jsonEncoder.encodeSerializableValue(
+                    PricingPercentageValue.serializer(),
+                    value.percentage
+                )
             }
         }
     }

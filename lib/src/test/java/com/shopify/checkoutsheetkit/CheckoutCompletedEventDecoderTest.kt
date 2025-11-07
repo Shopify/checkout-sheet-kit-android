@@ -28,7 +28,7 @@ import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent.Discou
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent.DiscountValue.PercentageValue
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent.Money
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent.PricingPercentageValue
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEventDecoder
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEventDecoder
 import kotlinx.serialization.json.Json
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -41,7 +41,7 @@ class CheckoutCompletedEventDecoderTest {
 
     private val mockLogWrapper = mock<LogWrapper>()
 
-    private val decoder = CheckoutCompletedEventDecoder(
+    private val decoder = CheckoutCompleteEventDecoder(
         decoder = Json { ignoreUnknownKeys = true },
         log = mockLogWrapper
     )
@@ -64,9 +64,13 @@ class CheckoutCompletedEventDecoderTest {
 
         assertThat(line.id).isEqualTo("gid://shopify/CartLine/1")
         assertThat(line.quantity).isEqualTo(1)
-        assertThat(line.merchandise.title).isEqualTo("The Box: How the Shipping Container Made the World Smaller and the World Economy Bigger")
+        assertThat(line.merchandise.title).isEqualTo(
+            "The Box: How the Shipping Container Made the World Smaller and the World Economy Bigger"
+        )
         assertThat(line.merchandise.product.title).isEqualTo("The Box")
-        assertThat(line.merchandise.image?.url).isEqualTo("https://cdn.shopify.com/s/files/1/0692/3996/3670/files/product-image_256x256.jpg")
+        assertThat(line.merchandise.image?.url).isEqualTo(
+            "https://cdn.shopify.com/s/files/1/0692/3996/3670/files/product-image_256x256.jpg"
+        )
         assertThat(line.merchandise.selectedOptions).containsExactly(
             CheckoutCompleteEvent.SelectedOption(name = "Format", value = "Hardcover")
         )
