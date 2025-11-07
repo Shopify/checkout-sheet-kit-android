@@ -22,8 +22,8 @@
  */
 package com.shopify.checkoutsheetkit
 
-import androidx.core.net.toUri
 import android.net.Uri
+import androidx.core.net.toUri
 import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
 import org.junit.After
 import org.junit.Before

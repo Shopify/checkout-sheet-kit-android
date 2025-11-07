@@ -6,7 +6,7 @@ import androidx.activity.ComponentActivity;
 import androidx.annotation.NonNull;
 
 import com.shopify.checkoutsheetkit.errorevents.CheckoutErrorDecoder;
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent;
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent;
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEventDecoder;
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent;
 import com.shopify.checkoutsheetkit.pixelevents.PixelEventDecoder;
@@ -118,7 +118,7 @@ public class InteropTest {
                 }
 
                 @Override
-                public void onCheckoutCompleted(@NonNull CheckoutCompletedEvent checkoutCompletedEvent) {
+                public void onCheckoutCompleted(@NonNull CheckoutCompleteEvent checkoutCompletedEvent) {
 
                 }
 
@@ -206,14 +206,14 @@ public class InteropTest {
     @SuppressWarnings("all")
     @Test
     public void canAccessFieldsOnCheckoutCompletedEvent() {
-        WebToSdkEvent webEvent = new WebToSdkEvent("completed", EXAMPLE_EVENT);
+        WebToSdkEvent webEvent = new WebToSdkEvent(CheckoutMessageContract.METHOD_COMPLETE, EXAMPLE_EVENT);
         Json json = JsonKt.Json(Json.Default, b -> {
             b.setIgnoreUnknownKeys(true);
             return null;
         });
         CheckoutCompletedEventDecoder decoder = new CheckoutCompletedEventDecoder(json);
 
-        CheckoutCompletedEvent event = decoder.decode(webEvent);
+        CheckoutCompleteEvent event = decoder.decode(webEvent);
 
         assertThat(event.getOrderConfirmation().getOrder().getId())
                 .isEqualTo("gid://shopify/Order/9697125302294");
@@ -264,7 +264,7 @@ public class InteropTest {
                     activity,
                     new DefaultCheckoutEventProcessor(activity) {
                         @Override
-                        public void onCheckoutCompleted(@NonNull CheckoutCompletedEvent checkoutCompletedEvent) {
+                        public void onCheckoutCompleted(@NonNull CheckoutCompleteEvent checkoutCompletedEvent) {
                             // do nothing
                         }
 

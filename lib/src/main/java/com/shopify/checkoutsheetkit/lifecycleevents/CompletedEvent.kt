@@ -32,10 +32,9 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.JsonDecoder
 import kotlinx.serialization.json.JsonEncoder
-import kotlinx.serialization.json.decodeFromJsonElement
 
 @Serializable
-public data class CheckoutCompletedEvent(
+public data class CheckoutCompleteEvent(
     public val orderConfirmation: OrderConfirmation,
     public val cart: Cart
 ) {
@@ -326,22 +325,22 @@ public data class CheckoutCompletedEvent(
     }
 }
 
-internal fun emptyCompletedEvent(id: String? = null): CheckoutCompletedEvent {
-    return CheckoutCompletedEvent(
-        orderConfirmation = CheckoutCompletedEvent.OrderConfirmation(
+internal fun emptyCompletedEvent(id: String? = null): CheckoutCompleteEvent {
+    return CheckoutCompleteEvent(
+        orderConfirmation = CheckoutCompleteEvent.OrderConfirmation(
             url = null,
-            order = CheckoutCompletedEvent.OrderConfirmation.Order(id = id ?: ""),
+            order = CheckoutCompleteEvent.OrderConfirmation.Order(id = id ?: ""),
             number = null,
             isFirstOrder = false
         ),
-        cart = CheckoutCompletedEvent.Cart(
+        cart = CheckoutCompleteEvent.Cart(
             id = "",
             lines = emptyList(),
-            cost = CheckoutCompletedEvent.CartCost(
-                subtotalAmount = CheckoutCompletedEvent.Money(amount = "", currencyCode = ""),
-                totalAmount = CheckoutCompletedEvent.Money(amount = "", currencyCode = "")
+            cost = CheckoutCompleteEvent.CartCost(
+                subtotalAmount = CheckoutCompleteEvent.Money(amount = "", currencyCode = ""),
+                totalAmount = CheckoutCompleteEvent.Money(amount = "", currencyCode = "")
             ),
-            buyerIdentity = CheckoutCompletedEvent.CartBuyerIdentity(
+            buyerIdentity = CheckoutCompleteEvent.CartBuyerIdentity(
                 email = null,
                 phone = null,
                 customer = null,
@@ -351,7 +350,7 @@ internal fun emptyCompletedEvent(id: String? = null): CheckoutCompletedEvent {
             discountCodes = emptyList(),
             appliedGiftCards = emptyList(),
             discountAllocations = emptyList(),
-            delivery = CheckoutCompletedEvent.CartDelivery(addresses = emptyList())
+            delivery = CheckoutCompleteEvent.CartDelivery(addresses = emptyList())
         )
     )
 }

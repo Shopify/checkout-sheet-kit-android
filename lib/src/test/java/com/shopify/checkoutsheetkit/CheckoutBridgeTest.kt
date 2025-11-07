@@ -22,10 +22,10 @@
  */
 package com.shopify.checkoutsheetkit
 
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
+import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -109,26 +109,26 @@ class CheckoutBridgeTest {
 
     @Test
     fun `postMessage handles checkout completed JSON-RPC message`() {
-        val params = CheckoutCompletedEvent(
-            orderConfirmation = CheckoutCompletedEvent.OrderConfirmation(
+        val params = CheckoutCompleteEvent(
+            orderConfirmation = CheckoutCompleteEvent.OrderConfirmation(
                 url = null,
-                order = CheckoutCompletedEvent.OrderConfirmation.Order(id = "order-id-123"),
+                order = CheckoutCompleteEvent.OrderConfirmation.Order(id = "order-id-123"),
                 number = null,
                 isFirstOrder = false
             ),
-            cart = CheckoutCompletedEvent.Cart(
+            cart = CheckoutCompleteEvent.Cart(
                 id = "cart-id-123",
                 lines = emptyList(),
-                cost = CheckoutCompletedEvent.CartCost(
-                    subtotalAmount = CheckoutCompletedEvent.Money(amount = "0.00", currencyCode = "USD"),
-                    totalAmount = CheckoutCompletedEvent.Money(amount = "0.00", currencyCode = "USD")
+                cost = CheckoutCompleteEvent.CartCost(
+                    subtotalAmount = CheckoutCompleteEvent.Money(amount = "0.00", currencyCode = "USD"),
+                    totalAmount = CheckoutCompleteEvent.Money(amount = "0.00", currencyCode = "USD")
                 ),
-                buyerIdentity = CheckoutCompletedEvent.CartBuyerIdentity(),
+                buyerIdentity = CheckoutCompleteEvent.CartBuyerIdentity(),
                 deliveryGroups = emptyList(),
                 discountCodes = emptyList(),
                 appliedGiftCards = emptyList(),
                 discountAllocations = emptyList(),
-                delivery = CheckoutCompletedEvent.CartDelivery(addresses = emptyList())
+                delivery = CheckoutCompleteEvent.CartDelivery(addresses = emptyList())
             )
         )
 

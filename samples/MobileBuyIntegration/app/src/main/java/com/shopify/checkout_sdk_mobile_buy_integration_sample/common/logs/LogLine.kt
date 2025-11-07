@@ -26,13 +26,11 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import com.shopify.checkoutsheetkit.pixelevents.Context
 import com.shopify.checkoutsheetkit.pixelevents.CustomPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEventData
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.util.Date
 import java.util.UUID
@@ -46,7 +44,7 @@ data class LogLine(
     @Embedded(prefix = "standard_pixel") val standardPixelEvent: StandardPixelEvent? = null,
     @Embedded(prefix = "custom_pixel") val customPixelEvent: CustomPixelEvent? = null,
     @Embedded(prefix = "error_details") val errorDetails: ErrorDetails? = null,
-    val checkoutCompleted: CheckoutCompletedEvent? = null,
+    val checkoutCompleted: CheckoutCompleteEvent? = null,
 )
 
 enum class LogType {
@@ -84,12 +82,12 @@ class Converters {
     }
 
     @TypeConverter
-    fun checkoutCompletedToString(value: CheckoutCompletedEvent?): String? {
+    fun checkoutCompletedToString(value: CheckoutCompleteEvent?): String? {
         return value?.let { json.encodeToString(it) }
     }
 
     @TypeConverter
-    fun stringToCheckoutCompleted(value: String?): CheckoutCompletedEvent? {
+    fun stringToCheckoutCompleted(value: String?): CheckoutCompleteEvent? {
         return decodeOrNull(value)
     }
 

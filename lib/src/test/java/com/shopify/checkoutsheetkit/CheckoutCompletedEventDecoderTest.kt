@@ -23,11 +23,11 @@
 
 package com.shopify.checkoutsheetkit
 
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent.DiscountValue.MoneyValue
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent.DiscountValue.PercentageValue
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent.Money
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent.PricingPercentageValue
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent.DiscountValue.MoneyValue
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent.DiscountValue.PercentageValue
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent.Money
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent.PricingPercentageValue
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEventDecoder
 import kotlinx.serialization.json.Json
 import org.assertj.core.api.Assertions.assertThat
@@ -68,7 +68,7 @@ class CheckoutCompletedEventDecoderTest {
         assertThat(line.merchandise.product.title).isEqualTo("The Box")
         assertThat(line.merchandise.image?.url).isEqualTo("https://cdn.shopify.com/s/files/1/0692/3996/3670/files/product-image_256x256.jpg")
         assertThat(line.merchandise.selectedOptions).containsExactly(
-            CheckoutCompletedEvent.SelectedOption(name = "Format", value = "Hardcover")
+            CheckoutCompleteEvent.SelectedOption(name = "Format", value = "Hardcover")
         )
 
         val discountAllocation = line.discountAllocations.single()
@@ -86,7 +86,7 @@ class CheckoutCompletedEventDecoderTest {
         assertThat(cart.cost.subtotalAmount).isEqualTo(Money(amount = "8.00", currencyCode = "GBP"))
         assertThat(cart.cost.totalAmount).isEqualTo(Money(amount = "13.99", currencyCode = "GBP"))
         assertThat(cart.discountCodes).containsExactly(
-            CheckoutCompletedEvent.CartDiscountCode(code = "SUMMER", applicable = true)
+            CheckoutCompleteEvent.CartDiscountCode(code = "SUMMER", applicable = true)
         )
         val giftCard = cart.appliedGiftCards.single()
         assertThat(giftCard.amountUsed).isEqualTo(Money(amount = "10.00", currencyCode = "GBP"))
@@ -109,10 +109,10 @@ class CheckoutCompletedEventDecoderTest {
         assertThat(cart.buyerIdentity.countryCode).isEqualTo("GB")
 
         val deliveryGroup = cart.deliveryGroups.single()
-        assertThat(deliveryGroup.groupType).isEqualTo(CheckoutCompletedEvent.CartDeliveryGroupType.ONE_TIME_PURCHASE)
+        assertThat(deliveryGroup.groupType).isEqualTo(CheckoutCompleteEvent.CartDeliveryGroupType.ONE_TIME_PURCHASE)
         assertThat(deliveryGroup.deliveryAddress.city).isEqualTo("Swansea")
         assertThat(deliveryGroup.deliveryOptions.single().deliveryMethodType)
-            .isEqualTo(CheckoutCompletedEvent.CartDeliveryMethodType.SHIPPING)
+            .isEqualTo(CheckoutCompleteEvent.CartDeliveryMethodType.SHIPPING)
         assertThat(deliveryGroup.selectedDeliveryOption?.handle).isEqualTo("standard-shipping")
 
         val deliveryAddress = cart.delivery.addresses.single().address
@@ -131,7 +131,7 @@ class CheckoutCompletedEventDecoderTest {
 
     private fun String.toWebToSdkEvent(): WebToSdkEvent {
         return WebToSdkEvent(
-            name = "completed",
+            name = CheckoutMessageContract.METHOD_COMPLETE,
             body = this,
         )
     }

@@ -24,8 +24,8 @@ package com.shopify.checkoutsheetkit
 
 import android.webkit.WebView
 import com.shopify.checkoutsheetkit.CheckoutMessageContract.METHOD_ADDRESS_CHANGE_REQUESTED
-import com.shopify.checkoutsheetkit.CheckoutMessageContract.METHOD_COMPLETED
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
+import com.shopify.checkoutsheetkit.CheckoutMessageContract.METHOD_COMPLETE
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -53,8 +53,8 @@ internal class CheckoutMessageParser(
                 }
                 ?.let { JSONRPCMessage.AddressChangeRequested(id, it) }
 
-            METHOD_COMPLETED -> envelope.params
-                .decodeOrNull<CheckoutCompletedEvent> {
+            METHOD_COMPLETE -> envelope.params
+                .decodeOrNull<CheckoutCompleteEvent> {
                     log.d(LOG_TAG, "Failed to decode checkout completed params: ${it.message}")
                 }
                 ?.let { JSONRPCMessage.Completed(it) }
@@ -116,7 +116,7 @@ internal class CheckoutMessageParser(
         }
 
         data class Completed(
-            val event: CheckoutCompletedEvent,
+            val event: CheckoutCompleteEvent,
         ) : JSONRPCNotification()
     }
 

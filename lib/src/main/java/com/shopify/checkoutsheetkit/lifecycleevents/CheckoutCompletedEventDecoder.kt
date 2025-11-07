@@ -30,9 +30,9 @@ internal class CheckoutCompletedEventDecoder @JvmOverloads constructor(
     private val decoder: Json,
     private val log: LogWrapper = LogWrapper()
 ) {
-    fun decode(decodedMsg: WebToSdkEvent): CheckoutCompletedEvent {
+    fun decode(decodedMsg: WebToSdkEvent): CheckoutCompleteEvent {
         return try {
-            decoder.decodeFromString<CheckoutCompletedEvent>(decodedMsg.body)
+            decoder.decodeFromString<CheckoutCompleteEvent>(decodedMsg.body)
         } catch (e: Exception) {
             log.e("CheckoutBridge", "Failed to decode CheckoutCompleted event", e)
             emptyCompletedEvent()

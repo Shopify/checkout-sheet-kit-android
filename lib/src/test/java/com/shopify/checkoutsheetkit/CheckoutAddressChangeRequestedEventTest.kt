@@ -23,7 +23,6 @@
 package com.shopify.checkoutsheetkit
 
 import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
-import kotlinx.serialization.json.Json
 import org.junit.Test
 
 class CheckoutAddressChangeRequestedEventTest {

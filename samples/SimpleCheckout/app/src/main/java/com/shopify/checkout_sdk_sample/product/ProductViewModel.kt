@@ -34,7 +34,7 @@ import com.shopify.checkout_sdk_sample.data.ProductRepository
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -69,7 +69,7 @@ class ProductViewModel : ViewModel() {
      */
     fun setEventProcessor(activity: ComponentActivity) {
         eventProcessor = object : DefaultCheckoutEventProcessor(activity) {
-            override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {
+            override fun onCheckoutCompleted(checkoutCompleteEvent: CheckoutCompleteEvent) {
                 checkoutCompleted()
             }
 
