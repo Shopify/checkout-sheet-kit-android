@@ -32,6 +32,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.JsonDecoder
 import kotlinx.serialization.json.JsonEncoder
+import kotlinx.serialization.json.jsonObject
 
 @Serializable
 public data class CheckoutCompleteEvent(
@@ -277,7 +278,16 @@ public data class CheckoutCompleteEvent(
     public data class Money(
         public val amount: String,
         public val currencyCode: String
-    )
+    ) {
+        init {
+            require(amount.toBigDecimalOrNull() != null) {
+                "Invalid money amount: '$amount' (must be a valid decimal number)"
+            }
+            require(currencyCode.isNotBlank()) {
+                "Currency code cannot be blank"
+            }
+        }
+    }
 
     @Serializable
     public data class PricingPercentageValue(
@@ -298,18 +308,24 @@ public data class CheckoutCompleteEvent(
                 ?: error("DiscountValueSerializer only supports JSON decoding")
             val element = jsonDecoder.decodeJsonElement()
 
-            return runCatching {
-                jsonDecoder.json.decodeFromJsonElement(Money.serializer(), element)
-            }.map {
-                DiscountValue.MoneyValue(it)
-            }.getOrElse {
-                runCatching {
-                    jsonDecoder.json.decodeFromJsonElement(PricingPercentageValue.serializer(), element)
-                }.map {
-                    DiscountValue.PercentageValue(it)
-                }.getOrElse {
-                    throw SerializationException("Unable to decode DiscountValue", it)
+            val jsonObject = runCatching { element.jsonObject }.getOrElse {
+                throw SerializationException("DiscountValue must be a JSON object, but was: ${element::class.simpleName}")
+            }
+
+            return when {
+                jsonObject.containsKey("amount") && jsonObject.containsKey("currencyCode") -> {
+                    DiscountValue.MoneyValue(
+                        jsonDecoder.json.decodeFromJsonElement(Money.serializer(), element)
+                    )
                 }
+                jsonObject.containsKey("percentage") -> {
+                    DiscountValue.PercentageValue(
+                        jsonDecoder.json.decodeFromJsonElement(PricingPercentageValue.serializer(), element)
+                    )
+                }
+                else -> throw SerializationException(
+                    "Unable to decode DiscountValue: missing 'amount'/'currencyCode' or 'percentage' field"
+                )
             }
         }
 
@@ -331,7 +347,7 @@ public data class CheckoutCompleteEvent(
     }
 }
 
-internal fun emptyCompletedEvent(id: String? = null): CheckoutCompleteEvent {
+internal fun emptyCompleteEvent(id: String? = null): CheckoutCompleteEvent {
     return CheckoutCompleteEvent(
         orderConfirmation = CheckoutCompleteEvent.OrderConfirmation(
             url = null,
@@ -343,8 +359,8 @@ internal fun emptyCompletedEvent(id: String? = null): CheckoutCompleteEvent {
             id = "",
             lines = emptyList(),
             cost = CheckoutCompleteEvent.CartCost(
-                subtotalAmount = CheckoutCompleteEvent.Money(amount = "", currencyCode = ""),
-                totalAmount = CheckoutCompleteEvent.Money(amount = "", currencyCode = "")
+                subtotalAmount = CheckoutCompleteEvent.Money(amount = "0.00", currencyCode = "USD"),
+                totalAmount = CheckoutCompleteEvent.Money(amount = "0.00", currencyCode = "USD")
             ),
             buyerIdentity = CheckoutCompleteEvent.CartBuyerIdentity(
                 email = null,

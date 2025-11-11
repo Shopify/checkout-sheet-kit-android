@@ -37,7 +37,7 @@ import org.mockito.Mockito.mock
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
-class CheckoutCompletedEventDecoderTest {
+class CheckoutCompleteEventDecoderTest {
 
     private val mockLogWrapper = mock<LogWrapper>()
 
@@ -128,6 +128,91 @@ class CheckoutCompletedEventDecoderTest {
     @Test
     fun `should fall back to empty event on decode failure`() {
         val result = decoder.decode("not-json".toWebToSdkEvent())
+
+        assertThat(result.orderConfirmation.order.id).isEmpty()
+        assertThat(result.cart.lines).isEmpty()
+    }
+
+    @Test
+    fun `should accept valid money amounts`() {
+        // Valid decimal amounts should not throw
+        Money(amount = "10.00", currencyCode = "USD")
+        Money(amount = "0", currencyCode = "GBP")
+        Money(amount = "99.99", currencyCode = "CAD")
+        Money(amount = "1234.567", currencyCode = "EUR")
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun `should reject invalid money amount`() {
+        Money(amount = "not-a-number", currencyCode = "USD")
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun `should reject blank currency code`() {
+        Money(amount = "10.00", currencyCode = "")
+    }
+
+    @Test
+    fun `should fall back to empty event when money validation fails`() {
+        val invalidMoneyJson = """
+            {
+              "orderConfirmation": {
+                "order": { "id": "gid://shopify/Order/123" },
+                "isFirstOrder": true
+              },
+              "cart": {
+                "id": "gid://shopify/Cart/123",
+                "cost": {
+                  "subtotalAmount": { "amount": "invalid", "currencyCode": "USD" },
+                  "totalAmount": { "amount": "10.00", "currencyCode": "USD" }
+                },
+                "buyerIdentity": {},
+                "deliveryGroups": [],
+                "delivery": { "addresses": [] }
+              }
+            }
+        """.trimIndent()
+
+        val result = decoder.decode(invalidMoneyJson.toWebToSdkEvent())
+
+        assertThat(result.orderConfirmation.order.id).isEmpty()
+        assertThat(result.cart.lines).isEmpty()
+    }
+
+    @Test
+    fun `should fall back to empty event when discount value is not an object`() {
+        val invalidDiscountJson = """
+            {
+              "orderConfirmation": {
+                "order": { "id": "gid://shopify/Order/123" },
+                "isFirstOrder": true
+              },
+              "cart": {
+                "id": "gid://shopify/Cart/123",
+                "cost": {
+                  "subtotalAmount": { "amount": "10.00", "currencyCode": "USD" },
+                  "totalAmount": { "amount": "10.00", "currencyCode": "USD" }
+                },
+                "buyerIdentity": {},
+                "deliveryGroups": [],
+                "discountAllocations": [
+                  {
+                    "discountedAmount": { "amount": "2.00", "currencyCode": "USD" },
+                    "discountApplication": {
+                      "allocationMethod": "ACROSS",
+                      "targetSelection": "ALL",
+                      "targetType": "LINE_ITEM",
+                      "value": "not-an-object"
+                    },
+                    "targetType": "LINE_ITEM"
+                  }
+                ],
+                "delivery": { "addresses": [] }
+              }
+            }
+        """.trimIndent()
+
+        val result = decoder.decode(invalidDiscountJson.toWebToSdkEvent())
 
         assertThat(result.orderConfirmation.order.id).isEmpty()
         assertThat(result.cart.lines).isEmpty()

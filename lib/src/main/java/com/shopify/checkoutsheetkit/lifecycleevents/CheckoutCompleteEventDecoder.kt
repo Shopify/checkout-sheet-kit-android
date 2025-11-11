@@ -34,8 +34,22 @@ internal class CheckoutCompleteEventDecoder @JvmOverloads constructor(
         return try {
             decoder.decodeFromString<CheckoutCompleteEvent>(decodedMsg.body)
         } catch (e: Exception) {
-            log.e("CheckoutBridge", "Failed to decode CheckoutCompleted event", e)
-            emptyCompletedEvent()
+            log.e(
+                "CheckoutBridge",
+                "Failed to decode checkout.complete event. Body: ${decodedMsg.body.take(MAX_LOG_BODY_LENGTH)}",
+                e
+            )
+            emptyCompleteEvent()
         }
+    }
+
+    private companion object {
+        /**
+         * Maximum characters to include from the request body in error logs.
+         *
+         * Captures sufficient context for debugging (full order confirmation + cart ID + 2-3 line items)
+         * while preventing excessive log output from large carts (10+ line items can exceed 10KB).
+         */
+        const val MAX_LOG_BODY_LENGTH = 1500
     }
 }

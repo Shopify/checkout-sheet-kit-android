@@ -108,7 +108,7 @@ class CheckoutBridgeTest {
     }
 
     @Test
-    fun `postMessage handles checkout completed JSON-RPC message`() {
+    fun `postMessage handles checkout complete JSON-RPC message`() {
         val params = CheckoutCompleteEvent(
             orderConfirmation = CheckoutCompleteEvent.OrderConfirmation(
                 url = null,
