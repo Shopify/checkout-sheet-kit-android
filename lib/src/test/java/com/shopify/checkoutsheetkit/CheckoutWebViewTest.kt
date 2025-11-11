@@ -32,6 +32,7 @@ import android.webkit.PermissionRequest
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient.FileChooserParams
 import androidx.activity.ComponentActivity
+import androidx.core.net.toUri
 import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
 import org.junit.After
 import org.junit.Before
@@ -185,6 +186,31 @@ class CheckoutWebViewTest {
         shadow.webChromeClient.onGeolocationPermissionsShowPrompt(origin, callback)
 
         verify(webViewEventProcessor).onGeolocationPermissionsShowPrompt(origin, callback)
+    }
+
+    @Test
+    fun `loadCheckout sends authentication once per token`() {
+        withPreloadingEnabled {
+            val options = CheckoutOptions(authToken = "token-1")
+            val view = CheckoutWebView.cacheableCheckoutView(URL, activity, true, options)
+            val shadow = shadowOf(view)
+
+            ShadowLooper.shadowMainLooper().runToEndOfTasks()
+
+            assertThat(shadow.lastLoadedUrl?.toUri())
+                .hasBaseUrl(URL)
+                .withEmbedParameters(EmbedFieldKey.AUTHENTICATION to "token-1")
+
+            view.CheckoutWebViewClient().onPageFinished(view, URL)
+
+            view.loadCheckout(URL, false, options)
+
+            ShadowLooper.shadowMainLooper().runToEndOfTasks()
+
+            assertThat(shadow.lastLoadedUrl?.toUri())
+                .hasBaseUrl(URL)
+                .withoutEmbedParameters(EmbedFieldKey.AUTHENTICATION)
+        }
     }
 
     @Test

@@ -53,12 +53,16 @@ import java.net.HttpURLConnection.HTTP_NOT_FOUND
 internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet? = null) :
     WebView(context, attributeSet) {
 
+    internal val authenticationTracker = AuthenticationTracker()
+
     init {
         configureWebView()
     }
 
     abstract fun getEventProcessor(): CheckoutWebViewEventProcessor
     abstract val recoverErrors: Boolean
+
+    open val checkoutOptions: CheckoutOptions? = null
 
     private fun configureWebView() {
         visibility = VISIBLE
@@ -130,9 +134,19 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
 
         override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
             val requestUri = request?.url
-            if (request?.isForMainFrame == true && requestUri?.isWebLink() == true && requestUri.needsEmbedParam()) {
+            if (
+                request?.isForMainFrame == true &&
+                requestUri?.isWebLink() == true &&
+                requestUri.needsEmbedParam(options = checkoutOptions)
+            ) {
                 val headers = request.requestHeaders ?: mutableMapOf()
-                view?.loadUrl(requestUri.withEmbedParam(), headers)
+                view?.loadUrl(
+                    requestUri.withEmbedParam(
+                        options = checkoutOptions,
+                        includeAuthentication = authenticationTracker.shouldRetainToken(checkoutOptions?.authToken)
+                    ),
+                    headers
+                )
                 return true
             }
             return false
@@ -251,8 +265,6 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
         private const val LOG_TAG = "BaseWebView"
         private const val DEPRECATED_REASON_HEADER = "X-Shopify-API-Deprecated-Reason"
         private const val LIQUID_NOT_SUPPORTED = "checkout_liquid_not_supported"
-
-        private const val USER_AGENT_SUFFIX = ""
 
         private const val TOO_MANY_REQUESTS = 429
         private val CLIENT_ERROR = 400..499
