@@ -664,21 +664,24 @@ see [guidelines and instructions](.github/CONTRIBUTING.md).
 
 Shopify's Checkout Kit is provided under an [MIT License](LICENSE).
 
-
-----
+---
 
 ## Migration
 
-### Currently Lost 
+### Currently Lost
+
 #### Outbound
+
 - presented
 - instrumentation (deprecated)
 
 #### Inbound
+
 - pixels
 - blocking
 - error
 
 #### Bugs and stuff
+
 - evaling js... relying on cache - not safe
 - not sending onError yet
