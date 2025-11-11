@@ -42,6 +42,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
 
     override val recoverErrors = true
     var isPreload = false
+    override var checkoutOptions: CheckoutOptions? = null
 
     private val checkoutBridge = CheckoutBridge(CheckoutWebViewEventProcessor(NoopEventProcessor()))
     private var loadComplete = false
@@ -91,12 +92,21 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         checkoutBridge.setWebView(null)
     }
 
-    fun loadCheckout(url: String, isPreload: Boolean) {
+    fun loadCheckout(url: String, isPreload: Boolean, options: CheckoutOptions? = null) {
         log.d(LOG_TAG, "Loading checkout with url $url. IsPreload: $isPreload.")
         this.isPreload = isPreload
+        this.checkoutOptions = options
         Handler(Looper.getMainLooper()).post {
             val headers = if (isPreload) mutableMapOf("Shopify-Purpose" to "prefetch") else mutableMapOf()
-            loadUrl(url.toUri().withEmbedParam(), headers)
+            val includeAuthentication = authenticationTracker.shouldSendToken(checkoutOptions?.authToken)
+
+            loadUrl(
+                url.toUri().withEmbedParam(
+                    options = checkoutOptions,
+                    includeAuthentication = includeAuthentication
+                ),
+                headers
+            )
         }
     }
 
@@ -111,6 +121,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         override fun onPageFinished(view: WebView, url: String) {
             super.onPageFinished(view, url)
             log.d(LOG_TAG, "onPageFinished called $url.")
+            authenticationTracker.confirmTokenSent()
             loadComplete = true
             getEventProcessor().onCheckoutViewLoadComplete()
         }
@@ -185,12 +196,13 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             url: String,
             activity: ComponentActivity,
             isPreload: Boolean = false,
+            options: CheckoutOptions? = null,
         ): CheckoutWebView {
             var view: CheckoutWebView? = null
             val countDownLatch = CountDownLatch(1)
 
             activity.runOnUiThread {
-                view = fetchView(url, activity, isPreload)
+                view = fetchView(url, activity, isPreload, options)
                 countDownLatch.countDown()
             }
 
@@ -203,13 +215,14 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             url: String,
             activity: ComponentActivity,
             isPreload: Boolean,
+            options: CheckoutOptions?,
         ): CheckoutWebView {
             val preloadingEnabled = ShopifyCheckoutSheetKit.configuration.preloading.enabled
             log.d(LOG_TAG, "Fetch view called for url $url. Is preload: $isPreload. Preloading enabled: $preloadingEnabled.")
             if (!preloadingEnabled || cacheEntry?.isValid(url) != true) {
                 log.d(LOG_TAG, "Constructing new CheckoutWebView and calling loadCheckout.")
                 val view = CheckoutWebView(activity as Context).apply {
-                    loadCheckout(url, isPreload)
+                    loadCheckout(url, isPreload, options)
                     if (isPreload) {
                         // Pauses processing that can be paused safely (e.g. geolocation, animations), but not JavaScript / network requests
                         // https://developer.android.com/reference/android/webkit/WebView#onPause()
@@ -257,7 +270,9 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         private val timestamp = clock.currentTimeMillis()
 
         fun isValid(key: String): Boolean {
-            return key == cacheEntry!!.key && !cacheEntry!!.isStale
+            val valid = this.key == key && !isStale
+            log.d(LOG_TAG, "Checking cache entry validity. Is valid: $valid.")
+            return valid
         }
 
         internal val isStale: Boolean
