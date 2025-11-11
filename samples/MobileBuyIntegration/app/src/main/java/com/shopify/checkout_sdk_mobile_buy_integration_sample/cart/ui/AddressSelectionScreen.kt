@@ -194,7 +194,7 @@ fun AddressOptionItem(
         ) {
             Text(
                 text = option.label,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface
             )
 
