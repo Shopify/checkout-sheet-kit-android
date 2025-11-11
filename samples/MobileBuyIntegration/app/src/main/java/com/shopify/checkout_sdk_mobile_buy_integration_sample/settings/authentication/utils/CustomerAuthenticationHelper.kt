@@ -27,12 +27,13 @@ import android.util.Base64
 import androidx.compose.ui.text.intl.Locale
 import java.security.MessageDigest
 import java.security.SecureRandom
+import androidx.core.net.toUri
 
 /**
- * Utility functions for building Authentication related URLs, generating
- * code verifier, code challenge, and state values.
+ * Utility functions for building customer authentication related URLs, generating
+ * code verifier, code challenge, and state values for Customer Account API.
  */
-class AuthenticationHelper(
+class CustomerAuthenticationHelper(
     val clientId: String,
     val redirectUri: String,
     private val baseUrl: String,
@@ -46,7 +47,7 @@ class AuthenticationHelper(
         locale: Locale,
     ): String {
         val codeChallenge = codeChallenge(codeVerifier)
-        val url = Uri.parse("$baseUrl/oauth/authorize").buildUpon()
+        val url = "$baseUrl/oauth/authorize".toUri().buildUpon()
             .appendQueryParameter("scope", "openid email customer-account-api:full")
             .appendQueryParameter("client_id", clientId)
             .appendQueryParameter("response_type", "code")

@@ -29,7 +29,7 @@ import androidx.navigation.NavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartRepository
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartState
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CheckoutAuthenticationService
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CheckoutAppAuthenticationService
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarEvent
@@ -51,7 +51,7 @@ class CartViewModel(
     private val cartRepository: CartRepository,
     private val preferencesManager: PreferencesManager,
     private val customerRepository: CustomerRepository,
-    private val checkoutAuthenticationService: CheckoutAuthenticationService,
+    private val checkoutAppAuthenticationService: CheckoutAppAuthenticationService,
 ) : ViewModel() {
 
     private val _cartState = MutableStateFlow<CartState>(CartState.Empty)
@@ -116,13 +116,13 @@ class CartViewModel(
     ) = viewModelScope.launch {
         Timber.i("Presenting checkout with $url")
 
-        if (checkoutAuthenticationService.hasConfiguration()) {
+        if (checkoutAppAuthenticationService.hasConfiguration()) {
             try {
-                val token = checkoutAuthenticationService.fetchAccessToken()
+                val token = checkoutAppAuthenticationService.fetchAccessToken()
                 val options = CheckoutOptions(authToken = token)
                 ShopifyCheckoutSheetKit.present(url, activity, eventProcessor, options)
             } catch (e: Exception) {
-                Timber.e("Failed to fetch checkout authentication token, presenting without authentication: $e")
+                Timber.e("Failed to fetch checkout app authentication token, presenting without authentication: $e")
                 ShopifyCheckoutSheetKit.present(url, activity, eventProcessor)
             }
         } else {

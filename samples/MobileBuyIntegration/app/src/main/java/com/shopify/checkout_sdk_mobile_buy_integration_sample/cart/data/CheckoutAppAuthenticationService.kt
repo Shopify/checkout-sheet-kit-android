@@ -34,9 +34,20 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import timber.log.Timber
 
 /**
- * Service for fetching checkout authentication tokens using OAuth client credentials flow.
+ * Exception thrown when app authentication token fetching fails.
  */
-class CheckoutAuthenticationService(
+class CheckoutAppAuthenticationException(
+    message: String,
+    val statusCode: Int? = null,
+    val errorBody: String? = null,
+    cause: Throwable? = null,
+) : Exception(message, cause)
+
+/**
+ * Service for fetching checkout app authentication tokens using OAuth client credentials flow.
+ * This authenticates the calling application to enable app-specific checkout customizations.
+ */
+class CheckoutAppAuthenticationService(
     private val client: OkHttpClient,
     private val json: Json,
     private val authEndpoint: String,
@@ -54,15 +65,14 @@ class CheckoutAuthenticationService(
      * Fetches an access token using OAuth client credentials flow.
      *
      * @return The JWT access token
-     * @throws Exception if the request fails or configuration is missing
+     * @throws CheckoutAppAuthenticationException if the request fails or configuration is missing
      */
     suspend fun fetchAccessToken(): String = withContext(Dispatchers.IO) {
         if (!hasConfiguration()) {
-            throw IllegalStateException("Checkout authentication is not configured")
+            throw CheckoutAppAuthenticationException("Checkout app authentication is not configured")
         }
 
         val requestBody = json.encodeToString(
-            TokenRequest.serializer(),
             TokenRequest(
                 clientId = clientId,
                 clientSecret = clientSecret,
@@ -75,20 +85,24 @@ class CheckoutAuthenticationService(
             .post(requestBody)
             .build()
 
-        Timber.d("Fetching checkout authentication token from $authEndpoint")
+        Timber.d("Fetching checkout app authentication token from $authEndpoint")
 
         val response = client.newCall(request).execute()
 
         if (!response.isSuccessful) {
             val errorBody = response.body?.string() ?: "Unknown error"
-            Timber.e("Failed to fetch token: ${response.code} - $errorBody")
-            throw Exception("Failed to fetch authentication token: ${response.code}")
+            Timber.e("Failed to fetch app authentication token: ${response.code} - $errorBody")
+            throw CheckoutAppAuthenticationException(
+                message = "Failed to fetch app authentication token",
+                statusCode = response.code,
+                errorBody = errorBody
+            )
         }
 
         val responseBody = response.body?.string()
-            ?: throw Exception("Empty response body from authentication endpoint")
+            ?: throw CheckoutAppAuthenticationException("Empty response body from authentication endpoint")
 
-        val tokenResponse = json.decodeFromString(TokenResponse.serializer(), responseBody)
+        val tokenResponse = json.decodeFromString<TokenResponse>(responseBody)
 
         Timber.d("Successfully fetched checkout authentication token")
         return@withContext tokenResponse.accessToken

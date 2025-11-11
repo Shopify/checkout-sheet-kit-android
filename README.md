@@ -128,7 +128,7 @@ you will need to pass an app authentication token to checkout via `CheckoutOptio
 
 ```kotlin
 val checkoutOptions = CheckoutOptions(
-    authentication = CheckoutOptions.Authentication.Token(jwtToken)
+    authToken = jwtToken
 )
 
 ShopifyCheckoutSheetKit.preload(checkoutUrl, context, checkoutOptions)
@@ -141,7 +141,40 @@ ShopifyCheckoutSheetKit.present(
 )
 ```
 
-# TODO - document fetching a token
+#### Fetching Authentication Tokens
+
+Authentication tokens should be fetched from your authentication endpoint using OAuth client credentials flow:
+
+```kotlin
+suspend fun fetchAuthToken(): String {
+    // POST to your auth endpoint with client credentials
+    val response = httpClient.post(authEndpoint) {
+        body = {
+            "client_id": clientId,
+            "client_secret": clientSecret,
+            "grant_type": "client_credentials"
+        }
+    }
+
+    // Parse and return the JWT access token
+    return response.json().accessToken
+}
+```
+
+Fetch the token asynchronously before presenting checkout, with graceful fallback on error:
+
+```kotlin
+suspend fun presentCheckout(url: String, activity: ComponentActivity) {
+    val token = try {
+        fetchAuthToken()
+    } catch (e: Exception) {
+        null // Fallback to unauthenticated checkout
+    }
+
+    val options = token?.let { CheckoutOptions(authToken = it) }
+    ShopifyCheckoutSheetKit.present(url, activity, processor, options)
+}
+```
 
 Note: Tokens are embedded in the checkout URL and should be treated as secrets. Avoid logging the URL or
 persisting it beyond the lifetime of the session.
