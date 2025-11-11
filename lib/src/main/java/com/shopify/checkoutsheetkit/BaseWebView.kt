@@ -53,12 +53,16 @@ import java.net.HttpURLConnection.HTTP_NOT_FOUND
 internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet? = null) :
     WebView(context, attributeSet) {
 
+    internal val authenticationTracker = AuthenticationTracker()
+
     init {
         configureWebView()
     }
 
     abstract fun getEventProcessor(): CheckoutWebViewEventProcessor
     abstract val recoverErrors: Boolean
+
+    open val checkoutOptions: CheckoutOptions? = null
 
     private fun configureWebView() {
         visibility = VISIBLE
@@ -130,9 +134,19 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
 
         override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
             val requestUri = request?.url
-            if (request?.isForMainFrame == true && requestUri?.isWebLink() == true && requestUri.needsEmbedParam()) {
+            if (
+                request?.isForMainFrame == true &&
+                requestUri?.isWebLink() == true &&
+                requestUri.needsEmbedParam(options = checkoutOptions)
+            ) {
                 val headers = request.requestHeaders ?: mutableMapOf()
-                view?.loadUrl(requestUri.withEmbedParam(), headers)
+                view?.loadUrl(
+                    requestUri.withEmbedParam(
+                        options = checkoutOptions,
+                        includeAuthentication = authenticationTracker.shouldRetainToken(checkoutOptions?.authToken)
+                    ),
+                    headers
+                )
                 return true
             }
             return false

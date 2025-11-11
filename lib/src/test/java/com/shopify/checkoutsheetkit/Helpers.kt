@@ -204,7 +204,8 @@ class EmbedParamAssert(actual: Uri?) :
             return emptyMap()
         }
 
-        return value.split(", ")
+        return value.split(",")
+            .map { it.trim() }
             .filter { it.isNotEmpty() }
             .associate { entry ->
                 val parts = entry.split("=", limit = 2)
