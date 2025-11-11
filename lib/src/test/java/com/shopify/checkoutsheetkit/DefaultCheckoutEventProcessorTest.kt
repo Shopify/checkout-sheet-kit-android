@@ -27,7 +27,7 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.activity.ComponentActivity
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
@@ -129,7 +129,7 @@ class DefaultCheckoutEventProcessorTest {
         var recoverable: Boolean? = null
         val processor =
             object : DefaultCheckoutEventProcessor(activity, log) {
-                override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {
+                override fun onCheckoutCompleted(checkoutCompleteEvent: CheckoutCompleteEvent) {
                     /* not implemented */
                 }
 

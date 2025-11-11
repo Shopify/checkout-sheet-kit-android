@@ -56,7 +56,7 @@ internal class CheckoutBridge(
             log.d(LOG_TAG, "Received message from checkout.")
             when (val checkoutMessage = messageParser.parse(message)) {
                 is CheckoutMessageParser.JSONRPCMessage.AddressChangeRequested -> {
-                    log.d(LOG_TAG, "Received address change requested message.")
+                    log.d(LOG_TAG, "Received checkout.addressChangeStart message.")
                     // Set the WebView reference on the message so it can respond directly
                     webViewRef?.get()?.let { webView ->
                         checkoutMessage.setWebView(webView)
@@ -67,7 +67,7 @@ internal class CheckoutBridge(
                 }
 
                 is CheckoutMessageParser.JSONRPCMessage.Completed -> {
-                    log.d(LOG_TAG, "Received completed message. Dispatching decoded event.")
+                    log.d(LOG_TAG, "Received checkout.complete message. Dispatching decoded event.")
                     onMainThread {
                         eventProcessor.onCheckoutViewComplete(checkoutMessage.event)
                     }

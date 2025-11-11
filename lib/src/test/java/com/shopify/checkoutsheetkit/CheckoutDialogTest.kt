@@ -32,7 +32,7 @@ import androidx.activity.ComponentActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.children
 import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
-import com.shopify.checkoutsheetkit.lifecycleevents.emptyCompletedEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.emptyCompleteEvent
 import org.assertj.core.api.Assertions.fail
 import org.awaitility.Awaitility.await
 import org.junit.After
@@ -380,10 +380,10 @@ class CheckoutDialogTest {
         val layout = dialog.findViewById<RelativeLayout>(R.id.checkoutSdkContainer)
         val fallbackView = layout.children.first { it is FallbackWebView } as FallbackWebView
 
-        val completedEvent = emptyCompletedEvent()
+        val completeEvent = emptyCompleteEvent()
 
-        fallbackView.getEventProcessor().onCheckoutViewComplete(completedEvent)
-        verify(mockProcessor).onCheckoutCompleted(completedEvent)
+        fallbackView.getEventProcessor().onCheckoutViewComplete(completeEvent)
+        verify(mockProcessor).onCheckoutCompleted(completeEvent)
     }
 
     @Test

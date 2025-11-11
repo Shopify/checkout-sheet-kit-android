@@ -44,9 +44,8 @@ import com.shopify.checkoutsheetkit.CheckoutAddressChangeRequestedEvent
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.DeliveryAddressChangePayload
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import com.shopify.checkoutsheetkit.pixelevents.CustomPixelEvent
-import com.shopify.checkoutsheetkit.pixelevents.Delivery
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -61,8 +60,8 @@ class MobileBuyEventProcessor(
     private val logger: Logger,
     private val context: Context
 ) : DefaultCheckoutEventProcessor(context) {
-    override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {
-        logger.log(checkoutCompletedEvent)
+    override fun onCheckoutCompleted(checkoutCompleteEvent: CheckoutCompleteEvent) {
+        logger.log(checkoutCompleteEvent)
 
         cartViewModel.clearCart()
         GlobalScope.launch(Dispatchers.Main) {

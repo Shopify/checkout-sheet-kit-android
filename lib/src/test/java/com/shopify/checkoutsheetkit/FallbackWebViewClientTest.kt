@@ -23,7 +23,7 @@
 package com.shopify.checkoutsheetkit
 
 import androidx.activity.ComponentActivity
-import com.shopify.checkoutsheetkit.lifecycleevents.emptyCompletedEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.emptyCompleteEvent
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
@@ -46,7 +46,7 @@ class FallbackWebViewClientTest {
             val client = view.FallbackWebViewClient()
             client.onPageFinished(view, "https://abc.com/cn-12345678/thank-you?a=b")
 
-            verify(mockProcessor).onCheckoutViewComplete(emptyCompletedEvent())
+            verify(mockProcessor).onCheckoutViewComplete(emptyCompleteEvent())
         }
     }
 
@@ -60,7 +60,7 @@ class FallbackWebViewClientTest {
             val client = view.FallbackWebViewClient()
             client.onPageFinished(view, "https://abc.com/cn-12345678/thank_you")
 
-            verify(mockProcessor).onCheckoutViewComplete(emptyCompletedEvent())
+            verify(mockProcessor).onCheckoutViewComplete(emptyCompleteEvent())
         }
     }
 
@@ -74,7 +74,7 @@ class FallbackWebViewClientTest {
             val client = view.FallbackWebViewClient()
             client.onPageFinished(view, "https://abc.com/cn-12345678/tHAnk_you")
 
-            verify(mockProcessor).onCheckoutViewComplete(emptyCompletedEvent())
+            verify(mockProcessor).onCheckoutViewComplete(emptyCompleteEvent())
         }
     }
 
@@ -88,7 +88,7 @@ class FallbackWebViewClientTest {
             val client = view.FallbackWebViewClient()
             client.onPageFinished(view, "https://abc.com/cn-12345678/thank-you?order_id=123")
 
-            verify(mockProcessor).onCheckoutViewComplete(emptyCompletedEvent(id = "123"))
+            verify(mockProcessor).onCheckoutViewComplete(emptyCompleteEvent(id = "123"))
         }
     }
 

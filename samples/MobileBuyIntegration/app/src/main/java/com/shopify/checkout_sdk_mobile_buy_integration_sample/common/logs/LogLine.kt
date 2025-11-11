@@ -26,13 +26,11 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
-import com.shopify.checkoutsheetkit.lifecycleevents.OrderDetails
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import com.shopify.checkoutsheetkit.pixelevents.Context
 import com.shopify.checkoutsheetkit.pixelevents.CustomPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEventData
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.util.Date
 import java.util.UUID
@@ -46,7 +44,7 @@ data class LogLine(
     @Embedded(prefix = "standard_pixel") val standardPixelEvent: StandardPixelEvent? = null,
     @Embedded(prefix = "custom_pixel") val customPixelEvent: CustomPixelEvent? = null,
     @Embedded(prefix = "error_details") val errorDetails: ErrorDetails? = null,
-    @Embedded(prefix = "checkout_completed") val checkoutCompleted: CheckoutCompletedEvent? = null,
+    val checkoutCompleted: CheckoutCompleteEvent? = null,
 )
 
 enum class LogType {
@@ -59,33 +57,46 @@ data class ErrorDetails(
 )
 
 class Converters {
+    private val json = Json {
+        ignoreUnknownKeys = true
+        encodeDefaults = true
+    }
     @TypeConverter
-    fun standardPixelEventDataToString(value: StandardPixelEventData): String {
-        return Json.encodeToString<StandardPixelEventData>(value)
+    fun standardPixelEventDataToString(value: StandardPixelEventData?): String? {
+        return value?.let { json.encodeToString(it) }
     }
 
     @TypeConverter
-    fun stringToStandardPixelEventData(value: String): StandardPixelEventData {
-        return Json.decodeFromString<StandardPixelEventData>(value)
+    fun stringToStandardPixelEventData(value: String?): StandardPixelEventData? {
+        return decodeOrNull(value)
     }
 
     @TypeConverter
-    fun contextToString(value: Context): String {
-        return Json.encodeToString<Context>(value)
+    fun contextToString(value: Context?): String? {
+        return value?.let { json.encodeToString(it) }
     }
 
     @TypeConverter
-    fun stringToContext(value: String): Context {
-        return Json.decodeFromString<Context>(value)
+    fun stringToContext(value: String?): Context? {
+        return decodeOrNull(value)
     }
 
     @TypeConverter
-    fun orderDetailsToString(value: OrderDetails): String {
-        return Json.encodeToString<OrderDetails>(value)
+    fun checkoutCompletedToString(value: CheckoutCompleteEvent?): String? {
+        return value?.let { json.encodeToString(it) }
     }
 
     @TypeConverter
-    fun stringToOrderDetails(value: String): OrderDetails {
-        return Json.decodeFromString<OrderDetails>(value)
+    fun stringToCheckoutCompleted(value: String?): CheckoutCompleteEvent? {
+        return decodeOrNull(value)
+    }
+
+    private inline fun <reified T> decodeOrNull(value: String?): T? {
+        if (value.isNullOrBlank()) {
+            return null
+        }
+        return runCatching {
+            json.decodeFromString<T>(value)
+        }.getOrNull()
     }
 }

@@ -22,13 +22,10 @@
  */
 package com.shopify.checkoutsheetkit
 
-import com.shopify.checkoutsheetkit.lifecycleevents.CartInfo
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
-import com.shopify.checkoutsheetkit.lifecycleevents.OrderDetails
-import com.shopify.checkoutsheetkit.lifecycleevents.Price
+import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -111,21 +108,33 @@ class CheckoutBridgeTest {
     }
 
     @Test
-    fun `postMessage handles checkout completed JSON-RPC message`() {
-        val params = CheckoutCompletedEvent(
-            orderDetails = OrderDetails(
-                cart = CartInfo(
-                    lines = emptyList(),
-                    price = Price(),
-                    token = "token-123",
+    fun `postMessage handles checkout complete JSON-RPC message`() {
+        val params = CheckoutCompleteEvent(
+            orderConfirmation = CheckoutCompleteEvent.OrderConfirmation(
+                url = null,
+                order = CheckoutCompleteEvent.OrderConfirmation.Order(id = "order-id-123"),
+                number = null,
+                isFirstOrder = false
+            ),
+            cart = CheckoutCompleteEvent.Cart(
+                id = "cart-id-123",
+                lines = emptyList(),
+                cost = CheckoutCompleteEvent.CartCost(
+                    subtotalAmount = CheckoutCompleteEvent.Money(amount = "0.00", currencyCode = "USD"),
+                    totalAmount = CheckoutCompleteEvent.Money(amount = "0.00", currencyCode = "USD")
                 ),
-                id = "order-id-123",
+                buyerIdentity = CheckoutCompleteEvent.CartBuyerIdentity(),
+                deliveryGroups = emptyList(),
+                discountCodes = emptyList(),
+                appliedGiftCards = emptyList(),
+                discountAllocations = emptyList(),
+                delivery = CheckoutCompleteEvent.CartDelivery(addresses = emptyList())
             )
         )
 
         val jsonRpcMessage = """{
             "jsonrpc":"2.0",
-            "method":"checkout.completed",
+            "method":"checkout.complete",
             "params":${Json.encodeToString(params)}
         }""".trimIndent()
 

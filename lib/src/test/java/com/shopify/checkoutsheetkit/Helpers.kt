@@ -24,10 +24,8 @@ package com.shopify.checkoutsheetkit
 
 import android.app.Activity
 import android.net.Uri
-import androidx.core.net.toUri
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import org.assertj.core.api.AbstractAssert
-import org.assertj.core.api.Assertions
 
 fun withPreloadingEnabled(block: () -> Unit) {
     try {
@@ -99,7 +97,7 @@ class CheckoutExceptionAssert(actual: CheckoutException) :
 
 fun noopDefaultCheckoutEventProcessor(activity: Activity, log: LogWrapper = LogWrapper()): DefaultCheckoutEventProcessor {
     return object : DefaultCheckoutEventProcessor(activity, log) {
-        override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {
+        override fun onCheckoutCompleted(checkoutCompleteEvent: CheckoutCompleteEvent) {
             // no-op
         }
 
