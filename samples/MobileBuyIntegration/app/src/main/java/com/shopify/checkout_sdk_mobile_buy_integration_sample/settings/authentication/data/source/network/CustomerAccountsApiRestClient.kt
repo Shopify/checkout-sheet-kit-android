@@ -23,7 +23,7 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.network
 
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.AccessToken
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.utils.AuthenticationHelper
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.utils.CustomerAuthenticationHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -40,7 +40,7 @@ import java.io.IOException
 class CustomerAccountsApiRestClient(
     private val client: OkHttpClient,
     private val json: Json,
-    private val helper: AuthenticationHelper,
+    private val helper: CustomerAuthenticationHelper,
     private val clientId: String,
     private val redirectUri: String,
 ) {
