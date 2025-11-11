@@ -33,6 +33,7 @@ import androidx.navigation.NavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.MainActivity
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.ui.AddressPickerState
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.analytics.Analytics
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.analytics.toAnalyticsEvent
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
@@ -94,22 +95,8 @@ class MobileBuyEventProcessor(
     }
 
     override fun onAddressChangeRequested(event: CheckoutAddressChangeRequestedEvent) {
-        event.respondWith(DeliveryAddressChangePayload(
-            delivery = CartDelivery(
-                addresses = listOf(
-                    CartSelectableAddressInput(
-                        address = CartDeliveryAddressInput(
-                            firstName = "Bob",
-                            lastName = "Jones",
-                            address1 = "44 Sunningdale Ave",
-                            city = "Swansea",
-                            countryCode = "GB",
-                            zip = "SA35HP",
-                        )
-                    )
-                )
-            )
-        ))
+        logger.log("Address change requested")
+        AddressPickerState.showPicker(event)
     }
 
     override fun onShowFileChooser(
