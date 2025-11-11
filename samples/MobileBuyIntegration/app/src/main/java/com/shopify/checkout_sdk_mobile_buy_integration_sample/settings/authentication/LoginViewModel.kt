@@ -26,7 +26,7 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.CustomerRepository
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.utils.AuthenticationHelper
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.utils.CustomerAuthenticationHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,14 +34,14 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class LoginViewModel(
-    private val authenticationHelper: AuthenticationHelper,
+    private val customerAuthenticationHelper: CustomerAuthenticationHelper,
     private val customerRepository: CustomerRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
         LoginUIState(
             status = Status.Loading,
-            codeVerifier = authenticationHelper.createCodeVerifier()
+            codeVerifier = customerAuthenticationHelper.createCodeVerifier()
         )
     )
     val uiState: StateFlow<LoginUIState> = _uiState.asStateFlow()
@@ -55,11 +55,11 @@ class LoginViewModel(
         val token = customerRepository.getCustomerAccessToken()
         if (token == null) {
             Timber.i("Not yet logged in")
-            val codeVerifier = authenticationHelper.createCodeVerifier()
+            val codeVerifier = customerAuthenticationHelper.createCodeVerifier()
             _uiState.value = _uiState.value.copy(
                 status = Status.LoggedOut(
-                    redirectUri = authenticationHelper.redirectUri,
-                    loginUrl = authenticationHelper.buildAuthorizationURL(
+                    redirectUri = customerAuthenticationHelper.redirectUri,
+                    loginUrl = customerAuthenticationHelper.buildAuthorizationURL(
                         codeVerifier = codeVerifier,
                         locale = locale
                     )
