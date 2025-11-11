@@ -1,6 +1,7 @@
 package com.shopify.checkoutsheetkit;
 
 import android.net.Uri;
+
 import org.assertj.core.api.Assertions;
 
 public class CheckoutAssertions extends Assertions {
