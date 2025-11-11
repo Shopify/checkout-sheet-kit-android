@@ -31,6 +31,7 @@ import com.shopify.buy3.Storefront
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.BuildConfig
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartRepository
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CheckoutAppAuthenticationService
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.source.network.CartStorefrontApiClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontApiRequestExecutor
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.LogDatabase
@@ -53,7 +54,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentic
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.local.CustomerAccessTokenStore
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.network.CustomerAccountsApiGraphQLClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.source.network.CustomerAccountsApiRestClient
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.utils.AuthenticationHelper
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.utils.CustomerAuthenticationHelper
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.data.SettingsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -131,10 +132,20 @@ val appModules = module {
     }
 
     single {
-        AuthenticationHelper(
+        CustomerAuthenticationHelper(
             baseUrl = BuildConfig.customerAccountApiAuthBaseUrl,
             redirectUri = BuildConfig.customerAccountApiRedirectUri,
             clientId = BuildConfig.customerAccountApiClientId
+        )
+    }
+
+    single {
+        CheckoutAppAuthenticationService(
+            client = OkHttpClient(),
+            json = get(),
+            authEndpoint = BuildConfig.checkoutAuthEndpoint,
+            clientId = BuildConfig.checkoutAuthClientId,
+            clientSecret = BuildConfig.checkoutAuthClientSecret,
         )
     }
 
@@ -156,6 +167,6 @@ val appModules = module {
     viewModelOf(::AccountViewModel)
     single {
         // singleton instance of shared cart view model
-        CartViewModel(get(), get(), get())
+        CartViewModel(get(), get(), get(), get())
     }
 }
