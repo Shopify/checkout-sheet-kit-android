@@ -34,6 +34,7 @@ internal class FallbackWebView(context: Context, attributeSet: AttributeSet? = n
     BaseWebView(context, attributeSet) {
 
     override val recoverErrors = false
+    override var checkoutOptions: CheckoutOptions? = null
 
     init {
         log.d(LOG_TAG, "Initializing fallback web view.")
@@ -45,6 +46,20 @@ internal class FallbackWebView(context: Context, attributeSet: AttributeSet? = n
     fun setEventProcessor(processor: CheckoutWebViewEventProcessor) {
         log.d(LOG_TAG, "Setting event processor $processor.")
         this.checkoutEventProcessor = processor
+    }
+
+    fun loadCheckout(url: String, options: CheckoutOptions? = checkoutOptions) {
+        checkoutOptions = options
+
+        val includeAuthentication = authenticationTracker.shouldSendToken(checkoutOptions?.authToken)
+
+        loadUrl(
+            url.toUri().withEmbedParam(
+                isRecovery = true,
+                options = checkoutOptions,
+                includeAuthentication = includeAuthentication
+            )
+        )
     }
 
     override fun getEventProcessor(): CheckoutWebViewEventProcessor {
@@ -65,6 +80,7 @@ internal class FallbackWebView(context: Context, attributeSet: AttributeSet? = n
         override fun onPageFinished(view: WebView, url: String) {
             super.onPageFinished(view, url)
             log.d(LOG_TAG, "onPageFinished called.")
+            authenticationTracker.confirmTokenSent()
             getEventProcessor().onCheckoutViewLoadComplete()
 
             val uri = url.toUri()
