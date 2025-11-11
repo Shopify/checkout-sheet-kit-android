@@ -121,6 +121,31 @@ fun presentCheckout() {
 > To help optimize and deliver the best experience the SDK also provides a
 > [preloading API](#preloading) that can be used to initialize the checkout session ahead of time.
 
+### Application Authentication
+
+To allow customizing checkout with app specific branding, and/or to receive PII in checkout lifecycle events,
+you will need to pass an app authentication token to checkout via `CheckoutOptions` when calling `preload` or `present`.
+
+```kotlin
+val checkoutOptions = CheckoutOptions(
+    authentication = CheckoutOptions.Authentication.Token(jwtToken)
+)
+
+ShopifyCheckoutSheetKit.preload(checkoutUrl, context, checkoutOptions)
+
+ShopifyCheckoutSheetKit.present(
+    checkoutUrl = checkoutUrl,
+    context = context,
+    checkoutEventProcessor = checkoutEventProcessor,
+    options = checkoutOptions,
+)
+```
+
+# TODO - document fetching a token
+
+Note: Tokens are embedded in the checkout URL and should be treated as secrets. Avoid logging the URL or
+persisting it beyond the lifetime of the session.
+
 ## Configuration
 
 The SDK provides a way to customize the presented checkout experience via
@@ -257,10 +282,10 @@ ShopifyCheckoutSheetKit.configure {
 ```
 
 Once enabled, preloading a checkout is as simple as calling
-`preload(checkoutUrl)` with a valid `checkoutUrl`.
+`preload(checkoutUrl, activity)` with a valid `checkoutUrl`. To provide app authentication pass in `CheckoutOptions`, as with `present`.
 
 ```kotlin
-ShopifyCheckoutSheetKit.preload(checkoutUrl)
+ShopifyCheckoutSheetKit.preload(checkoutUrl, this, checkoutOptions)
 ```
 
 Setting enabled to `false` will cause all calls to the `preload` function to be ignored. This allows the application to selectively toggle preloading behavior as a remote feature flag or dynamically in response to client conditions - e.g. when data saver functionality is enabled by the user.
@@ -269,7 +294,7 @@ Setting enabled to `false` will cause all calls to the `preload` function to be 
 ShopifyCheckoutSheetKit.configure {
     it.preloading = Preloading(enabled = false)
 }
-ShopifyCheckoutSheetKit.preload(checkoutUrl) // no-op
+ShopifyCheckoutSheetKit.preload(checkoutUrl, this) // no-op
 ```
 
 ### Important considerations

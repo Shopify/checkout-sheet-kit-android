@@ -100,4 +100,32 @@ class FallbackWebViewTest {
                 .withEmbedParameters(EmbedFieldKey.RECOVERY to "true")
         }
     }
+
+    @Test
+    fun `loadCheckout adds authentication once for fallback view`() {
+        Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
+            val view = FallbackWebView(activityController.get())
+
+            view.loadCheckout(
+                url = "https://checkout.shopify.com",
+                options = CheckoutOptions(authToken = "token-1")
+            )
+
+            view.FallbackWebViewClient().onPageFinished(view, "https://checkout.shopify.com")
+
+            assertThat(shadowOf(view).lastLoadedUrl.toUri())
+                .hasBaseUrl("https://checkout.shopify.com")
+                .withEmbedParameters(
+                    EmbedFieldKey.RECOVERY to "true",
+                    EmbedFieldKey.AUTHENTICATION to "token-1",
+                )
+
+            view.loadCheckout("https://checkout.shopify.com")
+
+            assertThat(shadowOf(view).lastLoadedUrl.toUri())
+                .hasBaseUrl("https://checkout.shopify.com")
+                .withEmbedParameters(EmbedFieldKey.RECOVERY to "true")
+                .withoutEmbedParameters(EmbedFieldKey.AUTHENTICATION)
+        }
+    }
 }

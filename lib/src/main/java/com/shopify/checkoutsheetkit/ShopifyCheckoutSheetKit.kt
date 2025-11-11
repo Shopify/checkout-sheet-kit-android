@@ -25,6 +25,7 @@ package com.shopify.checkoutsheetkit
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import kotlin.jvm.JvmOverloads
 
 /**
  * Entrypoint to the library, allows configuring, preloading, and presenting Shopify checkouts.
@@ -91,7 +92,12 @@ public object ShopifyCheckoutSheetKit {
      * @param context The context the checkout is being presented from
      */
     @JvmStatic
-    public fun preload(checkoutUrl: String, context: ComponentActivity) {
+    @JvmOverloads
+    public fun preload(
+        checkoutUrl: String,
+        context: ComponentActivity,
+        options: CheckoutOptions? = null,
+    ) {
         log.d("ShopifyCheckoutSheetKit", "Preload called. Preloading enabled ${configuration.preloading.enabled}.")
         if (!configuration.preloading.enabled) return
 
@@ -103,7 +109,7 @@ public object ShopifyCheckoutSheetKit {
             }
 
             log.d("ShopifyCheckoutSheetKit", "Calling loadCheckout on existing view with url $checkoutUrl.")
-            cacheEntry.view.loadCheckout(checkoutUrl, false)
+            cacheEntry.view.loadCheckout(checkoutUrl, false, options)
         } else {
             log.d("ShopifyCheckoutSheetKit", "Fetching cacheable WebView.")
             CheckoutWebView.markCacheEntryStale()
@@ -111,6 +117,7 @@ public object ShopifyCheckoutSheetKit {
                 url = checkoutUrl,
                 activity = context,
                 isPreload = true,
+                options = options,
             )
         }
     }
@@ -125,10 +132,12 @@ public object ShopifyCheckoutSheetKit {
      * @return An instance of [CheckoutSheetKitDialog] if the dialog was successfully created and displayed.
      */
     @JvmStatic
+    @JvmOverloads
     public fun <T : DefaultCheckoutEventProcessor> present(
         checkoutUrl: String,
         context: ComponentActivity,
-        checkoutEventProcessor: T
+        checkoutEventProcessor: T,
+        options: CheckoutOptions? = null,
     ): CheckoutSheetKitDialog? {
         log.d("ShopifyCheckoutSheetKit", "Present called with checkoutUrl $checkoutUrl.")
         if (context.isDestroyed || context.isFinishing) {
@@ -136,7 +145,7 @@ public object ShopifyCheckoutSheetKit {
             return null
         }
         log.d("ShopifyCheckoutSheetKit", "Constructing Dialog")
-        val dialog = CheckoutDialog(checkoutUrl, checkoutEventProcessor, context)
+        val dialog = CheckoutDialog(checkoutUrl, checkoutEventProcessor, context, options)
         context.lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onDestroy(owner: LifecycleOwner) {
                 log.d("ShopifyCheckoutSheetKit", "Context is being destroyed, dismissing dialog.")

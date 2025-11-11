@@ -55,6 +55,7 @@ internal class CheckoutDialog(
     private val checkoutUrl: String,
     private val checkoutEventProcessor: CheckoutEventProcessor,
     context: Context,
+    private val options: CheckoutOptions?,
 ) : Dialog(context) {
 
     fun start(context: ComponentActivity) {
@@ -73,6 +74,7 @@ internal class CheckoutDialog(
         val checkoutWebView = CheckoutWebView.cacheableCheckoutView(
             checkoutUrl,
             context,
+            options = options,
         )
 
         checkoutWebView.onResume()
@@ -216,7 +218,7 @@ internal class CheckoutDialog(
             ShopifyCheckoutSheetKit.configuration.colorScheme,
             FallbackWebView(context).apply {
                 setEventProcessor(eventProcessor())
-                loadUrl(checkoutUrl.toUri().withEmbedParam(isRecovery = true))
+                loadCheckout(checkoutUrl, options)
             }
         )
         return true

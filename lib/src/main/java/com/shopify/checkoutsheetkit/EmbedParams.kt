@@ -37,6 +37,7 @@ internal object EmbedFieldKey {
     internal const val ENTRY = "entry"
     internal const val COLOR_SCHEME = "colorscheme"
     internal const val RECOVERY = "recovery"
+    internal const val AUTHENTICATION = "authentication"
 }
 
 internal object EmbedFieldValue {
@@ -45,8 +46,18 @@ internal object EmbedFieldValue {
     internal const val ENTRY_SHEET = "sheet"
 }
 
+private object EmbedSeparators {
+    const val FIELDS = ","       // Separates embed fields: "key1=val1,key2=val2"
+    const val PARAMS = "&"       // Separates query parameters
+    const val KEY_VALUE = "="    // Separates keys from values
+}
+
 internal object EmbedParamBuilder {
-    fun build(isRecovery: Boolean = false): String {
+    fun build(
+        isRecovery: Boolean = false,
+        options: CheckoutOptions? = null,
+        includeAuthentication: Boolean = true,
+    ): String {
         val configuredColorScheme = ShopifyCheckoutSheetKit.configuration.colorScheme
 
         val brandingValue = when (configuredColorScheme) {
@@ -59,7 +70,7 @@ internal object EmbedParamBuilder {
             else -> configuredColorScheme.id
         }
 
-        return mapOf(
+        val fields = mutableMapOf(
             EmbedFieldKey.PROTOCOL to CheckoutBridge.SCHEMA_VERSION,
             EmbedFieldKey.BRANDING to brandingValue,
             EmbedFieldKey.LIBRARY to "CheckoutKit/${BuildConfig.SDK_VERSION}",
@@ -67,27 +78,95 @@ internal object EmbedParamBuilder {
             EmbedFieldKey.PLATFORM to ShopifyCheckoutSheetKit.configuration.platform.displayName,
             EmbedFieldKey.ENTRY to EmbedFieldValue.ENTRY_SHEET,
             EmbedFieldKey.COLOR_SCHEME to colorScheme,
-            EmbedFieldKey.RECOVERY to if (isRecovery) "true" else null
+            EmbedFieldKey.RECOVERY to if (isRecovery) "true" else null,
         )
-            .filterNot { it.value.isNullOrEmpty() }
-            .map { (key, value) -> "$key=$value" }
-            .joinToString(", ")
+
+        if (includeAuthentication) {
+            options?.authToken?.let {
+                fields[EmbedFieldKey.AUTHENTICATION] = it
+            }
+        }
+
+        return fields.entries
+            .filter { (_, value) -> !value.isNullOrEmpty() }
+            .joinToString(EmbedSeparators.FIELDS) { (key, value) ->
+                "$key${EmbedSeparators.KEY_VALUE}$value"
+            }
     }
 }
 
-internal fun Uri.withEmbedParam(isRecovery: Boolean = false): String {
-    if (!needsEmbedParam()) {
-        return this.toString()
-    }
+/**
+ * Adds or updates the embed query parameter on this URI with the provided options.
+ *
+ * @param isRecovery Whether this is a recovery/fallback checkout load
+ * @param options Checkout configuration options including authentication token
+ * @param includeAuthentication Whether to include the authentication token in the embed parameter
+ * @return The complete URL string with the embed parameter added/updated
+ */
+internal fun Uri.withEmbedParam(
+    isRecovery: Boolean = false,
+    options: CheckoutOptions? = null,
+    includeAuthentication: Boolean = true,
+): String {
+    val embedValue = EmbedParamBuilder.build(
+        isRecovery = isRecovery,
+        options = options,
+        includeAuthentication = includeAuthentication,
+    )
 
-    val embedValue = EmbedParamBuilder.build(isRecovery)
+    val encodedEmbed = Uri.encode(embedValue)
+    val existingParams = encodedQuery
+        ?.split(EmbedSeparators.PARAMS)
+        ?.filter { segment ->
+            val paramName = segment.substringBefore(EmbedSeparators.KEY_VALUE)
+            Uri.decode(paramName) != QueryParamKey.EMBED
+        }
+        ?.filter { it.isNotEmpty() }
+        ?: emptyList()
 
-    return this.buildUpon()
-        .appendQueryParameter(QueryParamKey.EMBED, embedValue)
+    val updatedQuery = buildList {
+        addAll(existingParams)
+        add("${QueryParamKey.EMBED}${EmbedSeparators.KEY_VALUE}$encodedEmbed")
+    }.joinToString(separator = EmbedSeparators.PARAMS)
+
+    return buildUpon()
+        .encodedQuery(updatedQuery)
         .build()
         .toString()
 }
 
-internal fun Uri.needsEmbedParam(): Boolean {
-    return this.getQueryParameter(QueryParamKey.EMBED) == null
+/**
+ * Checks whether the URL needs the embed parameter to be added or updated.
+ *
+ * This function compares the existing embed parameter (if present) with what the current
+ * SDK configuration would generate. It returns true if:
+ * - No embed parameter exists
+ * - The embed parameter differs from current configuration (excluding authentication token)
+ *
+ * The authentication token is excluded from comparison because it's sent only once per
+ * unique value and then omitted from subsequent navigations.
+ *
+ * @param isRecovery Whether this is a recovery/fallback checkout load
+ * @param options Checkout configuration options
+ * @return true if the embed parameter needs to be added or updated
+ */
+internal fun Uri.needsEmbedParam(
+    isRecovery: Boolean = false,
+    options: CheckoutOptions? = null,
+): Boolean {
+    val currentEmbedValue = getQueryParameter(QueryParamKey.EMBED) ?: return true
+    val expectedEmbedValue = EmbedParamBuilder.build(
+        isRecovery = isRecovery,
+        options = options,
+        includeAuthentication = false,
+    )
+
+    // Remove authentication field from current value for comparison
+    val currentWithoutAuth = currentEmbedValue
+        .split(EmbedSeparators.FIELDS)
+        .map { it.trim() }
+        .filter { field -> !field.startsWith("${EmbedFieldKey.AUTHENTICATION}${EmbedSeparators.KEY_VALUE}") }
+        .joinToString(EmbedSeparators.FIELDS)
+
+    return currentWithoutAuth != expectedEmbedValue
 }

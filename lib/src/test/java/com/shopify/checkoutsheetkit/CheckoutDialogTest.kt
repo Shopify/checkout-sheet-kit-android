@@ -519,6 +519,29 @@ class CheckoutDialogTest {
         )
     }
 
+    @Test
+    fun `present with CheckoutOptions includes authentication in embed parameter`() {
+        val options = CheckoutOptions(authToken = "test-token-123")
+
+        ShopifyCheckoutSheetKit.present("https://shopify.com", activity, processor, options)
+
+        val dialog = ShadowDialog.getLatestDialog()
+        ShadowLooper.runUiThreadTasks()
+
+        await().atMost(2, TimeUnit.SECONDS).until {
+            dialog.containsChildOfType(CheckoutWebView::class.java)
+        }
+
+        val webView = dialog.findViewById<CheckoutWebViewContainer>(R.id.checkoutSdkContainer)
+            .children.firstOrNull { it is CheckoutWebView } as CheckoutWebView? ?: fail("No CheckoutWebView found")
+
+        val shadowWebView = shadowOf(webView)
+        val lastUrl = shadowWebView.lastLoadedUrl
+
+        assertThat(lastUrl).contains("embed=")
+        assertThat(lastUrl).contains("authentication%3Dtest-token-123")
+    }
+
     private fun <T : WebView> Dialog.containsChildOfType(clazz: Class<T>): Boolean {
         val layout = this.findViewById<RelativeLayout>(R.id.checkoutSdkContainer)
         return layout.children.any { clazz.isInstance(it) }

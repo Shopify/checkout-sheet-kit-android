@@ -22,8 +22,8 @@
  */
 package com.shopify.checkoutsheetkit
 
-import androidx.core.net.toUri
 import android.net.Uri
+import androidx.core.net.toUri
 import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
 import org.junit.After
 import org.junit.Before
@@ -75,7 +75,7 @@ class EmbedParamsTest {
     }
 
     @Test
-    fun `withEmbedParam handles existing query parameters`() {
+    fun `withEmbedParam preserves existing query parameters`() {
         ShopifyCheckoutSheetKit.configure {
             it.colorScheme = ColorScheme.Dark()
         }
@@ -136,39 +136,75 @@ class EmbedParamsTest {
 
     @Test
     fun `needsEmbedParam returns true when embed parameter is missing`() {
-        val needsEmbed = "https://example.com".toUri().needsEmbedParam()
+        val uri = "https://example.com".toUri()
+
+        val needsEmbed = uri.needsEmbedParam()
 
         assertThat(needsEmbed).isTrue
     }
 
     @Test
-    fun `needsEmbedParam returns false when embed parameter is present`() {
+    fun `needsEmbedParam returns false when embed parameter matches current configuration`() {
+        ShopifyCheckoutSheetKit.configure {
+            it.colorScheme = ColorScheme.Dark()
+        }
+
         val embedValue = Uri.encode(
-            "protocol=${CheckoutBridge.SCHEMA_VERSION}, " +
-                "branding=${EmbedFieldValue.BRANDING_APP}, " +
-                "library=CheckoutKit/${BuildConfig.SDK_VERSION}, " +
-                "sdk=${ShopifyCheckoutSheetKit.version.split("-").first()}, " +
-                "platform=${Platform.ANDROID.displayName}, " +
-                "entry=${EmbedFieldValue.ENTRY_SHEET}, " +
+            "protocol=${CheckoutBridge.SCHEMA_VERSION}," +
+                "branding=${EmbedFieldValue.BRANDING_APP}," +
+                "library=CheckoutKit/${BuildConfig.SDK_VERSION}," +
+                "sdk=${ShopifyCheckoutSheetKit.version.split("-").first()}," +
+                "platform=${Platform.ANDROID.displayName}," +
+                "entry=${EmbedFieldValue.ENTRY_SHEET}," +
                 "${EmbedFieldKey.COLOR_SCHEME}=dark"
         )
-        val needsEmbed = "https://example.com?${QueryParamKey.EMBED}=$embedValue".toUri().needsEmbedParam()
+        val uri = "https://example.com?${QueryParamKey.EMBED}=$embedValue".toUri()
+
+        val needsEmbed = uri.needsEmbedParam()
 
         assertThat(needsEmbed).isFalse
     }
 
     @Test
-    fun `needsEmbedParam handles existing query parameters correctly`() {
+    fun `needsEmbedParam returns true when embed parameter does not match current configuration`() {
+        ShopifyCheckoutSheetKit.configure {
+            it.colorScheme = ColorScheme.Light()  // Configured as Light
+        }
+
         val embedValue = Uri.encode(
-            "protocol=${CheckoutBridge.SCHEMA_VERSION}, " +
-                "branding=${EmbedFieldValue.BRANDING_APP}, " +
-                "library=CheckoutKit/${BuildConfig.SDK_VERSION}, " +
-                "sdk=${ShopifyCheckoutSheetKit.version.split("-").first()}, " +
-                "platform=${Platform.ANDROID.displayName}, " +
-                "entry=${EmbedFieldValue.ENTRY_SHEET}, " +
+            "protocol=${CheckoutBridge.SCHEMA_VERSION}," +
+                "branding=${EmbedFieldValue.BRANDING_APP}," +
+                "library=CheckoutKit/${BuildConfig.SDK_VERSION}," +
+                "sdk=${ShopifyCheckoutSheetKit.version.split("-").first()}," +
+                "platform=${Platform.ANDROID.displayName}," +
+                "entry=${EmbedFieldValue.ENTRY_SHEET}," +
+                "${EmbedFieldKey.COLOR_SCHEME}=dark"  // But URL has Dark
+        )
+        val uri = "https://example.com?${QueryParamKey.EMBED}=$embedValue".toUri()
+
+        val needsEmbed = uri.needsEmbedParam()
+
+        assertThat(needsEmbed).isTrue  // Needs update because of mismatch
+    }
+
+    @Test
+    fun `needsEmbedParam returns false when embed parameter exists alongside other query parameters`() {
+        ShopifyCheckoutSheetKit.configure {
+            it.colorScheme = ColorScheme.Dark()
+        }
+
+        val embedValue = Uri.encode(
+            "protocol=${CheckoutBridge.SCHEMA_VERSION}," +
+                "branding=${EmbedFieldValue.BRANDING_APP}," +
+                "library=CheckoutKit/${BuildConfig.SDK_VERSION}," +
+                "sdk=${ShopifyCheckoutSheetKit.version.split("-").first()}," +
+                "platform=${Platform.ANDROID.displayName}," +
+                "entry=${EmbedFieldValue.ENTRY_SHEET}," +
                 "${EmbedFieldKey.COLOR_SCHEME}=dark"
         )
-        val needsEmbed = "https://example.com?other=value&${QueryParamKey.EMBED}=$embedValue".toUri().needsEmbedParam()
+        val uri = "https://example.com?other=value&${QueryParamKey.EMBED}=$embedValue".toUri()
+
+        val needsEmbed = uri.needsEmbedParam()
 
         assertThat(needsEmbed).isFalse
     }
@@ -187,11 +223,83 @@ class EmbedParamsTest {
     }
 
     @Test
-    fun `Uri needsEmbedParam returns expected values`() {
-        val url = "https://example.com".toUri()
-        assertThat(url.needsEmbedParam()).isTrue
+    fun `needsEmbedParam returns true for URL without embed parameter`() {
+        val uri = "https://example.com".toUri()
 
+        val needsEmbed = uri.needsEmbedParam()
+
+        assertThat(needsEmbed).isTrue
+    }
+
+    @Test
+    fun `needsEmbedParam returns false for URL with current embed parameter`() {
         val withEmbed = "https://example.com".toUri().withEmbedParam()
-        assertThat(withEmbed.toUri().needsEmbedParam()).isFalse
+        val uri = withEmbed.toUri()
+
+        val needsEmbed = uri.needsEmbedParam()
+
+        assertThat(needsEmbed).isFalse
+    }
+
+    @Test
+    fun `withEmbedParam adds authentication when provided`() {
+        val options = CheckoutOptions(
+            authToken = "token-123",
+        )
+        val uri = "https://example.com".toUri()
+
+        val result = uri.withEmbedParam(options = options)
+
+        assertThat(result.toUri())
+            .withEmbedParameters(EmbedFieldKey.AUTHENTICATION to "token-123")
+    }
+
+    @Test
+    fun `needsEmbedParam ignores authentication field when comparing embed parameters`() {
+        val options = CheckoutOptions(
+            authToken = "token-abc",
+        )
+        val withEmbed = "https://example.com".toUri().withEmbedParam(options = options)
+        val uri = withEmbed.toUri()
+
+        val needsEmbed = uri.needsEmbedParam(options = options)
+
+        assertThat(needsEmbed).isFalse
+    }
+
+    @Test
+    fun `withEmbedParam excludes authentication when includeAuthentication is false`() {
+        val options = CheckoutOptions(authToken = "token-123")
+        val uri = "https://example.com".toUri()
+
+        val result = uri.withEmbedParam(options = options, includeAuthentication = false)
+
+        assertThat(result.toUri())
+            .withoutEmbedParameters(EmbedFieldKey.AUTHENTICATION)
+    }
+
+    @Test
+    fun `withEmbedParam replaces existing authentication token in embed parameter`() {
+        val oldOptions = CheckoutOptions(authToken = "old-token")
+        val newOptions = CheckoutOptions(authToken = "new-token")
+        val withOldToken = "https://example.com".toUri()
+            .withEmbedParam(options = oldOptions)
+        val uri = withOldToken.toUri()
+
+        val result = uri.withEmbedParam(options = newOptions)
+
+        assertThat(result.toUri())
+            .withEmbedParameters(EmbedFieldKey.AUTHENTICATION to "new-token")
+    }
+
+    @Test
+    fun `withEmbedParam excludes authentication when options authToken is null`() {
+        val options = CheckoutOptions(authToken = null)
+        val uri = "https://example.com".toUri()
+
+        val result = uri.withEmbedParam(options = options)
+
+        assertThat(result.toUri())
+            .withoutEmbedParameters(EmbedFieldKey.AUTHENTICATION)
     }
 }
