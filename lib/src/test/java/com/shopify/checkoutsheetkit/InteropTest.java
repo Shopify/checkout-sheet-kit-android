@@ -6,8 +6,8 @@ import androidx.activity.ComponentActivity;
 import androidx.annotation.NonNull;
 
 import com.shopify.checkoutsheetkit.errorevents.CheckoutErrorDecoder;
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent;
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEventDecoder;
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent;
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEventDecoder;
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent;
 import com.shopify.checkoutsheetkit.pixelevents.PixelEventDecoder;
 import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent;
@@ -31,106 +31,67 @@ import kotlinx.serialization.json.JsonKt;
 @RunWith(RobolectricTestRunner.class)
 public class InteropTest {
     private final String EXAMPLE_EVENT = "{\n" +
-            "      \"orderDetails\": {\n" +
-            "        \"id\": \"gid://shopify/OrderIdentity/9697125302294\",\n" +
-            "        \"cart\": {\n" +
-            "          \"token\": \"123abc\",\n" +
-            "          \"lines\": [\n" +
-            "            {\n" +
-            "              \"image\": {\n" +
-            "                \"sm\": \"https://cdn.shopify.com/s/files/1/0692/3996/3670/files/41bc5767-d56f-432c-ac5f-6b9eeee3ba0e.truncated...\",\n" +
-            "                \"md\": \"https://cdn.shopify.com/s/files/1/0692/3996/3670/files/41bc5767-d56f-432c-ac5f-6b9eeee3ba0e.truncated...\",\n" +
-            "                \"lg\": \"https://cdn.shopify.com/s/files/1/0692/3996/3670/files/41bc5767-d56f-432c-ac5f-6b9eeee3ba0e.truncated...\"\n" +
-            "              },\n" +
-            "              \"quantity\": 1,\n" +
-            "              \"title\": \"The Box: How the Shipping Container Made the World Smaller and the World Economy Bigger\",\n" +
-            "              \"price\": {\n" +
-            "                \"amount\": 8,\n" +
-            "                \"currencyCode\": \"GBP\"\n" +
-            "              },\n" +
-            "              \"merchandiseId\": \"gid://shopify/ProductVariant/43835075002390\",\n" +
-            "              \"productId\": \"gid://shopify/Product/8013997834262\"\n" +
-            "            }\n" +
-            "          ],\n" +
-            "          \"price\": {\n" +
-            "            \"total\": {\n" +
-            "              \"amount\": 13.99,\n" +
-            "              \"currencyCode\": \"GBP\"\n" +
-            "            },\n" +
-            "            \"subtotal\": {\n" +
-            "              \"amount\": 8,\n" +
-            "              \"currencyCode\": \"GBP\"\n" +
-            "            },\n" +
-            "            \"taxes\": {\n" +
-            "              \"amount\": 0,\n" +
-            "              \"currencyCode\": \"GBP\"\n" +
-            "            },\n" +
-            "            \"shipping\": {\n" +
-            "              \"amount\": 5.99,\n" +
-            "              \"currencyCode\": \"GBP\"\n" +
-            "            }\n" +
+            "  \"orderConfirmation\": {\n" +
+            "    \"url\": \"https://shopify.com/order-confirmation/9697125302294\",\n" +
+            "    \"order\": {\n" +
+            "      \"id\": \"gid://shopify/Order/9697125302294\"\n" +
+            "    },\n" +
+            "    \"number\": \"1001\",\n" +
+            "    \"isFirstOrder\": true\n" +
+            "  },\n" +
+            "  \"cart\": {\n" +
+            "    \"id\": \"gid://shopify/Cart/123\",\n" +
+            "    \"lines\": [\n" +
+            "      {\n" +
+            "        \"id\": \"gid://shopify/CartLine/1\",\n" +
+            "        \"quantity\": 1,\n" +
+            "        \"merchandise\": {\n" +
+            "          \"id\": \"gid://shopify/ProductVariant/43835075002390\",\n" +
+            "          \"title\": \"The Box: How the Shipping Container Made the World Smaller and the World Economy Bigger\",\n" +
+            "          \"product\": {\n" +
+            "            \"id\": \"gid://shopify/Product/8013997834262\",\n" +
+            "            \"title\": \"The Box\"\n" +
             "          }\n" +
             "        },\n" +
-            "        \"email\": \"a.user@shopify.com\",\n" +
-            "        \"shippingAddress\": {\n" +
-            "          \"city\": \"Swansea\",\n" +
-            "          \"countryCode\": \"GB\",\n" +
-            "          \"postalCode\": \"SA1 1AB\",\n" +
-            "          \"address1\": \"100 Street Avenue\",\n" +
-            "          \"firstName\": \"Andrew\",\n" +
-            "          \"lastName\": \"Person\",\n" +
-            "          \"name\": \"Andrew\",\n" +
-            "          \"zoneCode\": \"WLS\",\n" +
-            "          \"phone\": \"+447915123456\",\n" +
-            "          \"coordinates\": {\n" +
-            "            \"latitude\": 54.5936785,\n" +
-            "            \"longitude\": -3.013167399999999\n" +
+            "        \"cost\": {\n" +
+            "          \"amountPerQuantity\": {\n" +
+            "            \"amount\": \"8.00\",\n" +
+            "            \"currencyCode\": \"GBP\"\n" +
+            "          },\n" +
+            "          \"subtotalAmount\": {\n" +
+            "            \"amount\": \"8.00\",\n" +
+            "            \"currencyCode\": \"GBP\"\n" +
+            "          },\n" +
+            "          \"totalAmount\": {\n" +
+            "            \"amount\": \"8.00\",\n" +
+            "            \"currencyCode\": \"GBP\"\n" +
             "          }\n" +
             "        },\n" +
-            "        \"billingAddress\": {\n" +
-            "          \"city\": \"Swansea\",\n" +
-            "          \"countryCode\": \"GB\",\n" +
-            "          \"postalCode\": \"SA1 1AB\",\n" +
-            "          \"address1\": \"100 Street Avenue\",\n" +
-            "          \"firstName\": \"Andrew\",\n" +
-            "          \"lastName\": \"Person\",\n" +
-            "          \"zoneCode\": \"WLS\",\n" +
-            "          \"phone\": \"+447915123456\"\n" +
-            "        },\n" +
-            "        \"paymentMethods\": [\n" +
-            "          {\n" +
-            "            \"type\": \"wallet\",\n" +
-            "            \"details\": {\n" +
-            "              \"amount\": \"13.99\",\n" +
-            "              \"currency\": \"GBP\",\n" +
-            "              \"name\": \"SHOP_PAY\"\n" +
-            "            }\n" +
-            "          }\n" +
-            "        ],\n" +
-            "        \"deliveries\": [\n" +
-            "          {\n" +
-            "            \"method\": \"SHIPPING\",\n" +
-            "            \"details\": {\n" +
-            "              \"location\": {\n" +
-            "                \"city\": \"Swansea\",\n" +
-            "                \"countryCode\": \"GB\",\n" +
-            "                \"postalCode\": \"SA1 1AB\",\n" +
-            "                \"address1\": \"100 Street Avenue\",\n" +
-            "                \"firstName\": \"Andrew\",\n" +
-            "                \"lastName\": \"Person\",\n" +
-            "                \"name\": \"Andrew\",\n" +
-            "                \"zoneCode\": \"WLS\",\n" +
-            "                \"phone\": \"+447915123456\",\n" +
-            "                \"coordinates\": {\n" +
-            "                  \"latitude\": 54.5936785,\n" +
-            "                  \"longitude\": -3.013167399999999\n" +
-            "                }\n" +
-            "              }\n" +
-            "            }\n" +
-            "          }\n" +
-            "        ]\n" +
+            "        \"discountAllocations\": []\n" +
             "      }\n" +
-            "    }";
+            "    ],\n" +
+            "    \"cost\": {\n" +
+            "      \"subtotalAmount\": {\n" +
+            "        \"amount\": \"8.00\",\n" +
+            "        \"currencyCode\": \"GBP\"\n" +
+            "      },\n" +
+            "      \"totalAmount\": {\n" +
+            "        \"amount\": \"13.99\",\n" +
+            "        \"currencyCode\": \"GBP\"\n" +
+            "      }\n" +
+            "    },\n" +
+            "    \"buyerIdentity\": {\n" +
+            "      \"email\": \"a.user@shopify.com\"\n" +
+            "    },\n" +
+            "    \"deliveryGroups\": [],\n" +
+            "    \"discountCodes\": [],\n" +
+            "    \"appliedGiftCards\": [],\n" +
+            "    \"discountAllocations\": [],\n" +
+            "    \"delivery\": {\n" +
+            "      \"addresses\": []\n" +
+            "    }\n" +
+            "  }\n" +
+            "}";
     private Configuration initialConfiguration = null;
 
     @Before
@@ -157,7 +118,7 @@ public class InteropTest {
                 }
 
                 @Override
-                public void onCheckoutCompleted(@NonNull CheckoutCompletedEvent checkoutCompletedEvent) {
+                public void onCheckoutCompleted(@NonNull CheckoutCompleteEvent checkoutCompletedEvent) {
 
                 }
 
@@ -245,19 +206,21 @@ public class InteropTest {
     @SuppressWarnings("all")
     @Test
     public void canAccessFieldsOnCheckoutCompletedEvent() {
-        WebToSdkEvent webEvent = new WebToSdkEvent("completed", EXAMPLE_EVENT);
+        WebToSdkEvent webEvent = new WebToSdkEvent(CheckoutMessageContract.METHOD_COMPLETE, EXAMPLE_EVENT);
         Json json = JsonKt.Json(Json.Default, b -> {
             b.setIgnoreUnknownKeys(true);
             return null;
         });
-        CheckoutCompletedEventDecoder decoder = new CheckoutCompletedEventDecoder(json);
+        CheckoutCompleteEventDecoder decoder = new CheckoutCompleteEventDecoder(json);
 
-        CheckoutCompletedEvent event = decoder.decode(webEvent);
+        CheckoutCompleteEvent event = decoder.decode(webEvent);
 
-        assertThat(event.getOrderDetails().getId())
-                .isEqualTo("gid://shopify/OrderIdentity/9697125302294");
-        assertThat(event.getOrderDetails().getCart().getLines().get(0).getPrice().getAmount())
-                .isEqualTo(8.0);
+        assertThat(event.getOrderConfirmation().getOrder().getId())
+                .isEqualTo("gid://shopify/Order/9697125302294");
+        assertThat(event.getCart().getCost().getTotalAmount().getAmount())
+                .isEqualTo("13.99");
+        assertThat(event.getCart().getLines().get(0).getMerchandise().getProduct().getTitle())
+                .isEqualTo("The Box");
     }
 
     @Test
@@ -301,7 +264,7 @@ public class InteropTest {
                     activity,
                     new DefaultCheckoutEventProcessor(activity) {
                         @Override
-                        public void onCheckoutCompleted(@NonNull CheckoutCompletedEvent checkoutCompletedEvent) {
+                        public void onCheckoutCompleted(@NonNull CheckoutCompleteEvent checkoutCompletedEvent) {
                             // do nothing
                         }
 

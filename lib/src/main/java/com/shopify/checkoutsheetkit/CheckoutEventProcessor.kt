@@ -31,7 +31,7 @@ import android.webkit.PermissionRequest
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebView
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompletedEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 
 /**
@@ -42,7 +42,7 @@ public interface CheckoutEventProcessor {
     /**
      * Event representing the successful completion of a checkout.
      */
-    public fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent)
+    public fun onCheckoutCompleted(checkoutCompleteEvent: CheckoutCompleteEvent)
 
     /**
      * Event representing an error that occurred during checkout. This can be used to display
@@ -106,7 +106,7 @@ public interface CheckoutEventProcessor {
 }
 
 internal class NoopEventProcessor : CheckoutEventProcessor {
-    override fun onCheckoutCompleted(checkoutCompletedEvent: CheckoutCompletedEvent) {/* noop */
+    override fun onCheckoutCompleted(checkoutCompleteEvent: CheckoutCompleteEvent) {/* noop */
     }
 
     override fun onCheckoutFailed(error: CheckoutException) {/* noop */

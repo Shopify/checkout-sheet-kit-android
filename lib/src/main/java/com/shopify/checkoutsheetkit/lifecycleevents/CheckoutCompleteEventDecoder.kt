@@ -24,24 +24,32 @@ package com.shopify.checkoutsheetkit.lifecycleevents
 
 import com.shopify.checkoutsheetkit.LogWrapper
 import com.shopify.checkoutsheetkit.WebToSdkEvent
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
-@Serializable
-public data class CheckoutCompletedEvent(
-    public val orderDetails: OrderDetails
-)
-
-internal class CheckoutCompletedEventDecoder @JvmOverloads constructor(
+internal class CheckoutCompleteEventDecoder @JvmOverloads constructor(
     private val decoder: Json,
     private val log: LogWrapper = LogWrapper()
 ) {
-    fun decode(decodedMsg: WebToSdkEvent): CheckoutCompletedEvent {
+    fun decode(decodedMsg: WebToSdkEvent): CheckoutCompleteEvent {
         return try {
-            decoder.decodeFromString<CheckoutCompletedEvent>(decodedMsg.body)
+            decoder.decodeFromString<CheckoutCompleteEvent>(decodedMsg.body)
         } catch (e: Exception) {
-            log.e("CheckoutBridge", "Failed to decode CheckoutCompleted event", e)
-            emptyCompletedEvent()
+            log.e(
+                "CheckoutBridge",
+                "Failed to decode checkout.complete event. Body: ${decodedMsg.body.take(MAX_LOG_BODY_LENGTH)}",
+                e
+            )
+            emptyCompleteEvent()
         }
+    }
+
+    private companion object {
+        /**
+         * Maximum characters to include from the request body in error logs.
+         *
+         * Captures sufficient context for debugging (full order confirmation + cart ID + 2-3 line items)
+         * while preventing excessive log output from large carts (10+ line items can exceed 10KB).
+         */
+        const val MAX_LOG_BODY_LENGTH = 1500
     }
 }
