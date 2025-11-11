@@ -31,6 +31,7 @@ import com.shopify.buy3.Storefront
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.BuildConfig
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartRepository
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CheckoutAuthenticationService
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.source.network.CartStorefrontApiClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontApiRequestExecutor
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.LogDatabase
@@ -138,6 +139,16 @@ val appModules = module {
         )
     }
 
+    single {
+        CheckoutAuthenticationService(
+            client = OkHttpClient(),
+            json = get(),
+            authEndpoint = BuildConfig.checkoutAuthEndpoint,
+            clientId = BuildConfig.checkoutAuthClientId,
+            clientSecret = BuildConfig.checkoutAuthClientSecret,
+        )
+    }
+
     // Repositories
     singleOf(::CartRepository)
     singleOf(::ProductRepository)
@@ -156,6 +167,6 @@ val appModules = module {
     viewModelOf(::AccountViewModel)
     single {
         // singleton instance of shared cart view model
-        CartViewModel(get(), get(), get())
+        CartViewModel(get(), get(), get(), get())
     }
 }

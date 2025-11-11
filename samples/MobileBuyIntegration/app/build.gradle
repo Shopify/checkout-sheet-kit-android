@@ -30,6 +30,11 @@ def customerAccountApiRedirectUri = properties.getProperty("CUSTOMER_ACCOUNT_API
 def customerAccountApiGraphQLBaseUrl = properties.getProperty("CUSTOMER_ACCOUNT_API_GRAPHQL_BASE_URL")
 def customerAccountApiAuthBaseUrl = properties.getProperty("CUSTOMER_ACCOUNT_API_AUTH_BASE_URL")
 
+// Checkout Authentication (optional)
+def checkoutAuthEndpoint = properties.getProperty("CHECKOUT_AUTH_ENDPOINT", "")
+def checkoutAuthClientId = properties.getProperty("CHECKOUT_AUTH_CLIENT_ID", "")
+def checkoutAuthClientSecret = properties.getProperty("CHECKOUT_AUTH_CLIENT_SECRET", "")
+
 if (!storefrontDomain || !accessToken) {
     println("**** Please add a .env file with STOREFRONT_DOMAIN and STOREFRONT_ACCESS_TOKEN set *****")
 }
@@ -55,6 +60,9 @@ android {
         buildConfigField "String", "customerAccountApiRedirectUri", "\"$customerAccountApiRedirectUri\""
         buildConfigField "String", "customerAccountApiAuthBaseUrl", "\"$customerAccountApiAuthBaseUrl\""
         buildConfigField "String", "customerAccountApiGraphQLBaseUrl", "\"$customerAccountApiGraphQLBaseUrl\""
+        buildConfigField "String", "checkoutAuthEndpoint", "\"$checkoutAuthEndpoint\""
+        buildConfigField "String", "checkoutAuthClientId", "\"$checkoutAuthClientId\""
+        buildConfigField "String", "checkoutAuthClientSecret", "\"$checkoutAuthClientSecret\""
     }
 
     buildTypes {

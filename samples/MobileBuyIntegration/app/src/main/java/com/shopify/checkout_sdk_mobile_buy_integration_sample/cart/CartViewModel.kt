@@ -29,12 +29,14 @@ import androidx.navigation.NavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartRepository
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartState
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CheckoutAuthenticationService
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarEvent
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.CustomerRepository
+import com.shopify.checkoutsheetkit.CheckoutOptions
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,6 +51,7 @@ class CartViewModel(
     private val cartRepository: CartRepository,
     private val preferencesManager: PreferencesManager,
     private val customerRepository: CustomerRepository,
+    private val checkoutAuthenticationService: CheckoutAuthenticationService,
 ) : ViewModel() {
 
     private val _cartState = MutableStateFlow<CartState>(CartState.Empty)
@@ -110,9 +113,21 @@ class CartViewModel(
         url: String,
         activity: ComponentActivity,
         eventProcessor: T
-    ) {
+    ) = viewModelScope.launch {
         Timber.i("Presenting checkout with $url")
-        ShopifyCheckoutSheetKit.present(url, activity, eventProcessor)
+
+        if (checkoutAuthenticationService.hasConfiguration()) {
+            try {
+                val token = checkoutAuthenticationService.fetchAccessToken()
+                val options = CheckoutOptions(authToken = token)
+                ShopifyCheckoutSheetKit.present(url, activity, eventProcessor, options)
+            } catch (e: Exception) {
+                Timber.e("Failed to fetch checkout authentication token, presenting without authentication: $e")
+                ShopifyCheckoutSheetKit.present(url, activity, eventProcessor)
+            }
+        } else {
+            ShopifyCheckoutSheetKit.present(url, activity, eventProcessor)
+        }
     }
 
     fun preloadCheckout(
