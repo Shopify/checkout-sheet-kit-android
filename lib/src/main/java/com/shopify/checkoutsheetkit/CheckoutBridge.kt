@@ -38,6 +38,7 @@ internal class CheckoutBridge(
 ) {
 
     private var webViewRef: WeakReference<WebView>? = null
+    private val pendingEvents = mutableMapOf<String, CheckoutMessageParser.JSONRPCMessage>()
 
     /**
      * TODO:
