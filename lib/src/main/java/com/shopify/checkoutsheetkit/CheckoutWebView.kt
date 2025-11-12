@@ -31,11 +31,11 @@ import android.util.AttributeSet
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import androidx.activity.ComponentActivity
+import androidx.core.net.toUri
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
 import java.util.concurrent.CountDownLatch
 import kotlin.math.abs
 import kotlin.time.Duration.Companion.minutes
-import androidx.core.net.toUri
 
 internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = null) :
     BaseWebView(context, attributeSet) {
@@ -218,7 +218,10 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             options: CheckoutOptions?,
         ): CheckoutWebView {
             val preloadingEnabled = ShopifyCheckoutSheetKit.configuration.preloading.enabled
-            log.d(LOG_TAG, "Fetch view called for url $url. Is preload: $isPreload. Preloading enabled: $preloadingEnabled.")
+            log.d(
+                LOG_TAG,
+                "Fetch view called for url $url. Is preload: $isPreload. Preloading enabled: $preloadingEnabled."
+            )
             if (!preloadingEnabled || cacheEntry?.isValid(url) != true) {
                 log.d(LOG_TAG, "Constructing new CheckoutWebView and calling loadCheckout.")
                 val view = CheckoutWebView(activity as Context).apply {

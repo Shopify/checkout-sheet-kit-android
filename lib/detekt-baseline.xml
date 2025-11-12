@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>MaximumLineLength:BaseWebView.kt$BaseWebView.&lt;no name provided&gt;$ </ID>
+    <ID>MaximumLineLength:BaseWebView.kt$BaseWebView.BaseWebViewClient$ </ID>
+    <ID>MaximumLineLength:CheckoutDialogTest.kt$CheckoutDialogTest$ </ID>
+    <ID>MaximumLineLength:CheckoutWebView.kt$CheckoutWebView.Companion$ </ID>
+    <ID>MaximumLineLength:CheckoutWebViewClientTest.kt$CheckoutWebViewClientTest$ </ID>
+    <ID>MaximumLineLength:FallbackWebViewClientTest.kt$FallbackWebViewClientTest$ </ID>
+    <ID>MaximumLineLength:Helpers.kt$fun</ID>
+    <ID>MaximumLineLength:PixelEventDecoderTest.kt$PixelEventDecoderTest$ </ID>
+    <ID>MaximumLineLength:UriExtensions.kt$internal</ID>
+  </CurrentIssues>
+</SmellBaseline>

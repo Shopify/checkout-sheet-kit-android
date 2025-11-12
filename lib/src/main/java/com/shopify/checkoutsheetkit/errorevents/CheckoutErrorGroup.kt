@@ -34,14 +34,19 @@ import kotlinx.serialization.encoding.Encoder
 internal enum class CheckoutErrorGroup(val value: String) {
     /** An authentication error */
     AUTHENTICATION("authentication"),
+
     /** A shop configuration error */
     CONFIGURATION("configuration"),
+
     /** A terminal checkout error which cannot be handled */
     UNRECOVERABLE("unrecoverable"),
+
     /** A checkout-related error, such as failure to receive a receipt or progress through checkout */
     CHECKOUT("checkout"),
+
     /** The checkout session has expired and is no longer available */
     EXPIRED("expired"),
+
     /** The error sent by checkout is unsupported */
     UNSUPPORTED("unsupported")
 }

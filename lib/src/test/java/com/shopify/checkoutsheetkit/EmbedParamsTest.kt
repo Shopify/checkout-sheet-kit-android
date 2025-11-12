@@ -168,7 +168,7 @@ class EmbedParamsTest {
     @Test
     fun `needsEmbedParam returns true when embed parameter does not match current configuration`() {
         ShopifyCheckoutSheetKit.configure {
-            it.colorScheme = ColorScheme.Light()  // Configured as Light
+            it.colorScheme = ColorScheme.Light() // Configured as Light
         }
 
         val embedValue = Uri.encode(
@@ -178,13 +178,13 @@ class EmbedParamsTest {
                 "sdk=${ShopifyCheckoutSheetKit.version.split("-").first()}," +
                 "platform=${Platform.ANDROID.displayName}," +
                 "entry=${EmbedFieldValue.ENTRY_SHEET}," +
-                "${EmbedFieldKey.COLOR_SCHEME}=dark"  // But URL has Dark
+                "${EmbedFieldKey.COLOR_SCHEME}=dark" // But URL has Dark
         )
         val uri = "https://example.com?${QueryParamKey.EMBED}=$embedValue".toUri()
 
         val needsEmbed = uri.needsEmbedParam()
 
-        assertThat(needsEmbed).isTrue  // Needs update because of mismatch
+        assertThat(needsEmbed).isTrue // Needs update because of mismatch
     }
 
     @Test

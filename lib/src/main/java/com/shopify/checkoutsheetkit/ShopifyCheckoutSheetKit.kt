@@ -104,7 +104,10 @@ public object ShopifyCheckoutSheetKit {
         val cacheEntry = CheckoutWebView.cacheEntry
         if (cacheEntry?.view != null && cacheEntry.view.isInViewHierarchy()) {
             if (cacheEntry.key != checkoutUrl) {
-                log.d("ShopifyCheckoutSheetKit", "View already cached and in view hierarchy, but with different url, marking stale.")
+                log.d(
+                    "ShopifyCheckoutSheetKit",
+                    "View already cached and in view hierarchy, but with different url, marking stale."
+                )
                 CheckoutWebView.markCacheEntryStale()
             }
 

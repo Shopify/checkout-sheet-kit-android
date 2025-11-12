@@ -119,16 +119,17 @@ internal class CheckoutBridge(
                         |        }
                         |    }
                         |})();
-                        |""".trimMargin(),
+                        |
+                        """.trimMargin(),
                         null,
                     )
                 }
-                .onFailure { error ->
-                    log.e(
-                        LOG_TAG,
-                        "Failed to post response to checkout: ${error.message}",
-                    )
-                }
+                    .onFailure { error ->
+                        log.e(
+                            LOG_TAG,
+                            "Failed to post response to checkout: ${error.message}",
+                        )
+                    }
             }
         }
     }

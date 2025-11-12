@@ -4,7 +4,7 @@ require 'find'
 files = []
 
 Find.find('.') do |path|
-    next if path.include?('build/generated')
+    next if path.include?('build/')
     next unless File.file?(path) && path.end_with?('.kt')
 
     lines = File.readlines(path)

@@ -42,6 +42,7 @@ internal class PixelEventWrapper(
 public enum class EventType(public val typeName: String) {
     @SerialName("standard")
     STANDARD("standard"),
+
     @SerialName("custom")
     CUSTOM("custom");
 

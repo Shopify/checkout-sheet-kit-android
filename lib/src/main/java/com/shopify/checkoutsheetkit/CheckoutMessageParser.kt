@@ -47,17 +47,19 @@ internal class CheckoutMessageParser(
         val id = envelope.id?.jsonPrimitive?.contentOrNull
 
         return when (envelope.method) {
-            METHOD_ADDRESS_CHANGE_REQUESTED -> envelope.params
-                .decodeOrNull<CheckoutAddressChangeRequestedEventData> {
-                    log.d(LOG_TAG, "Failed to decode address change requested params: ${it.message}")
-                }
-                ?.let { JSONRPCMessage.AddressChangeRequested(id, it) }
+            METHOD_ADDRESS_CHANGE_REQUESTED ->
+                envelope.params
+                    .decodeOrNull<CheckoutAddressChangeRequestedEventData> {
+                        log.d(LOG_TAG, "Failed to decode address change requested params: ${it.message}")
+                    }
+                    ?.let { JSONRPCMessage.AddressChangeRequested(id, it) }
 
-            METHOD_COMPLETE -> envelope.params
-                .decodeOrNull<CheckoutCompleteEvent> {
-                    log.d(LOG_TAG, "Failed to decode checkout completed params: ${it.message}")
-                }
-                ?.let { JSONRPCMessage.Completed(it) }
+            METHOD_COMPLETE ->
+                envelope.params
+                    .decodeOrNull<CheckoutCompleteEvent> {
+                        log.d(LOG_TAG, "Failed to decode checkout completed params: ${it.message}")
+                    }
+                    ?.let { JSONRPCMessage.Completed(it) }
 
             else -> {
                 log.d(LOG_TAG, "Received unsupported message method: ${envelope.method}")
