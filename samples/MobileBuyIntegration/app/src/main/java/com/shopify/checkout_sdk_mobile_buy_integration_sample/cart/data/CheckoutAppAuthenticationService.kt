@@ -23,7 +23,6 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data
 
 import android.util.Base64
-import java.time.Instant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -39,6 +38,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import timber.log.Timber
+import java.time.Instant
 import kotlin.time.Duration.Companion.minutes
 
 /**

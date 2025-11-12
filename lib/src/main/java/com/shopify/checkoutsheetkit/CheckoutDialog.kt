@@ -47,7 +47,6 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.Toolbar
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.graphics.drawable.toDrawable
-import androidx.core.net.toUri
 import androidx.core.view.children
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
 
