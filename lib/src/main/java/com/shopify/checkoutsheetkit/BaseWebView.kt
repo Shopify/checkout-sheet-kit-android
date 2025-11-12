@@ -47,7 +47,6 @@ import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
 import java.net.HttpURLConnection.HTTP_GONE
-import java.net.HttpURLConnection.HTTP_NOT_FOUND
 
 @SuppressLint("SetJavaScriptEnabled")
 internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet? = null) :
