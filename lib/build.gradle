@@ -31,6 +31,7 @@ ext {
     mockito_kotlin_version = '4.1.0'
     assertj_version = '3.27.6'
     awaitility_version = '4.3.0'
+    detekt_formatting_version = '1.23.8'
 }
 
 android {
@@ -95,6 +96,8 @@ tasks.withType(KotlinJvmCompile).configureEach {
 }
 
 dependencies {
+    detektPlugins "io.gitlab.arturbosch.detekt:detekt-formatting:$detekt_formatting_version"
+
     testImplementation "junit:junit:$junit_version"
     testImplementation "org.robolectric:robolectric:$robolectric_version"
     // noinspection NewerVersionAvailable -- mockito 5 requires jvm target 1.11

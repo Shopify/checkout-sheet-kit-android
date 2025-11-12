@@ -63,7 +63,11 @@ class CheckoutExceptionAssert(actual: CheckoutException) :
         isNotNull()
 
         if (actual.errorDescription != description) {
-            failWithMessage("Expected exception to have description <%s>, but was, <%s>", description, actual.errorDescription)
+            failWithMessage(
+                "Expected exception to have description <%s>, but was, <%s>",
+                description,
+                actual.errorDescription
+            )
         }
 
         return this

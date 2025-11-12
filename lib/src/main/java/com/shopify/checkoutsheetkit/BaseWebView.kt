@@ -72,7 +72,9 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
         }
 
         if (WebViewFeature.isFeatureSupported(
-                WebViewFeature.PAYMENT_REQUEST)) {
+                WebViewFeature.PAYMENT_REQUEST
+            )
+        ) {
             WebSettingsCompat.setPaymentRequestEnabled(settings, true)
         }
 

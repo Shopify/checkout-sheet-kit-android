@@ -47,9 +47,9 @@ internal object EmbedFieldValue {
 }
 
 private object EmbedSeparators {
-    const val FIELDS = ","       // Separates embed fields: "key1=val1,key2=val2"
-    const val PARAMS = "&"       // Separates query parameters
-    const val KEY_VALUE = "="    // Separates keys from values
+    const val FIELDS = "," // Separates embed fields: "key1=val1,key2=val2"
+    const val PARAMS = "&" // Separates query parameters
+    const val KEY_VALUE = "=" // Separates keys from values
 }
 
 internal object EmbedParamBuilder {

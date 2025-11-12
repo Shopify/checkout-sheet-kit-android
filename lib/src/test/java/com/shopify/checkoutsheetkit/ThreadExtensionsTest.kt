@@ -37,8 +37,8 @@ class ThreadExtensionsTest {
     @Test
     fun `onMainThread executes immediately when already on main thread`() {
         var executed = false
-        onMainThread { 
-            executed = true 
+        onMainThread {
+            executed = true
             assertThat(Looper.myLooper()).isEqualTo(Looper.getMainLooper())
         }
         assertThat(executed).isTrue()
@@ -48,10 +48,10 @@ class ThreadExtensionsTest {
     fun `onMainThread posts to main looper when called from background thread`() {
         var executedOnMainThread: Boolean? = null
         val shadowLooper = ShadowLooper.shadowMainLooper()
-        
+
         // Verify no tasks are initially queued
         assertThat(shadowLooper.isIdle).isTrue()
-        
+
         // Create background thread and call onMainThread from it
         val thread = Thread {
             onMainThread {
@@ -60,14 +60,14 @@ class ThreadExtensionsTest {
         }
         thread.start()
         thread.join() // Wait for thread to complete
-        
+
         // Task should be queued on main looper but not yet executed
         assertThat(shadowLooper.isIdle).isFalse()
         assertThat(executedOnMainThread).isNull()
-        
-        // Run pending tasks on main looper  
+
+        // Run pending tasks on main looper
         shadowLooper.runToEndOfTasks()
-        
+
         // Now callback should have executed on main thread
         assertThat(executedOnMainThread).isNotNull()
         assertThat(executedOnMainThread).isTrue()

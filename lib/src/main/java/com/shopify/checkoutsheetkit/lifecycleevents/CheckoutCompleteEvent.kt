@@ -309,7 +309,9 @@ public data class CheckoutCompleteEvent(
             val element = jsonDecoder.decodeJsonElement()
 
             val jsonObject = runCatching { element.jsonObject }.getOrElse {
-                throw SerializationException("DiscountValue must be a JSON object, but was: ${element::class.simpleName}")
+                throw SerializationException(
+                    "DiscountValue must be a JSON object, but was: ${element::class.simpleName}"
+                )
             }
 
             return when {

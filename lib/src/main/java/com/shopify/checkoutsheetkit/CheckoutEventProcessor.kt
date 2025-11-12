@@ -106,19 +106,24 @@ public interface CheckoutEventProcessor {
 }
 
 internal class NoopEventProcessor : CheckoutEventProcessor {
-    override fun onCheckoutCompleted(checkoutCompleteEvent: CheckoutCompleteEvent) {/* noop */
+    override fun onCheckoutCompleted(checkoutCompleteEvent: CheckoutCompleteEvent) {
+        /* noop */
     }
 
-    override fun onCheckoutFailed(error: CheckoutException) {/* noop */
+    override fun onCheckoutFailed(error: CheckoutException) {
+        /* noop */
     }
 
-    override fun onCheckoutCanceled() {/* noop */
+    override fun onCheckoutCanceled() {
+        /* noop */
     }
 
-    override fun onCheckoutLinkClicked(uri: Uri) {/* noop */
+    override fun onCheckoutLinkClicked(uri: Uri) {
+        /* noop */
     }
 
-    override fun onWebPixelEvent(event: PixelEvent) {/* noop */
+    override fun onWebPixelEvent(event: PixelEvent) {
+        /* noop */
     }
 
     override fun onShowFileChooser(
@@ -129,16 +134,20 @@ internal class NoopEventProcessor : CheckoutEventProcessor {
         return false
     }
 
-    override fun onPermissionRequest(permissionRequest: PermissionRequest) {/* noop */
+    override fun onPermissionRequest(permissionRequest: PermissionRequest) {
+        /* noop */
     }
 
-    override fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {/* noop */
+    override fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {
+        /* noop */
     }
 
-    override fun onGeolocationPermissionsHidePrompt() {/* noop */
+    override fun onGeolocationPermissionsHidePrompt() {
+        /* noop */
     }
 
-    override fun onAddressChangeRequested(event: CheckoutAddressChangeRequestedEvent) {/* noop */
+    override fun onAddressChangeRequested(event: CheckoutAddressChangeRequestedEvent) {
+        /* noop */
     }
 }
 

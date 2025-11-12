@@ -72,7 +72,8 @@ class CheckoutBridgeTest {
                     "lastName":"Lovelace"
                 }
             }
-        }""".trimIndent()
+        }
+        """.trimIndent()
 
         checkoutBridge.postMessage(jsonRpcMessage)
 
@@ -100,7 +101,8 @@ class CheckoutBridgeTest {
             "jsonrpc":"2.0",
             "method":"checkout.unsupported",
             "params":{}
-        }""".trimIndent()
+        }
+        """.trimIndent()
 
         checkoutBridge.postMessage(unsupportedMethod)
 
@@ -136,7 +138,8 @@ class CheckoutBridgeTest {
             "jsonrpc":"2.0",
             "method":"checkout.complete",
             "params":${Json.encodeToString(params)}
-        }""".trimIndent()
+        }
+        """.trimIndent()
 
         checkoutBridge.postMessage(jsonRpcMessage)
 
@@ -152,7 +155,8 @@ class CheckoutBridgeTest {
             "params":{
                 "addressType":"shipping"
             }
-        }""".trimIndent()
+        }
+        """.trimIndent()
 
         val mockWebView = mock<CheckoutWebView>()
         checkoutBridge.setWebView(mockWebView)
@@ -193,7 +197,8 @@ class CheckoutBridgeTest {
             "params":{
                 "addressType":"shipping"
             }
-        }""".trimIndent()
+        }
+        """.trimIndent()
 
         val invocationCount = AtomicInteger(0)
         val mockWebView = mock<CheckoutWebView>()

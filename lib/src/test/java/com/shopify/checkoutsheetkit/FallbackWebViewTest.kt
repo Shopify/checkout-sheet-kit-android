@@ -56,7 +56,9 @@ class FallbackWebViewTest {
             assertThat(view.layoutParams.height).isEqualTo(MATCH_PARENT)
             assertThat(view.layoutParams.width).isEqualTo(MATCH_PARENT)
             assertThat(view.id).isNotNull
-            assertThat(shadowOf(view).webViewClient.javaClass).isEqualTo(FallbackWebView.FallbackWebViewClient::class.java)
+            assertThat(
+                shadowOf(view).webViewClient.javaClass
+            ).isEqualTo(FallbackWebView.FallbackWebViewClient::class.java)
             assertThat(shadowOf(view).backgroundColor).isEqualTo(Color.TRANSPARENT)
             assertThat(shadowOf(view).getJavascriptInterface("android")).isNull()
         }
