@@ -28,6 +28,7 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.lang.ref.WeakReference
 
@@ -37,6 +38,7 @@ internal class CheckoutBridge(
 ) {
 
     private var webViewRef: WeakReference<WebView>? = null
+    private val pendingEvents = mutableMapOf<String, CheckoutMessageParser.JSONRPCMessage>()
 
     fun setEventProcessor(eventProcessor: CheckoutWebViewEventProcessor) {
         this.eventProcessor = eventProcessor
@@ -46,6 +48,29 @@ internal class CheckoutBridge(
 
     fun setWebView(webView: WebView?) {
         this.webViewRef = if (webView != null) WeakReference(webView) else null
+    }
+
+    /**
+     * Respond to an RPC event with the given response data
+     * @param eventId The ID of the event to respond to
+     * @param responseData The JSON response data to send back
+     */
+    fun respondToEvent(eventId: String, responseData: String) {
+        val event = pendingEvents[eventId]
+        if (event is CheckoutMessageParser.JSONRPCMessage.AddressChangeRequested) {
+            try {
+                // Parse the response data as DeliveryAddressChangePayload
+                val jsonParser = Json { ignoreUnknownKeys = true }
+                val payload = jsonParser.decodeFromString<DeliveryAddressChangePayload>(responseData)
+                event.respondWith(payload)
+                pendingEvents.remove(eventId)
+                log.d(LOG_TAG, "Successfully responded to event $eventId")
+            } catch (e: Exception) {
+                log.e(LOG_TAG, "Failed to parse response data for event $eventId: ${e.message}")
+            }
+        } else {
+            log.w(LOG_TAG, "No pending event found with ID $eventId")
+        }
     }
 
     // Allows Web to postMessages back to the SDK
@@ -60,6 +85,10 @@ internal class CheckoutBridge(
                     // Set the WebView reference on the message so it can respond directly
                     webViewRef?.get()?.let { webView ->
                         checkoutMessage.setWebView(webView)
+                    }
+                    // Store the event for potential React Native response
+                    checkoutMessage.id?.let { id ->
+                        pendingEvents[id] = checkoutMessage
                     }
                     onMainThread {
                         eventProcessor.onAddressChangeRequested(checkoutMessage.toEvent())

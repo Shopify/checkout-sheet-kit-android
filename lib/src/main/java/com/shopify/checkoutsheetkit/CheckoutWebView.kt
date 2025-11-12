@@ -37,12 +37,12 @@ import java.util.concurrent.CountDownLatch
 import kotlin.math.abs
 import kotlin.time.Duration.Companion.minutes
 
-internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = null) :
+public class CheckoutWebView(context: Context, attributeSet: AttributeSet? = null) :
     BaseWebView(context, attributeSet) {
 
-    override val recoverErrors = true
-    var isPreload = false
-    override var checkoutOptions: CheckoutOptions? = null
+    protected override val recoverErrors: Boolean = true
+    internal var isPreload: Boolean = false
+    protected override var checkoutOptions: CheckoutOptions? = null
 
     private val checkoutBridge = CheckoutBridge(CheckoutWebViewEventProcessor(NoopEventProcessor()))
     private var loadComplete = false
@@ -62,19 +62,38 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         checkoutBridge.setWebView(this)
     }
 
-    fun hasFinishedLoading() = loadComplete
+    public fun hasFinishedLoading(): Boolean = loadComplete
 
-    fun setEventProcessor(eventProcessor: CheckoutWebViewEventProcessor) {
+    public fun setEventProcessor(eventProcessor: CheckoutWebViewEventProcessor) {
         log.d(LOG_TAG, "Setting event processor $eventProcessor.")
         checkoutBridge.setEventProcessor(eventProcessor)
     }
 
-    fun notifyPresented() {
+    public fun notifyPresented() {
         log.d(LOG_TAG, "Notify presented called.")
         presented = true
     }
 
-    override fun getEventProcessor(): CheckoutWebViewEventProcessor {
+    /**
+     * Reload the current checkout page
+     */
+    public override fun reload() {
+        log.d(LOG_TAG, "Reloading checkout")
+        super.reload()
+    }
+
+    /**
+     * Respond to an RPC event (e.g. address change, payment change)
+     * @param eventId The ID of the event to respond to
+     * @param responseData The response data to send back
+     */
+    public fun respondToEvent(eventId: String, responseData: String) {
+        log.d(LOG_TAG, "Responding to event $eventId with data: $responseData")
+        // Delegate to the CheckoutBridge to handle the response
+        checkoutBridge.respondToEvent(eventId, responseData)
+    }
+
+    internal override fun getEventProcessor(): CheckoutWebViewEventProcessor {
         return checkoutBridge.getEventProcessor()
     }
 
@@ -92,7 +111,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         checkoutBridge.setWebView(null)
     }
 
-    fun loadCheckout(url: String, isPreload: Boolean, options: CheckoutOptions? = null) {
+    public fun loadCheckout(url: String, isPreload: Boolean, options: CheckoutOptions? = null) {
         log.d(LOG_TAG, "Loading checkout with url $url. IsPreload: $isPreload.")
         this.isPreload = isPreload
         this.checkoutOptions = options
@@ -110,7 +129,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         }
     }
 
-    inner class CheckoutWebViewClient : BaseWebView.BaseWebViewClient() {
+    protected inner class CheckoutWebViewClient : BaseWebView.BaseWebViewClient() {
 
         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)
@@ -173,7 +192,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         }
     }
 
-    companion object {
+    public companion object {
         private const val LOG_TAG = "CheckoutWebView"
         private const val OPEN_EXTERNALLY_PARAM = "open_externally"
         private const val JAVASCRIPT_INTERFACE_NAME = "EmbeddedCheckoutProtocolConsumer"
@@ -181,18 +200,27 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         internal var cacheEntry: CheckoutWebViewCacheEntry? = null
         internal var cacheClock = CheckoutWebViewCacheClock()
 
-        fun markCacheEntryStale() {
+        public fun markCacheEntryStale() {
             cacheEntry = cacheEntry?.copy(timeout = -1)
         }
 
-        fun clearCache(newEntry: CheckoutWebViewCacheEntry? = null) = cacheEntry?.let {
-            Handler(Looper.getMainLooper()).post {
-                it.view.destroy()
-                cacheEntry = newEntry
+        /**
+         * Clear the cached CheckoutWebView
+         */
+        public fun clearCache() {
+            clearCacheInternal(null)
+        }
+
+        internal fun clearCacheInternal(newEntry: CheckoutWebViewCacheEntry? = null) {
+            cacheEntry?.let {
+                Handler(Looper.getMainLooper()).post {
+                    it.view.destroy()
+                    cacheEntry = newEntry
+                }
             }
         }
 
-        fun cacheableCheckoutView(
+        public fun cacheableCheckoutView(
             url: String,
             activity: ComponentActivity,
             isPreload: Boolean = false,
@@ -256,7 +284,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
                 this.cacheEntry = cacheEntry
             } else {
                 log.d(LOG_TAG, "Clearing WebView cache and destroying cached view.")
-                clearCache(cacheEntry)
+                clearCacheInternal(cacheEntry)
             }
         }
     }
