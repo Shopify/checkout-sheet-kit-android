@@ -25,7 +25,6 @@ package com.shopify.checkoutsheetkit
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import kotlin.jvm.JvmOverloads
 
 /**
  * Entrypoint to the library, allows configuring, preloading, and presenting Shopify checkouts.

@@ -186,10 +186,6 @@ fun CheckoutSdkAppRoot(
     }
 }
 
-data class AppBarState(
-    val actions: @Composable RowScope.() -> Unit = {},
-)
-
 private fun SettingsUiState.isDarkTheme(isSystemInDarkTheme: Boolean) = when (this) {
     is SettingsUiState.Loading -> isSystemInDarkTheme
     is SettingsUiState.Loaded -> {
