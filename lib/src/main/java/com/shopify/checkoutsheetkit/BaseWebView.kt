@@ -248,8 +248,6 @@ public abstract class BaseWebView(context: Context, attributeSet: AttributeSet? 
 
     internal companion object {
         private const val LOG_TAG = "BaseWebView"
-        private const val DEPRECATED_REASON_HEADER = "X-Shopify-API-Deprecated-Reason"
-        private const val LIQUID_NOT_SUPPORTED = "checkout_liquid_not_supported"
 
         private const val TOO_MANY_REQUESTS = 429
         private val CLIENT_ERROR = 400..499
