@@ -26,12 +26,12 @@ import android.content.Context
 import android.widget.Toast
 import androidx.navigation.NavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkoutsheetkit.CheckoutAddressChangeRequestedEvent
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import kotlinx.coroutines.DelicateCoroutinesApi
+import timber.log.Timber
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -44,17 +44,16 @@ import kotlinx.coroutines.launch
 class CheckoutNavEventProcessor(
     private val mainNavController: NavController,
     private val checkoutNavController: NavController,
-    private val logger: Logger,
     private val context: Context,
     private val eventStore: CheckoutEventStore,
 ) : DefaultCheckoutEventProcessor(context) {
 
     override fun onCheckoutCompleted(checkoutCompleteEvent: CheckoutCompleteEvent) {
-        logger.log(checkoutCompleteEvent)
+        Timber.d("Checkout completed: $checkoutCompleteEvent")
     }
 
     override fun onCheckoutFailed(error: CheckoutException) {
-        logger.log("Checkout failed", error)
+        Timber.e(error, "Checkout failed: $error")
 
         // No fallback in inline flow - navigate back and show error
         GlobalScope.launch(Dispatchers.Main) {
@@ -70,11 +69,11 @@ class CheckoutNavEventProcessor(
     }
 
     override fun onCheckoutCanceled() {
-        logger.log("Checkout canceled")
+        Timber.d("Checkout canceled")
     }
 
     override fun onAddressChangeRequested(event: CheckoutAddressChangeRequestedEvent) {
-        logger.log("Address change requested")
+        Timber.d("Address change requested: $event")
 
         // Store event and get ID
         val eventId = eventStore.storeEvent(event)

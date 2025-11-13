@@ -61,8 +61,6 @@ sealed class CheckoutScreen(val route: String) {
 fun CheckoutNavHost(
     checkoutUrl: String,
     mainNavController: NavController,
-    cartViewModel: CartViewModel,
-    logger: Logger,
 ) {
     val activity = LocalActivity.current as ComponentActivity
     val checkoutNavController = rememberNavController()
@@ -77,7 +75,6 @@ fun CheckoutNavHost(
                     CheckoutNavEventProcessor(
                         mainNavController = mainNavController,
                         checkoutNavController = checkoutNavController,
-                        logger = logger,
                         context = activity,
                         eventStore = eventStore,
                     )

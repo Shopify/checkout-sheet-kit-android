@@ -178,9 +178,7 @@ fun CheckoutSdkNavHost(
         composable(Screen.InlineCheckout.route) { backStackEntry ->
             CheckoutNavHost(
                 checkoutUrl = Screen.InlineCheckout.checkoutUrlRouteVariable(backStackEntry),
-                mainNavController = navController,
-                cartViewModel = cartViewModel,
-                logger = logger
+                mainNavController = navController
             )
         }
     }
