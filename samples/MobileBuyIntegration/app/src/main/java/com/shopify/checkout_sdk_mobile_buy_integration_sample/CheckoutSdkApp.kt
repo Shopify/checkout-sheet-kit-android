@@ -130,6 +130,18 @@ fun CheckoutSdkAppRoot(
                         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                             containerColor = MaterialTheme.colorScheme.background
                         ),
+                        navigationIcon = {
+                            // render a back icon on the inline checkout screen
+                            if (currentScreen == Screen.InlineCheckout) {
+                                IconButton(onClick = { navController.popBackStack() }) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.back_arrow),
+                                        contentDescription = "Back",
+                                        tint = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                            }
+                        },
                         title = {
                             Image(
                                 modifier = Modifier.height(38.dp),
@@ -166,10 +178,12 @@ fun CheckoutSdkAppRoot(
                     )
                 },
                 bottomBar = {
-                    BottomAppBarWithNavigation(
-                        navController,
-                        currentScreen,
-                    )
+                    if (currentScreen != Screen.InlineCheckout) {
+                        BottomAppBarWithNavigation(
+                            navController,
+                            currentScreen,
+                        )
+                    }
                 }
             ) {
                 Column(Modifier.padding(paddingValues = it)) {

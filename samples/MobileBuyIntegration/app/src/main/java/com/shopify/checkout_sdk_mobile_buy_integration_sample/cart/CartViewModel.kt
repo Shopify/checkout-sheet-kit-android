@@ -147,6 +147,21 @@ class CartViewModel(
         navController.navigate(Screen.Products.route)
     }
 
+    suspend fun createBuyNowCart(variantId: ID, quantity: Int): String {
+        Timber.i("Creating buy now cart for variant: $variantId with quantity: $quantity")
+        val customerAccessToken = customerRepository.getCustomerAccessToken()?.accessToken
+
+        val tempCart = cartRepository.createCart(
+            variantId = variantId,
+            quantity = quantity,
+            demoBuyerIdentityEnabled = demoBuyerIdentityEnabled,
+            customerAccessToken = customerAccessToken,
+        )
+
+        Timber.i("Buy now cart created with URL: ${tempCart.checkoutUrl}")
+        return tempCart.checkoutUrl
+    }
+
     private fun performCartLinesAdd(cartId: ID, variantId: ID, quantity: Int, onComplete: OnComplete) = viewModelScope.launch {
         Timber.i("Adding cart lines to existing cart: $cartId, variant: $variantId, and $quantity")
         try {
