@@ -31,6 +31,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.checkout.InlineCheckoutScreen
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.MobileBuyEventProcessor
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.home.HomeView
@@ -75,6 +76,15 @@ sealed class Screen(val route: String) {
     data object Logs : Screen("logs")
     data object Login : Screen("login")
     data object Account : Screen("account")
+    data object InlineCheckout : Screen("inline-checkout/{checkoutUrl}") {
+        fun checkoutUrlRouteVariable(backStackEntry: NavBackStackEntry): String {
+            return backStackEntry.arguments?.getString("checkoutUrl") ?: ""
+        }
+
+        fun route(checkoutUrl: String): String {
+            return route.replace("{checkoutUrl}", URLEncoder.encode(checkoutUrl, StandardCharsets.UTF_8.name()))
+        }
+    }
 
     companion object {
         fun fromRoute(route: String): Screen {
@@ -88,6 +98,7 @@ sealed class Screen(val route: String) {
                 Logs.route -> Logs
                 Login.route -> Login
                 Account.route -> Account
+                InlineCheckout.route -> InlineCheckout
                 else -> throw RuntimeException("Unknown route")
             }
         }
@@ -117,7 +128,10 @@ fun CheckoutSdkNavHost(
         }
 
         composable(Screen.Product.route) { backStackEntry ->
-            ProductView(Screen.Product.productIdRouteVariable(backStackEntry))
+            ProductView(
+                productId = Screen.Product.productIdRouteVariable(backStackEntry),
+                navController = navController
+            )
         }
 
         composable(Screen.ProductCollection.route) { backStackEntry ->
@@ -158,6 +172,15 @@ fun CheckoutSdkNavHost(
         composable(Screen.Account.route) {
             AccountView(
                 navController = navController
+            )
+        }
+
+        composable(Screen.InlineCheckout.route) { backStackEntry ->
+            InlineCheckoutScreen(
+                checkoutUrl = Screen.InlineCheckout.checkoutUrlRouteVariable(backStackEntry),
+                navController = navController,
+                cartViewModel = cartViewModel,
+                logger = logger
             )
         }
     }

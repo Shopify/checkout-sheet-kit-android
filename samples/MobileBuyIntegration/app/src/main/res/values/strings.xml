@@ -67,6 +67,7 @@
     <string name="products_header" translatable="false">Products</string>
 
     <string name="product_add_to_cart" translatable="false">Add to cart</string>
+    <string name="product_buy_now" translatable="false">Buy now</string>
     <string name="product_alt_text_default" translatable="false">Product image</string>
 
     <string name="free" translatable="false">Free</string>
