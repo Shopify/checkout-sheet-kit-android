@@ -63,6 +63,25 @@ class ProductViewModel(
         }
     }
 
+    fun buyNow(onCheckoutUrlReady: (String) -> Unit) {
+        val state = _uiState.value
+        if (state is ProductUIState.Loaded) {
+            val variantId = state.selectedVariant.id
+            val quantity = state.addQuantityAmount
+            setIsAddingToCart(true)
+            viewModelScope.launch {
+                try {
+                    val checkoutUrl = cartViewModel.createBuyNowCart(variantId, quantity)
+                    setIsAddingToCart(false)
+                    onCheckoutUrlReady(checkoutUrl)
+                } catch (e: Exception) {
+                    Timber.e("Failed to create buy now cart: $e")
+                    setIsAddingToCart(false)
+                }
+            }
+        }
+    }
+
     fun fetchProduct(productId: ID) = viewModelScope.launch {
         Timber.i("Fetching product with id $productId")
         try {
