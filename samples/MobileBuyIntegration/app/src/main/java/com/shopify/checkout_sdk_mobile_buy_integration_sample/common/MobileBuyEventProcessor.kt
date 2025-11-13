@@ -33,18 +33,15 @@ import androidx.navigation.NavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.MainActivity
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.ui.AddressPickerState
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.analytics.Analytics
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.analytics.toAnalyticsEvent
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
-import com.shopify.checkoutsheetkit.CartDelivery
-import com.shopify.checkoutsheetkit.CartDeliveryAddressInput
-import com.shopify.checkoutsheetkit.CartSelectableAddressInput
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.NativeSheet
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.NativeSheetState
 import com.shopify.checkoutsheetkit.CheckoutAddressChangeRequestedEvent
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
-import com.shopify.checkoutsheetkit.DeliveryAddressChangePayload
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import com.shopify.checkoutsheetkit.pixelevents.CustomPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
@@ -96,7 +93,7 @@ class MobileBuyEventProcessor(
 
     override fun onAddressChangeRequested(event: CheckoutAddressChangeRequestedEvent) {
         logger.log("Address change requested")
-        AddressPickerState.showPicker(event)
+        NativeSheetState.show(NativeSheet.Address(event))
     }
 
     override fun onShowFileChooser(

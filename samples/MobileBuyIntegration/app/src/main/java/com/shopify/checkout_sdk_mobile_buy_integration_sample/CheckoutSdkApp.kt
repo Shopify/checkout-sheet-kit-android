@@ -64,7 +64,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarCon
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.BottomAppBarWithNavigation
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.CheckoutSdkNavHost
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.CheckoutEventHandler
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.NativeSheetsOrchestrator
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.CheckoutSdkSampleTheme
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.LogsViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsUiState
@@ -182,7 +182,7 @@ fun CheckoutSdkAppRoot(
                 }
             }
 
-            CheckoutEventHandler()
+            NativeSheetsOrchestrator()
         }
     }
 }
