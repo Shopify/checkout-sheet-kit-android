@@ -33,7 +33,7 @@ import com.shopify.checkoutsheetkit.lifecycleevents.emptyCompleteEvent
 internal class FallbackWebView(context: Context, attributeSet: AttributeSet? = null) :
     BaseWebView(context, attributeSet) {
 
-    override val recoverErrors = false
+    internal override val recoverErrors = false
     override var checkoutOptions: CheckoutOptions? = null
 
     init {
@@ -66,7 +66,7 @@ internal class FallbackWebView(context: Context, attributeSet: AttributeSet? = n
         return checkoutEventProcessor
     }
 
-    protected inner class FallbackWebViewClient : BaseWebView.BaseWebViewClient() {
+    internal inner class FallbackWebViewClient : BaseWebView.BaseWebViewClient() {
 
         private val typRegex = Regex(pattern = "^(thank[-_]+you)$", option = RegexOption.IGNORE_CASE)
 

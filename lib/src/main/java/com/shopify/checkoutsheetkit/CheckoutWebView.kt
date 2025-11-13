@@ -40,7 +40,7 @@ import kotlin.time.Duration.Companion.minutes
 public class CheckoutWebView(context: Context, attributeSet: AttributeSet? = null) :
     BaseWebView(context, attributeSet) {
 
-    protected override val recoverErrors: Boolean = true
+    internal override val recoverErrors: Boolean = true
     private var isPreload: Boolean = false
     protected override var checkoutOptions: CheckoutOptions? = null
 
@@ -129,7 +129,7 @@ public class CheckoutWebView(context: Context, attributeSet: AttributeSet? = nul
         }
     }
 
-    private inner class CheckoutWebViewClient : BaseWebView.BaseWebViewClient() {
+    internal inner class CheckoutWebViewClient : BaseWebView.BaseWebViewClient() {
 
         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)

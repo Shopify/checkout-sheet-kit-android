@@ -59,7 +59,7 @@ public abstract class BaseWebView(context: Context, attributeSet: AttributeSet? 
     }
 
     internal abstract fun getEventProcessor(): CheckoutWebViewEventProcessor
-    protected abstract val recoverErrors: Boolean
+    internal abstract val recoverErrors: Boolean
 
     protected open val checkoutOptions: CheckoutOptions? = null
 
@@ -123,7 +123,7 @@ public abstract class BaseWebView(context: Context, attributeSet: AttributeSet? 
         return super.onKeyDown(keyCode, event)
     }
 
-    protected open inner class BaseWebViewClient : WebViewClient() {
+    internal open inner class BaseWebViewClient : WebViewClient() {
         init {
             if (BuildConfig.DEBUG) {
                 log.d(LOG_TAG, "Setting web contents debugging enabled.")
