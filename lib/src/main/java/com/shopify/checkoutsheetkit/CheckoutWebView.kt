@@ -41,7 +41,7 @@ public class CheckoutWebView(context: Context, attributeSet: AttributeSet? = nul
     BaseWebView(context, attributeSet) {
 
     protected override val recoverErrors: Boolean = true
-    internal var isPreload: Boolean = false
+    private var isPreload: Boolean = false
     protected override var checkoutOptions: CheckoutOptions? = null
 
     private val checkoutBridge = CheckoutBridge(CheckoutWebViewEventProcessor(NoopEventProcessor()))
@@ -129,7 +129,7 @@ public class CheckoutWebView(context: Context, attributeSet: AttributeSet? = nul
         }
     }
 
-    protected inner class CheckoutWebViewClient : BaseWebView.BaseWebViewClient() {
+    private inner class CheckoutWebViewClient : BaseWebView.BaseWebViewClient() {
 
         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)
