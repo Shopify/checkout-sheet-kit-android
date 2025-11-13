@@ -36,6 +36,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.AddressSelectionActivity
+import com.shopify.checkoutsheetkit.CheckoutAddressChangeRequestedEvent
+import com.shopify.checkoutsheetkit.DeliveryAddressChangePayload
+import kotlinx.serialization.json.Json
 import timber.log.Timber
 import timber.log.Timber.DebugTree
 
@@ -44,6 +48,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
     private lateinit var showFileChooserLauncher: ActivityResultLauncher<FileChooserParams>
     private lateinit var geolocationLauncher: ActivityResultLauncher<Array<String>>
+    lateinit var addressSelectionLauncher: ActivityResultLauncher<android.content.Intent>
 
     // State related to file chooser requests (e.g. for using a file chooser/camera for proving identity)
     private var filePathCallback: ValueCallback<Array<Uri>>? = null
@@ -52,6 +57,9 @@ class MainActivity : ComponentActivity() {
     // State related to geolocation requests (e.g. for pickup points - use my location)
     private var geolocationPermissionCallback: GeolocationPermissions.Callback? = null
     private var geolocationOrigin: String? = null
+
+    // State related to address change requests from checkout
+    private var pendingAddressChangeEvent: CheckoutAddressChangeRequestedEvent? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,6 +105,43 @@ class MainActivity : ComponentActivity() {
             geolocationPermissionCallback = null
             geolocationOrigin = null
         }
+
+        addressSelectionLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            // Early return if canceled
+            if (result.resultCode != RESULT_OK) {
+                Timber.d("Address selection canceled")
+                pendingAddressChangeEvent = null
+                return@registerForActivityResult
+            }
+
+            Timber.d("Address selection completed")
+            val responseJson = result.data?.getStringExtra(AddressSelectionActivity.EXTRA_ADDRESS_RESPONSE)
+
+            // Early return if missing data
+            if (responseJson == null || pendingAddressChangeEvent == null) {
+                Timber.w("Missing response data or pending event")
+                pendingAddressChangeEvent = null
+                return@registerForActivityResult
+            }
+
+            // Happy path: deserialize and send response
+            try {
+                val json = Json { ignoreUnknownKeys = true }
+                val response = json.decodeFromString<DeliveryAddressChangePayload>(responseJson)
+                pendingAddressChangeEvent!!.respondWith(response)
+                Timber.d("Successfully sent address change response")
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to send address change response")
+            } finally {
+                pendingAddressChangeEvent = null
+            }
+        }
+    }
+
+    // Store address change event when checkout requests address selection
+    fun storeAddressChangeEvent(event: CheckoutAddressChangeRequestedEvent) {
+        Timber.d("Storing address change event")
+        pendingAddressChangeEvent = event
     }
 
     // Show a file chooser when prompted by the event processor
