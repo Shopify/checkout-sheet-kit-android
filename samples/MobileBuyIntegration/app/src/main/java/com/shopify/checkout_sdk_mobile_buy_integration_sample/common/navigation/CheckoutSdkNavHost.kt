@@ -31,7 +31,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.checkout.InlineCheckoutScreen
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.checkout.CheckoutNavHost
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.MobileBuyEventProcessor
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.home.HomeView
@@ -176,9 +176,9 @@ fun CheckoutSdkNavHost(
         }
 
         composable(Screen.InlineCheckout.route) { backStackEntry ->
-            InlineCheckoutScreen(
+            CheckoutNavHost(
                 checkoutUrl = Screen.InlineCheckout.checkoutUrlRouteVariable(backStackEntry),
-                navController = navController,
+                mainNavController = navController,
                 cartViewModel = cartViewModel,
                 logger = logger
             )
