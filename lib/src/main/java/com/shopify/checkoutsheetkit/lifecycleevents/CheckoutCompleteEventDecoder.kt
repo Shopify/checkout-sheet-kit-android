@@ -23,14 +23,14 @@
 package com.shopify.checkoutsheetkit.lifecycleevents
 
 import com.shopify.checkoutsheetkit.LogWrapper
-import com.shopify.checkoutsheetkit.WebToSdkEvent
+import com.shopify.checkoutsheetkit.WebToNativeEvent
 import kotlinx.serialization.json.Json
 
 internal class CheckoutCompleteEventDecoder @JvmOverloads constructor(
     private val decoder: Json,
     private val log: LogWrapper = LogWrapper()
 ) {
-    fun decode(decodedMsg: WebToSdkEvent): CheckoutCompleteEvent {
+    fun decode(decodedMsg: WebToNativeEvent): CheckoutCompleteEvent {
         return try {
             decoder.decodeFromString<CheckoutCompleteEvent>(decodedMsg.body)
         } catch (e: Exception) {

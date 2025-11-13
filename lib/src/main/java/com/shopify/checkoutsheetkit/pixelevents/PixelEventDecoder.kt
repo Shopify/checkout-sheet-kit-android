@@ -23,7 +23,7 @@
 package com.shopify.checkoutsheetkit.pixelevents
 
 import com.shopify.checkoutsheetkit.LogWrapper
-import com.shopify.checkoutsheetkit.WebToSdkEvent
+import com.shopify.checkoutsheetkit.WebToNativeEvent
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonPrimitive
@@ -32,7 +32,7 @@ internal class PixelEventDecoder @JvmOverloads constructor(
     private val decoder: Json,
     private val log: LogWrapper = LogWrapper()
 ) {
-    fun decode(decodedMsg: WebToSdkEvent): PixelEvent? {
+    fun decode(decodedMsg: WebToNativeEvent): PixelEvent? {
         return try {
             val eventWrapper = decoder.decodeFromString<PixelEventWrapper>(decodedMsg.body)
             when (EventType.fromTypeName(eventWrapper.event["type"]?.jsonPrimitive?.content)) {

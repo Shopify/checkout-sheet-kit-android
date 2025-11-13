@@ -23,7 +23,7 @@
 package com.shopify.checkoutsheetkit.pixelevents
 
 import com.shopify.checkoutsheetkit.LogWrapper
-import com.shopify.checkoutsheetkit.WebToSdkEvent
+import com.shopify.checkoutsheetkit.WebToNativeEvent
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.assertj.core.api.Assertions.assertThat
@@ -62,7 +62,7 @@ class PixelEventDecoderTest {
             |    }
             |}
         |""".trimMargin()
-            .toWebToSdkEvent()
+            .toWebToNativeEvent()
 
 
         val result = decoder.decode(event)
@@ -107,7 +107,7 @@ class PixelEventDecoderTest {
             |    }
             |}
         |""".trimMargin()
-            .toWebToSdkEvent()
+            .toWebToNativeEvent()
 
 
         val result = decoder.decode(event)
@@ -146,7 +146,7 @@ class PixelEventDecoderTest {
             |    }
             |}
         |""".trimMargin()
-            .toWebToSdkEvent()
+            .toWebToNativeEvent()
 
         val result = decoder.decode(event)
 
@@ -233,7 +233,7 @@ class PixelEventDecoderTest {
             |    }
             |}
         |""".trimMargin()
-            .toWebToSdkEvent()
+            .toWebToNativeEvent()
 
         val result = decoder.decode(event)
 
@@ -260,7 +260,7 @@ class PixelEventDecoderTest {
             |        "id": "sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B",
             |}
         |""".trimMargin()
-            .toWebToSdkEvent()
+            .toWebToNativeEvent()
 
         val result = decoder.decode(event)
 
@@ -273,8 +273,8 @@ class PixelEventDecoderTest {
     }
 }
 
-private fun String.toWebToSdkEvent(): WebToSdkEvent {
-    return WebToSdkEvent(
+private fun String.toWebToNativeEvent(): WebToNativeEvent {
+    return WebToNativeEvent(
         name = "webPixels",
         body = this,
     )

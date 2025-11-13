@@ -135,7 +135,7 @@ internal class CheckoutBridge(
 }
 
 @Serializable
-internal data class WebToSdkEvent(
+internal data class WebToNativeEvent(
     val name: String,
     val body: String = ""
 )

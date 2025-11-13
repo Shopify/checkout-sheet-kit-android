@@ -23,7 +23,7 @@
 package com.shopify.checkoutsheetkit.errors
 
 import com.shopify.checkoutsheetkit.LogWrapper
-import com.shopify.checkoutsheetkit.WebToSdkEvent
+import com.shopify.checkoutsheetkit.WebToNativeEvent
 import com.shopify.checkoutsheetkit.errorevents.CheckoutErrorDecoder
 import com.shopify.checkoutsheetkit.errorevents.CheckoutErrorGroup
 import com.shopify.checkoutsheetkit.errorevents.CheckoutErrorPayload
@@ -40,7 +40,7 @@ class CheckoutErrorDecoderTest {
 
     @Test
     fun `should decode a checkout error`() {
-        val event = WebToSdkEvent(
+        val event = WebToNativeEvent(
             name = "error",
             body = """[
                 |{
@@ -68,7 +68,7 @@ class CheckoutErrorDecoderTest {
 
     @Test
     fun `should return group = unsupported for any groups that arent supported`() {
-        val event = WebToSdkEvent(
+        val event = WebToNativeEvent(
             name = "error",
             body = """[
                 |{
@@ -96,7 +96,7 @@ class CheckoutErrorDecoderTest {
 
     @Test
     fun `should throw if decoding fails`() {
-        val event = WebToSdkEvent(
+        val event = WebToNativeEvent(
             name = "error",
             body = """[
                 |{
@@ -112,7 +112,7 @@ class CheckoutErrorDecoderTest {
 
     @Test
     fun `should return first message if multiple exist in payload`() {
-        val event = WebToSdkEvent(
+        val event = WebToNativeEvent(
             name = "error",
             body = """[
                 |{

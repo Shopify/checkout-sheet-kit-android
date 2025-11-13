@@ -153,7 +153,6 @@ class EmbedParamsTest {
             "protocol=${CheckoutBridge.SCHEMA_VERSION}," +
                 "branding=${EmbedFieldValue.BRANDING_APP}," +
                 "library=CheckoutKit/${BuildConfig.SDK_VERSION}," +
-                "sdk=${ShopifyCheckoutSheetKit.version.split("-").first()}," +
                 "platform=${Platform.ANDROID.displayName}," +
                 "entry=${EmbedFieldValue.ENTRY_SHEET}," +
                 "${EmbedFieldKey.COLOR_SCHEME}=dark"
@@ -175,7 +174,6 @@ class EmbedParamsTest {
             "protocol=${CheckoutBridge.SCHEMA_VERSION}," +
                 "branding=${EmbedFieldValue.BRANDING_APP}," +
                 "library=CheckoutKit/${BuildConfig.SDK_VERSION}," +
-                "sdk=${ShopifyCheckoutSheetKit.version.split("-").first()}," +
                 "platform=${Platform.ANDROID.displayName}," +
                 "entry=${EmbedFieldValue.ENTRY_SHEET}," +
                 "${EmbedFieldKey.COLOR_SCHEME}=dark"  // But URL has Dark
@@ -197,7 +195,6 @@ class EmbedParamsTest {
             "protocol=${CheckoutBridge.SCHEMA_VERSION}," +
                 "branding=${EmbedFieldValue.BRANDING_APP}," +
                 "library=CheckoutKit/${BuildConfig.SDK_VERSION}," +
-                "sdk=${ShopifyCheckoutSheetKit.version.split("-").first()}," +
                 "platform=${Platform.ANDROID.displayName}," +
                 "entry=${EmbedFieldValue.ENTRY_SHEET}," +
                 "${EmbedFieldKey.COLOR_SCHEME}=dark"

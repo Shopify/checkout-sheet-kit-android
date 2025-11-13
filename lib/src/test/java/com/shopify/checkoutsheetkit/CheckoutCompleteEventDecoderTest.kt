@@ -48,7 +48,7 @@ class CheckoutCompleteEventDecoderTest {
 
     @Test
     fun `should decode order confirmation details`() {
-        val result = decoder.decode(EXAMPLE_EVENT.toWebToSdkEvent())
+        val result = decoder.decode(EXAMPLE_EVENT.toWebToNativeEvent())
         val orderConfirmation = result.orderConfirmation
 
         assertThat(orderConfirmation.order.id).isEqualTo("gid://shopify/Order/9697125302294")
@@ -59,7 +59,7 @@ class CheckoutCompleteEventDecoderTest {
 
     @Test
     fun `should decode cart line details`() {
-        val result = decoder.decode(EXAMPLE_EVENT.toWebToSdkEvent())
+        val result = decoder.decode(EXAMPLE_EVENT.toWebToNativeEvent())
         val line = result.cart.lines.single()
 
         assertThat(line.id).isEqualTo("gid://shopify/CartLine/1")
@@ -84,7 +84,7 @@ class CheckoutCompleteEventDecoderTest {
 
     @Test
     fun `should decode cart level cost and discounts`() {
-        val result = decoder.decode(EXAMPLE_EVENT.toWebToSdkEvent())
+        val result = decoder.decode(EXAMPLE_EVENT.toWebToNativeEvent())
         val cart = result.cart
 
         assertThat(cart.cost.subtotalAmount).isEqualTo(Money(amount = "8.00", currencyCode = "GBP"))
@@ -105,7 +105,7 @@ class CheckoutCompleteEventDecoderTest {
 
     @Test
     fun `should decode cart buyer identity and delivery details`() {
-        val result = decoder.decode(EXAMPLE_EVENT.toWebToSdkEvent())
+        val result = decoder.decode(EXAMPLE_EVENT.toWebToNativeEvent())
         val cart = result.cart
 
         assertThat(cart.buyerIdentity.email).isEqualTo("a.user@shopify.com")
@@ -127,7 +127,7 @@ class CheckoutCompleteEventDecoderTest {
 
     @Test
     fun `should fall back to empty event on decode failure`() {
-        val result = decoder.decode("not-json".toWebToSdkEvent())
+        val result = decoder.decode("not-json".toWebToNativeEvent())
 
         assertThat(result.orderConfirmation.order.id).isEmpty()
         assertThat(result.cart.lines).isEmpty()
@@ -173,7 +173,7 @@ class CheckoutCompleteEventDecoderTest {
             }
         """.trimIndent()
 
-        val result = decoder.decode(invalidMoneyJson.toWebToSdkEvent())
+        val result = decoder.decode(invalidMoneyJson.toWebToNativeEvent())
 
         assertThat(result.orderConfirmation.order.id).isEmpty()
         assertThat(result.cart.lines).isEmpty()
@@ -212,14 +212,14 @@ class CheckoutCompleteEventDecoderTest {
             }
         """.trimIndent()
 
-        val result = decoder.decode(invalidDiscountJson.toWebToSdkEvent())
+        val result = decoder.decode(invalidDiscountJson.toWebToNativeEvent())
 
         assertThat(result.orderConfirmation.order.id).isEmpty()
         assertThat(result.cart.lines).isEmpty()
     }
 
-    private fun String.toWebToSdkEvent(): WebToSdkEvent {
-        return WebToSdkEvent(
+    private fun String.toWebToNativeEvent(): WebToNativeEvent {
+        return WebToNativeEvent(
             name = CheckoutMessageContract.METHOD_COMPLETE,
             body = this,
         )

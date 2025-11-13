@@ -27,21 +27,21 @@ import com.shopify.checkoutsheetkit.CheckoutExpiredException
 import com.shopify.checkoutsheetkit.ClientException
 import com.shopify.checkoutsheetkit.ConfigurationException
 import com.shopify.checkoutsheetkit.LogWrapper
-import com.shopify.checkoutsheetkit.WebToSdkEvent
+import com.shopify.checkoutsheetkit.WebToNativeEvent
 import kotlinx.serialization.json.Json
 
 internal class CheckoutErrorDecoder @JvmOverloads constructor(
     private val decoder: Json,
     private val log: LogWrapper = LogWrapper()
 ) {
-    fun decode(message: WebToSdkEvent): CheckoutException? = try {
+    fun decode(message: WebToNativeEvent): CheckoutException? = try {
         decodeMessage(message).mapToCheckoutException()
     } catch (e: Exception) {
         log.e("CheckoutBridge", "Failed to decode CheckoutErrorPayload", e)
         throw e
     }
 
-    internal fun decodeMessage(message: WebToSdkEvent): CheckoutErrorPayload {
+    internal fun decodeMessage(message: WebToNativeEvent): CheckoutErrorPayload {
         val errors = decoder.decodeFromString<List<CheckoutErrorPayload>>(message.body)
         return errors.first()
     }

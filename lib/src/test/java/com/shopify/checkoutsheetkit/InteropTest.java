@@ -164,7 +164,7 @@ public class InteropTest {
                 "}" +
                 "}";
 
-        WebToSdkEvent webEvent = new WebToSdkEvent("webPixels", eventString);
+        WebToNativeEvent webEvent = new WebToNativeEvent("webPixels", eventString);
         Json json = Json.Default;
 
         PixelEventDecoder decoder = new PixelEventDecoder(json);
@@ -188,7 +188,7 @@ public class InteropTest {
                 "\"code\": \"cart_completed\"" +
                 "}]";
 
-        WebToSdkEvent webEvent = new WebToSdkEvent("error", eventString);
+        WebToNativeEvent webEvent = new WebToNativeEvent("error", eventString);
         Json json = JsonKt.Json(Json.Default, b -> {
             b.setIgnoreUnknownKeys(true);
             return null;
@@ -206,7 +206,7 @@ public class InteropTest {
     @SuppressWarnings("all")
     @Test
     public void canAccessFieldsOnCheckoutCompletedEvent() {
-        WebToSdkEvent webEvent = new WebToSdkEvent(CheckoutMessageContract.METHOD_COMPLETE, EXAMPLE_EVENT);
+        WebToNativeEvent webEvent = new WebToNativeEvent(CheckoutMessageContract.METHOD_COMPLETE, EXAMPLE_EVENT);
         Json json = JsonKt.Json(Json.Default, b -> {
             b.setIgnoreUnknownKeys(true);
             return null;

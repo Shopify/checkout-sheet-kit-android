@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">Checkout SDK Mobile Buy Integration Sample</string>
+    <string name="app_name" translatable="false">Checkout Kit Mobile Buy Integration Sample</string>
     <string name="logo_content_description" translatable="false">Store logo</string>
 
     <!-- Override Checkout Sheet Kit Default Title -->
@@ -27,7 +27,7 @@
     </string>
 
     <string name="sample_app_version" translatable="false">Sample app version</string>
-    <string name="sdk_version" translatable="false">Checkout Sheet Kit version</string>
+    <string name="kit_version" translatable="false">Checkout Sheet Kit version</string>
 
     <string name="view_logs" translatable="false">View logs</string>
     <string name="delete_logs" translatable="false">Delete logs</string>
