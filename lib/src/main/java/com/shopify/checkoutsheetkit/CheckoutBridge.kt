@@ -95,6 +95,13 @@ internal class CheckoutBridge(
                     }
                 }
 
+                is CheckoutMessageParser.JSONRPCMessage.Started -> {
+                    log.d(LOG_TAG, "Received checkout.start message. Dispatching decoded event.")
+                    onMainThread {
+                        eventProcessor.onCheckoutViewStart(checkoutMessage.event)
+                    }
+                }
+
                 is CheckoutMessageParser.JSONRPCMessage.Completed -> {
                     log.d(LOG_TAG, "Received checkout.complete message. Dispatching decoded event.")
                     onMainThread {
