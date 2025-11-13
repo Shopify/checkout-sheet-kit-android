@@ -41,8 +41,8 @@ public data class CheckoutAddressChangeRequestedEventData(
  */
 public class CheckoutAddressChangeRequestedEvent internal constructor(
     internal val message: CheckoutMessageParser.JSONRPCMessage.AddressChangeRequested,
-) {
-    public val id: String? get() = message.id
+) : RespondableEvent {
+    override val id: String? get() = message.id
     public val addressType: String get() = message.addressType
     public val selectedAddress: CartDeliveryAddressInput? get() = message.selectedAddress
 
