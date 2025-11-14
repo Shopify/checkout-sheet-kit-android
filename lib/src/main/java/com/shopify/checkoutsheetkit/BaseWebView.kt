@@ -49,7 +49,7 @@ import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
 import java.net.HttpURLConnection.HTTP_GONE
 
 @SuppressLint("SetJavaScriptEnabled")
-internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet? = null) :
+public abstract class BaseWebView(context: Context, attributeSet: AttributeSet? = null) :
     WebView(context, attributeSet) {
 
     internal val authenticationTracker = AuthenticationTracker()
@@ -58,10 +58,10 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
         configureWebView()
     }
 
-    abstract fun getEventProcessor(): CheckoutWebViewEventProcessor
-    abstract val recoverErrors: Boolean
+    internal abstract fun getEventProcessor(): CheckoutWebViewEventProcessor
+    internal abstract val recoverErrors: Boolean
 
-    open val checkoutOptions: CheckoutOptions? = null
+    protected open val checkoutOptions: CheckoutOptions? = null
 
     private fun configureWebView() {
         visibility = VISIBLE
@@ -123,7 +123,7 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
         return super.onKeyDown(keyCode, event)
     }
 
-    open inner class BaseWebViewClient : WebViewClient() {
+    internal open inner class BaseWebViewClient : WebViewClient() {
         init {
             if (BuildConfig.DEBUG) {
                 log.d(LOG_TAG, "Setting web contents debugging enabled.")
@@ -246,8 +246,9 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
         }
     }
 
-    companion object {
+    internal companion object {
         private const val LOG_TAG = "BaseWebView"
+
         private const val TOO_MANY_REQUESTS = 429
         private val CLIENT_ERROR = 400..499
     }
