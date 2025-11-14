@@ -185,6 +185,10 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
         // no-op override to implement
     }
 
+    override fun onAddressChangeRequested(event: CheckoutAddressChangeRequestedEvent) {
+        // no-op override to implement
+    }
+
     private fun Context.launchEmailApp(to: String) {
         log.d(LOG_TAG, "Attempting to launch email app.")
         val intent = Intent(Intent.ACTION_SEND)
