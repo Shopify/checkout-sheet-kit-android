@@ -93,25 +93,6 @@ class MobileBuyEventProcessor(
         return (context as MainActivity).onGeolocationPermissionsShowPrompt(origin, callback)
     }
 
-    override fun onAddressChangeRequested(event: CheckoutAddressChangeRequestedEvent) {
-        event.respondWith(DeliveryAddressChangePayload(
-            delivery = CartDelivery(
-                addresses = listOf(
-                    CartSelectableAddressInput(
-                        address = CartDeliveryAddressInput(
-                            firstName = "Bob",
-                            lastName = "Jones",
-                            address1 = "44 Sunningdale Ave",
-                            city = "Swansea",
-                            countryCode = "GB",
-                            zip = "SA35HP",
-                        )
-                    )
-                )
-            )
-        ))
-    }
-
     override fun onShowFileChooser(
         webView: WebView,
         filePathCallback: ValueCallback<Array<Uri>>,
