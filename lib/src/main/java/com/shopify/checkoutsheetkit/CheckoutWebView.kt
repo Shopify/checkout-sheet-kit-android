@@ -111,7 +111,11 @@ public class CheckoutWebView(context: Context, attributeSet: AttributeSet? = nul
         checkoutBridge.setWebView(null)
     }
 
-    public fun loadCheckout(url: String, isPreload: Boolean, options: CheckoutOptions? = null) {
+    public fun loadCheckout(url: String, options: CheckoutOptions? = null) {
+        loadCheckout(url, false, options)
+    }
+
+    internal fun loadCheckout(url: String, isPreload: Boolean, options: CheckoutOptions? = null) {
         log.d(LOG_TAG, "Loading checkout with url $url. IsPreload: $isPreload.")
         this.isPreload = isPreload
         this.checkoutOptions = options
