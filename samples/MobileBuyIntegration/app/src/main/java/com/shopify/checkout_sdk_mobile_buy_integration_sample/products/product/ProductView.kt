@@ -40,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.BodyMedium
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
@@ -47,6 +48,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.ProgressIndicator
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.QuantitySelector
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.RemoteImage
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.horizontalPadding
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.largeScreenBreakpoint
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.verticalPadding
@@ -57,6 +59,7 @@ import timber.log.Timber
 @Composable
 fun ProductView(
     productId: String,
+    navController: NavController,
     productViewModel: ProductViewModel = koinViewModel(),
 ) {
 
@@ -133,12 +136,24 @@ fun ProductView(
                             productViewModel.setAddQuantityAmount(quantity)
                         }
 
-                        AddToCartButton(
-                            enabled = productUIState.selectedVariant.availableForSale,
-                            loading = productUIState.isAddingToCart,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            productViewModel.addToCart()
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            AddToCartButton(
+                                enabled = productUIState.selectedVariant.availableForSale,
+                                loading = productUIState.isAddingToCart,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                productViewModel.addToCart()
+                            }
+
+                            BuyNowButton(
+                                enabled = productUIState.selectedVariant.availableForSale,
+                                loading = productUIState.isAddingToCart,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                productViewModel.buyNow { checkoutUrl ->
+                                    navController.navigate(Screen.InlineCheckout.route(checkoutUrl))
+                                }
+                            }
                         }
 
                         BodyMedium(

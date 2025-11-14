@@ -25,11 +25,15 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartRepository
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.Product
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductRepository
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductVariant
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductVariantOptionDetails
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductVariantSelectedOption
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID as CommonID
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.CustomerRepository
 import com.shopify.graphql.support.ID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -40,7 +44,20 @@ import timber.log.Timber
 class ProductViewModel(
     private val cartViewModel: CartViewModel,
     private val productRepository: ProductRepository,
+    private val cartRepository: CartRepository,
+    private val preferencesManager: PreferencesManager,
+    private val customerRepository: CustomerRepository,
 ) : ViewModel() {
+    private var demoBuyerIdentityEnabled = false
+
+    init {
+        // Track buyer identity setting for buy now carts
+        viewModelScope.launch {
+            preferencesManager.userPreferencesFlow.collect {
+                demoBuyerIdentityEnabled = it.buyerIdentityDemoEnabled
+            }
+        }
+    }
     private val _uiState = MutableStateFlow<ProductUIState>(ProductUIState.Loading)
     val uiState: StateFlow<ProductUIState> = _uiState.asStateFlow()
 
@@ -61,6 +78,40 @@ class ProductViewModel(
                 setIsAddingToCart(false)
             }
         }
+    }
+
+    fun buyNow(onCartCreated: (String) -> Unit) {
+        val state = _uiState.value
+        if (state is ProductUIState.Loaded) {
+            val variantId = state.selectedVariant.id
+            val quantity = state.addQuantityAmount
+            setIsAddingToCart(true)
+            viewModelScope.launch {
+                try {
+                    val checkoutUrl = createBuyNowCart(variantId, quantity)
+                    setIsAddingToCart(false)
+                    onCartCreated(checkoutUrl)
+                } catch (e: Exception) {
+                    Timber.e("Failed to create buy now cart: $e")
+                    setIsAddingToCart(false)
+                }
+            }
+        }
+    }
+
+    private suspend fun createBuyNowCart(variantId: CommonID, quantity: Int): String {
+        Timber.i("Creating buy now cart for variant: $variantId with quantity: $quantity")
+        val customerAccessToken = customerRepository.getCustomerAccessToken()?.accessToken
+
+        val tempCart = cartRepository.createCart(
+            variantId = variantId,
+            quantity = quantity,
+            demoBuyerIdentityEnabled = demoBuyerIdentityEnabled,
+            customerAccessToken = customerAccessToken,
+        )
+
+        Timber.i("Buy now cart created with URL: ${tempCart.checkoutUrl}")
+        return tempCart.checkoutUrl
     }
 
     fun fetchProduct(productId: ID) = viewModelScope.launch {
