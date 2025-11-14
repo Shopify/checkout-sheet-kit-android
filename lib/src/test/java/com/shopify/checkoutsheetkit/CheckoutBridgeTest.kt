@@ -23,7 +23,13 @@
 package com.shopify.checkoutsheetkit
 
 import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
+import com.shopify.checkoutsheetkit.lifecycleevents.Cart
+import com.shopify.checkoutsheetkit.lifecycleevents.CartBuyerIdentity
+import com.shopify.checkoutsheetkit.lifecycleevents.CartCost
+import com.shopify.checkoutsheetkit.lifecycleevents.CartDelivery
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.Money
+import com.shopify.checkoutsheetkit.lifecycleevents.OrderConfirmation
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.After
@@ -110,25 +116,25 @@ class CheckoutBridgeTest {
     @Test
     fun `postMessage handles checkout complete JSON-RPC message`() {
         val params = CheckoutCompleteEvent(
-            orderConfirmation = CheckoutCompleteEvent.OrderConfirmation(
+            orderConfirmation = OrderConfirmation(
                 url = null,
-                order = CheckoutCompleteEvent.OrderConfirmation.Order(id = "order-id-123"),
+                order = OrderConfirmation.Order(id = "order-id-123"),
                 number = null,
                 isFirstOrder = false
             ),
-            cart = CheckoutCompleteEvent.Cart(
+            cart = Cart(
                 id = "cart-id-123",
                 lines = emptyList(),
-                cost = CheckoutCompleteEvent.CartCost(
-                    subtotalAmount = CheckoutCompleteEvent.Money(amount = "0.00", currencyCode = "USD"),
-                    totalAmount = CheckoutCompleteEvent.Money(amount = "0.00", currencyCode = "USD")
+                cost = CartCost(
+                    subtotalAmount = Money(amount = "0.00", currencyCode = "USD"),
+                    totalAmount = Money(amount = "0.00", currencyCode = "USD")
                 ),
-                buyerIdentity = CheckoutCompleteEvent.CartBuyerIdentity(),
+                buyerIdentity = CartBuyerIdentity(),
                 deliveryGroups = emptyList(),
                 discountCodes = emptyList(),
                 appliedGiftCards = emptyList(),
                 discountAllocations = emptyList(),
-                delivery = CheckoutCompleteEvent.CartDelivery(addresses = emptyList())
+                delivery = CartDelivery(addresses = emptyList())
             )
         )
 
