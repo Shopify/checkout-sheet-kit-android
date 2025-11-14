@@ -60,6 +60,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.totalQuantity
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.checkout.LocalCheckoutBackHandler
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ObserveAsEvents
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.BottomAppBarWithNavigation
@@ -104,6 +105,7 @@ fun CheckoutSdkAppRoot(
             var currentScreen by remember { mutableStateOf<Screen>(Screen.Product) }
             val scope = rememberCoroutineScope()
             val snackbarHostState = remember { SnackbarHostState() }
+            val checkoutBackHandler = LocalCheckoutBackHandler.current
 
             ObserveAsEvents(flow = SnackbarController.events) { event ->
                 scope.launch {
@@ -133,7 +135,10 @@ fun CheckoutSdkAppRoot(
                         navigationIcon = {
                             // render a back icon on the inline checkout screen
                             if (currentScreen == Screen.InlineCheckout) {
-                                IconButton(onClick = { navController.popBackStack() }) {
+                                IconButton(onClick = {
+                                    // Use checkout-aware back handler if available, otherwise use main nav
+                                    checkoutBackHandler?.invoke() ?: navController.popBackStack()
+                                }) {
                                     Icon(
                                         painter = painterResource(id = R.drawable.back_arrow),
                                         contentDescription = "Back",
