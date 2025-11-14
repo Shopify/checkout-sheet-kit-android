@@ -220,7 +220,7 @@ public class CheckoutWebView(context: Context, attributeSet: AttributeSet? = nul
             }
         }
 
-        public fun cacheableCheckoutView(
+        internal fun cacheableCheckoutView(
             url: String,
             activity: ComponentActivity,
             isPreload: Boolean = false,

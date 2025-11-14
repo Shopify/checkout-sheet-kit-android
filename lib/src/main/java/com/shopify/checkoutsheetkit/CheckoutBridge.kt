@@ -38,6 +38,15 @@ internal class CheckoutBridge(
 ) {
 
     private var webViewRef: WeakReference<WebView>? = null
+
+    /**
+     * TODO:
+     * This is architecturally the inverse of what we do for iOS, where the RCTCheckoutWebView.swift holds the list of events active
+     * Once the AddressPicker screen is in, as the Android native apps can pass references to the events directly
+     * We can move this to the RCTCheckoutWebView.java, and remove the webViewRef as that exists on
+     * the events.
+     * This doesn't affect behaviour just means they're consistent
+     */
     private val pendingEvents = mutableMapOf<String, CheckoutMessageParser.JSONRPCMessage>()
 
     fun setEventProcessor(eventProcessor: CheckoutWebViewEventProcessor) {

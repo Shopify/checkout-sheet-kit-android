@@ -66,7 +66,7 @@ internal class FallbackWebView(context: Context, attributeSet: AttributeSet? = n
         return checkoutEventProcessor
     }
 
-    internal inner class FallbackWebViewClient : BaseWebView.BaseWebViewClient() {
+    inner class FallbackWebViewClient : BaseWebView.BaseWebViewClient() {
 
         private val typRegex = Regex(pattern = "^(thank[-_]+you)$", option = RegexOption.IGNORE_CASE)
 
