@@ -23,12 +23,14 @@
 
 package com.shopify.checkoutsheetkit
 
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent.DiscountValue.MoneyValue
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent.DiscountValue.PercentageValue
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent.Money
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent.PricingPercentageValue
+import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryGroupType
+import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryMethodType
+import com.shopify.checkoutsheetkit.lifecycleevents.CartDiscountCode
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEventDecoder
+import com.shopify.checkoutsheetkit.lifecycleevents.DiscountValue
+import com.shopify.checkoutsheetkit.lifecycleevents.Money
+import com.shopify.checkoutsheetkit.lifecycleevents.PricingPercentageValue
+import com.shopify.checkoutsheetkit.lifecycleevents.SelectedOption
 import kotlinx.serialization.json.Json
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -72,13 +74,13 @@ class CheckoutCompleteEventDecoderTest {
             "https://cdn.shopify.com/s/files/1/0692/3996/3670/files/product-image_256x256.jpg"
         )
         assertThat(line.merchandise.selectedOptions).containsExactly(
-            CheckoutCompleteEvent.SelectedOption(name = "Format", value = "Hardcover")
+            SelectedOption(name = "Format", value = "Hardcover")
         )
 
         val discountAllocation = line.discountAllocations.single()
         assertThat(discountAllocation.discountedAmount).isEqualTo(Money(amount = "1.00", currencyCode = "GBP"))
-        assertThat(discountAllocation.discountApplication.value).isInstanceOf(PercentageValue::class.java)
-        assertThat((discountAllocation.discountApplication.value as PercentageValue).percentage)
+        assertThat(discountAllocation.discountApplication.value).isInstanceOf(DiscountValue.PercentageValue::class.java)
+        assertThat((discountAllocation.discountApplication.value as DiscountValue.PercentageValue).percentage)
             .isEqualTo(PricingPercentageValue(percentage = 10.0))
     }
 
@@ -90,7 +92,7 @@ class CheckoutCompleteEventDecoderTest {
         assertThat(cart.cost.subtotalAmount).isEqualTo(Money(amount = "8.00", currencyCode = "GBP"))
         assertThat(cart.cost.totalAmount).isEqualTo(Money(amount = "13.99", currencyCode = "GBP"))
         assertThat(cart.discountCodes).containsExactly(
-            CheckoutCompleteEvent.CartDiscountCode(code = "SUMMER", applicable = true)
+            CartDiscountCode(code = "SUMMER", applicable = true)
         )
         val giftCard = cart.appliedGiftCards.single()
         assertThat(giftCard.amountUsed).isEqualTo(Money(amount = "10.00", currencyCode = "GBP"))
@@ -98,8 +100,8 @@ class CheckoutCompleteEventDecoderTest {
         assertThat(giftCard.lastCharacters).isEqualTo("ABCD")
 
         val allocation = cart.discountAllocations.single()
-        assertThat(allocation.discountApplication.value).isInstanceOf(MoneyValue::class.java)
-        assertThat((allocation.discountApplication.value as MoneyValue).money)
+        assertThat(allocation.discountApplication.value).isInstanceOf(DiscountValue.MoneyValue::class.java)
+        assertThat((allocation.discountApplication.value as DiscountValue.MoneyValue).money)
             .isEqualTo(Money(amount = "2.00", currencyCode = "GBP"))
     }
 
@@ -113,10 +115,10 @@ class CheckoutCompleteEventDecoderTest {
         assertThat(cart.buyerIdentity.countryCode).isEqualTo("GB")
 
         val deliveryGroup = cart.deliveryGroups.single()
-        assertThat(deliveryGroup.groupType).isEqualTo(CheckoutCompleteEvent.CartDeliveryGroupType.ONE_TIME_PURCHASE)
+        assertThat(deliveryGroup.groupType).isEqualTo(CartDeliveryGroupType.ONE_TIME_PURCHASE)
         assertThat(deliveryGroup.deliveryAddress.city).isEqualTo("Swansea")
         assertThat(deliveryGroup.deliveryOptions.single().deliveryMethodType)
-            .isEqualTo(CheckoutCompleteEvent.CartDeliveryMethodType.SHIPPING)
+            .isEqualTo(CartDeliveryMethodType.SHIPPING)
         assertThat(deliveryGroup.selectedDeliveryOption?.handle).isEqualTo("standard-shipping")
 
         val deliveryAddress = cart.delivery.addresses.single().address
