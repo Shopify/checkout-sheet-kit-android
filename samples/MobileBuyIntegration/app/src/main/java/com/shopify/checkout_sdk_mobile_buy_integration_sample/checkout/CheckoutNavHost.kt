@@ -128,7 +128,7 @@ fun CheckoutNavHost(
                         val token = authService.fetchAccessToken()
                         val options = CheckoutOptions(authToken = token)
                         Timber.d("Loading checkout with authentication token")
-                        checkoutWebView.loadCheckout(checkoutUrl, options = options)
+                        checkoutWebView.loadCheckout(checkoutUrl, options)
                     } catch (e: Exception) {
                         Timber.e("Failed to fetch checkout app authentication token, loading without authentication: $e")
                         checkoutWebView.loadCheckout(checkoutUrl)
