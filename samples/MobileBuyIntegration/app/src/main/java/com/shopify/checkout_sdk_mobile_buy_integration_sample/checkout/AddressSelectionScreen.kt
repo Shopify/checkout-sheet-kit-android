@@ -22,6 +22,7 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.checkout
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -69,13 +70,17 @@ data class AddressOption(
 @Composable
 fun AddressSelectionScreen(
     eventId: String,
-    onDismiss: () -> Unit,
+    onNavigateBack: () -> Unit,
 ) {
     val eventStore = LocalCheckoutEventStore.current
     val event = remember(eventId) {
         eventStore.getEvent(eventId) as? com.shopify.checkoutsheetkit.CheckoutAddressChangeRequestedEvent
     }
     val coroutineScope = rememberCoroutineScope()
+
+    BackHandler {
+        onNavigateBack()
+    }
 
     var selectedIndex by remember { mutableIntStateOf(0) }
     val addressOptions = remember {
@@ -164,8 +169,8 @@ fun AddressSelectionScreen(
                     // Clean up event from store
                     eventStore.removeEvent(eventId)
 
-                    // Dismiss the address screen
-                    onDismiss()
+                    // Navigate back to checkout
+                    onNavigateBack()
                 }
             },
             modifier = Modifier
