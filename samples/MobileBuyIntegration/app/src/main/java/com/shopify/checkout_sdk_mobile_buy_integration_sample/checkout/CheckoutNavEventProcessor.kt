@@ -25,13 +25,14 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.checkout
 import android.content.Context
 import android.widget.Toast
 import androidx.navigation.NavController
+import timber.log.Timber
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkoutsheetkit.CheckoutAddressChangeRequestedEvent
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
 import kotlinx.coroutines.DelicateCoroutinesApi
-import timber.log.Timber
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -48,8 +49,12 @@ class CheckoutNavEventProcessor(
     private val eventStore: CheckoutEventStore,
 ) : DefaultCheckoutEventProcessor(context) {
 
+    override fun onCheckoutStarted(checkoutStartEvent: CheckoutStartEvent) {
+        Timber.d("Checkout start: $checkoutStartEvent")
+    }
+
     override fun onCheckoutCompleted(checkoutCompleteEvent: CheckoutCompleteEvent) {
-        Timber.d("Checkout completed: $checkoutCompleteEvent")
+        Timber.d("Checkout complete: $checkoutCompleteEvent")
     }
 
     override fun onCheckoutFailed(error: CheckoutException) {

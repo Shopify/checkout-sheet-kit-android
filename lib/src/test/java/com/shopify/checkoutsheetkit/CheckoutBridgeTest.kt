@@ -23,13 +23,7 @@
 package com.shopify.checkoutsheetkit
 
 import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
-import com.shopify.checkoutsheetkit.lifecycleevents.Cart
-import com.shopify.checkoutsheetkit.lifecycleevents.CartBuyerIdentity
-import com.shopify.checkoutsheetkit.lifecycleevents.CartCost
 import com.shopify.checkoutsheetkit.lifecycleevents.CartDelivery
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
-import com.shopify.checkoutsheetkit.lifecycleevents.Money
-import com.shopify.checkoutsheetkit.lifecycleevents.OrderConfirmation
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.After
@@ -66,7 +60,7 @@ class CheckoutBridgeTest {
     }
 
     @Test
-    fun `postMessage handles JSON-RPC address change requested message`() {
+    fun `postMessage dispatches address change requested to event processor`() {
         val jsonRpcMessage = """{
             "jsonrpc":"2.0",
             "id":"request-id-1",
@@ -114,28 +108,9 @@ class CheckoutBridgeTest {
     }
 
     @Test
-    fun `postMessage handles checkout complete JSON-RPC message`() {
-        val params = CheckoutCompleteEvent(
-            orderConfirmation = OrderConfirmation(
-                url = null,
-                order = OrderConfirmation.Order(id = "order-id-123"),
-                number = null,
-                isFirstOrder = false
-            ),
-            cart = Cart(
-                id = "cart-id-123",
-                lines = emptyList(),
-                cost = CartCost(
-                    subtotalAmount = Money(amount = "0.00", currencyCode = "USD"),
-                    totalAmount = Money(amount = "0.00", currencyCode = "USD")
-                ),
-                buyerIdentity = CartBuyerIdentity(),
-                deliveryGroups = emptyList(),
-                discountCodes = emptyList(),
-                appliedGiftCards = emptyList(),
-                discountAllocations = emptyList(),
-                delivery = CartDelivery(addresses = emptyList())
-            )
+    fun `postMessage dispatches checkout complete to event processor`() {
+        val params = createTestCheckoutCompleteEvent(
+            cart = createTestCart(subtotalAmount = "0.00", totalAmount = "0.00")
         )
 
         val jsonRpcMessage = """{
@@ -147,6 +122,21 @@ class CheckoutBridgeTest {
         checkoutBridge.postMessage(jsonRpcMessage)
 
         verify(mockEventProcessor).onCheckoutViewComplete(any())
+    }
+
+    @Test
+    fun `postMessage dispatches checkout start to event processor`() {
+        val params = createTestCheckoutStartEvent()
+
+        val jsonRpcMessage = """{
+            "jsonrpc":"2.0",
+            "method":"checkout.start",
+            "params":${Json.encodeToString(params)}
+        }""".trimIndent()
+
+        checkoutBridge.postMessage(jsonRpcMessage)
+
+        verify(mockEventProcessor).onCheckoutViewStart(any())
     }
 
     @Test
