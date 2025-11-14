@@ -38,14 +38,14 @@ import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
  * Event processor that can handle events internally, delegate to the CheckoutEventProcessor
  * passed into ShopifyCheckoutSheetKit.present(), or preprocess arguments and then delegate
  */
-internal class CheckoutWebViewEventProcessor(
+public class CheckoutWebViewEventProcessor(
     private val eventProcessor: CheckoutEventProcessor,
     private val toggleHeader: (Boolean) -> Unit = {},
-    private val closeCheckoutDialogWithError: (CheckoutException) -> Unit = { CheckoutWebView.clearCache() },
+    private val closeCheckoutDialogWithError: (CheckoutException) -> Unit = { CheckoutWebView.clearCacheInternal() },
     private val setProgressBarVisibility: (Int) -> Unit = {},
     private val updateProgressBarPercentage: (Int) -> Unit = {},
 ) {
-    fun onCheckoutViewComplete(checkoutCompleteEvent: CheckoutCompleteEvent) {
+    internal fun onCheckoutViewComplete(checkoutCompleteEvent: CheckoutCompleteEvent) {
         log.d(LOG_TAG, "Clearing WebView cache after checkout completion.")
         CheckoutWebView.markCacheEntryStale()
 
@@ -53,32 +53,32 @@ internal class CheckoutWebViewEventProcessor(
         eventProcessor.onCheckoutCompleted(checkoutCompleteEvent)
     }
 
-    fun onCheckoutViewModalToggled(modalVisible: Boolean) {
+    internal fun onCheckoutViewModalToggled(modalVisible: Boolean) {
         onMainThread {
             toggleHeader(modalVisible)
         }
     }
 
-    fun onCheckoutViewLinkClicked(uri: Uri) {
+    internal fun onCheckoutViewLinkClicked(uri: Uri) {
         log.d(LOG_TAG, "Calling onCheckoutLinkClicked.")
         eventProcessor.onCheckoutLinkClicked(uri)
     }
 
-    fun onCheckoutViewFailedWithError(error: CheckoutException) {
+    internal fun onCheckoutViewFailedWithError(error: CheckoutException) {
         onMainThread {
             closeCheckoutDialogWithError(error)
         }
     }
 
-    fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {
+    internal fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {
         return eventProcessor.onGeolocationPermissionsShowPrompt(origin, callback)
     }
 
-    fun onGeolocationPermissionsHidePrompt() {
+    internal fun onGeolocationPermissionsHidePrompt() {
         return eventProcessor.onGeolocationPermissionsHidePrompt()
     }
 
-    fun onShowFileChooser(
+    internal fun onShowFileChooser(
         webView: WebView,
         filePathCallback: ValueCallback<Array<Uri>>,
         fileChooserParams: FileChooserParams,
@@ -86,42 +86,42 @@ internal class CheckoutWebViewEventProcessor(
         return eventProcessor.onShowFileChooser(webView, filePathCallback, fileChooserParams)
     }
 
-    fun onPermissionRequest(permissionRequest: PermissionRequest) {
+    internal fun onPermissionRequest(permissionRequest: PermissionRequest) {
         onMainThread {
             eventProcessor.onPermissionRequest(permissionRequest)
         }
     }
 
-    fun onCheckoutViewLoadComplete() {
+    internal fun onCheckoutViewLoadComplete() {
         onMainThread {
             setProgressBarVisibility(INVISIBLE)
         }
     }
 
-    fun updateProgressBar(progress: Int) {
+    internal fun updateProgressBar(progress: Int) {
         onMainThread {
             updateProgressBarPercentage(progress)
         }
     }
 
-    fun onCheckoutViewLoadStarted() {
+    internal fun onCheckoutViewLoadStarted() {
         onMainThread {
             setProgressBarVisibility(VISIBLE)
         }
     }
 
-    fun onWebPixelEvent(event: PixelEvent) {
+    internal fun onWebPixelEvent(event: PixelEvent) {
         log.d(LOG_TAG, "Calling onWebPixelEvent for $event.")
         eventProcessor.onWebPixelEvent(event)
     }
 
-    fun onAddressChangeRequested(event: CheckoutAddressChangeRequestedEvent) {
+    internal fun onAddressChangeRequested(event: CheckoutAddressChangeRequestedEvent) {
         onMainThread {
             eventProcessor.onAddressChangeRequested(event)
         }
     }
 
-    companion object {
+    internal companion object {
         private const val LOG_TAG = "CheckoutWebViewEventProcessor"
     }
 }
