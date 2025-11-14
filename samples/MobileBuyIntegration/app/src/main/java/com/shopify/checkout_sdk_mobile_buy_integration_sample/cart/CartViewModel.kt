@@ -115,30 +115,34 @@ class CartViewModel(
         eventProcessor: T
     ) = viewModelScope.launch {
         Timber.i("Presenting checkout with $url")
-
-        if (checkoutAppAuthenticationService.hasConfiguration()) {
-            try {
-                val token = checkoutAppAuthenticationService.fetchAccessToken()
-                val options = CheckoutOptions(authToken = token)
-                ShopifyCheckoutSheetKit.present(url, activity, eventProcessor, options)
-            } catch (e: Exception) {
-                Timber.e("Failed to fetch checkout app authentication token, presenting without authentication: $e")
-                ShopifyCheckoutSheetKit.present(url, activity, eventProcessor)
-            }
-        } else {
-            ShopifyCheckoutSheetKit.present(url, activity, eventProcessor)
-        }
+        val options = fetchCheckoutOptions()
+        ShopifyCheckoutSheetKit.present(url, activity, eventProcessor, options)
     }
 
     fun preloadCheckout(
         activity: ComponentActivity,
-    ) {
+    ) = viewModelScope.launch {
         val state = _cartState.value
         if (state is CartState.Cart) {
             Timber.i("Preloading checkout with url ${state.checkoutUrl}")
-            ShopifyCheckoutSheetKit.preload(state.checkoutUrl, activity)
+            val options = fetchCheckoutOptions()
+            ShopifyCheckoutSheetKit.preload(state.checkoutUrl, activity, options)
         } else {
             Timber.i("Skipping checkout preload, cart is empty")
+        }
+    }
+
+    private suspend fun fetchCheckoutOptions(): CheckoutOptions? {
+        if (!checkoutAppAuthenticationService.hasConfiguration()) {
+            return null
+        }
+
+        return try {
+            val token = checkoutAppAuthenticationService.fetchAccessToken()
+            CheckoutOptions(authToken = token)
+        } catch (e: Exception) {
+            Timber.e("Failed to fetch checkout app authentication token, continuing without authentication: $e")
+            null
         }
     }
 
