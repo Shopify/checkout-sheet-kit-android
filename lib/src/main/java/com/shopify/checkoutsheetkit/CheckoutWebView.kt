@@ -40,9 +40,9 @@ import kotlin.time.Duration.Companion.minutes
 public class CheckoutWebView(context: Context, attributeSet: AttributeSet? = null) :
     BaseWebView(context, attributeSet) {
 
-    internal override val recoverErrors: Boolean = true
+    override val recoverErrors: Boolean = true
     private var isPreload: Boolean = false
-    protected override var checkoutOptions: CheckoutOptions? = null
+    override var checkoutOptions: CheckoutOptions? = null
 
     private val checkoutBridge = CheckoutBridge(CheckoutWebViewEventProcessor(NoopEventProcessor()))
     private var loadComplete = false
@@ -93,7 +93,7 @@ public class CheckoutWebView(context: Context, attributeSet: AttributeSet? = nul
         checkoutBridge.respondToEvent(eventId, responseData)
     }
 
-    internal override fun getEventProcessor(): CheckoutWebViewEventProcessor {
+    override fun getEventProcessor(): CheckoutWebViewEventProcessor {
         return checkoutBridge.getEventProcessor()
     }
 

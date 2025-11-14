@@ -33,7 +33,7 @@ import com.shopify.checkoutsheetkit.lifecycleevents.emptyCompleteEvent
 internal class FallbackWebView(context: Context, attributeSet: AttributeSet? = null) :
     BaseWebView(context, attributeSet) {
 
-    internal override val recoverErrors = false
+    override val recoverErrors = false
     override var checkoutOptions: CheckoutOptions? = null
 
     init {
