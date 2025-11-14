@@ -10,34 +10,37 @@
 
 **Note**: We're in the process of renaming "Checkout Sheet Kit" to "Checkout Kit." The dev docs and README already use the new name, while the package itself will be updated in an upcoming version.
 
-- [Requirements](#requirements)
-- [Getting Started](#getting-started)
-  - [Gradle](#gradle)
-  - [Maven](#maven)
-- [Basic Usage](#basic-usage)
-- [Configuration](#configuration)
-  - [Color Scheme](#color-scheme)
-  - [Log Level](#log-level)
-  - [Checkout Dialog Title](#checkout-dialog-title)
-- [Preloading](#preloading)
-  - [Important considerations](#important-considerations)
-  - [Flash Sales](#flash-sales)
-  - [When to preload](#when-to-preload)
-  - [Cache invalidation](#cache-invalidation)
-  - [Lifecycle management for preloaded checkout](#lifecycle-management-for-preloaded-checkout)
-    - [Additional considerations for preloaded checkout](#additional-considerations-for-preloaded-checkout)
-- [Monitoring the lifecycle of a checkout session](#monitoring-the-lifecycle-of-a-checkout-session)
-  - [Error handling](#error-handling)
-    - [`CheckoutException`](#checkoutexception)
-    - [Exception Hierarchy](#exception-hierarchy)
-  - [Integrating with Web Pixels, monitoring behavioral data](#integrating-with-web-pixels-monitoring-behavioral-data)
-- [Integrating identity \& customer accounts](#integrating-identity--customer-accounts)
-  - [Cart: buyer bag, identity, and preferences](#cart-buyer-bag-identity-and-preferences)
-  - [Multipass](#multipass)
-  - [Shop Pay](#shop-pay)
-  - [Customer Account API](#customer-account-api)
-- [Contributing](#contributing)
-- [License](#license)
+- [Shopify Checkout Kit - Android](#shopify-checkout-kit---android)
+  - [Requirements](#requirements)
+  - [Getting Started](#getting-started)
+    - [Gradle](#gradle)
+    - [Maven](#maven)
+  - [Basic Usage](#basic-usage)
+    - [Application Authentication](#application-authentication)
+      - [Fetching Authentication Tokens](#fetching-authentication-tokens)
+  - [Configuration](#configuration)
+    - [Color Scheme](#color-scheme)
+    - [Log Level](#log-level)
+    - [Checkout Dialog Title](#checkout-dialog-title)
+  - [Preloading](#preloading)
+    - [Important considerations](#important-considerations)
+    - [Flash Sales](#flash-sales)
+    - [When to preload](#when-to-preload)
+    - [Cache invalidation](#cache-invalidation)
+    - [Lifecycle management for preloaded checkout](#lifecycle-management-for-preloaded-checkout)
+      - [Additional considerations for preloaded checkout](#additional-considerations-for-preloaded-checkout)
+  - [Monitoring the lifecycle of a checkout session](#monitoring-the-lifecycle-of-a-checkout-session)
+    - [Error handling](#error-handling)
+      - [`CheckoutException`](#checkoutexception)
+      - [Exception Hierarchy](#exception-hierarchy)
+    - [Integrating with Web Pixels, monitoring behavioral data](#integrating-with-web-pixels-monitoring-behavioral-data)
+  - [Integrating identity \& customer accounts](#integrating-identity--customer-accounts)
+    - [Cart: buyer bag, identity, and preferences](#cart-buyer-bag-identity-and-preferences)
+    - [Multipass](#multipass)
+    - [Shop Pay](#shop-pay)
+    - [Customer Account API](#customer-account-api)
+  - [Contributing](#contributing)
+  - [License](#license)
 
 ## Requirements
 
@@ -663,25 +666,3 @@ see [guidelines and instructions](.github/CONTRIBUTING.md).
 ## License
 
 Shopify's Checkout Kit is provided under an [MIT License](LICENSE).
-
----
-
-## Migration
-
-### Currently Lost
-
-#### Outbound
-
-- presented
-- instrumentation (deprecated)
-
-#### Inbound
-
-- pixels
-- blocking
-- error
-
-#### Bugs and stuff
-
-- evaling js... relying on cache - not safe
-- not sending onError yet
