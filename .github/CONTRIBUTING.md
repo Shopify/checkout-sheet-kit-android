@@ -44,19 +44,75 @@ project before it is implemented.
 
 ## Releasing a new version
 
-Open a pull request with the following changes:
+### Preparing for a release
 
-1. Bump the [versionName](https://github.com/Shopify/checkout-kit-android/blob/main/lib/build.gradle#L17)
-2. Add an entry to the top of the [CHANGELOG](https://github.com/shopify/checkout-sheet-kit-android/blob/main/CHANGELOG.md)
+Before creating a release, ensure the following version is updated:
 
-Once you have merged a pull request with these changes, you will be ready to publish a new version.
+1. Bump the [versionName](https://github.com/Shopify/checkout-sheet-kit-android/blob/main/lib/build.gradle#L18) in `lib/build.gradle`
 
-To do so, navigate to <https://github.com/Shopify/checkout-sheet-kit-android/releases> and click "Draft a new release" then complete the following steps:
+**Important**: The version string in `lib/build.gradle` must match the git tag exactly, including any pre-release suffixes (e.g., `-beta.1`, `-rc.1`). The CI validation workflow will enforce this.
 
-1. Create a tag for the new version
-2. Use the same tag as the name for the version
-3. Document a full list of changes since the previous release, tagging merged pull requests where applicable, in the description box
-4. Check "Set as the latest release"
-5. When ready click "Publish release"
+### Version format
 
-This will trigger a GitHub workflow to start the process of publishing a new version of the library to maven central. **Note** - A manual approval by a maintainer is required before release to maven central.
+- **Production releases**: `X.Y.Z` (e.g., `3.5.0`)
+- **Pre-releases**: `X.Y.Z-{alpha|beta|rc}.N` (e.g., `3.5.0-beta.1`, `3.5.0-rc.2`)
+
+Pre-release suffixes ensure:
+- Maven/Gradle users must explicitly specify the version to install pre-releases
+- Gradle doesn't treat them as the default "latest" version
+- Maven Central correctly identifies them as pre-release artifacts
+
+**Note on version naming**: Unlike development builds which use `-SNAPSHOT` (e.g., `3.5.0-SNAPSHOT`), pre-releases use `-alpha.N`, `-beta.N`, or `-rc.N` suffixes. SNAPSHOT versions are for in-development builds that change frequently. Pre-releases are stable builds being tested before final release. We only publish pre-releases (alpha/beta/rc), never SNAPSHOT versions.
+
+### Creating a release
+
+Navigate to <https://github.com/Shopify/checkout-sheet-kit-android/releases> and click "Draft a new release", then complete the following steps:
+
+#### For production releases (from `main` branch):
+
+1. Ensure you're on the `main` branch
+2. Create a tag for the new version (e.g., `3.5.0`)
+3. Use the same tag as the release title
+4. Document the full list of changes since the previous release, tagging merged pull requests where applicable
+5. ✅ Check "Set as the latest release" to ensure Maven/Gradle identifies this as the latest release
+6. Click "Publish release"
+
+#### For pre-releases (from non-`main` branch):
+
+1. Ensure you're on a feature/release branch (NOT `main`)
+2. Create a tag with a pre-release suffix (e.g., `3.5.0-beta.1`, `3.5.0-rc.2`)
+3. Use the same tag as the release title
+4. Document the changes being tested in this pre-release
+5. ✅ Check "Set as a pre-release" (NOT "Set as the latest release")
+6. Click "Publish release"
+
+### What happens after publishing
+
+When you publish a release (production or pre-release), the [publish workflow](https://github.com/Shopify/checkout-sheet-kit-android/actions/workflows/publish.yml) will automatically:
+
+1. **Validate versions**: Ensures the `lib/build.gradle` version matches the git tag and validates the version format
+2. **Deploy to Maven Central**: Publishes the version to Maven Central (OSSRH)
+
+**Note**: A manual approval by a maintainer is required before the release is published to Maven Central.
+
+### Using pre-releases
+
+For users to install a pre-release version, they must specify the exact version in their dependency configuration:
+
+**Gradle** - Specify the exact version in `build.gradle`:
+
+```groovy
+implementation "com.shopify:checkout-sheet-kit:3.5.0-beta.1"
+```
+
+**Maven** - Specify the exact version in `pom.xml`:
+
+```xml
+<dependency>
+   <groupId>com.shopify</groupId>
+   <artifactId>checkout-sheet-kit</artifactId>
+   <version>3.5.0-beta.1</version>
+</dependency>
+```
+
+**Important**: Pre-release versions will not be automatically resolved by Gradle's version resolution. Users must explicitly specify the pre-release version to use it.
