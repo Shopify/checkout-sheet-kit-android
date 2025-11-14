@@ -32,7 +32,7 @@ import androidx.activity.ComponentActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.children
 import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
-import com.shopify.checkoutsheetkit.lifecycleevents.emptyCompleteEvent
+import com.shopify.checkoutsheetkit.events.emptyCompleteEvent
 import org.assertj.core.api.Assertions.fail
 import org.awaitility.Awaitility.await
 import org.junit.After

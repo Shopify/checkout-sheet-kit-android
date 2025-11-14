@@ -6,8 +6,8 @@ import androidx.activity.ComponentActivity;
 import androidx.annotation.NonNull;
 
 import com.shopify.checkoutsheetkit.errorevents.CheckoutErrorDecoder;
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent;
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEventDecoder;
+import com.shopify.checkoutsheetkit.events.CheckoutAddressChangeRequestedEvent;
+import com.shopify.checkoutsheetkit.events.CheckoutCompleteEvent;
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent;
 import com.shopify.checkoutsheetkit.pixelevents.PixelEventDecoder;
 import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent;
@@ -206,14 +206,16 @@ public class InteropTest {
     @SuppressWarnings("all")
     @Test
     public void canAccessFieldsOnCheckoutCompletedEvent() {
-        WebToSdkEvent webEvent = new WebToSdkEvent(CheckoutMessageContract.METHOD_COMPLETE, EXAMPLE_EVENT);
         Json json = JsonKt.Json(Json.Default, b -> {
             b.setIgnoreUnknownKeys(true);
             return null;
         });
-        CheckoutCompleteEventDecoder decoder = new CheckoutCompleteEventDecoder(json);
 
-        CheckoutCompleteEvent event = decoder.decode(webEvent);
+        // Directly decode the JSON to test Java interop with Kotlin data classes
+        CheckoutCompleteEvent event = json.decodeFromString(
+            CheckoutCompleteEvent.Companion.serializer(),
+            EXAMPLE_EVENT
+        );
 
         assertThat(event.getOrderConfirmation().getOrder().getId())
                 .isEqualTo("gid://shopify/Order/9697125302294");

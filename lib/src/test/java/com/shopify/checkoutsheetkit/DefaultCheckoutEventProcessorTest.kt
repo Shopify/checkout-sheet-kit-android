@@ -27,7 +27,8 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.activity.ComponentActivity
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
+import com.shopify.checkoutsheetkit.events.CheckoutAddressChangeRequestedEvent
+import com.shopify.checkoutsheetkit.events.CheckoutCompleteEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before

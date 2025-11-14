@@ -20,9 +20,10 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutsheetkit
+package com.shopify.checkoutsheetkit.events
 
-import com.shopify.checkoutsheetkit.CheckoutMessageContract.VERSION
+import com.shopify.checkoutsheetkit.events.parser.CheckoutMessageContract.VERSION
+import com.shopify.checkoutsheetkit.events.parser.CheckoutMessageParser
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -31,7 +32,7 @@ import java.util.UUID
 @Serializable
 public data class CheckoutAddressChangeRequestedEventData(
     public val addressType: String,
-    public val selectedAddress: CartDeliveryAddressInput? = null,
+    public val selectedAddress: CartDeliveryAddress? = null,
 )
 
 /**
@@ -44,7 +45,7 @@ public class CheckoutAddressChangeRequestedEvent internal constructor(
 ) : RespondableEvent {
     override val id: String? get() = message.id
     public val addressType: String get() = message.addressType
-    public val selectedAddress: CartDeliveryAddressInput? get() = message.selectedAddress
+    public val selectedAddress: CartDeliveryAddress? get() = message.selectedAddress
 
     /**
      * Respond to the address change request with the provided delivery address(es).
@@ -100,28 +101,4 @@ internal class DeliveryAddressChangeResponse(
 @Serializable
 public data class DeliveryAddressChangePayload(
     val delivery: CartDelivery,
-)
-
-@Serializable
-public class CartDelivery(
-    public val addresses: List<CartSelectableAddressInput>,
-)
-
-@Serializable
-public data class CartSelectableAddressInput(
-    public val address: CartDeliveryAddressInput,
-)
-
-@Serializable
-public data class CartDeliveryAddressInput(
-    public val firstName: String? = null,
-    public val lastName: String? = null,
-    public val company: String? = null,
-    public val address1: String? = null,
-    public val address2: String? = null,
-    public val city: String? = null,
-    public val countryCode: String? = null,
-    public val phone: String? = null,
-    public val provinceCode: String? = null,
-    public val zip: String? = null,
 )

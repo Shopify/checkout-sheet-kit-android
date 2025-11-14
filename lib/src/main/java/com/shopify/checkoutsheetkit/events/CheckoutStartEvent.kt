@@ -20,17 +20,15 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutsheetkit
+package com.shopify.checkoutsheetkit.events
+
+import kotlinx.serialization.Serializable
 
 /**
- * Interface for checkout events that require a deferred response.
- *
- * Events implementing this interface can be stored and responded to at a later time,
- * allowing for asynchronous user interactions like address or payment selection.
+ * Event triggered when checkout starts.
+ * Provides the initial cart state at the beginning of the checkout flow.
  */
-public interface RespondableEvent {
-    /**
-     * Unique identifier for this event. Used to track and respond to events asynchronously.
-     */
-    public val id: String?
-}
+@Serializable
+public data class CheckoutStartEvent(
+    public val cart: Cart
+)

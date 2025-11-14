@@ -23,6 +23,13 @@
 package com.shopify.checkoutsheetkit
 
 import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
+import com.shopify.checkoutsheetkit.events.CartDelivery
+import com.shopify.checkoutsheetkit.events.CartDeliveryAddress
+import com.shopify.checkoutsheetkit.events.CartSelectableAddress
+import com.shopify.checkoutsheetkit.events.CheckoutAddressChangeRequestedEvent
+import com.shopify.checkoutsheetkit.events.CheckoutAddressChangeRequestedEventData
+import com.shopify.checkoutsheetkit.events.DeliveryAddressChangePayload
+import com.shopify.checkoutsheetkit.events.parser.CheckoutMessageParser
 import org.junit.Test
 
 class CheckoutAddressChangeRequestedEventTest {
@@ -82,7 +89,7 @@ class CheckoutAddressChangeRequestedEventTest {
 
     @Test
     fun `exposes selectedAddress from params`() {
-        val selectedAddress = CartDeliveryAddressInput(
+        val selectedAddress = CartDeliveryAddress(
             firstName = "Ada",
             lastName = "Lovelace",
             city = "London",
@@ -107,8 +114,8 @@ class CheckoutAddressChangeRequestedEventTest {
         return DeliveryAddressChangePayload(
             delivery = CartDelivery(
                 addresses = listOf(
-                    CartSelectableAddressInput(
-                        address = CartDeliveryAddressInput(
+                    CartSelectableAddress(
+                        address = CartDeliveryAddress(
                             firstName = "Ada",
                             lastName = "Lovelace"
                         )

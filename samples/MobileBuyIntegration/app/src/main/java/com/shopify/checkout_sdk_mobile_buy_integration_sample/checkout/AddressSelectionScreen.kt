@@ -48,10 +48,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
-import com.shopify.checkoutsheetkit.CartDelivery
-import com.shopify.checkoutsheetkit.CartDeliveryAddressInput
-import com.shopify.checkoutsheetkit.CartSelectableAddressInput
-import com.shopify.checkoutsheetkit.DeliveryAddressChangePayload
+import com.shopify.checkoutsheetkit.events.CartDelivery
+import com.shopify.checkoutsheetkit.events.CartDeliveryAddress
+import com.shopify.checkoutsheetkit.events.CartSelectableAddress
+import com.shopify.checkoutsheetkit.events.CheckoutAddressChangeRequestedEvent
+import com.shopify.checkoutsheetkit.events.DeliveryAddressChangePayload
 import kotlinx.coroutines.launch
 
 /**
@@ -59,7 +60,7 @@ import kotlinx.coroutines.launch
  */
 data class AddressOption(
     val label: String,
-    val address: CartDeliveryAddressInput,
+    val address: CartDeliveryAddress,
 )
 
 /**
@@ -73,7 +74,7 @@ fun AddressSelectionScreen(
 ) {
     val eventStore = LocalCheckoutEventStore.current
     val event = remember(eventId) {
-        eventStore.getEvent(eventId) as? com.shopify.checkoutsheetkit.CheckoutAddressChangeRequestedEvent
+        eventStore.getEvent(eventId) as? CheckoutAddressChangeRequestedEvent
     }
     val coroutineScope = rememberCoroutineScope()
 
@@ -82,7 +83,7 @@ fun AddressSelectionScreen(
         listOf(
             AddressOption(
                 label = "Default",
-                address = CartDeliveryAddressInput(
+                address = CartDeliveryAddress(
                     firstName = "John",
                     lastName = "Smith",
                     address1 = "150 5th Avenue",
@@ -96,7 +97,7 @@ fun AddressSelectionScreen(
             ),
             AddressOption(
                 label = "West Coast Address",
-                address = CartDeliveryAddressInput(
+                address = CartDeliveryAddress(
                     firstName = "Evelyn",
                     lastName = "Hartley",
                     address1 = "89 Haight Street",
@@ -110,7 +111,7 @@ fun AddressSelectionScreen(
             ),
             AddressOption(
                 label = "Invalid Address",
-                address = CartDeliveryAddressInput(
+                address = CartDeliveryAddress(
                     firstName = "Invalid",
                     lastName = "User",
                     address1 = "123 Fake Street",
@@ -153,7 +154,7 @@ fun AddressSelectionScreen(
                     val response = DeliveryAddressChangePayload(
                         delivery = CartDelivery(
                             addresses = listOf(
-                                CartSelectableAddressInput(address = selectedAddress)
+                                CartSelectableAddress(address = selectedAddress)
                             )
                         )
                     )

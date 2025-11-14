@@ -23,7 +23,7 @@
 package com.shopify.checkoutsheetkit
 
 import androidx.activity.ComponentActivity
-import com.shopify.checkoutsheetkit.lifecycleevents.emptyCompleteEvent
+import com.shopify.checkoutsheetkit.events.emptyCompleteEvent
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock

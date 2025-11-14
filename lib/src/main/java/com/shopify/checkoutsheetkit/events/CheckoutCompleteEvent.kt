@@ -20,15 +20,42 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutsheetkit.lifecycleevents
+package com.shopify.checkoutsheetkit.events
 
 import kotlinx.serialization.Serializable
 
-/**
- * Event triggered when checkout starts.
- * Provides the initial cart state at the beginning of the checkout flow.
- */
 @Serializable
-public data class CheckoutStartEvent(
+public data class CheckoutCompleteEvent(
+    public val orderConfirmation: OrderConfirmation,
     public val cart: Cart
 )
+
+internal fun emptyCompleteEvent(id: String? = null): CheckoutCompleteEvent {
+    return CheckoutCompleteEvent(
+        orderConfirmation = OrderConfirmation(
+            url = null,
+            order = Order(id = id ?: ""),
+            number = null,
+            isFirstOrder = false
+        ),
+        cart = Cart(
+            id = "",
+            lines = emptyList(),
+            cost = CartCost(
+                subtotalAmount = Money(amount = "0.00", currencyCode = "USD"),
+                totalAmount = Money(amount = "0.00", currencyCode = "USD")
+            ),
+            buyerIdentity = CartBuyerIdentity(
+                email = null,
+                phone = null,
+                customer = null,
+                countryCode = null
+            ),
+            deliveryGroups = emptyList(),
+            discountCodes = emptyList(),
+            appliedGiftCards = emptyList(),
+            discountAllocations = emptyList(),
+            delivery = CartDelivery(addresses = emptyList())
+        )
+    )
+}

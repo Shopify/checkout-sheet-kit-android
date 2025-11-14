@@ -31,8 +31,9 @@ import android.webkit.ValueCallback
 import android.webkit.WebChromeClient.FileChooserParams
 import android.webkit.WebView
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
+import com.shopify.checkoutsheetkit.events.CheckoutAddressChangeRequestedEvent
+import com.shopify.checkoutsheetkit.events.CheckoutCompleteEvent
+import com.shopify.checkoutsheetkit.events.CheckoutStartEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 
 /**

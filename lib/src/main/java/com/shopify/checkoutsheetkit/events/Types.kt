@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutsheetkit.lifecycleevents
+package com.shopify.checkoutsheetkit.events
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
@@ -331,3 +331,16 @@ private object DiscountValueSerializer : KSerializer<DiscountValue> {
         }
     }
 }
+
+@Serializable
+public data class OrderConfirmation(
+    public val url: String? = null,
+    public val order: Order,
+    public val number: String? = null,
+    public val isFirstOrder: Boolean
+)
+
+@Serializable
+public data class Order(
+    public val id: String
+)

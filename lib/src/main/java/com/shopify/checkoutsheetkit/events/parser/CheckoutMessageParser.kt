@@ -1,33 +1,16 @@
-/*
- * MIT License
- *
- * Copyright 2023-present, Shopify Inc.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-package com.shopify.checkoutsheetkit
+package com.shopify.checkoutsheetkit.events.parser
 
 import android.webkit.WebView
-import com.shopify.checkoutsheetkit.CheckoutMessageContract.METHOD_ADDRESS_CHANGE_REQUESTED
-import com.shopify.checkoutsheetkit.CheckoutMessageContract.METHOD_COMPLETE
-import com.shopify.checkoutsheetkit.CheckoutMessageContract.METHOD_START
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
+import com.shopify.checkoutsheetkit.CheckoutBridge
+import com.shopify.checkoutsheetkit.LogWrapper
+import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
+import com.shopify.checkoutsheetkit.events.CartDeliveryAddress
+import com.shopify.checkoutsheetkit.events.CheckoutAddressChangeRequestedEvent
+import com.shopify.checkoutsheetkit.events.CheckoutAddressChangeRequestedEventData
+import com.shopify.checkoutsheetkit.events.CheckoutCompleteEvent
+import com.shopify.checkoutsheetkit.events.CheckoutStartEvent
+import com.shopify.checkoutsheetkit.events.DeliveryAddressChangePayload
+import com.shopify.checkoutsheetkit.events.DeliveryAddressChangeResponse
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -49,19 +32,19 @@ internal class CheckoutMessageParser(
         val id = envelope.id?.jsonPrimitive?.contentOrNull
 
         return when (envelope.method) {
-            METHOD_ADDRESS_CHANGE_REQUESTED -> envelope.params
+            CheckoutMessageContract.METHOD_ADDRESS_CHANGE_REQUESTED -> envelope.params
                 .decodeOrNull<CheckoutAddressChangeRequestedEventData> {
                     log.d(LOG_TAG, "Failed to decode address change requested params: ${it.message}")
                 }
                 ?.let { JSONRPCMessage.AddressChangeRequested(id, it) }
 
-            METHOD_START -> envelope.params
+            CheckoutMessageContract.METHOD_START -> envelope.params
                 .decodeOrNull<CheckoutStartEvent> {
                     log.d(LOG_TAG, "Failed to decode checkout start params: ${it.message}")
                 }
                 ?.let { JSONRPCMessage.Started(it) }
 
-            METHOD_COMPLETE -> envelope.params
+            CheckoutMessageContract.METHOD_COMPLETE -> envelope.params
                 .decodeOrNull<CheckoutCompleteEvent> {
                     log.d(LOG_TAG, "Failed to decode checkout completed params: ${it.message}")
                 }
@@ -87,7 +70,7 @@ internal class CheckoutMessageParser(
             abstract val id: String?
             internal var webViewRef: WeakReference<WebView>? = null
 
-            internal fun setWebView(webView: android.webkit.WebView) {
+            internal fun setWebView(webView: WebView) {
                 webViewRef = WeakReference(webView)
             }
         }
@@ -98,7 +81,7 @@ internal class CheckoutMessageParser(
         ) : JSONRPCRequest() {
             private var hasResponded = false
             internal val addressType: String get() = params.addressType
-            internal val selectedAddress: CartDeliveryAddressInput? get() = params.selectedAddress
+            internal val selectedAddress: CartDeliveryAddress? get() = params.selectedAddress
 
             /**
              * Send a response to this JSONRPC request
@@ -111,7 +94,7 @@ internal class CheckoutMessageParser(
                 webViewRef?.get()?.let { webView ->
                     val response = DeliveryAddressChangeResponse()
                     val responseJson = response.encodeSetDeliveryAddress(payload, id)
-                    CheckoutBridge.sendResponse(webView, responseJson)
+                    CheckoutBridge.Companion.sendResponse(webView, responseJson)
                 }
             }
 

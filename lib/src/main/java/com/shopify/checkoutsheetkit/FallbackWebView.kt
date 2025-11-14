@@ -28,7 +28,7 @@ import android.util.AttributeSet
 import android.webkit.WebView
 import androidx.core.net.toUri
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
-import com.shopify.checkoutsheetkit.lifecycleevents.emptyCompleteEvent
+import com.shopify.checkoutsheetkit.events.emptyCompleteEvent
 
 internal class FallbackWebView(context: Context, attributeSet: AttributeSet? = null) :
     BaseWebView(context, attributeSet) {

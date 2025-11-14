@@ -23,7 +23,18 @@
 package com.shopify.checkoutsheetkit
 
 import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
+import com.shopify.checkoutsheetkit.events.Cart
+import com.shopify.checkoutsheetkit.events.CartBuyerIdentity
+import com.shopify.checkoutsheetkit.events.CartCost
+import com.shopify.checkoutsheetkit.events.CartDelivery
+import com.shopify.checkoutsheetkit.events.CartDeliveryAddress
+import com.shopify.checkoutsheetkit.events.CartSelectableAddress
+import com.shopify.checkoutsheetkit.events.CheckoutAddressChangeRequestedEvent
+import com.shopify.checkoutsheetkit.events.CheckoutCompleteEvent
+import com.shopify.checkoutsheetkit.events.DeliveryAddressChangePayload
+import com.shopify.checkoutsheetkit.events.Money
+import com.shopify.checkoutsheetkit.events.Order
+import com.shopify.checkoutsheetkit.events.OrderConfirmation
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.After
@@ -110,25 +121,25 @@ class CheckoutBridgeTest {
     @Test
     fun `postMessage handles checkout complete JSON-RPC message`() {
         val params = CheckoutCompleteEvent(
-            orderConfirmation = CheckoutCompleteEvent.OrderConfirmation(
+            orderConfirmation = OrderConfirmation(
                 url = null,
-                order = CheckoutCompleteEvent.OrderConfirmation.Order(id = "order-id-123"),
+                order = Order(id = "order-id-123"),
                 number = null,
                 isFirstOrder = false
             ),
-            cart = CheckoutCompleteEvent.Cart(
+            cart = Cart(
                 id = "cart-id-123",
                 lines = emptyList(),
-                cost = CheckoutCompleteEvent.CartCost(
-                    subtotalAmount = CheckoutCompleteEvent.Money(amount = "0.00", currencyCode = "USD"),
-                    totalAmount = CheckoutCompleteEvent.Money(amount = "0.00", currencyCode = "USD")
+                cost = CartCost(
+                    subtotalAmount = Money(amount = "0.00", currencyCode = "USD"),
+                    totalAmount = Money(amount = "0.00", currencyCode = "USD")
                 ),
-                buyerIdentity = CheckoutCompleteEvent.CartBuyerIdentity(),
+                buyerIdentity = CartBuyerIdentity(),
                 deliveryGroups = emptyList(),
                 discountCodes = emptyList(),
                 appliedGiftCards = emptyList(),
                 discountAllocations = emptyList(),
-                delivery = CheckoutCompleteEvent.CartDelivery(addresses = emptyList())
+                delivery = CartDelivery(addresses = emptyList())
             )
         )
 
@@ -165,8 +176,8 @@ class CheckoutBridgeTest {
         val payload = DeliveryAddressChangePayload(
             delivery = CartDelivery(
                 addresses = listOf(
-                    CartSelectableAddressInput(
-                        CartDeliveryAddressInput(firstName = "Ada"),
+                    CartSelectableAddress(
+                        address = CartDeliveryAddress(firstName = "Ada"),
                     ),
                 ),
             ),
@@ -214,8 +225,8 @@ class CheckoutBridgeTest {
         val payload = DeliveryAddressChangePayload(
             delivery = CartDelivery(
                 addresses = listOf(
-                    CartSelectableAddressInput(
-                        CartDeliveryAddressInput(firstName = "Ada"),
+                    CartSelectableAddress(
+                        address = CartDeliveryAddress(firstName = "Ada"),
                     ),
                 ),
             ),

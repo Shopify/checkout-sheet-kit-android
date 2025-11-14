@@ -23,12 +23,12 @@
 
 package com.shopify.checkoutsheetkit
 
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent.DiscountValue.MoneyValue
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent.DiscountValue.PercentageValue
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent.Money
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent.PricingPercentageValue
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEventDecoder
+import com.shopify.checkoutsheetkit.events.CheckoutCompleteEvent
+import com.shopify.checkoutsheetkit.events.DiscountValue.MoneyValue
+import com.shopify.checkoutsheetkit.events.DiscountValue.PercentageValue
+import com.shopify.checkoutsheetkit.events.Money
+import com.shopify.checkoutsheetkit.events.PricingPercentageValue
+import com.shopify.checkoutsheetkit.events.parser.CheckoutMessageParser
 import kotlinx.serialization.json.Json
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
@@ -37,18 +37,18 @@ import org.mockito.Mockito.mock
 import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
-class CheckoutCompleteEventDecoderTest {
+class CheckoutCompleteEventTest {
 
     private val mockLogWrapper = mock<LogWrapper>()
 
-    private val decoder = CheckoutCompleteEventDecoder(
-        decoder = Json { ignoreUnknownKeys = true },
+    private val parser = CheckoutMessageParser(
+        json = Json { ignoreUnknownKeys = true },
         log = mockLogWrapper
     )
 
     @Test
     fun `should decode order confirmation details`() {
-        val result = decoder.decode(EXAMPLE_EVENT.toWebToSdkEvent())
+        val result = parseCheckoutCompleteEvent(EXAMPLE_EVENT)
         val orderConfirmation = result.orderConfirmation
 
         assertThat(orderConfirmation.order.id).isEqualTo("gid://shopify/Order/9697125302294")
@@ -59,7 +59,7 @@ class CheckoutCompleteEventDecoderTest {
 
     @Test
     fun `should decode cart line details`() {
-        val result = decoder.decode(EXAMPLE_EVENT.toWebToSdkEvent())
+        val result = parseCheckoutCompleteEvent(EXAMPLE_EVENT)
         val line = result.cart.lines.single()
 
         assertThat(line.id).isEqualTo("gid://shopify/CartLine/1")
@@ -72,7 +72,7 @@ class CheckoutCompleteEventDecoderTest {
             "https://cdn.shopify.com/s/files/1/0692/3996/3670/files/product-image_256x256.jpg"
         )
         assertThat(line.merchandise.selectedOptions).containsExactly(
-            CheckoutCompleteEvent.SelectedOption(name = "Format", value = "Hardcover")
+            com.shopify.checkoutsheetkit.events.SelectedOption(name = "Format", value = "Hardcover")
         )
 
         val discountAllocation = line.discountAllocations.single()
@@ -84,13 +84,13 @@ class CheckoutCompleteEventDecoderTest {
 
     @Test
     fun `should decode cart level cost and discounts`() {
-        val result = decoder.decode(EXAMPLE_EVENT.toWebToSdkEvent())
+        val result = parseCheckoutCompleteEvent(EXAMPLE_EVENT)
         val cart = result.cart
 
         assertThat(cart.cost.subtotalAmount).isEqualTo(Money(amount = "8.00", currencyCode = "GBP"))
         assertThat(cart.cost.totalAmount).isEqualTo(Money(amount = "13.99", currencyCode = "GBP"))
         assertThat(cart.discountCodes).containsExactly(
-            CheckoutCompleteEvent.CartDiscountCode(code = "SUMMER", applicable = true)
+            com.shopify.checkoutsheetkit.events.CartDiscountCode(code = "SUMMER", applicable = true)
         )
         val giftCard = cart.appliedGiftCards.single()
         assertThat(giftCard.amountUsed).isEqualTo(Money(amount = "10.00", currencyCode = "GBP"))
@@ -105,7 +105,7 @@ class CheckoutCompleteEventDecoderTest {
 
     @Test
     fun `should decode cart buyer identity and delivery details`() {
-        val result = decoder.decode(EXAMPLE_EVENT.toWebToSdkEvent())
+        val result = parseCheckoutCompleteEvent(EXAMPLE_EVENT)
         val cart = result.cart
 
         assertThat(cart.buyerIdentity.email).isEqualTo("a.user@shopify.com")
@@ -113,10 +113,10 @@ class CheckoutCompleteEventDecoderTest {
         assertThat(cart.buyerIdentity.countryCode).isEqualTo("GB")
 
         val deliveryGroup = cart.deliveryGroups.single()
-        assertThat(deliveryGroup.groupType).isEqualTo(CheckoutCompleteEvent.CartDeliveryGroupType.ONE_TIME_PURCHASE)
+        assertThat(deliveryGroup.groupType).isEqualTo(com.shopify.checkoutsheetkit.events.CartDeliveryGroupType.ONE_TIME_PURCHASE)
         assertThat(deliveryGroup.deliveryAddress.city).isEqualTo("Swansea")
         assertThat(deliveryGroup.deliveryOptions.single().deliveryMethodType)
-            .isEqualTo(CheckoutCompleteEvent.CartDeliveryMethodType.SHIPPING)
+            .isEqualTo(com.shopify.checkoutsheetkit.events.CartDeliveryMethodType.SHIPPING)
         assertThat(deliveryGroup.selectedDeliveryOption?.handle).isEqualTo("standard-shipping")
 
         val deliveryAddress = cart.delivery.addresses.single().address
@@ -126,11 +126,10 @@ class CheckoutCompleteEventDecoderTest {
     }
 
     @Test
-    fun `should fall back to empty event on decode failure`() {
-        val result = decoder.decode("not-json".toWebToSdkEvent())
+    fun `should return null on decode failure`() {
+        val result = parser.parse("""{"jsonrpc":"2.0","method":"checkout.complete","params":{"invalid":"json"}}""")
 
-        assertThat(result.orderConfirmation.order.id).isEmpty()
-        assertThat(result.cart.lines).isEmpty()
+        assertThat(result).isNull()
     }
 
     @Test
@@ -153,7 +152,7 @@ class CheckoutCompleteEventDecoderTest {
     }
 
     @Test
-    fun `should fall back to empty event when money validation fails`() {
+    fun `should return null when money validation fails`() {
         val invalidMoneyJson = """
             {
               "orderConfirmation": {
@@ -173,14 +172,13 @@ class CheckoutCompleteEventDecoderTest {
             }
         """.trimIndent()
 
-        val result = decoder.decode(invalidMoneyJson.toWebToSdkEvent())
+        val result = parser.parse(invalidMoneyJson.toJsonRpcEnvelope())
 
-        assertThat(result.orderConfirmation.order.id).isEmpty()
-        assertThat(result.cart.lines).isEmpty()
+        assertThat(result).isNull()
     }
 
     @Test
-    fun `should fall back to empty event when discount value is not an object`() {
+    fun `should return null when discount value is not an object`() {
         val invalidDiscountJson = """
             {
               "orderConfirmation": {
@@ -212,17 +210,18 @@ class CheckoutCompleteEventDecoderTest {
             }
         """.trimIndent()
 
-        val result = decoder.decode(invalidDiscountJson.toWebToSdkEvent())
+        val result = parser.parse(invalidDiscountJson.toJsonRpcEnvelope())
 
-        assertThat(result.orderConfirmation.order.id).isEmpty()
-        assertThat(result.cart.lines).isEmpty()
+        assertThat(result).isNull()
     }
 
-    private fun String.toWebToSdkEvent(): WebToSdkEvent {
-        return WebToSdkEvent(
-            name = CheckoutMessageContract.METHOD_COMPLETE,
-            body = this,
-        )
+    private fun parseCheckoutCompleteEvent(params: String): CheckoutCompleteEvent {
+        val message = parser.parse(params.toJsonRpcEnvelope())
+        return (message as CheckoutMessageParser.JSONRPCMessage.Completed).event
+    }
+
+    private fun String.toJsonRpcEnvelope(): String {
+        return """{"jsonrpc":"2.0","method":"checkout.complete","params":$this}"""
     }
 
     companion object {

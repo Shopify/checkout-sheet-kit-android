@@ -26,7 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
-import com.shopify.checkoutsheetkit.RespondableEvent
+import com.shopify.checkoutsheetkit.events.RespondableEvent
 
 /**
  * Stores any RespondableEvent (address change, payment change, etc.) by ID for deferred response.

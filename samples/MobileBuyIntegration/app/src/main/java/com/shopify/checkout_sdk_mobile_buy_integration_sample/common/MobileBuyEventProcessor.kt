@@ -37,14 +37,14 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.analytics.A
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.analytics.toAnalyticsEvent
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
-import com.shopify.checkoutsheetkit.CartDelivery
-import com.shopify.checkoutsheetkit.CartDeliveryAddressInput
-import com.shopify.checkoutsheetkit.CartSelectableAddressInput
-import com.shopify.checkoutsheetkit.CheckoutAddressChangeRequestedEvent
+import com.shopify.checkoutsheetkit.events.CartDelivery
+import com.shopify.checkoutsheetkit.events.CheckoutAddressChangeRequestedEvent
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
-import com.shopify.checkoutsheetkit.DeliveryAddressChangePayload
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
+import com.shopify.checkoutsheetkit.events.CartDeliveryAddress
+import com.shopify.checkoutsheetkit.events.CartSelectableAddress
+import com.shopify.checkoutsheetkit.events.DeliveryAddressChangePayload
+import com.shopify.checkoutsheetkit.events.CheckoutCompleteEvent
 import com.shopify.checkoutsheetkit.pixelevents.CustomPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent
@@ -97,8 +97,8 @@ class MobileBuyEventProcessor(
         event.respondWith(DeliveryAddressChangePayload(
             delivery = CartDelivery(
                 addresses = listOf(
-                    CartSelectableAddressInput(
-                        address = CartDeliveryAddressInput(
+                    CartSelectableAddress(
+                        address = CartDeliveryAddress(
                             firstName = "Bob",
                             lastName = "Jones",
                             address1 = "44 Sunningdale Ave",

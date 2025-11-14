@@ -24,7 +24,8 @@ package com.shopify.checkoutsheetkit
 
 import android.app.Activity
 import android.net.Uri
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
+import com.shopify.checkoutsheetkit.events.CheckoutAddressChangeRequestedEvent
+import com.shopify.checkoutsheetkit.events.CheckoutCompleteEvent
 import org.assertj.core.api.AbstractAssert
 
 fun withPreloadingEnabled(block: () -> Unit) {
