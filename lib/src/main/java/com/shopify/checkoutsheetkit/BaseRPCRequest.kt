@@ -23,6 +23,9 @@
 package com.shopify.checkoutsheetkit
 
 import android.webkit.WebView
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.lang.ref.WeakReference
@@ -45,7 +48,7 @@ public abstract class BaseRPCRequest<P : Any, R : Any>(
 
     private var hasResponded = false
 
-    private val json = Json {
+    protected val json: Json = Json {
         ignoreUnknownKeys = true
         encodeDefaults = true
     }
@@ -84,7 +87,8 @@ public abstract class BaseRPCRequest<P : Any, R : Any>(
             )
 
             try {
-                val responseJson = encodeResponse(response)
+                // Use inline reified function to encode with proper type information
+                val responseJson = json.encodeToString(response)
                 CheckoutBridge.sendResponse(webView, responseJson)
             } catch (e: Exception) {
                 ShopifyCheckoutSheetKit.log.e("BaseRPCRequest", "Failed to encode response for RPC request '$method' with id '$id': ${e.message}")
@@ -95,14 +99,10 @@ public abstract class BaseRPCRequest<P : Any, R : Any>(
     }
 
     override fun respondWith(json: String) {
-        try {
-            val jsonParser = Json { ignoreUnknownKeys = true }
-            val payload = decodePayload(json, jsonParser)
-            respondWith(payload)
-        } catch (e: Exception) {
-            ShopifyCheckoutSheetKit.log.e("BaseRPCRequest", "Failed to decode JSON response for RPC request '$method' with id '$id': ${e.message}")
-            respondWithError("Failed to decode response: ${e.message}")
-        }
+        // This will be overridden by concrete classes if they need custom deserialization
+        // For now, we can't deserialize without knowing the concrete type R
+        ShopifyCheckoutSheetKit.log.e("BaseRPCRequest", "respondWith(json) called but not implemented for '$method'")
+        respondWithError("JSON response not supported for this request type")
     }
 
     override fun respondWithError(error: String) {
@@ -125,7 +125,7 @@ public abstract class BaseRPCRequest<P : Any, R : Any>(
             )
 
             try {
-                val responseJson = encodeResponse(response)
+                val responseJson = json.encodeToString(response)
                 CheckoutBridge.sendResponse(webView, responseJson)
             } catch (e: Exception) {
                 ShopifyCheckoutSheetKit.log.e("BaseRPCRequest", "Failed to encode error response for RPC request '$method' with id '$id': ${e.message}")
@@ -138,15 +138,33 @@ public abstract class BaseRPCRequest<P : Any, R : Any>(
         // Subclasses can override to add validation
     }
 
-    /**
-     * Encode the response to JSON string.
-     * Subclasses must implement this to handle their specific response type.
-     */
-    protected abstract fun encodeResponse(response: RPCResponse<R>): String
+    public companion object {
+        /**
+         * Generic RPC envelope for decoding requests
+         */
+        @Serializable
+        public data class RPCEnvelope<P>(
+            @SerialName("jsonrpc")
+            val jsonrpc: String,
+            @SerialName("id")
+            val id: String? = null,
+            @SerialName("method")
+            val method: String,
+            @SerialName("params")
+            val params: P
+        )
 
-    /**
-     * Decode the JSON string to the expected payload type.
-     * Subclasses must implement this to handle their specific payload type.
-     */
-    protected abstract fun decodePayload(jsonString: String, jsonParser: Json): R
+        /**
+         * Helper function for decoding RPC requests with type information
+         */
+        public inline fun <reified P : Any> decodeRequest(
+            jsonString: String,
+            factory: (id: String?, params: P) -> RPCRequest<*, *>
+        ): RPCRequest<*, *> {
+            val json = Json { ignoreUnknownKeys = true }
+            val envelope = json.decodeFromString<RPCEnvelope<P>>(jsonString)
+            return factory(envelope.id, envelope.params)
+        }
+    }
+
 }
