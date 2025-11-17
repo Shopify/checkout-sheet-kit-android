@@ -41,7 +41,7 @@ public object RPCRequestRegistry {
      * a companion object that implements it.
      */
     public val requestTypes: List<TypeErasedRPCDecodable> = listOf(
-        // AddressChangeRequested.Companion,
+        AddressChangeRequested.Companion
         // Add other request type companions here as they are implemented
     )
 
