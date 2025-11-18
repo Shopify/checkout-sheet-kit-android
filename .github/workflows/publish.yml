@@ -8,6 +8,7 @@ on:
 
 jobs:
   build:
+    name: Validate and Deploy
     environment:
       name: Central Repository Deployment
 
@@ -27,6 +28,85 @@ jobs:
         with:
           distribution: zulu
           java-version: 17
+
+      - name: Extract version from build.gradle
+        id: gradle-version
+        run: |
+          GRADLE_VERSION=$(grep -E "def versionName = resolveEnvVarValue\(\"CHECKOUT_SHEET_KIT_VERSION\", \".*\"\)" lib/build.gradle | sed -E 's/.*"(.*)"\)/\1/')
+          echo "version=$GRADLE_VERSION" >> $GITHUB_OUTPUT
+          echo "Gradle version: $GRADLE_VERSION"
+
+      - name: Get Git tag
+        id: git-tag
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Git tag: $TAG"
+
+      - name: Validate version match
+        run: |
+          GRADLE_VERSION="${{ steps.gradle-version.outputs.version }}"
+          GIT_TAG="${{ steps.git-tag.outputs.tag }}"
+          
+          if [ "$GRADLE_VERSION" != "$GIT_TAG" ]; then
+            echo "❌ ERROR: Version mismatch!"
+            echo "  lib/build.gradle version: $GRADLE_VERSION"
+            echo "  Git tag: $GIT_TAG"
+            echo ""
+            echo "Please ensure the version in lib/build.gradle matches the git tag."
+            exit 1
+          fi
+          
+          echo "✅ Versions match: $GRADLE_VERSION"
+
+      - name: Validate version format
+        run: |
+          VERSION="${{ steps.gradle-version.outputs.version }}"
+          
+          # Check for valid semantic version format with optional pre-release suffix
+          # Supports alpha, beta, rc (standard Maven pre-release identifiers)
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-((alpha|beta|rc)\.[0-9]+))?$ ]]; then
+            echo "❌ ERROR: Invalid version format: $VERSION"
+            echo ""
+            echo "Valid formats:"
+            echo "  Production: X.Y.Z (e.g., 3.5.0)"
+            echo "  Pre-release: X.Y.Z-{alpha|beta|rc}.N (e.g., 3.5.0-beta.1)"
+            echo ""
+            echo "Note: Do not use -SNAPSHOT suffix for releases."
+            exit 1
+          fi
+          
+          echo "✅ Version format is valid: $VERSION"
+
+      - name: Validate pre-release configuration
+        run: |
+          VERSION="${{ steps.gradle-version.outputs.version }}"
+          IS_PRERELEASE="${{ github.event.release.prerelease }}"
+          
+          # Check if version contains pre-release suffix
+          if [[ "$VERSION" =~ -(alpha|beta|rc)\. ]]; then
+            VERSION_IS_PRERELEASE=true
+          else
+            VERSION_IS_PRERELEASE=false
+          fi
+          
+          echo "Version: $VERSION"
+          echo "Version has pre-release suffix: $VERSION_IS_PRERELEASE"
+          echo "GitHub release marked as pre-release: $IS_PRERELEASE"
+          
+          if [ "$VERSION_IS_PRERELEASE" = true ] && [ "$IS_PRERELEASE" != "true" ]; then
+            echo "❌ ERROR: Version contains pre-release suffix but release is not marked as pre-release"
+            echo "Please check 'Set as a pre-release' when creating this release in GitHub"
+            exit 1
+          fi
+          
+          if [ "$VERSION_IS_PRERELEASE" = false ] && [ "$IS_PRERELEASE" = "true" ]; then
+            echo "❌ ERROR: Release is marked as pre-release but version doesn't have a pre-release suffix"
+            echo "Production releases (X.Y.Z) should use 'Set as the latest release', not 'Set as a pre-release'"
+            exit 1
+          fi
+          
+          echo "✅ Pre-release configuration is correct"
 
       - name: Publish Package
         run: ./gradlew publishReleasePublicationToOssrh-staging-apiRepository
