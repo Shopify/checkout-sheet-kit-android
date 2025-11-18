@@ -26,7 +26,8 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.Cart
+import com.shopify.checkoutsheetkit.lifecycleevents.OrderConfirmation
 import com.shopify.checkoutsheetkit.pixelevents.Context
 import com.shopify.checkoutsheetkit.pixelevents.CustomPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent
@@ -44,11 +45,12 @@ data class LogLine(
     @Embedded(prefix = "standard_pixel") val standardPixelEvent: StandardPixelEvent? = null,
     @Embedded(prefix = "custom_pixel") val customPixelEvent: CustomPixelEvent? = null,
     @Embedded(prefix = "error_details") val errorDetails: ErrorDetails? = null,
-    val checkoutCompleted: CheckoutCompleteEvent? = null,
+    val cart: Cart? = null,
+    val orderConfirmation: OrderConfirmation? = null,
 )
 
 enum class LogType {
-    STANDARD, ERROR, CUSTOM_PIXEL, STANDARD_PIXEL, CHECKOUT_COMPLETED
+    STANDARD, ERROR, CUSTOM_PIXEL, STANDARD_PIXEL, CHECKOUT_COMPLETED, CHECKOUT_STARTED
 }
 
 data class ErrorDetails(
@@ -82,12 +84,22 @@ class Converters {
     }
 
     @TypeConverter
-    fun checkoutCompletedToString(value: CheckoutCompleteEvent?): String? {
+    fun cartToString(value: Cart?): String? {
         return value?.let { json.encodeToString(it) }
     }
 
     @TypeConverter
-    fun stringToCheckoutCompleted(value: String?): CheckoutCompleteEvent? {
+    fun stringToCart(value: String?): Cart? {
+        return decodeOrNull(value)
+    }
+
+    @TypeConverter
+    fun orderConfirmationToString(value: OrderConfirmation?): String? {
+        return value?.let { json.encodeToString(it) }
+    }
+
+    @TypeConverter
+    fun stringToOrderConfirmation(value: String?): OrderConfirmation? {
         return decodeOrNull(value)
     }
 

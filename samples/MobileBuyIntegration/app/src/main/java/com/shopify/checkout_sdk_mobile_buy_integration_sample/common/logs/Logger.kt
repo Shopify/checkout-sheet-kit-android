@@ -24,6 +24,7 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs
 
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
 import com.shopify.checkoutsheetkit.pixelevents.CustomPixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent
@@ -73,7 +74,18 @@ class Logger(
             LogLine(
                 type = LogType.CHECKOUT_COMPLETED,
                 message = "Checkout completed",
-                checkoutCompleted = checkoutCompleteEvent,
+                cart = checkoutCompleteEvent.cart,
+                orderConfirmation = checkoutCompleteEvent.orderConfirmation,
+            )
+        )
+    }
+
+    fun log(checkoutStartEvent: CheckoutStartEvent) {
+        insert(
+            LogLine(
+                type = LogType.CHECKOUT_STARTED,
+                message = "Checkout started",
+                cart = checkoutStartEvent.cart,
             )
         )
     }

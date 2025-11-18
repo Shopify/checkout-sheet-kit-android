@@ -23,25 +23,57 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.details
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.Cart
+import com.shopify.checkoutsheetkit.lifecycleevents.OrderConfirmation
 import kotlinx.serialization.json.Json
 
+/**
+ * Generic composable for rendering lifecycle events that contain cart and/or orderConfirmation data.
+ * This handles checkout.start, checkout.complete, and any future events with similar structure.
+ */
 @Composable
-fun CheckoutCompletedDetails(
-    event: CheckoutCompleteEvent?,
+fun LifecycleEventDetails(
+    cart: Cart?,
+    orderConfirmation: OrderConfirmation?,
     prettyJson: Json,
 ) {
-    LogDetails(
-        header = "Details",
-        message = prettyJson.encodeDataToString(event),
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(color = MaterialTheme.colorScheme.surface)
-    )
+    ) {
+        // Show cart if present
+        cart?.let {
+            LogDetails(
+                header = "Cart",
+                message = prettyJson.encodeDataToString(it),
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        // Show order confirmation if present (checkout.complete only)
+        orderConfirmation?.let {
+            LogDetails(
+                header = "Order Confirmation",
+                message = prettyJson.encodeDataToString(it),
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        // If neither present, show placeholder
+        if (cart == null && orderConfirmation == null) {
+            LogDetails(
+                header = "Details",
+                message = "No data available",
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
 }
 
 private inline fun <reified T> Json.encodeDataToString(el: T?, default: String = "n/a"): String {

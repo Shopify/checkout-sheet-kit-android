@@ -27,6 +27,7 @@ import android.widget.Toast
 import androidx.navigation.NavController
 import timber.log.Timber
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkoutsheetkit.CheckoutAddressChangeRequestedEvent
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
@@ -47,14 +48,17 @@ class CheckoutNavEventProcessor(
     private val checkoutNavController: NavController,
     private val context: Context,
     private val eventStore: CheckoutEventStore,
+    private val logger: Logger,
 ) : DefaultCheckoutEventProcessor(context) {
 
     override fun onCheckoutStarted(checkoutStartEvent: CheckoutStartEvent) {
         Timber.d("Checkout start: $checkoutStartEvent")
+        logger.log(checkoutStartEvent)
     }
 
     override fun onCheckoutCompleted(checkoutCompleteEvent: CheckoutCompleteEvent) {
         Timber.d("Checkout complete: $checkoutCompleteEvent")
+        logger.log(checkoutCompleteEvent)
     }
 
     override fun onCheckoutFailed(error: CheckoutException) {
