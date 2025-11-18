@@ -32,6 +32,7 @@ import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 
 /**
@@ -39,6 +40,12 @@ import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
  * We'd strongly recommend extending DefaultCheckoutEventProcessor where possible
  */
 public interface CheckoutEventProcessor {
+    /**
+     * Event triggered when checkout starts.
+     * Provides the initial cart state at the beginning of the checkout flow.
+     */
+    public fun onCheckoutStarted(checkoutStartEvent: CheckoutStartEvent)
+
     /**
      * Event representing the successful completion of a checkout.
      */
@@ -106,6 +113,9 @@ public interface CheckoutEventProcessor {
 }
 
 internal class NoopEventProcessor : CheckoutEventProcessor {
+    override fun onCheckoutStarted(checkoutStartEvent: CheckoutStartEvent) {/* noop */
+    }
+
     override fun onCheckoutCompleted(checkoutCompleteEvent: CheckoutCompleteEvent) {/* noop */
     }
 
@@ -151,6 +161,10 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
     private val context: Context,
     private val log: LogWrapper = LogWrapper(),
 ) : CheckoutEventProcessor {
+
+    override fun onCheckoutStarted(checkoutStartEvent: CheckoutStartEvent) {
+        // no-op, override to implement
+    }
 
     override fun onCheckoutLinkClicked(uri: Uri) {
         when (uri.scheme) {

@@ -32,6 +32,7 @@ import android.webkit.WebChromeClient.FileChooserParams
 import android.webkit.WebView
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 
 /**
@@ -45,6 +46,11 @@ public class CheckoutWebViewEventProcessor(
     private val setProgressBarVisibility: (Int) -> Unit = {},
     private val updateProgressBarPercentage: (Int) -> Unit = {},
 ) {
+    internal fun onCheckoutViewStart(checkoutStartEvent: CheckoutStartEvent) {
+        log.d(LOG_TAG, "Calling onCheckoutStarted $checkoutStartEvent.")
+        eventProcessor.onCheckoutStarted(checkoutStartEvent)
+    }
+
     internal fun onCheckoutViewComplete(checkoutCompleteEvent: CheckoutCompleteEvent) {
         log.d(LOG_TAG, "Clearing WebView cache after checkout completion.")
         CheckoutWebView.markCacheEntryStale()

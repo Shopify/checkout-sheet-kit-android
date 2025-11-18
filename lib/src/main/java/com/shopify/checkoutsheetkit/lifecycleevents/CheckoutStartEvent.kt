@@ -20,17 +20,15 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutsheetkit
+package com.shopify.checkoutsheetkit.lifecycleevents
 
-internal object CheckoutMessageContract {
-    const val VERSION_FIELD = "jsonrpc"
-    const val METHOD_FIELD = "method"
-    const val PARAMS_FIELD = "params"
-    const val ID_FIELD = "id"
+import kotlinx.serialization.Serializable
 
-    const val VERSION = "2.0"
-
-    const val METHOD_ADDRESS_CHANGE_REQUESTED = "checkout.addressChangeRequested"
-    const val METHOD_COMPLETE  = "checkout.complete"
-    const val METHOD_START  = "checkout.start"
-}
+/**
+ * Event triggered when checkout starts.
+ * Provides the initial cart state at the beginning of the checkout flow.
+ */
+@Serializable
+public data class CheckoutStartEvent(
+    public val cart: Cart
+)

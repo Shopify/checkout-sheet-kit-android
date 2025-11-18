@@ -19,3 +19,4 @@ exceptions:
 complexity:
   TooManyFunctions:
     thresholdInClasses: 16
+    thresholdInInterfaces: 12
