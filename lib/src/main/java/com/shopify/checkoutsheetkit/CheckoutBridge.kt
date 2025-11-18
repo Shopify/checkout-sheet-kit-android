@@ -27,6 +27,8 @@ import android.os.Looper
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
+import com.shopify.checkoutsheetkit.rpcevents.AddressChangeRequested
+import com.shopify.checkoutsheetkit.rpcevents.RPCRequest
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json

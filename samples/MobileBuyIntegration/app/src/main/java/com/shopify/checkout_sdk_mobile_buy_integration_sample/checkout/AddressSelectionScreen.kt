@@ -74,7 +74,7 @@ fun AddressSelectionScreen(
 ) {
     val eventStore = LocalCheckoutEventStore.current
     val event = remember(eventId) {
-        eventStore.getEvent(eventId) as? com.shopify.checkoutsheetkit.CheckoutAddressChangeRequestedEvent
+        eventStore.getEvent(eventId) as? com.shopify.checkoutsheetkit.rpcevents.AddressChangeRequested
     }
     val coroutineScope = rememberCoroutineScope()
 

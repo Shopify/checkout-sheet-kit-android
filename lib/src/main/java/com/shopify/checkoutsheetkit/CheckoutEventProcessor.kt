@@ -33,6 +33,7 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
+import com.shopify.checkoutsheetkit.rpcevents.AddressChangeRequested
 
 /**
  * Interface to implement to allow responding to lifecycle events in checkout.

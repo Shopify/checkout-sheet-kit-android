@@ -20,23 +20,46 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutsheetkit
+package com.shopify.checkoutsheetkit.rpcevents
 
 import kotlinx.serialization.Serializable
 
 /**
- * Parameters for the address change requested RPC event.
- * Mirrors the Swift AddressChangeRequestedParams structure.
+ * Generic RPC response structure matching the JSON-RPC 2.0 specification.
+ * Mirrors the Swift RPCResponse class.
+ *
+ * @param R The type of the result payload
  */
 @Serializable
-public data class AddressChangeRequestedParams(
+public data class RPCResponse<R>(
     /**
-     * The type of address being requested (e.g., "shipping", "billing")
+     * A String specifying the version of the JSON-RPC protocol. MUST be exactly "2.0".
      */
-    public val addressType: String,
+    val jsonrpc: String = "2.0",
 
     /**
-     * The currently selected address, if any
+     * This member is REQUIRED.
+     * It MUST be the same as the value of the id member in the Request Object.
+     * If there was an error in detecting the id in the Request object (e.g. Parse error/Invalid Request), it MUST be Null.
      */
-    public val selectedAddress: CartDeliveryAddressInput? = null
-)
+    val id: String? = null,
+
+    /**
+     * This member is REQUIRED on success.
+     * This member MUST NOT exist if there was an error invoking the method.
+     * The value of this member is determined by the method invoked on the Server.
+     */
+    val result: R? = null,
+
+    /**
+     * This member is REQUIRED on error.
+     * This member MUST NOT exist if there was no error triggered during invocation.
+     */
+    val error: String? = null
+) {
+    init {
+        require((result != null) xor (error != null)) {
+            "RPCResponse must have either a result or an error, but not both or neither"
+        }
+    }
+}

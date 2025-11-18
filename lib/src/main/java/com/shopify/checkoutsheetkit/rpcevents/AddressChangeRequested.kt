@@ -20,7 +20,28 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutsheetkit
+package com.shopify.checkoutsheetkit.rpcevents
+
+import com.shopify.checkoutsheetkit.CartDeliveryAddressInput
+import com.shopify.checkoutsheetkit.DeliveryAddressChangePayload
+import kotlinx.serialization.Serializable
+
+/**
+ * Parameters for the address change requested RPC event.
+ * Mirrors the Swift AddressChangeRequestedParams structure.
+ */
+@Serializable
+public data class AddressChangeRequestedParams(
+    /**
+     * The type of address being requested (e.g., "shipping", "billing")
+     */
+    public val addressType: String,
+
+    /**
+     * The currently selected address, if any
+     */
+    public val selectedAddress: CartDeliveryAddressInput? = null
+)
 
 /**
  * RPC request for address change requests from checkout.
