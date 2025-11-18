@@ -26,6 +26,8 @@ import com.shopify.checkoutsheetkit.CheckoutMessageContract.METHOD_COMPLETE
 import com.shopify.checkoutsheetkit.CheckoutMessageContract.METHOD_START
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
+import com.shopify.checkoutsheetkit.rpcevents.RPCRequest
+import com.shopify.checkoutsheetkit.rpcevents.RPCRequestRegistry
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json

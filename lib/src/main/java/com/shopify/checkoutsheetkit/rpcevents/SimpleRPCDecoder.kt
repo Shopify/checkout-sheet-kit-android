@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutsheetkit
+package com.shopify.checkoutsheetkit.rpcevents
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
@@ -40,7 +40,7 @@ public class SimpleRPCDecoder<P : Any, R : Any>(
         // Create a dummy instance with null id and minimal params
         // We need to handle the case where params have required fields
         val dummyJson = when (paramsSerializer.descriptor.serialName) {
-            "com.shopify.checkoutsheetkit.AddressChangeRequestedParams" -> """{"addressType":""}"""
+            "com.shopify.checkoutsheetkit.rpcevents.AddressChangeRequestedParams" -> """{"addressType":""}"""
             else -> "{}"
         }
         val dummyParams = json.decodeFromString(paramsSerializer, dummyJson)
