@@ -33,6 +33,8 @@ import android.webkit.WebView
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
+import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
+import com.shopify.checkoutsheetkit.rpcevents.AddressChangeRequested
 
 /**
  * Event processor that can handle events internally, delegate to the CheckoutEventProcessor
@@ -113,6 +115,11 @@ public class CheckoutWebViewEventProcessor(
         onMainThread {
             setProgressBarVisibility(VISIBLE)
         }
+    }
+
+    internal fun onWebPixelEvent(event: PixelEvent) {
+        log.d(LOG_TAG, "Calling onWebPixelEvent for $event.")
+        eventProcessor.onWebPixelEvent(event)
     }
 
     internal fun onAddressChangeRequested(event: AddressChangeRequested) {

@@ -35,6 +35,11 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
+import com.shopify.checkoutsheetkit.CartDelivery
+import com.shopify.checkoutsheetkit.CartDeliveryAddressInput
+import com.shopify.checkoutsheetkit.CartSelectableAddressInput
+import com.shopify.checkoutsheetkit.DeliveryAddressChangePayload
+import com.shopify.checkoutsheetkit.rpcevents.AddressChangeRequested
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
@@ -81,6 +86,25 @@ class MobileBuyEventProcessor(
 
     override fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {
         return (context as MainActivity).onGeolocationPermissionsShowPrompt(origin, callback)
+    }
+
+    override fun onAddressChangeRequested(event: AddressChangeRequested) {
+        event.respondWith(DeliveryAddressChangePayload(
+            delivery = CartDelivery(
+                addresses = listOf(
+                    CartSelectableAddressInput(
+                        address = CartDeliveryAddressInput(
+                            firstName = "Bob",
+                            lastName = "Jones",
+                            address1 = "44 Sunningdale Ave",
+                            city = "Swansea",
+                            countryCode = "GB",
+                            zip = "SA35HP",
+                        )
+                    )
+                )
+            )
+        ))
     }
 
     override fun onShowFileChooser(

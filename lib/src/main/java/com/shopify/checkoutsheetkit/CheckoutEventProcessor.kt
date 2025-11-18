@@ -33,6 +33,8 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
+import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
+import com.shopify.checkoutsheetkit.rpcevents.AddressChangeRequested
 
 /**
  * Interface to implement to allow responding to lifecycle events in checkout.
@@ -103,6 +105,11 @@ public interface CheckoutEventProcessor {
      * via [AddressChangeRequested.respondWith] (or cancel explicitly).
      */
     public fun onAddressChangeRequested(event: AddressChangeRequested)
+
+    /**
+     * Triggered when a pixel event is fired from checkout
+     */
+    public fun onWebPixelEvent(event: PixelEvent)
 }
 
 internal class NoopEventProcessor : CheckoutEventProcessor {
@@ -139,6 +146,9 @@ internal class NoopEventProcessor : CheckoutEventProcessor {
     }
 
     override fun onAddressChangeRequested(event: AddressChangeRequested) {/* noop */
+    }
+
+    override fun onWebPixelEvent(event: PixelEvent) {/* noop */
     }
 }
 
@@ -186,6 +196,10 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
     }
 
     override fun onAddressChangeRequested(event: AddressChangeRequested) {
+        // no-op override to implement
+    }
+
+    override fun onWebPixelEvent(event: PixelEvent) {
         // no-op override to implement
     }
 
