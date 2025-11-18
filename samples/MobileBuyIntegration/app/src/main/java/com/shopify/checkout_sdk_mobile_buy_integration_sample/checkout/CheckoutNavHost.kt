@@ -45,6 +45,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CheckoutAppAuthenticationService
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkoutsheetkit.CheckoutOptions
 import com.shopify.checkoutsheetkit.CheckoutWebView
 import com.shopify.checkoutsheetkit.CheckoutWebViewEventProcessor
@@ -82,6 +83,7 @@ fun CheckoutNavHost(
     val activity = LocalActivity.current as ComponentActivity
     val checkoutNavController = rememberNavController()
     val authService = koinInject<CheckoutAppAuthenticationService>()
+    val logger = koinInject<Logger>()
     val coroutineScope = rememberCoroutineScope()
 
     // Define back handling logic
@@ -118,6 +120,7 @@ fun CheckoutNavHost(
                         checkoutNavController = checkoutNavController,
                         context = activity,
                         eventStore = eventStore,
+                        logger = logger,
                     )
                 )
                 setEventProcessor(eventProcessor)
