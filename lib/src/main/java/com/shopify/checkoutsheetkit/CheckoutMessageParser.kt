@@ -22,8 +22,6 @@
  */
 package com.shopify.checkoutsheetkit
 
-import android.webkit.WebView
-import com.shopify.checkoutsheetkit.CheckoutMessageContract.METHOD_ADDRESS_CHANGE_REQUESTED
 import com.shopify.checkoutsheetkit.CheckoutMessageContract.METHOD_COMPLETE
 import com.shopify.checkoutsheetkit.CheckoutMessageContract.METHOD_START
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
@@ -32,40 +30,39 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.decodeFromJsonElement
-import kotlinx.serialization.json.jsonPrimitive
-import java.lang.ref.WeakReference
 
 internal class CheckoutMessageParser(
     internal val json: Json,
     private val log: LogWrapper = ShopifyCheckoutSheetKit.log,
 ) {
 
-    fun parse(rawMessage: String): JSONRPCMessage? {
+    /**
+     * Parse a raw JSON-RPC message and return either an RPC request or a notification event.
+     */
+    fun parse(rawMessage: String): CheckoutMessage? {
+        // First try to decode via the registry for RPC requests
+        val rpcRequest = RPCRequestRegistry.decode(rawMessage)
+        if (rpcRequest != null) {
+            return CheckoutMessage.Request(rpcRequest)
+        }
+
+        // Fall back to manual parsing for notifications and other messages
         val envelope = json.runCatching { decodeFromString<JsonRpcEnvelope>(rawMessage) }.getOrNull()
             ?: return null
 
-        val id = envelope.id?.jsonPrimitive?.contentOrNull
-
         return when (envelope.method) {
-            METHOD_ADDRESS_CHANGE_REQUESTED -> envelope.params
-                .decodeOrNull<CheckoutAddressChangeRequestedEventData> {
-                    log.d(LOG_TAG, "Failed to decode address change requested params: ${it.message}")
-                }
-                ?.let { JSONRPCMessage.AddressChangeRequested(id, it) }
-
             METHOD_START -> envelope.params
                 .decodeOrNull<CheckoutStartEvent> {
                     log.d(LOG_TAG, "Failed to decode checkout start params: ${it.message}")
                 }
-                ?.let { JSONRPCMessage.Started(it) }
+                ?.let { CheckoutMessage.StartNotification(it) }
 
             METHOD_COMPLETE -> envelope.params
                 .decodeOrNull<CheckoutCompleteEvent> {
                     log.d(LOG_TAG, "Failed to decode checkout completed params: ${it.message}")
                 }
-                ?.let { JSONRPCMessage.Completed(it) }
+                ?.let { CheckoutMessage.CompleteNotification(it) }
 
             else -> {
                 log.d(LOG_TAG, "Received unsupported message method: ${envelope.method}")
@@ -74,62 +71,13 @@ internal class CheckoutMessageParser(
         }
     }
 
-    sealed class JSONRPCMessage {
-        /**
-         * Base class for JSONRPC notifications (one-way messages with no ID and no response expected)
-         */
-        sealed class JSONRPCNotification : JSONRPCMessage()
-
-        /**
-         * Base class for JSONRPC requests (messages with ID that expect a response)
-         */
-        sealed class JSONRPCRequest : JSONRPCMessage() {
-            abstract val id: String?
-            internal var webViewRef: WeakReference<WebView>? = null
-
-            internal fun setWebView(webView: android.webkit.WebView) {
-                webViewRef = WeakReference(webView)
-            }
-        }
-
-        data class AddressChangeRequested internal constructor(
-            override val id: String?,
-            internal val params: CheckoutAddressChangeRequestedEventData,
-        ) : JSONRPCRequest() {
-            private var hasResponded = false
-            internal val addressType: String get() = params.addressType
-            internal val selectedAddress: CartDeliveryAddressInput? get() = params.selectedAddress
-
-            /**
-             * Send a response to this JSONRPC request
-             * @param payload The payload to send back to the WebView
-             */
-            internal fun respondWith(payload: DeliveryAddressChangePayload) {
-                if (hasResponded) return
-                hasResponded = true
-
-                webViewRef?.get()?.let { webView ->
-                    val response = DeliveryAddressChangeResponse()
-                    val responseJson = response.encodeSetDeliveryAddress(payload, id)
-                    CheckoutBridge.sendResponse(webView, responseJson)
-                }
-            }
-
-            /**
-             * Convert to public-facing event
-             */
-            internal fun toEvent(): CheckoutAddressChangeRequestedEvent {
-                return CheckoutAddressChangeRequestedEvent(this)
-            }
-        }
-
-        data class Started(
-            val event: CheckoutStartEvent,
-        ) : JSONRPCNotification()
-
-        data class Completed(
-            val event: CheckoutCompleteEvent,
-        ) : JSONRPCNotification()
+    /**
+     * Wrapper for different types of checkout messages
+     */
+    sealed class CheckoutMessage {
+        data class Request(val rpcRequest: RPCRequest<*, *>) : CheckoutMessage()
+        data class StartNotification(val event: CheckoutStartEvent) : CheckoutMessage()
+        data class CompleteNotification(val event: CheckoutCompleteEvent) : CheckoutMessage()
     }
 
     @Serializable
