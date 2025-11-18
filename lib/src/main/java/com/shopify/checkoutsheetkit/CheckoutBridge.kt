@@ -47,7 +47,7 @@ internal class CheckoutBridge(
      * the events.
      * This doesn't affect behaviour just means they're consistent
      */
-    private val pendingEvents = mutableMapOf<String, CheckoutMessageParser.JSONRPCMessage>()
+    private val pendingEvents = mutableMapOf<String, RPCRequest<*, *>>()
 
     fun setEventProcessor(eventProcessor: CheckoutWebViewEventProcessor) {
         this.eventProcessor = eventProcessor
@@ -66,7 +66,7 @@ internal class CheckoutBridge(
      */
     fun respondToEvent(eventId: String, responseData: String) {
         val event = pendingEvents[eventId]
-        if (event is CheckoutMessageParser.JSONRPCMessage.AddressChangeRequested) {
+        if (event is AddressChangeRequested) {
             try {
                 // Parse the response data as DeliveryAddressChangePayload
                 val jsonParser = Json { ignoreUnknownKeys = true }
@@ -89,29 +89,41 @@ internal class CheckoutBridge(
         try {
             log.d(LOG_TAG, "Received message from checkout.")
             when (val checkoutMessage = messageParser.parse(message)) {
-                is CheckoutMessageParser.JSONRPCMessage.AddressChangeRequested -> {
-                    log.d(LOG_TAG, "Received checkout.addressChangeStart message.")
-                    // Set the WebView reference on the message so it can respond directly
+                is CheckoutMessageParser.CheckoutMessage.Request -> {
+                    val rpcRequest = checkoutMessage.rpcRequest
+
+                    // Set the WebView reference on the request so it can respond directly
                     webViewRef?.get()?.let { webView ->
-                        checkoutMessage.setWebView(webView)
+                        rpcRequest.webView = WeakReference(webView)
                     }
+
                     // Store the event for potential React Native response
-                    checkoutMessage.id?.let { id ->
-                        pendingEvents[id] = checkoutMessage
+                    rpcRequest.id?.let { id ->
+                        pendingEvents[id] = rpcRequest
                     }
-                    onMainThread {
-                        eventProcessor.onAddressChangeRequested(checkoutMessage.toEvent())
+
+                    // Dispatch to appropriate handler based on type
+                    when (rpcRequest) {
+                        is AddressChangeRequested -> {
+                            log.d(LOG_TAG, "Received checkout.addressChangeRequested message.")
+                            onMainThread {
+                                eventProcessor.onAddressChangeRequested(rpcRequest)
+                            }
+                        }
+                        else -> {
+                            log.d(LOG_TAG, "Received RPC request of type ${rpcRequest::class.simpleName}")
+                        }
                     }
                 }
 
-                is CheckoutMessageParser.JSONRPCMessage.Started -> {
+                is CheckoutMessageParser.CheckoutMessage.StartNotification -> {
                     log.d(LOG_TAG, "Received checkout.start message. Dispatching decoded event.")
                     onMainThread {
                         eventProcessor.onCheckoutViewStart(checkoutMessage.event)
                     }
                 }
 
-                is CheckoutMessageParser.JSONRPCMessage.Completed -> {
+                is CheckoutMessageParser.CheckoutMessage.CompleteNotification -> {
                     log.d(LOG_TAG, "Received checkout.complete message. Dispatching decoded event.")
                     onMainThread {
                         eventProcessor.onCheckoutViewComplete(checkoutMessage.event)

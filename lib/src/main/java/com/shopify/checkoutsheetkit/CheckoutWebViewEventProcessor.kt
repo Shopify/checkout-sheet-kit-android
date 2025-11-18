@@ -115,7 +115,7 @@ public class CheckoutWebViewEventProcessor(
         }
     }
 
-    internal fun onAddressChangeRequested(event: CheckoutAddressChangeRequestedEvent) {
+    internal fun onAddressChangeRequested(event: AddressChangeRequested) {
         onMainThread {
             eventProcessor.onAddressChangeRequested(event)
         }
