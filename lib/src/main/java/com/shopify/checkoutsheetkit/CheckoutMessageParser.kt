@@ -43,32 +43,29 @@ internal class CheckoutMessageParser(
      * Parse a raw JSON-RPC message and return either an RPC request or a notification event.
      */
     fun parse(rawMessage: String): CheckoutMessage? {
-        // First try to decode via the registry for RPC requests
-        val rpcRequest = RPCRequestRegistry.decode(rawMessage)
-        if (rpcRequest != null) {
-            return CheckoutMessage.Request(rpcRequest)
-        }
+       return RPCRequestRegistry.decode(rawMessage)?.let {  CheckoutMessage.Request(it) } ?: run {
+            // Fall back to manual parsing for notifications and other messages
+            val envelope = json.runCatching {
+                decodeFromString<JsonRpcEnvelope>(rawMessage)
+            }.getOrNull() ?: return null
 
-        // Fall back to manual parsing for notifications and other messages
-        val envelope = json.runCatching { decodeFromString<JsonRpcEnvelope>(rawMessage) }.getOrNull()
-            ?: return null
+            when (envelope.method) {
+                METHOD_START -> envelope.params
+                    .decodeOrNull<CheckoutStartEvent> {
+                        log.d(LOG_TAG, "Failed to decode checkout start params: ${it.message}")
+                    }
+                    ?.let { CheckoutMessage.StartNotification(it) }
 
-        return when (envelope.method) {
-            METHOD_START -> envelope.params
-                .decodeOrNull<CheckoutStartEvent> {
-                    log.d(LOG_TAG, "Failed to decode checkout start params: ${it.message}")
+                METHOD_COMPLETE -> envelope.params
+                    .decodeOrNull<CheckoutCompleteEvent> {
+                        log.d(LOG_TAG, "Failed to decode checkout completed params: ${it.message}")
+                    }
+                    ?.let { CheckoutMessage.CompleteNotification(it) }
+
+                else -> {
+                    log.d(LOG_TAG, "Received unsupported message method: ${envelope.method}")
+                    null
                 }
-                ?.let { CheckoutMessage.StartNotification(it) }
-
-            METHOD_COMPLETE -> envelope.params
-                .decodeOrNull<CheckoutCompleteEvent> {
-                    log.d(LOG_TAG, "Failed to decode checkout completed params: ${it.message}")
-                }
-                ?.let { CheckoutMessage.CompleteNotification(it) }
-
-            else -> {
-                log.d(LOG_TAG, "Received unsupported message method: ${envelope.method}")
-                null
             }
         }
     }

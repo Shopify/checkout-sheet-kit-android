@@ -97,64 +97,116 @@ public abstract class RPCRequest<P : Any, R : Any>(
      */
     @OptIn(InternalSerializationApi::class)
     public fun respondWith(payload: R) {
-        ShopifyCheckoutSheetKit.log.d("RPCRequest", "respondWith called for method '$method' with id '$id'. webView: ${webView?.get()}, hasResponded: $hasResponded, isNotification: $isNotification")
+        ShopifyCheckoutSheetKit.log.d(
+            "RPCRequest",
+            "respondWith called for method '$method' with id '$id'. " +
+                "webView: ${webView?.get()}, hasResponded: $hasResponded, isNotification: $isNotification"
+        )
 
-        if (hasResponded) {
-            ShopifyCheckoutSheetKit.log.w("RPCRequest", "Attempted to respond to RPC request '$method' with id '$id' multiple times. Ignoring.")
-            return
+        when {
+            hasResponded -> logMultipleResponseAttempt()
+            isNotification -> logNotificationResponseAttempt()
+            else -> handleValidResponse(payload)
         }
-        if (isNotification) {
-            ShopifyCheckoutSheetKit.log.w("RPCRequest", "Attempted to respond to RPC notification '$method'. Notifications do not expect responses.")
-            return
-        }
+    }
 
+    @OptIn(InternalSerializationApi::class)
+    private fun handleValidResponse(payload: R) {
         try {
             validate(payload)
+            hasResponded = true
+            sendSuccessResponse(payload)
         } catch (e: Exception) {
-            ShopifyCheckoutSheetKit.log.e("RPCRequest", "Validation failed for RPC request '$method' with id '$id': ${e.message}")
+            ShopifyCheckoutSheetKit.log.e(
+                "RPCRequest",
+                "Validation failed for RPC request '$method' with id '$id': ${e.message}"
+            )
             respondWithError("Validation failed: ${e.message}")
-            return
         }
+    }
 
-        hasResponded = true
-
+    @OptIn(InternalSerializationApi::class)
+    private fun sendSuccessResponse(payload: R) {
         webView?.get()?.let { webView ->
             try {
-                // Serialize payload to JsonElement first to preserve type information
                 val payloadJson: JsonElement = json.encodeToJsonElement(
                     payload::class.serializer() as KSerializer<R>,
                     payload
                 )
-
-                // Build response JSON manually using JsonObject
                 val responseJsonObject = buildJsonObject {
                     put("jsonrpc", JsonPrimitive(jsonrpc))
                     id?.let { put("id", JsonPrimitive(it)) }
                     put("result", payloadJson)
                 }
-
-                // Convert JsonObject to string
                 val responseJson = json.encodeToString(responseJsonObject)
-                ShopifyCheckoutSheetKit.log.d("RPCRequest", "About to call sendResponse for method '$method' with encoded response")
+                ShopifyCheckoutSheetKit.log.d(
+                    "RPCRequest",
+                    "About to call sendResponse for method '$method' with encoded response"
+                )
                 CheckoutBridge.sendResponse(webView, responseJson)
             } catch (e: Exception) {
-                ShopifyCheckoutSheetKit.log.e("RPCRequest", "Failed to encode response for RPC request '$method' with id '$id': ${e.message}")
+                ShopifyCheckoutSheetKit.log.e(
+                    "RPCRequest",
+                    "Failed to encode response for RPC request '$method' with id '$id': ${e.message}"
+                )
             }
-        } ?: run {
-            ShopifyCheckoutSheetKit.log.w("RPCRequest", "WebView reference lost for RPC request '$method' with id '$id'. webView: $webView")
-        }
+        } ?: logWebViewLost()
+    }
+
+    private fun logMultipleResponseAttempt() {
+        ShopifyCheckoutSheetKit.log.w(
+            "RPCRequest",
+            "Attempted to respond to RPC request '$method' with id '$id' multiple times. Ignoring."
+        )
+    }
+
+    private fun logNotificationResponseAttempt() {
+        ShopifyCheckoutSheetKit.log.w(
+            "RPCRequest",
+            "Attempted to respond to RPC notification '$method'. Notifications do not expect responses."
+        )
+    }
+
+    private fun logWebViewLost() {
+        ShopifyCheckoutSheetKit.log.w(
+            "RPCRequest",
+            "WebView reference lost for RPC request '$method' with id '$id'. webView: $webView"
+        )
     }
 
     /**
      * Respond to this request with a JSON string.
      * Useful for language bindings (e.g., React Native).
      *
-     * @param json A JSON string representing the response payload
+     * @param jsonString A JSON string representing the response payload
      */
-    public fun respondWith(json: String) {
-        // This will be overridden by concrete classes if they need custom deserialization
-        // For now, we can't deserialize without knowing the concrete type R
-        ShopifyCheckoutSheetKit.log.e("RPCRequest", "respondWith(json) called but not implemented for '$method'")
+    public fun respondWith(jsonString: String) {
+        // Since we can't use inline reified, we'll need to handle this differently
+        // For React Native bridge, the JSON should be parseable as JsonElement first
+        try {
+            val jsonElement = json.parseToJsonElement(jsonString)
+            // Try to decode it as the response type using the responseSerializer
+            // This approach requires the concrete class to provide proper deserialization
+            respondWithJsonElement(jsonElement)
+        } catch (e: Exception) {
+            ShopifyCheckoutSheetKit.log.e(
+                "RPCRequest",
+                "respondWith(json) failed to decode method: $method, id: $id, error: ${e.message}"
+            )
+            respondWithError(jsonString)
+        }
+    }
+
+    /**
+     * Internal method to respond with a JsonElement.
+     * Subclasses can override this to provide proper deserialization.
+     */
+    protected open fun respondWithJsonElement(jsonElement: JsonElement) {
+        // Default implementation - subclasses should override if they support JSON responses
+        ShopifyCheckoutSheetKit.log.e(
+            "RPCRequest",
+            "respondWithJsonElement not implemented for method: $method"
+        )
         respondWithError("JSON response not supported for this request type")
     }
 
@@ -164,31 +216,41 @@ public abstract class RPCRequest<P : Any, R : Any>(
      * @param error The error message
      */
     public fun respondWithError(error: String) {
-        if (hasResponded) {
-            ShopifyCheckoutSheetKit.log.w("RPCRequest", "Attempted to respond to RPC request '$method' with id '$id' multiple times. Ignoring.")
-            return
-        }
-        if (isNotification) {
-            ShopifyCheckoutSheetKit.log.w("RPCRequest", "Attempted to respond to RPC notification '$method'. Notifications do not expect responses.")
-            return
-        }
+        when {
+            hasResponded -> {
+                ShopifyCheckoutSheetKit.log.w(
+                    "RPCRequest",
+                    "Attempted to respond to RPC request '$method' with id '$id' multiple times. Ignoring."
+                )
+            }
+            isNotification -> {
+                ShopifyCheckoutSheetKit.log.w(
+                    "RPCRequest",
+                    "Attempted to respond to RPC notification '$method'. Notifications do not expect responses."
+                )
+            }
+            else -> {
+                hasResponded = true
 
-        hasResponded = true
+                webView?.get()?.let { webView ->
+                    try {
+                        // Build error response JSON manually using JsonObject
+                        val responseJsonObject = buildJsonObject {
+                            put("jsonrpc", JsonPrimitive(jsonrpc))
+                            id?.let { put("id", JsonPrimitive(it)) }
+                            put("error", JsonPrimitive(error))
+                        }
 
-        webView?.get()?.let { webView ->
-            try {
-                // Build error response JSON manually using JsonObject
-                val responseJsonObject = buildJsonObject {
-                    put("jsonrpc", JsonPrimitive(jsonrpc))
-                    id?.let { put("id", JsonPrimitive(it)) }
-                    put("error", JsonPrimitive(error))
+                        // Convert JsonObject to string
+                        val responseJson = json.encodeToString(responseJsonObject)
+                        CheckoutBridge.sendResponse(webView, responseJson)
+                    } catch (e: Exception) {
+                        ShopifyCheckoutSheetKit.log.e(
+                            "RPCRequest",
+                            "Failed to encode error response for RPC request '$method' with id '$id': ${e.message}"
+                        )
+                    }
                 }
-
-                // Convert JsonObject to string
-                val responseJson = json.encodeToString(responseJsonObject)
-                CheckoutBridge.sendResponse(webView, responseJson)
-            } catch (e: Exception) {
-                ShopifyCheckoutSheetKit.log.e("RPCRequest", "Failed to encode error response for RPC request '$method' with id '$id': ${e.message}")
             }
         }
     }

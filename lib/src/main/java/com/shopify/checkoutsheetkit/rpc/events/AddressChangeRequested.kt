@@ -41,6 +41,18 @@ public class AddressChangeRequested(
 
     override val method: String = ADDRESS_CHANGE_REQUESTED_METHOD
 
+    override fun respondWithJsonElement(jsonElement: kotlinx.serialization.json.JsonElement) {
+        try {
+            val payload = kotlinx.serialization.json.Json.decodeFromJsonElement(
+                DeliveryAddressChangePayload.serializer(),
+                jsonElement
+            )
+            respondWith(payload)
+        } catch (e: Exception) {
+            respondWithError("Failed to decode JSON response: ${e.message}")
+        }
+    }
+
     public companion object : TypeErasedRPCDecodable by RPCDecoder.create(
         method = ADDRESS_CHANGE_REQUESTED_METHOD,
         factory = ::AddressChangeRequested
