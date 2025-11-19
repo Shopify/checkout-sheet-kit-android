@@ -35,6 +35,7 @@ import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
 import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 import com.shopify.checkoutsheetkit.rpc.events.AddressChangeRequested
+import com.shopify.checkoutsheetkit.rpc.events.AddressChangeRequestedEvent
 
 /**
  * Interface to implement to allow responding to lifecycle events in checkout.
@@ -200,7 +201,7 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
         // no-op override to implement
     }
 
-    override fun onAddressChangeRequested(event: CheckoutAddressChangeRequestedEvent) {
+    override fun onAddressChangeRequested(event: AddressChangeRequested) {
         // no-op override to implement
     }
 

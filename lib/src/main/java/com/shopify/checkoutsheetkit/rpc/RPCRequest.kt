@@ -26,6 +26,8 @@ import android.webkit.WebView
 import com.shopify.checkoutsheetkit.CheckoutBridge
 import com.shopify.checkoutsheetkit.RespondableEvent
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.decodeFromString
@@ -68,9 +70,11 @@ public abstract class RPCRequest<P : Any, R : Any>(
 
     private var hasResponded = false
 
+    @OptIn(ExperimentalSerializationApi::class)
     protected val json: Json = Json {
         ignoreUnknownKeys = true
         encodeDefaults = true
+        explicitNulls = false  // Exclude null fields from JSON output
     }
 
     /**
@@ -80,11 +84,19 @@ public abstract class RPCRequest<P : Any, R : Any>(
     public abstract val method: String
 
     /**
+     * The serializer for the response type R.
+     * Subclasses must provide this to enable proper JSON serialization.
+     */
+    protected abstract val responseSerializer: KSerializer<R>
+
+    /**
      * Respond to this request with the specified payload.
      *
      * @param payload The response payload
      */
     public fun respondWith(payload: R) {
+        ShopifyCheckoutSheetKit.log.d("RPCRequest", "respondWith called for '$method' with id='$id', isNotification=$isNotification, hasResponded=$hasResponded")
+
         if (hasResponded) {
             ShopifyCheckoutSheetKit.log.w("RPCRequest", "Attempted to respond to RPC request '$method' with id '$id' multiple times. Ignoring.")
             return
@@ -104,7 +116,10 @@ public abstract class RPCRequest<P : Any, R : Any>(
 
         hasResponded = true
 
-        webView?.get()?.let { webView ->
+        val currentWebView = webView?.get()
+        ShopifyCheckoutSheetKit.log.d("RPCRequest", "WebView state: ${if (currentWebView != null) "Available" else "NULL"} for '$method'")
+
+        currentWebView?.let { webView ->
             val response = RPCResponse(
                 jsonrpc = jsonrpc,
                 id = id,
@@ -112,8 +127,13 @@ public abstract class RPCRequest<P : Any, R : Any>(
             )
 
             try {
-                // Use inline reified function to encode with proper type information
-                val responseJson = json.encodeToString(response)
+                ShopifyCheckoutSheetKit.log.d("RPCRequest", "Encoding response for '$method'")
+                // Use explicit serializer to encode with proper type information
+                val responseJson = json.encodeToString(
+                    RPCResponse.serializer(responseSerializer),
+                    response
+                )
+                ShopifyCheckoutSheetKit.log.d("RPCRequest", "Successfully encoded response for '$method', sending to WebView $responseJson" )
                 CheckoutBridge.sendResponse(webView, responseJson)
             } catch (e: Exception) {
                 ShopifyCheckoutSheetKit.log.e("RPCRequest", "Failed to encode response for RPC request '$method' with id '$id': ${e.message}")
@@ -161,7 +181,10 @@ public abstract class RPCRequest<P : Any, R : Any>(
             )
 
             try {
-                val responseJson = json.encodeToString(response)
+                val responseJson = json.encodeToString(
+                    RPCResponse.serializer(responseSerializer),
+                    response
+                )
                 CheckoutBridge.sendResponse(webView, responseJson)
             } catch (e: Exception) {
                 ShopifyCheckoutSheetKit.log.e("RPCRequest", "Failed to encode error response for RPC request '$method' with id '$id': ${e.message}")

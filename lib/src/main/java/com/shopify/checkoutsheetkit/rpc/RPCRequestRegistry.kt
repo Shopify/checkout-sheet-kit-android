@@ -25,6 +25,7 @@ package com.shopify.checkoutsheetkit.rpc
 import com.shopify.checkoutsheetkit.CheckoutMessageContract
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 import com.shopify.checkoutsheetkit.rpc.events.AddressChangeRequested
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -51,9 +52,11 @@ public object RPCRequestRegistry {
         buildRegistry()
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     private val json = Json {
         ignoreUnknownKeys = true
         encodeDefaults = true
+        explicitNulls = false  // Exclude null fields from JSON output
     }
 
     /**
