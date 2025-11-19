@@ -158,7 +158,9 @@ fun AddressSelectionScreen(
                     val response = DeliveryAddressChangePayload(
                         delivery = CartDelivery(
                             addresses = listOf(
-                                CartSelectableAddressInput(address = selectedAddress)
+                                CartSelectableAddressInput(
+                                    address = selectedAddress
+                                )
                             )
                         )
                     )

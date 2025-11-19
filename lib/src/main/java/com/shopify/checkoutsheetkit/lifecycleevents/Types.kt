@@ -240,24 +240,55 @@ public data class CartDelivery(
     public val addresses: List<CartSelectableAddress> = emptyList()
 )
 
-@Serializable
-public data class CartSelectableAddress(
-    public val address: CartDeliveryAddress
-)
+/**
+ * Represents a delivery address union type from the Storefront API
+ * https://shopify.dev/docs/api/storefront/latest/unions/CartAddress
+ */
+@Serializable(with = CartAddressSerializer::class)
+public sealed interface CartAddress {
+    @Serializable
+    public data class DeliveryAddress(
+        public val address1: String? = null,
+        public val address2: String? = null,
+        public val city: String? = null,
+        public val company: String? = null,
+        public val countryCode: String? = null,
+        public val firstName: String? = null,
+        public val lastName: String? = null,
+        public val phone: String? = null,
+        public val provinceCode: String? = null,
+        public val zip: String? = null
+    ) : CartAddress
+}
+
+private object CartAddressSerializer : KSerializer<CartAddress> {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("CartAddress")
+
+    override fun deserialize(decoder: Decoder): CartAddress {
+        // Protocol is versioned - for current version, always DeliveryAddress
+        return CartAddress.DeliveryAddress.serializer().deserialize(decoder)
+    }
+
+    override fun serialize(encoder: Encoder, value: CartAddress) {
+        when (value) {
+            is CartAddress.DeliveryAddress -> {
+                CartAddress.DeliveryAddress.serializer().serialize(encoder, value)
+            }
+        }
+    }
+}
 
 @Serializable
-public data class CartDeliveryAddress(
-    public val address1: String? = null,
-    public val address2: String? = null,
-    public val city: String? = null,
-    public val company: String? = null,
-    public val countryCode: String? = null,
-    public val firstName: String? = null,
-    public val lastName: String? = null,
-    public val phone: String? = null,
-    public val provinceCode: String? = null,
-    public val zip: String? = null
+public data class CartSelectableAddress(
+    public val address: CartAddress
 )
+
+/**
+ * Type alias for CartAddress.DeliveryAddress for convenience.
+ * Use this when you need to construct or work with delivery addresses directly.
+ * Can be removed when we introduce CartInput
+ */
+public typealias CartDeliveryAddress = CartAddress.DeliveryAddress
 
 @Serializable
 public data class CartDiscountCode(

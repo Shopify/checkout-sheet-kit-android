@@ -23,7 +23,6 @@
 package com.shopify.checkoutsheetkit
 
 import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
-import com.shopify.checkoutsheetkit.lifecycleevents.CartDelivery
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.After
@@ -162,7 +161,7 @@ class CheckoutBridgeTest {
             delivery = CartDelivery(
                 addresses = listOf(
                     CartSelectableAddressInput(
-                        CartDeliveryAddressInput(firstName = "Ada"),
+                        CartDeliveryAddressInput(firstName = "Ada")
                     ),
                 ),
             ),
@@ -211,7 +210,7 @@ class CheckoutBridgeTest {
             delivery = CartDelivery(
                 addresses = listOf(
                     CartSelectableAddressInput(
-                        CartDeliveryAddressInput(firstName = "Ada"),
+                        CartDeliveryAddressInput(firstName = "Ada")
                     ),
                 ),
             ),

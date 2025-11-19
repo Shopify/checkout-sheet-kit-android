@@ -23,6 +23,7 @@
 
 package com.shopify.checkoutsheetkit
 
+import com.shopify.checkoutsheetkit.lifecycleevents.CartAddress
 import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryGroupType
 import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryMethodType
 import com.shopify.checkoutsheetkit.lifecycleevents.CartDiscountCode
@@ -122,6 +123,7 @@ class CheckoutCompleteEventDecoderTest {
         assertThat(deliveryGroup.selectedDeliveryOption?.handle).isEqualTo("standard-shipping")
 
         val deliveryAddress = cart.delivery.addresses.single().address
+        require(deliveryAddress is CartAddress.DeliveryAddress)
         assertThat(deliveryAddress.address1).isEqualTo("100 Street Avenue")
         assertThat(deliveryAddress.provinceCode).isEqualTo("WLS")
         assertThat(deliveryAddress.zip).isEqualTo("SA1 1AB")

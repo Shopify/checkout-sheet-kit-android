@@ -23,6 +23,7 @@
 package com.shopify.checkoutsheetkit
 
 import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
+import com.shopify.checkoutsheetkit.lifecycleevents.CartAddress
 import org.junit.Test
 
 class CheckoutAddressChangeRequestedEventTest {
@@ -82,7 +83,7 @@ class CheckoutAddressChangeRequestedEventTest {
 
     @Test
     fun `exposes selectedAddress from params`() {
-        val selectedAddress = CartDeliveryAddressInput(
+        val selectedAddress = CartAddress.DeliveryAddress(
             firstName = "Ada",
             lastName = "Lovelace",
             city = "London",

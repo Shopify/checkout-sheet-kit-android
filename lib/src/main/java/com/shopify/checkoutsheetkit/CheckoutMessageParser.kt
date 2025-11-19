@@ -26,6 +26,7 @@ import android.webkit.WebView
 import com.shopify.checkoutsheetkit.CheckoutMessageContract.METHOD_ADDRESS_CHANGE_REQUESTED
 import com.shopify.checkoutsheetkit.CheckoutMessageContract.METHOD_COMPLETE
 import com.shopify.checkoutsheetkit.CheckoutMessageContract.METHOD_START
+import com.shopify.checkoutsheetkit.lifecycleevents.CartAddress
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
 import kotlinx.serialization.SerialName
@@ -98,7 +99,7 @@ internal class CheckoutMessageParser(
         ) : JSONRPCRequest() {
             private var hasResponded = false
             internal val addressType: String get() = params.addressType
-            internal val selectedAddress: CartDeliveryAddressInput? get() = params.selectedAddress
+            internal val selectedAddress: CartAddress.DeliveryAddress? get() = params.selectedAddress
 
             /**
              * Send a response to this JSONRPC request
