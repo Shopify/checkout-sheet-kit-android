@@ -27,12 +27,19 @@ import com.shopify.checkoutsheetkit.CheckoutBridge
 import com.shopify.checkoutsheetkit.RespondableEvent
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.encodeToJsonElement
+import kotlinx.serialization.serializer
 import java.lang.ref.WeakReference
 
 /**
@@ -88,9 +95,10 @@ public abstract class RPCRequest<P : Any, R : Any>(
      *
      * @param payload The response payload
      */
+    @OptIn(InternalSerializationApi::class)
     public fun respondWith(payload: R) {
         ShopifyCheckoutSheetKit.log.d("RPCRequest", "respondWith called for method '$method' with id '$id'. webView: ${webView?.get()}, hasResponded: $hasResponded, isNotification: $isNotification")
-        
+
         if (hasResponded) {
             ShopifyCheckoutSheetKit.log.w("RPCRequest", "Attempted to respond to RPC request '$method' with id '$id' multiple times. Ignoring.")
             return
@@ -111,15 +119,22 @@ public abstract class RPCRequest<P : Any, R : Any>(
         hasResponded = true
 
         webView?.get()?.let { webView ->
-            val response = RPCResponse(
-                jsonrpc = jsonrpc,
-                id = id,
-                result = payload
-            )
-
             try {
-                // Use direct JSON serialization - kotlinx.serialization will handle the generic type automatically
-                val responseJson = json.encodeToString(response)
+                // Serialize payload to JsonElement first to preserve type information
+                val payloadJson: JsonElement = json.encodeToJsonElement(
+                    payload::class.serializer() as KSerializer<R>,
+                    payload
+                )
+
+                // Build response JSON manually using JsonObject
+                val responseJsonObject = buildJsonObject {
+                    put("jsonrpc", JsonPrimitive(jsonrpc))
+                    id?.let { put("id", JsonPrimitive(it)) }
+                    put("result", payloadJson)
+                }
+
+                // Convert JsonObject to string
+                val responseJson = json.encodeToString(responseJsonObject)
                 ShopifyCheckoutSheetKit.log.d("RPCRequest", "About to call sendResponse for method '$method' with encoded response")
                 CheckoutBridge.sendResponse(webView, responseJson)
             } catch (e: Exception) {
@@ -161,15 +176,16 @@ public abstract class RPCRequest<P : Any, R : Any>(
         hasResponded = true
 
         webView?.get()?.let { webView ->
-            val response = RPCResponse<R>(
-                jsonrpc = jsonrpc,
-                id = id,
-                error = error
-            )
-
             try {
-                // Use direct JSON serialization - kotlinx.serialization will handle the generic type automatically
-                val responseJson = json.encodeToString(response)
+                // Build error response JSON manually using JsonObject
+                val responseJsonObject = buildJsonObject {
+                    put("jsonrpc", JsonPrimitive(jsonrpc))
+                    id?.let { put("id", JsonPrimitive(it)) }
+                    put("error", JsonPrimitive(error))
+                }
+
+                // Convert JsonObject to string
+                val responseJson = json.encodeToString(responseJsonObject)
                 CheckoutBridge.sendResponse(webView, responseJson)
             } catch (e: Exception) {
                 ShopifyCheckoutSheetKit.log.e("RPCRequest", "Failed to encode error response for RPC request '$method' with id '$id': ${e.message}")
