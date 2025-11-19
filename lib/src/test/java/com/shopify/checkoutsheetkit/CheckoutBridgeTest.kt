@@ -24,6 +24,7 @@ package com.shopify.checkoutsheetkit
 
 import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
 import com.shopify.checkoutsheetkit.lifecycleevents.CartDelivery
+import com.shopify.checkoutsheetkit.rpc.events.AddressChangeRequested
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.After
@@ -76,13 +77,13 @@ class CheckoutBridgeTest {
 
         checkoutBridge.postMessage(jsonRpcMessage)
 
-        val eventCaptor = argumentCaptor<CheckoutAddressChangeRequestedEvent>()
+        val eventCaptor = argumentCaptor<AddressChangeRequested>()
         verify(mockEventProcessor).onAddressChangeRequested(eventCaptor.capture())
 
         val event = eventCaptor.firstValue
-        assertThat(event.addressType).isEqualTo("shipping")
-        assertThat(event.selectedAddress?.firstName).isEqualTo("Ada")
-        assertThat(event.selectedAddress?.lastName).isEqualTo("Lovelace")
+        assertThat(event.params.addressType).isEqualTo("shipping")
+        assertThat(event.params.selectedAddress?.firstName).isEqualTo("Ada")
+        assertThat(event.params.selectedAddress?.lastName).isEqualTo("Lovelace")
     }
 
     @Test
@@ -154,7 +155,7 @@ class CheckoutBridgeTest {
         checkoutBridge.setWebView(mockWebView)
         checkoutBridge.postMessage(jsonRpcMessage)
 
-        val eventCaptor = argumentCaptor<CheckoutAddressChangeRequestedEvent>()
+        val eventCaptor = argumentCaptor<AddressChangeRequested>()
         verify(mockEventProcessor).onAddressChangeRequested(eventCaptor.capture())
         val event = eventCaptor.firstValue
 
@@ -203,7 +204,7 @@ class CheckoutBridgeTest {
         checkoutBridge.setWebView(mockWebView)
         checkoutBridge.postMessage(jsonRpcMessage)
 
-        val eventCaptor = argumentCaptor<CheckoutAddressChangeRequestedEvent>()
+        val eventCaptor = argumentCaptor<AddressChangeRequested>()
         verify(mockEventProcessor).onAddressChangeRequested(eventCaptor.capture())
         val event = eventCaptor.firstValue
 

@@ -22,7 +22,10 @@
  */
 package com.shopify.checkoutsheetkit
 
-import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
+import com.shopify.checkoutsheetkit.rpc.events.AddressChangeRequested
+import com.shopify.checkoutsheetkit.rpc.events.AddressChangeRequestedEvent
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
 
 class CheckoutAddressChangeRequestedEventTest {
@@ -30,21 +33,19 @@ class CheckoutAddressChangeRequestedEventTest {
     @Test
     fun `respondWith payload invokes respondWith on message`() {
         val payload = samplePayload()
-        val eventData = CheckoutAddressChangeRequestedEventData(
-            addressType = "shipping",
-            selectedAddress = null,
-        )
-        val message = CheckoutMessageParser.JSONRPCMessage.AddressChangeRequested(
+        val event = AddressChangeRequested(
             id = "test-id",
-            params = eventData,
+            params = AddressChangeRequestedEvent(
+                addressType = "shipping",
+                selectedAddress = null
+            )
         )
-        val event = CheckoutAddressChangeRequestedEvent(message)
 
         // This will fail to send since no WebView is attached, but we're testing the flow
         event.respondWith(payload)
 
-        assertThat(event.addressType).isEqualTo("shipping")
-        assertThat(event.selectedAddress).isNull()
+        assertEquals("shipping", event.params.addressType)
+        assertNull(event.params.selectedAddress)
     }
 
     @Test
@@ -64,20 +65,18 @@ class CheckoutAddressChangeRequestedEventTest {
             }
         """.trimIndent()
 
-        val eventData = CheckoutAddressChangeRequestedEventData(
-            addressType = "shipping",
-            selectedAddress = null,
-        )
-        val message = CheckoutMessageParser.JSONRPCMessage.AddressChangeRequested(
+        val event = AddressChangeRequested(
             id = "test-id",
-            params = eventData,
+            params = AddressChangeRequestedEvent(
+                addressType = "shipping",
+                selectedAddress = null
+            )
         )
-        val event = CheckoutAddressChangeRequestedEvent(message)
 
         // This will fail to send since no WebView is attached, but we're testing the parsing
         event.respondWith(json)
 
-        assertThat(event.addressType).isEqualTo("shipping")
+        assertEquals("shipping", event.params.addressType)
     }
 
     @Test
@@ -85,22 +84,20 @@ class CheckoutAddressChangeRequestedEventTest {
         val selectedAddress = CartDeliveryAddressInput(
             firstName = "Ada",
             lastName = "Lovelace",
-            city = "London",
+            city = "London"
         )
-        val eventData = CheckoutAddressChangeRequestedEventData(
-            addressType = "billing",
-            selectedAddress = selectedAddress,
-        )
-        val message = CheckoutMessageParser.JSONRPCMessage.AddressChangeRequested(
+        val event = AddressChangeRequested(
             id = "test-id",
-            params = eventData,
+            params = AddressChangeRequestedEvent(
+                addressType = "billing",
+                selectedAddress = selectedAddress
+            )
         )
-        val event = CheckoutAddressChangeRequestedEvent(message)
 
-        assertThat(event.selectedAddress).isEqualTo(selectedAddress)
-        assertThat(event.selectedAddress?.firstName).isEqualTo("Ada")
-        assertThat(event.selectedAddress?.lastName).isEqualTo("Lovelace")
-        assertThat(event.selectedAddress?.city).isEqualTo("London")
+        assertEquals(selectedAddress, event.params.selectedAddress)
+        assertEquals("Ada", event.params.selectedAddress?.firstName)
+        assertEquals("Lovelace", event.params.selectedAddress?.lastName)
+        assertEquals("London", event.params.selectedAddress?.city)
     }
 
     private fun samplePayload(): DeliveryAddressChangePayload {

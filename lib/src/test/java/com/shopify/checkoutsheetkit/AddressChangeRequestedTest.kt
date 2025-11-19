@@ -22,6 +22,9 @@
  */
 package com.shopify.checkoutsheetkit
 
+import com.shopify.checkoutsheetkit.rpc.RPCRequestRegistry
+import com.shopify.checkoutsheetkit.rpc.events.AddressChangeRequested
+import com.shopify.checkoutsheetkit.rpc.events.AddressChangeRequestedEvent
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -118,9 +121,9 @@ class AddressChangeRequestedTest {
 
     @Test
     fun `test companion object provides correct method`() {
-        assertEquals("checkout.addressChangeRequested", AddressChangeRequested.Companion.getMethod())
+        assertEquals("checkout.addressChangeRequested", AddressChangeRequested.Companion.method)
         // Also test that instance method matches
-        val request = AddressChangeRequested(null, AddressChangeRequestedParams("shipping"))
+        val request = AddressChangeRequested(null, AddressChangeRequestedEvent("shipping"))
         assertEquals("checkout.addressChangeRequested", request.method)
     }
 }

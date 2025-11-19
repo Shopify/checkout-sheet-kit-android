@@ -25,6 +25,7 @@ package com.shopify.checkoutsheetkit
 import android.app.Activity
 import android.net.Uri
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
+import com.shopify.checkoutsheetkit.rpc.events.AddressChangeRequested
 import org.assertj.core.api.AbstractAssert
 
 fun withPreloadingEnabled(block: () -> Unit) {
@@ -109,7 +110,7 @@ fun noopDefaultCheckoutEventProcessor(activity: Activity, log: LogWrapper = LogW
             // no-op
         }
 
-        override fun onAddressChangeRequested(event: CheckoutAddressChangeRequestedEvent) {
+        override fun onAddressChangeRequested(event: AddressChangeRequested) {
             // no-op
         }
     }
