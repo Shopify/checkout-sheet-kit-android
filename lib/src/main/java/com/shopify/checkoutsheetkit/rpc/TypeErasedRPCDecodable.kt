@@ -33,11 +33,10 @@ package com.shopify.checkoutsheetkit.rpc
  */
 public interface TypeErasedRPCDecodable {
     /**
-     * Get the RPC method name that this decoder handles.
-     *
-     * @return The RPC method name (e.g., "checkout.addressChangeRequested")
+     * The RPC method name that this decoder handles.
+     * (e.g., "checkout.addressChangeRequested")
      */
-    public fun getMethod(): String
+    public val method: String
 
     /**
      * Decode an RPC request from a JSON string without type parameters.
