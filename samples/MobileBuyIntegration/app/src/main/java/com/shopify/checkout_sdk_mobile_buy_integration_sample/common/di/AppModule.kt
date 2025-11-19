@@ -93,7 +93,7 @@ val appModules = module {
     single { Logger(logDb = get(), coroutineScope = CoroutineScope(Dispatchers.IO)) }
     single {
         Room.databaseBuilder(get(), LogDatabase::class.java, "log-db")
-            .fallbackToDestructiveMigration()
+            .fallbackToDestructiveMigration(dropAllTables = true)
             .build()
     }
 

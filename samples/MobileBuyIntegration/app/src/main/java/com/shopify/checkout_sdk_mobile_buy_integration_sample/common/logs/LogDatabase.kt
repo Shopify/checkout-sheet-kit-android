@@ -28,7 +28,7 @@ import androidx.room.TypeConverters
 
 @Database(
      entities = [LogLine::class],
-     version = 4,
+     version = 5,
      exportSchema = false,
 )
 @TypeConverters(Converters::class)
