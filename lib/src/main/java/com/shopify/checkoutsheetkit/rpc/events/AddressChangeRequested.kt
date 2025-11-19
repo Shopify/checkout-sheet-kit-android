@@ -36,8 +36,8 @@ private const val ADDRESS_CHANGE_REQUESTED_METHOD = "checkout.addressChangeReque
  */
 public class AddressChangeRequested(
     id: String?,
-    params: AddressChangeRequestedParams
-) : RPCRequest<AddressChangeRequestedParams, DeliveryAddressChangePayload>(id, params) {
+    params: AddressChangeRequestedEvent
+) : RPCRequest<AddressChangeRequestedEvent, DeliveryAddressChangePayload>(id, params) {
 
     override val method: String = ADDRESS_CHANGE_REQUESTED_METHOD
 
@@ -52,7 +52,7 @@ public class AddressChangeRequested(
  * Mirrors the Swift AddressChangeRequestedParams structure.
  */
 @Serializable
-public data class AddressChangeRequestedParams(
+public data class AddressChangeRequestedEvent(
     /**
      * The type of address being requested (e.g., "shipping", "billing")
      */
