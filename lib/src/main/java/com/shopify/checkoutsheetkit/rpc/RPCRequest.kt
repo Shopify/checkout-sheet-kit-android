@@ -107,17 +107,17 @@ public abstract class RPCRequest<P : Any, R : Any>(
         hasResponded = true
 
         webView?.get()?.let { webView ->
-            val response = RPCResponse(
-                jsonrpc = jsonrpc,
-                id = id,
-                result = payload
-            )
-
             try {
-                // Use inline reified function to encode with proper type information
-                val responseJson = json.encodeToString(response)
+                // Create the JSON-RPC response and serialize it
+                @Suppress("UNCHECKED_CAST")
+                val responseMap = mapOf(
+                    "jsonrpc" to jsonrpc,
+                    "id" to id,
+                    "result" to payload
+                )
+                val responseString = json.encodeToString(responseMap as Map<String, Any?>)
                 ShopifyCheckoutSheetKit.log.d("RPCRequest", "About to call sendResponse for method '$method' with encoded response")
-                CheckoutBridge.sendResponse(webView, responseJson)
+                CheckoutBridge.sendResponse(webView, responseString)
             } catch (e: Exception) {
                 ShopifyCheckoutSheetKit.log.e("RPCRequest", "Failed to encode response for RPC request '$method' with id '$id': ${e.message}")
             }
