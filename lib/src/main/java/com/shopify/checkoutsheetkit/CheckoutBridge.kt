@@ -104,9 +104,10 @@ internal class CheckoutBridge(
                     }
 
                     // Dispatch to appropriate handler based on type
+                    log.d(LOG_TAG, "Dispatching RPC request of type: ${rpcRequest::class.simpleName}, id: ${rpcRequest.id}")
                     when (rpcRequest) {
                         is AddressChangeRequested -> {
-                            log.d(LOG_TAG, "Received checkout.addressChangeRequested message.")
+                            log.d(LOG_TAG, "Received checkout.addressChangeRequested message with webView ref: ${webViewRef?.get()}")
                             onMainThread {
                                 eventProcessor.onAddressChangeRequested(rpcRequest)
                             }

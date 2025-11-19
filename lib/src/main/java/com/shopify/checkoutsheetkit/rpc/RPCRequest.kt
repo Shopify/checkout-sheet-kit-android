@@ -85,6 +85,8 @@ public abstract class RPCRequest<P : Any, R : Any>(
      * @param payload The response payload
      */
     public fun respondWith(payload: R) {
+        ShopifyCheckoutSheetKit.log.d("RPCRequest", "respondWith called for method '$method' with id '$id'. webView: ${webView?.get()}, hasResponded: $hasResponded, isNotification: $isNotification")
+        
         if (hasResponded) {
             ShopifyCheckoutSheetKit.log.w("RPCRequest", "Attempted to respond to RPC request '$method' with id '$id' multiple times. Ignoring.")
             return
@@ -114,12 +116,13 @@ public abstract class RPCRequest<P : Any, R : Any>(
             try {
                 // Use inline reified function to encode with proper type information
                 val responseJson = json.encodeToString(response)
+                ShopifyCheckoutSheetKit.log.d("RPCRequest", "About to call sendResponse for method '$method' with encoded response")
                 CheckoutBridge.sendResponse(webView, responseJson)
             } catch (e: Exception) {
                 ShopifyCheckoutSheetKit.log.e("RPCRequest", "Failed to encode response for RPC request '$method' with id '$id': ${e.message}")
             }
         } ?: run {
-            ShopifyCheckoutSheetKit.log.w("RPCRequest", "WebView reference lost for RPC request '$method' with id '$id'")
+            ShopifyCheckoutSheetKit.log.w("RPCRequest", "WebView reference lost for RPC request '$method' with id '$id'. webView: $webView")
         }
     }
 
