@@ -40,7 +40,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.
 import com.shopify.checkoutsheetkit.CartDelivery
 import com.shopify.checkoutsheetkit.CartDeliveryAddressInput
 import com.shopify.checkoutsheetkit.CartSelectableAddressInput
-import com.shopify.checkoutsheetkit.rpcevents.AddressChangeRequested
+import com.shopify.checkoutsheetkit.rpc.events.AddressChangeRequested
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.DeliveryAddressChangePayload
