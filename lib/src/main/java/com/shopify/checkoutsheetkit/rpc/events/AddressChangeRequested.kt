@@ -24,7 +24,28 @@ package com.shopify.checkoutsheetkit.rpc.events
 
 import com.shopify.checkoutsheetkit.CartDeliveryAddressInput
 import com.shopify.checkoutsheetkit.DeliveryAddressChangePayload
+import com.shopify.checkoutsheetkit.rpc.RPCDecoder
+import com.shopify.checkoutsheetkit.rpc.RPCRequest
+import com.shopify.checkoutsheetkit.rpc.TypeErasedRPCDecodable
 import kotlinx.serialization.Serializable
+
+private const val ADDRESS_CHANGE_REQUESTED_METHOD = "checkout.addressChangeRequested"
+
+/**
+ * RPC request for address change requests from checkout.
+ */
+public class AddressChangeRequested(
+    id: String?,
+    params: AddressChangeRequestedParams
+) : RPCRequest<AddressChangeRequestedParams, DeliveryAddressChangePayload>(id, params) {
+
+    override val method: String = ADDRESS_CHANGE_REQUESTED_METHOD
+
+    public companion object : TypeErasedRPCDecodable by RPCDecoder.create(
+        method = ADDRESS_CHANGE_REQUESTED_METHOD,
+        factory = ::AddressChangeRequested
+    )
+}
 
 /**
  * Parameters for the address change requested RPC event.
@@ -42,19 +63,3 @@ public data class AddressChangeRequestedParams(
      */
     public val selectedAddress: CartDeliveryAddressInput? = null
 )
-
-/**
- * RPC request for address change requests from checkout.
- */
-public class AddressChangeRequested(
-    id: String?,
-    params: AddressChangeRequestedParams
-) : com.shopify.checkoutsheetkit.rpc.RPCRequest<AddressChangeRequestedParams, DeliveryAddressChangePayload>(id, params) {
-
-    override val method: String = "checkout.addressChangeRequested"
-
-    public companion object : com.shopify.checkoutsheetkit.rpc.TypeErasedRPCDecodable by com.shopify.checkoutsheetkit.rpc.RPCDecoder.create(
-        method = "checkout.addressChangeRequested",
-        factory = ::AddressChangeRequested
-    )
-}
