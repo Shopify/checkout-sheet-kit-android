@@ -23,6 +23,7 @@
 package com.shopify.checkoutsheetkit
 
 import com.shopify.checkoutsheetkit.CheckoutMessageContract.VERSION
+import com.shopify.checkoutsheetkit.lifecycleevents.CartAddress
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -31,7 +32,7 @@ import java.util.UUID
 @Serializable
 public data class CheckoutAddressChangeRequestedEventData(
     public val addressType: String,
-    public val selectedAddress: CartDeliveryAddressInput? = null,
+    public val selectedAddress: CartAddress.DeliveryAddress? = null,
 )
 
 /**
@@ -44,7 +45,7 @@ public class CheckoutAddressChangeRequestedEvent internal constructor(
 ) : RespondableEvent {
     override val id: String? get() = message.id
     public val addressType: String get() = message.addressType
-    public val selectedAddress: CartDeliveryAddressInput? get() = message.selectedAddress
+    public val selectedAddress: CartAddress.DeliveryAddress? get() = message.selectedAddress
 
     /**
      * Respond to the address change request with the provided delivery address(es).
