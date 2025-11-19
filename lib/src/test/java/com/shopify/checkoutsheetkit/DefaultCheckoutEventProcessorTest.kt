@@ -28,7 +28,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.activity.ComponentActivity
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
-import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -139,10 +138,6 @@ class DefaultCheckoutEventProcessorTest {
                 }
 
                 override fun onCheckoutCanceled() {
-                    /* not implemented */
-                }
-
-                override fun onWebPixelEvent(event: PixelEvent) {
                     /* not implemented */
                 }
 

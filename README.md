@@ -6,7 +6,7 @@
 
 <img width="3200" height="800" alt="gradients" src="https://github.com/user-attachments/assets/1f1d7351-1715-4165-874e-c1f2195bcb20" />
 
-**Shopify's Checkout Kit for Android** is a library that enables Android apps to provide the world's highest converting, customizable, one-page checkout within an app. The presented experience is a fully-featured checkout that preserves all of the store customizations: Checkout UI extensions, Functions, Web Pixels, and more. It also provides idiomatic defaults such as support for light and dark mode, and convenient developer APIs to embed, customize and follow the lifecycle of the checkout experience. Check out our developer blog to [learn how Checkout Kit is built](https://www.shopify.com/partners/blog/mobile-checkout-sdks-for-ios-and-android).
+**Shopify's Checkout Kit for Android** is a library that enables Android apps to provide the world's highest converting, customizable, one-page checkout within an app. The presented experience is a fully-featured checkout that preserves all of the store customizations: Checkout UI extensions, Functions, and more. It also provides idiomatic defaults such as support for light and dark mode, and convenient developer APIs to embed, customize and follow the lifecycle of the checkout experience. Check out our developer blog to [learn how Checkout Kit is built](https://www.shopify.com/partners/blog/mobile-checkout-sdks-for-ios-and-android).
 
 **Note**: We're in the process of renaming "Checkout Sheet Kit" to "Checkout Kit." The dev docs and README already use the new name, while the package itself will be updated in an upcoming version.
 
@@ -33,7 +33,6 @@
     - [Error handling](#error-handling)
       - [`CheckoutException`](#checkoutexception)
       - [Exception Hierarchy](#exception-hierarchy)
-    - [Integrating with Web Pixels, monitoring behavioral data](#integrating-with-web-pixels-monitoring-behavioral-data)
   - [Integrating identity \& customer accounts](#integrating-identity--customer-accounts)
     - [Cart: buyer bag, identity, and preferences](#cart-buyer-bag-identity-and-preferences)
     - [Multipass](#multipass)
@@ -427,11 +426,6 @@ val processor = object : DefaultCheckoutEventProcessor(activity) {
         // `Unrecognized scheme for link clicked in checkout` along with the uri.
     }
 
-    override fun onWebPixelEvent(event: PixelEvent) {
-        // Called when a web pixel event is emitted in checkout.
-        // Use this to submit events to your analytics system, see below.
-    }
-
     override fun onShowFileChooser(
         webView: WebView,
         filePathCallback: ValueCallback<Array<Uri>>,
@@ -473,7 +467,6 @@ There are some caveats to note when this scenario occurs:
 
 1. The checkout experience may look different to buyers. Though the sheet kit will attempt to load any checkoput customizations for the storefront, there is no guarantee they will show in recovery mode.
 2. The `onCheckoutCompleted(checkoutCompleteEvent: CheckoutCompleteEvent)` will be emitted with partial data. Invocations will only receive the order ID via `checkoutCompleteEvent.orderConfirmation.order.id`.
-3. `onWebPixelEvent(event: PixelEvent)` lifecycle methods will **not** be emitted.
 
 Should you wish to opt-out of this fallback experience entirely, you can do so by overriding `shouldRecoverFromError`. Errors given to the `onCheckoutFailed(error: CheckoutException)` lifecycle method will contain an `isRecoverable` property by default indicating whether the request should be retried or not.
 
@@ -553,49 +546,6 @@ classDiagram
         note: "Error in Checkout Kit code"
     }
 ```
-
-### Integrating with Web Pixels, monitoring behavioral data
-
-App developers can use [lifecycle events](#monitoring-the-lifecycle-of-a-checkout-session) to
-monitor and log the status of a checkout session.
-
-For behavioral monitoring, [standard](https://shopify.dev/docs/api/web-pixels-api/standard-events) and [custom](https://shopify.dev/docs/api/web-pixels-api/emitting-data) Web Pixel events will be relayed back to your application through the `onWebPixelEvent` checkout event processor function. App developers should only subscribe to pixel events if they have proper levels of consent from merchants/buyers and are responsible for adherence to local regulations like GDPR and ePrivacy directive before disseminating these events to first-party and third-party systems.
-
-Here's how you might intercept these events:
-
-```kotlin
-fun onWebPixelEvent(event: PixelEvent) {
-    if (!hasPermissionToCaptureEvents()) {
-        return
-    }
-
-    when (event) {
-        is StandardPixelEvent -> processStandardEvent(event)
-        is CustomPixelEvent -> processCustomEvent(event)
-    }
-}
-
-fun processStandardEvent(event: StandardPixelEvent) {
-    val endpoint = "https://example.com/pixel?id=${accountID}&uid=${userId}"
-
-    val payload = AnalyticsPayload(
-        eventTime = event.timestamp,
-        action = event.name,
-        details = event.data.checkout
-    )
-
-    // Send events to third-party servers
-    httpClient.post(endpoint, payload)
-}
-
-// ... other functions, incl. processCustomEvent(event)
-```
-
-> [!Note]
-> You may need to augment these events with customer/session information derived from app state.
-
-> [!Note]
-> The `customData` attribute of CustomPixelEvent can take on any shape. As such, this attribute will be returned as a String. Client applications should define a custom data type and deserialize the `customData` string into that type.
 
 ## Integrating identity & customer accounts
 

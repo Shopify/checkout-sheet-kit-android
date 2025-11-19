@@ -28,10 +28,6 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
 import com.shopify.checkoutsheetkit.lifecycleevents.Cart
 import com.shopify.checkoutsheetkit.lifecycleevents.OrderConfirmation
-import com.shopify.checkoutsheetkit.pixelevents.Context
-import com.shopify.checkoutsheetkit.pixelevents.CustomPixelEvent
-import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent
-import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEventData
 import kotlinx.serialization.json.Json
 import java.util.Date
 import java.util.UUID
@@ -42,15 +38,13 @@ data class LogLine(
     val createdAt: Long = Date().time,
     val message: String,
     val type: LogType,
-    @Embedded(prefix = "standard_pixel") val standardPixelEvent: StandardPixelEvent? = null,
-    @Embedded(prefix = "custom_pixel") val customPixelEvent: CustomPixelEvent? = null,
     @Embedded(prefix = "error_details") val errorDetails: ErrorDetails? = null,
     val cart: Cart? = null,
     val orderConfirmation: OrderConfirmation? = null,
 )
 
 enum class LogType {
-    STANDARD, ERROR, CUSTOM_PIXEL, STANDARD_PIXEL, CHECKOUT_COMPLETED, CHECKOUT_STARTED
+    STANDARD, ERROR, CHECKOUT_COMPLETED, CHECKOUT_STARTED
 }
 
 data class ErrorDetails(
@@ -63,26 +57,6 @@ class Converters {
         ignoreUnknownKeys = true
         encodeDefaults = true
     }
-    @TypeConverter
-    fun standardPixelEventDataToString(value: StandardPixelEventData?): String? {
-        return value?.let { json.encodeToString(it) }
-    }
-
-    @TypeConverter
-    fun stringToStandardPixelEventData(value: String?): StandardPixelEventData? {
-        return decodeOrNull(value)
-    }
-
-    @TypeConverter
-    fun contextToString(value: Context?): String? {
-        return value?.let { json.encodeToString(it) }
-    }
-
-    @TypeConverter
-    fun stringToContext(value: String?): Context? {
-        return decodeOrNull(value)
-    }
-
     @TypeConverter
     fun cartToString(value: Cart?): String? {
         return value?.let { json.encodeToString(it) }
