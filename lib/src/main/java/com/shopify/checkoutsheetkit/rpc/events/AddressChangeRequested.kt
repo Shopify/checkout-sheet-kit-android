@@ -20,30 +20,38 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutsheetkit.rpcevents
+package com.shopify.checkoutsheetkit.rpc.events
+
+import com.shopify.checkoutsheetkit.CartDeliveryAddressInput
+import com.shopify.checkoutsheetkit.DeliveryAddressChangePayload
+import kotlinx.serialization.Serializable
 
 /**
- * Interface to enable type-erased decoding of RPC requests.
- * Mirrors the Swift TypeErasedRPCDecodable protocol.
- *
- * This interface allows us to decode RPC requests without knowing their specific
- * type parameters at compile time, working around Kotlin's type erasure limitations.
- *
- * Implement this in the companion object of your RPC request classes.
+ * Parameters for the address change requested RPC event.
+ * Mirrors the Swift AddressChangeRequestedParams structure.
  */
-public interface TypeErasedRPCDecodable {
+@Serializable
+public data class AddressChangeRequestedParams(
     /**
-     * Get the RPC method name that this decoder handles.
-     *
-     * @return The RPC method name (e.g., "checkout.addressChangeRequested")
+     * The type of address being requested (e.g., "shipping", "billing")
      */
-    public fun getMethod(): String
+    public val addressType: String,
 
     /**
-     * Decode an RPC request from a JSON string without type parameters.
-     *
-     * @param jsonString The JSON string to decode
-     * @return The decoded RPC request as a type-erased RPCRequest<*, *>
+     * The currently selected address, if any
      */
-    public fun decodeErased(jsonString: String): RPCRequest<*, *>
+    public val selectedAddress: CartDeliveryAddressInput? = null
+)
+
+/**
+ * RPC request for address change requests from checkout.
+ */
+public class AddressChangeRequested(
+    id: String?,
+    params: AddressChangeRequestedParams
+) : com.shopify.checkoutsheetkit.rpc.BaseRPCRequest<AddressChangeRequestedParams, DeliveryAddressChangePayload>(id, params) {
+
+    override val method: String = "checkout.addressChangeRequested"
+
+    public companion object : com.shopify.checkoutsheetkit.rpc.TypeErasedRPCDecodable by _root_ide_package_.com.shopify.checkoutsheetkit.rpc.RPCDecoder.Companion.create(::AddressChangeRequested)
 }

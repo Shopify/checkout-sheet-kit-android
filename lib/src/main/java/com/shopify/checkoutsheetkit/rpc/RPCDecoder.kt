@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutsheetkit.rpcevents
+package com.shopify.checkoutsheetkit.rpc
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
@@ -29,7 +29,7 @@ import kotlinx.serialization.json.Json
  * Simple decoder implementation that can be used as a companion object delegate.
  * This eliminates the need to implement decodeErased in every RPC request.
  */
-public class SimpleRPCDecoder<P : Any, R : Any>(
+public class RPCDecoder<P : Any, R : Any>(
     private val paramsSerializer: KSerializer<P>,
     private val factory: (id: String?, params: P) -> BaseRPCRequest<P, R>
 ) : TypeErasedRPCDecodable {
@@ -64,8 +64,8 @@ public class SimpleRPCDecoder<P : Any, R : Any>(
          */
         public inline fun <reified P : Any, R : Any> create(
             noinline factory: (id: String?, params: P) -> BaseRPCRequest<P, R>
-        ): SimpleRPCDecoder<P, R> {
-            return SimpleRPCDecoder(
+        ): RPCDecoder<P, R> {
+            return RPCDecoder(
                 paramsSerializer = kotlinx.serialization.serializer(),
                 factory = factory
             )
@@ -77,8 +77,8 @@ public class SimpleRPCDecoder<P : Any, R : Any>(
         public inline fun <reified P : Any> create(
             method: String,
             noinline factory: (id: String?, params: P) -> RPCRequest<*, *>
-        ): SimpleRPCDecoder<P, Any> {
-            return SimpleRPCDecoder(
+        ): RPCDecoder<P, Any> {
+            return RPCDecoder(
                 paramsSerializer = kotlinx.serialization.serializer(),
                 factory = factory as (id: String?, params: P) -> BaseRPCRequest<P, Any>
             )
