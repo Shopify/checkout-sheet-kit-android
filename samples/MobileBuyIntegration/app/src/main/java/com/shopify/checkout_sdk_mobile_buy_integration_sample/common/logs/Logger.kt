@@ -25,9 +25,6 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
-import com.shopify.checkoutsheetkit.pixelevents.CustomPixelEvent
-import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
-import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -37,29 +34,6 @@ class Logger(
     private val logDb: LogDatabase,
     private val coroutineScope: CoroutineScope,
 ) {
-    fun log(pixelEvent: PixelEvent) {
-        when (pixelEvent) {
-            is StandardPixelEvent -> {
-                insert(
-                    LogLine(
-                        type = LogType.STANDARD_PIXEL,
-                        message = pixelEvent.name ?: "",
-                        standardPixelEvent = pixelEvent,
-                    )
-                )
-            }
-            is CustomPixelEvent -> {
-                insert(
-                    LogLine(
-                        type = LogType.CUSTOM_PIXEL,
-                        message = pixelEvent.name ?: "",
-                        customPixelEvent = pixelEvent,
-                    )
-                )
-            }
-        }
-    }
-
     fun log(message: String) {
         insert(
             LogLine(

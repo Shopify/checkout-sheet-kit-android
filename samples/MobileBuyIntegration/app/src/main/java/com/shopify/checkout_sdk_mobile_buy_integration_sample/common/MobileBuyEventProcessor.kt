@@ -33,17 +33,11 @@ import androidx.navigation.NavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.MainActivity
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.analytics.Analytics
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.analytics.toAnalyticsEvent
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
-import com.shopify.checkoutsheetkit.CheckoutAddressChangeRequestedEvent
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
-import com.shopify.checkoutsheetkit.pixelevents.CustomPixelEvent
-import com.shopify.checkoutsheetkit.pixelevents.PixelEvent
-import com.shopify.checkoutsheetkit.pixelevents.StandardPixelEvent
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -95,19 +89,5 @@ class MobileBuyEventProcessor(
         fileChooserParams: WebChromeClient.FileChooserParams,
     ): Boolean {
         return (context as MainActivity).onShowFileChooser(filePathCallback, fileChooserParams)
-    }
-
-    override fun onWebPixelEvent(event: PixelEvent) {
-        logger.log(event)
-
-        // handle pixel events (e.g. transform, augment, and process), e.g.
-        val analyticsEvent = when (event) {
-            is StandardPixelEvent -> event.toAnalyticsEvent()
-            is CustomPixelEvent -> event.toAnalyticsEvent()
-        }
-
-        analyticsEvent?.let {
-            Analytics.record(analyticsEvent)
-        }
     }
 }
