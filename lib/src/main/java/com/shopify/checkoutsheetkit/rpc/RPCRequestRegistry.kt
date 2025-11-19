@@ -64,8 +64,7 @@ public object RPCRequestRegistry {
         val map = mutableMapOf<String, TypeErasedRPCDecodable>()
         for (decoder in requestTypes) {
             // Each decoder should provide the method it handles
-            val method = decoder.getMethod()
-            map[method] = decoder
+            map[decoder.method] = decoder
         }
         return map
     }

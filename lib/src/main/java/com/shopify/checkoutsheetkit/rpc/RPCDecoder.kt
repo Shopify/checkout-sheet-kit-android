@@ -31,14 +31,12 @@ import kotlinx.serialization.json.Json
  * This eliminates the need to implement decodeErased in every RPC request.
  */
 public class RPCDecoder<P : Any, R : Any>(
-    private val method: String,
+    override val method: String,
     private val paramsSerializer: KSerializer<P>,
     private val factory: (id: String?, params: P) -> RPCRequest<P, R>
 ) : TypeErasedRPCDecodable {
 
     private val json = Json { ignoreUnknownKeys = true }
-
-    override fun getMethod(): String = method
 
     override fun decodeErased(jsonString: String): RPCRequest<*, *> {
         val envelope = json.decodeFromString(
