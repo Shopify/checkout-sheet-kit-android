@@ -20,38 +20,30 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutsheetkit.rpcevents
-
-import com.shopify.checkoutsheetkit.CartDeliveryAddressInput
-import com.shopify.checkoutsheetkit.DeliveryAddressChangePayload
-import kotlinx.serialization.Serializable
+package com.shopify.checkoutsheetkit.rpc
 
 /**
- * Parameters for the address change requested RPC event.
- * Mirrors the Swift AddressChangeRequestedParams structure.
+ * Interface to enable type-erased decoding of RPC requests.
+ * Mirrors the Swift TypeErasedRPCDecodable protocol.
+ *
+ * This interface allows us to decode RPC requests without knowing their specific
+ * type parameters at compile time, working around Kotlin's type erasure limitations.
+ *
+ * Implement this in the companion object of your RPC request classes.
  */
-@Serializable
-public data class AddressChangeRequestedParams(
+public interface TypeErasedRPCDecodable {
     /**
-     * The type of address being requested (e.g., "shipping", "billing")
+     * Get the RPC method name that this decoder handles.
+     *
+     * @return The RPC method name (e.g., "checkout.addressChangeRequested")
      */
-    public val addressType: String,
+    public fun getMethod(): String
 
     /**
-     * The currently selected address, if any
+     * Decode an RPC request from a JSON string without type parameters.
+     *
+     * @param jsonString The JSON string to decode
+     * @return The decoded RPC request as a type-erased RPCRequest<*, *>
      */
-    public val selectedAddress: CartDeliveryAddressInput? = null
-)
-
-/**
- * RPC request for address change requests from checkout.
- */
-public class AddressChangeRequested(
-    id: String?,
-    params: AddressChangeRequestedParams
-) : BaseRPCRequest<AddressChangeRequestedParams, DeliveryAddressChangePayload>(id, params) {
-
-    override val method: String = "checkout.addressChangeRequested"
-
-    public companion object : TypeErasedRPCDecodable by SimpleRPCDecoder.create(::AddressChangeRequested)
+    public fun decodeErased(jsonString: String): RPCRequest<*, *>
 }

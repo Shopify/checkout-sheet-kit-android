@@ -28,7 +28,7 @@ import androidx.navigation.NavController
 import timber.log.Timber
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
-import com.shopify.checkoutsheetkit.rpcevents.AddressChangeRequested
+import com.shopify.checkoutsheetkit.rpc.events.AddressChangeRequested
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
