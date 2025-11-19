@@ -33,7 +33,8 @@ import kotlinx.serialization.json.Json
 public class RPCDecoder<P : Any, R : Any>(
     override val method: String,
     private val paramsSerializer: KSerializer<P>,
-    private val factory: (id: String?, params: P) -> RPCRequest<P, R>
+    private val responseSerializer: KSerializer<R>,
+    private val factory: (id: String?, params: P, responseSerializer: KSerializer<R>) -> RPCRequest<P, R>
 ) : TypeErasedRPCDecodable {
 
     private val json = Json { ignoreUnknownKeys = true }
@@ -43,20 +44,21 @@ public class RPCDecoder<P : Any, R : Any>(
             RPCRequest.Companion.RPCEnvelope.serializer(paramsSerializer),
             jsonString
         )
-        return factory(envelope.id, envelope.params)
+        return factory(envelope.id, envelope.params, responseSerializer)
     }
 
     public companion object {
         /**
-         * Create a decoder using an inline reified function to capture the serializer automatically.
+         * Create a decoder using an inline reified function to capture the serializers automatically.
          */
-        public inline fun <reified P : Any, R : Any> create(
+        public inline fun <reified P : Any, reified R : Any> create(
             method: String,
-            noinline factory: (id: String?, params: P) -> RPCRequest<P, R>
+            noinline factory: (id: String?, params: P, responseSerializer: KSerializer<R>) -> RPCRequest<P, R>
         ): RPCDecoder<P, R> {
             return RPCDecoder(
                 method = method,
                 paramsSerializer = kotlinx.serialization.serializer(),
+                responseSerializer = kotlinx.serialization.serializer(),
                 factory = factory
             )
         }

@@ -129,7 +129,11 @@ class AddressChangeRequestedTest {
     fun `test companion object provides correct method`() {
         assertEquals("checkout.addressChangeRequested", AddressChangeRequested.method)
         // Also test that instance method matches
-        val request = AddressChangeRequested(null, AddressChangeRequestedEvent("shipping"))
+        val request = AddressChangeRequested(
+            null,
+            AddressChangeRequestedEvent("shipping"),
+            DeliveryAddressChangePayload.serializer()
+        )
         assertEquals("checkout.addressChangeRequested", request.method)
     }
 
@@ -141,7 +145,8 @@ class AddressChangeRequestedTest {
         )
         val request = AddressChangeRequested(
             id = "test-id",
-            params = eventData
+            params = eventData,
+            responseSerializer = DeliveryAddressChangePayload.serializer()
         )
 
         val payload = DeliveryAddressChangePayload(
@@ -187,7 +192,8 @@ class AddressChangeRequestedTest {
         )
         val request = AddressChangeRequested(
             id = "test-id",
-            params = eventData
+            params = eventData,
+            responseSerializer = DeliveryAddressChangePayload.serializer()
         )
 
         // This will fail to send since no WebView is attached, but we're testing the parsing
@@ -209,7 +215,8 @@ class AddressChangeRequestedTest {
         )
         val request = AddressChangeRequested(
             id = "test-id",
-            params = eventData
+            params = eventData,
+            responseSerializer = DeliveryAddressChangePayload.serializer()
         )
 
         assertEquals(selectedAddress, request.params.selectedAddress)

@@ -57,7 +57,11 @@ public abstract class RPCRequest<P : Any, R : Any>(
     /**
      * The parameters from the JSON-RPC request.
      */
-    public open val params: P
+    public open val params: P,
+    /**
+     * The serializer for the response type.
+     */
+    private val responseSerializer: KSerializer<R>
 ) : RespondableEvent {
 
     /**
@@ -199,15 +203,19 @@ public abstract class RPCRequest<P : Any, R : Any>(
 
     /**
      * Internal method to respond with a JsonElement.
-     * Subclasses can override this to provide proper deserialization.
+     * Uses the responseSerializer to deserialize the JSON element to the response type.
      */
     protected open fun respondWithJsonElement(jsonElement: JsonElement) {
-        // Default implementation - subclasses should override if they support JSON responses
-        ShopifyCheckoutSheetKit.log.e(
-            "RPCRequest",
-            "respondWithJsonElement not implemented for method: $method"
-        )
-        respondWithError("JSON response not supported for this request type")
+        try {
+            val payload = json.decodeFromJsonElement(responseSerializer, jsonElement)
+            respondWith(payload)
+        } catch (e: Exception) {
+            ShopifyCheckoutSheetKit.log.e(
+                "RPCRequest",
+                "Failed to decode JSON response for method: $method, error: ${e.message}"
+            )
+            respondWithError("Failed to decode JSON response: ${e.message}")
+        }
     }
 
     /**

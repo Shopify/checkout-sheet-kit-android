@@ -36,22 +36,11 @@ private const val ADDRESS_CHANGE_REQUESTED_METHOD = "checkout.addressChangeReque
  */
 public class AddressChangeRequested(
     id: String?,
-    params: AddressChangeRequestedEvent
-) : RPCRequest<AddressChangeRequestedEvent, DeliveryAddressChangePayload>(id, params) {
+    params: AddressChangeRequestedEvent,
+    responseSerializer: kotlinx.serialization.KSerializer<DeliveryAddressChangePayload>
+) : RPCRequest<AddressChangeRequestedEvent, DeliveryAddressChangePayload>(id, params, responseSerializer) {
 
     override val method: String = ADDRESS_CHANGE_REQUESTED_METHOD
-
-    override fun respondWithJsonElement(jsonElement: kotlinx.serialization.json.JsonElement) {
-        try {
-            val payload = kotlinx.serialization.json.Json.decodeFromJsonElement(
-                DeliveryAddressChangePayload.serializer(),
-                jsonElement
-            )
-            respondWith(payload)
-        } catch (e: Exception) {
-            respondWithError("Failed to decode JSON response: ${e.message}")
-        }
-    }
 
     public companion object : TypeErasedRPCDecodable by RPCDecoder.create(
         method = ADDRESS_CHANGE_REQUESTED_METHOD,
