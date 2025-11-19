@@ -71,7 +71,7 @@ public abstract class RPCRequest<P : Any, R : Any>(
     private var hasResponded = false
 
     @OptIn(ExperimentalSerializationApi::class)
-    protected val json: Json = Json {
+    public val json: Json = Json {
         ignoreUnknownKeys = true
         encodeDefaults = true
         explicitNulls = false // Exclude null fields from JSON output
@@ -82,12 +82,6 @@ public abstract class RPCRequest<P : Any, R : Any>(
      * Subclasses must override this to provide their method name.
      */
     public abstract val method: String
-
-    /**
-     * The serializer for the response type R.
-     * Subclasses must override this to provide the correct serializer for their response type.
-     */
-    public abstract val responseSerializer: KSerializer<R>
 
     /**
      * Respond to this request with the specified payload.
@@ -124,12 +118,8 @@ public abstract class RPCRequest<P : Any, R : Any>(
             )
 
             try {
-                // Use the response serializer to encode with proper type information
-                @OptIn(ExperimentalSerializationApi::class)
-                val responseJson = json.encodeToString(
-                    RPCResponse.serializer(responseSerializer),
-                    response
-                )
+                // Use direct JSON serialization - kotlinx.serialization will handle the generic type automatically
+                val responseJson = json.encodeToString(response)
                 ShopifyCheckoutSheetKit.log.d("RPCRequest", "About to call sendResponse for method '$method' with encoded response")
                 CheckoutBridge.sendResponse(webView, responseJson)
             } catch (e: Exception) {
@@ -178,11 +168,8 @@ public abstract class RPCRequest<P : Any, R : Any>(
             )
 
             try {
-                @OptIn(ExperimentalSerializationApi::class)
-                val responseJson = json.encodeToString(
-                    RPCResponse.serializer(responseSerializer),
-                    response
-                )
+                // Use direct JSON serialization - kotlinx.serialization will handle the generic type automatically
+                val responseJson = json.encodeToString(response)
                 CheckoutBridge.sendResponse(webView, responseJson)
             } catch (e: Exception) {
                 ShopifyCheckoutSheetKit.log.e("RPCRequest", "Failed to encode error response for RPC request '$method' with id '$id': ${e.message}")

@@ -27,7 +27,6 @@ import com.shopify.checkoutsheetkit.DeliveryAddressChangePayload
 import com.shopify.checkoutsheetkit.rpc.RPCDecoder
 import com.shopify.checkoutsheetkit.rpc.RPCRequest
 import com.shopify.checkoutsheetkit.rpc.TypeErasedRPCDecodable
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 
 private const val ADDRESS_CHANGE_REQUESTED_METHOD = "checkout.addressChangeRequested"
@@ -41,9 +40,6 @@ public class AddressChangeRequested(
 ) : RPCRequest<AddressChangeRequestedEvent, DeliveryAddressChangePayload>(id, params) {
 
     override val method: String = ADDRESS_CHANGE_REQUESTED_METHOD
-
-    override val responseSerializer: KSerializer<DeliveryAddressChangePayload> =
-        DeliveryAddressChangePayload.serializer()
 
     public companion object : TypeErasedRPCDecodable by RPCDecoder.create(
         method = ADDRESS_CHANGE_REQUESTED_METHOD,
