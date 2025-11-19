@@ -94,7 +94,6 @@ class MobileBuyEventProcessor(
     }
 
     override fun onAddressChangeRequested(event: AddressChangeRequested) {
-        android.util.Log.d("MobileBuyEventProcessor", "onAddressChangeRequested called with event id='${event.id}', method='${event.method}', addressType='${event.params.addressType}'")
         event.respondWith(DeliveryAddressChangePayload(
             delivery = CartDelivery(
                 addresses = listOf(

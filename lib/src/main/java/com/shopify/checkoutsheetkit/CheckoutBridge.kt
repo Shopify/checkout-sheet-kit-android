@@ -96,7 +96,6 @@ internal class CheckoutBridge(
                     // Set the WebView reference on the request so it can respond directly
                     val webView = webViewRef?.get()
                     if (webView != null) {
-                        log.d(LOG_TAG, "Setting WebView reference on RPC request '${rpcRequest.method}' with id '${rpcRequest.id}'")
                         rpcRequest.webView = WeakReference(webView)
                     } else {
                         log.w(LOG_TAG, "WebView is NULL when trying to set reference for '${rpcRequest.method}' with id '${rpcRequest.id}'")
@@ -104,10 +103,7 @@ internal class CheckoutBridge(
 
                     // Store the event for potential React Native response
                     rpcRequest.id?.let { id ->
-                        log.d(LOG_TAG, "Storing RPC request in pendingEvents with id: $id")
                         pendingEvents[id] = rpcRequest
-                    } ?: run {
-                        log.d(LOG_TAG, "RPC request '${rpcRequest.method}' has no ID (notification)")
                     }
 
                     // Dispatch to appropriate handler based on type
