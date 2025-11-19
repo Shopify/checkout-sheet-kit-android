@@ -22,11 +22,15 @@
  */
 package com.shopify.checkoutsheetkit
 
+import com.shopify.checkoutsheetkit.rpc.RPCRequestRegistry
+import com.shopify.checkoutsheetkit.rpc.events.AddressChangeRequested
+import com.shopify.checkoutsheetkit.rpc.events.AddressChangeRequestedEvent
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.mockito.kotlin.mock
 
 class AddressChangeRequestedTest {
 
@@ -118,9 +122,94 @@ class AddressChangeRequestedTest {
 
     @Test
     fun `test companion object provides correct method`() {
-        assertEquals("checkout.addressChangeRequested", AddressChangeRequested.Companion.getMethod())
+        assertEquals("checkout.addressChangeRequested", AddressChangeRequested.method)
         // Also test that instance method matches
-        val request = AddressChangeRequested(null, AddressChangeRequestedParams("shipping"))
+        val request = AddressChangeRequested(null, AddressChangeRequestedEvent("shipping"))
         assertEquals("checkout.addressChangeRequested", request.method)
+    }
+
+    @Test
+    fun `test respondWith payload`() {
+        val eventData = AddressChangeRequestedEvent(
+            addressType = "shipping",
+            selectedAddress = null,
+        )
+        val request = AddressChangeRequested(
+            id = "test-id",
+            params = eventData
+        )
+
+        val payload = DeliveryAddressChangePayload(
+            delivery = CartDelivery(
+                addresses = listOf(
+                    CartSelectableAddressInput(
+                        address = CartDeliveryAddressInput(
+                            firstName = "Ada",
+                            lastName = "Lovelace"
+                        )
+                    )
+                )
+            )
+        )
+
+        // This will fail to send since no WebView is attached, but we're testing the flow
+        request.respondWith(payload)
+
+        assertEquals("shipping", request.params.addressType)
+        assertNull(request.params.selectedAddress)
+    }
+
+    @Test
+    fun `test respondWith JSON string`() {
+        val json = """
+            {
+                "delivery": {
+                    "addresses": [
+                        {
+                            "address": {
+                                "firstName": "Ada",
+                                "lastName": "Lovelace"
+                            }
+                        }
+                    ]
+                }
+            }
+        """.trimIndent()
+
+        val eventData = AddressChangeRequestedEvent(
+            addressType = "shipping",
+            selectedAddress = null,
+        )
+        val request = AddressChangeRequested(
+            id = "test-id",
+            params = eventData
+        )
+
+        // This will fail to send since no WebView is attached, but we're testing the parsing
+        request.respondWith(json)
+
+        assertEquals("shipping", request.params.addressType)
+    }
+
+    @Test
+    fun `test exposes selectedAddress from params`() {
+        val selectedAddress = CartDeliveryAddressInput(
+            firstName = "Ada",
+            lastName = "Lovelace",
+            city = "London",
+        )
+        val eventData = AddressChangeRequestedEvent(
+            addressType = "billing",
+            selectedAddress = selectedAddress,
+        )
+        val request = AddressChangeRequested(
+            id = "test-id",
+            params = eventData
+        )
+
+        assertEquals(selectedAddress, request.params.selectedAddress)
+        assertEquals("Ada", request.params.selectedAddress?.firstName)
+        assertEquals("Lovelace", request.params.selectedAddress?.lastName)
+        assertEquals("London", request.params.selectedAddress?.city)
     }
 }

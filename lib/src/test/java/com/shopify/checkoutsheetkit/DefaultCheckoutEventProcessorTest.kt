@@ -28,6 +28,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.activity.ComponentActivity
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
+import com.shopify.checkoutsheetkit.rpc.events.AddressChangeRequested
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -141,7 +142,7 @@ class DefaultCheckoutEventProcessorTest {
                     /* not implemented */
                 }
 
-                override fun onAddressChangeRequested(event: CheckoutAddressChangeRequestedEvent) {
+                override fun onAddressChangeRequested(event: AddressChangeRequested) {
                     /* not implemented */
                 }
             }
