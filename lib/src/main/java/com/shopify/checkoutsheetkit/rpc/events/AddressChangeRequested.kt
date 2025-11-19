@@ -49,9 +49,12 @@ public data class AddressChangeRequestedParams(
 public class AddressChangeRequested(
     id: String?,
     params: AddressChangeRequestedParams
-) : com.shopify.checkoutsheetkit.rpc.BaseRPCRequest<AddressChangeRequestedParams, DeliveryAddressChangePayload>(id, params) {
+) : com.shopify.checkoutsheetkit.rpc.RPCRequest<AddressChangeRequestedParams, DeliveryAddressChangePayload>(id, params) {
 
     override val method: String = "checkout.addressChangeRequested"
 
-    public companion object : com.shopify.checkoutsheetkit.rpc.TypeErasedRPCDecodable by _root_ide_package_.com.shopify.checkoutsheetkit.rpc.RPCDecoder.Companion.create(::AddressChangeRequested)
+    public companion object : com.shopify.checkoutsheetkit.rpc.TypeErasedRPCDecodable by com.shopify.checkoutsheetkit.rpc.RPCDecoder.create(
+        method = "checkout.addressChangeRequested",
+        factory = ::AddressChangeRequested
+    )
 }

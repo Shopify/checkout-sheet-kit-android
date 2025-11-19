@@ -23,6 +23,7 @@
 package com.shopify.checkoutsheetkit.rpc
 
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
 /**
@@ -30,28 +31,18 @@ import kotlinx.serialization.json.Json
  * This eliminates the need to implement decodeErased in every RPC request.
  */
 public class RPCDecoder<P : Any, R : Any>(
+    private val method: String,
     private val paramsSerializer: KSerializer<P>,
-    private val factory: (id: String?, params: P) -> BaseRPCRequest<P, R>
+    private val factory: (id: String?, params: P) -> RPCRequest<P, R>
 ) : TypeErasedRPCDecodable {
 
     private val json = Json { ignoreUnknownKeys = true }
 
-    private val cachedMethod: String by lazy {
-        // Create a dummy instance with null id and minimal params
-        // We need to handle the case where params have required fields
-        val dummyJson = when (paramsSerializer.descriptor.serialName) {
-            "com.shopify.checkoutsheetkit.rpcevents.AddressChangeRequestedParams" -> """{"addressType":""}"""
-            else -> "{}"
-        }
-        val dummyParams = json.decodeFromString(paramsSerializer, dummyJson)
-        factory(null, dummyParams).method
-    }
-
-    override fun getMethod(): String = cachedMethod
+    override fun getMethod(): String = method
 
     override fun decodeErased(jsonString: String): RPCRequest<*, *> {
         val envelope = json.decodeFromString(
-            BaseRPCRequest.Companion.RPCEnvelope.serializer(paramsSerializer),
+            RPCRequest.Companion.RPCEnvelope.serializer(paramsSerializer),
             jsonString
         )
         return factory(envelope.id, envelope.params)
@@ -60,27 +51,15 @@ public class RPCDecoder<P : Any, R : Any>(
     public companion object {
         /**
          * Create a decoder using an inline reified function to capture the serializer automatically.
-         * The method is extracted from an instance, eliminating duplication.
          */
         public inline fun <reified P : Any, R : Any> create(
-            noinline factory: (id: String?, params: P) -> BaseRPCRequest<P, R>
+            method: String,
+            noinline factory: (id: String?, params: P) -> RPCRequest<P, R>
         ): RPCDecoder<P, R> {
             return RPCDecoder(
+                method = method,
                 paramsSerializer = kotlinx.serialization.serializer(),
                 factory = factory
-            )
-        }
-
-        /**
-         * Create a decoder with an explicit method name (for backwards compatibility).
-         */
-        public inline fun <reified P : Any> create(
-            method: String,
-            noinline factory: (id: String?, params: P) -> RPCRequest<*, *>
-        ): RPCDecoder<P, Any> {
-            return RPCDecoder(
-                paramsSerializer = kotlinx.serialization.serializer(),
-                factory = factory as (id: String?, params: P) -> BaseRPCRequest<P, Any>
             )
         }
     }
