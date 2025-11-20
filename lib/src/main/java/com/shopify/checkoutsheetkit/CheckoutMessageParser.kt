@@ -22,17 +22,14 @@
  */
 package com.shopify.checkoutsheetkit
 
-import com.shopify.checkoutsheetkit.CheckoutMessageContract.METHOD_COMPLETE
-import com.shopify.checkoutsheetkit.CheckoutMessageContract.METHOD_START
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
+import com.shopify.checkoutsheetkit.rpc.CheckoutComplete
+import com.shopify.checkoutsheetkit.rpc.CheckoutStart
 import com.shopify.checkoutsheetkit.rpc.RPCRequest
 import com.shopify.checkoutsheetkit.rpc.RPCRequestRegistry
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
+import com.shopify.checkoutsheetkit.rpc.events.AddressChangeRequested
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.decodeFromJsonElement
 
 internal class CheckoutMessageParser(
     internal val json: Json,
@@ -43,32 +40,18 @@ internal class CheckoutMessageParser(
      * Parse a raw JSON-RPC message and return either an RPC request or a notification event.
      */
     fun parse(rawMessage: String): CheckoutMessage? {
-        // RPCRequestRegistry will decode all supported respondable events
-       return RPCRequestRegistry.decode(rawMessage)
-           ?.let {  CheckoutMessage.Request(it) }
-           ?: run {
-            // Fall back to manual parsing for notifications and other messages
-            val envelope = json.runCatching {
-                decodeFromString<JsonRpcEnvelope>(rawMessage)
-            }.getOrNull() ?: return null
-
-            when (envelope.method) {
-                METHOD_START -> envelope.params
-                    .decodeOrNull<CheckoutStartEvent> {
-                        log.d(LOG_TAG, "Failed to decode checkout start params: ${it.message}")
-                    }
-                    ?.let { CheckoutMessage.StartNotification(it) }
-
-                METHOD_COMPLETE -> envelope.params
-                    .decodeOrNull<CheckoutCompleteEvent> {
-                        log.d(LOG_TAG, "Failed to decode checkout completed params: ${it.message}")
-                    }
-                    ?.let { CheckoutMessage.CompleteNotification(it) }
-
-                else -> {
-                    log.d(LOG_TAG, "Received unsupported message method: ${envelope.method}")
-                    null
-                }
+        // RPCRequestRegistry will decode all supported messages
+        return when (val decoded = RPCRequestRegistry.decode(rawMessage)) {
+            is AddressChangeRequested -> CheckoutMessage.Request(decoded)
+            is CheckoutStart -> CheckoutMessage.StartNotification(decoded.params)
+            is CheckoutComplete -> CheckoutMessage.CompleteNotification(decoded.params)
+            null -> {
+                log.d(LOG_TAG, "Received unsupported or invalid message")
+                null
+            }
+            else -> {
+                // For any other RPCRequest types that might be added in the future
+                CheckoutMessage.Request(decoded)
             }
         }
     }
@@ -82,28 +65,7 @@ internal class CheckoutMessageParser(
         data class CompleteNotification(val event: CheckoutCompleteEvent) : CheckoutMessage()
     }
 
-    /**
-     * RPCRequest where params is not strictly typed
-     * Used to extract the 'method' and determine appropriate decoding strategy
-     */
-    @Serializable
-    private data class JsonRpcEnvelope(
-        @SerialName(CheckoutMessageContract.VERSION_FIELD)
-        val version: String? = null,
-        val method: String? = null,
-        val params: JsonElement? = null,
-        val id: JsonElement? = null,
-    )
-
     companion object {
         private const val LOG_TAG = "CheckoutMessageParser"
-    }
-
-    private inline fun <reified T> JsonElement?.decodeOrNull(onFailure: (Throwable) -> Unit): T? {
-        return this?.let {
-            runCatching { json.decodeFromJsonElement<T>(it) }
-                .onFailure(onFailure)
-                .getOrNull()
-        }
     }
 }
