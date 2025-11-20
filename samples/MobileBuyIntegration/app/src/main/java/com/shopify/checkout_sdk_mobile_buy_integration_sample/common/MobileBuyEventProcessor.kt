@@ -35,10 +35,6 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
-import com.shopify.checkoutsheetkit.CartDelivery
-import com.shopify.checkoutsheetkit.CartDeliveryAddressInput
-import com.shopify.checkoutsheetkit.CartSelectableAddressInput
-import com.shopify.checkoutsheetkit.DeliveryAddressChangePayload
 import com.shopify.checkoutsheetkit.rpc.events.AddressChangeRequested
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
@@ -53,7 +49,8 @@ class MobileBuyEventProcessor(
     private val cartViewModel: CartViewModel,
     private val navController: NavController,
     private val logger: Logger,
-    private val context: Context
+    private val context: Context,
+    private val eventStore: com.shopify.checkout_sdk_mobile_buy_integration_sample.checkout.CheckoutEventStore
 ) : DefaultCheckoutEventProcessor(context) {
     override fun onCheckoutCompleted(checkoutCompleteEvent: CheckoutCompleteEvent) {
         logger.log(checkoutCompleteEvent)
@@ -89,22 +86,11 @@ class MobileBuyEventProcessor(
     }
 
     override fun onAddressChangeRequested(event: AddressChangeRequested) {
-        event.respondWith(DeliveryAddressChangePayload(
-            delivery = CartDelivery(
-                addresses = listOf(
-                    CartSelectableAddressInput(
-                        address = CartDeliveryAddressInput(
-                            firstName = "Bob",
-                            lastName = "Jones",
-                            address1 = "44 Sunningdale Ave",
-                            city = "Swansea",
-                            countryCode = "GB",
-                            zip = "SA35HP",
-                        )
-                    )
-                )
-            )
-        ))
+        val eventId = eventStore.storeEvent(event)
+
+        GlobalScope.launch(Dispatchers.Main) {
+            navController.navigate("address/$eventId")
+        }
     }
 
     override fun onShowFileChooser(
