@@ -43,7 +43,10 @@ internal class CheckoutMessageParser(
      * Parse a raw JSON-RPC message and return either an RPC request or a notification event.
      */
     fun parse(rawMessage: String): CheckoutMessage? {
-       return RPCRequestRegistry.decode(rawMessage)?.let {  CheckoutMessage.Request(it) } ?: run {
+        // RPCRequestRegistry will decode all supported respondable events
+       return RPCRequestRegistry.decode(rawMessage)
+           ?.let {  CheckoutMessage.Request(it) }
+           ?: run {
             // Fall back to manual parsing for notifications and other messages
             val envelope = json.runCatching {
                 decodeFromString<JsonRpcEnvelope>(rawMessage)
@@ -79,6 +82,10 @@ internal class CheckoutMessageParser(
         data class CompleteNotification(val event: CheckoutCompleteEvent) : CheckoutMessage()
     }
 
+    /**
+     * RPCRequest where params is not strictly typed
+     * Used to extract the 'method' and determine appropriate decoding strategy
+     */
     @Serializable
     private data class JsonRpcEnvelope(
         @SerialName(CheckoutMessageContract.VERSION_FIELD)
