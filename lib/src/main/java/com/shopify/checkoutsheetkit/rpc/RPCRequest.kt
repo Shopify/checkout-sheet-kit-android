@@ -134,7 +134,7 @@ public abstract class RPCRequest<P : Any, R : Any>(
         webView?.get()?.let { webView ->
             try {
                 val payloadJson: JsonElement = json.encodeToJsonElement(
-                    payload::class.serializer() as KSerializer<R>,
+                    responseSerializer,
                     payload
                 )
                 val responseJsonObject = buildJsonObject {
