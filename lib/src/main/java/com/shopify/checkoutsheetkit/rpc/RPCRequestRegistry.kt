@@ -77,35 +77,26 @@ public object RPCRequestRegistry {
      * @return The decoded RPC request, or null if the method is not registered
      */
     public fun decode(jsonString: String): RPCRequest<*, *>? {
-        return try {
+        return runCatching {
             val jsonObject = json.parseToJsonElement(jsonString).jsonObject
 
-            // Validate JSON-RPC version
             val version = jsonObject[CheckoutMessageContract.VERSION_FIELD]?.jsonPrimitive?.content
-            if (version != CheckoutMessageContract.VERSION) {
-                ShopifyCheckoutSheetKit.log.e("RPCRequestRegistry", "Invalid JSON-RPC version: $version")
-                return null
+            require(version == CheckoutMessageContract.VERSION) {
+                "Invalid JSON-RPC version: $version"
             }
 
-            // Extract and validate method field
-            val method = jsonObject[CheckoutMessageContract.METHOD_FIELD]?.jsonPrimitive?.content
-            if (method == null) {
-                ShopifyCheckoutSheetKit.log.e("RPCRequestRegistry", "Missing method field in JSON-RPC message")
-                return null
+            val method = requireNotNull(jsonObject[CheckoutMessageContract.METHOD_FIELD]?.jsonPrimitive?.content) {
+                "Missing method field in JSON-RPC message"
             }
 
-            // Decode using registered decoder
-            val decoder = registry[method]
-            if (decoder == null) {
-                ShopifyCheckoutSheetKit.log.d("RPCRequestRegistry", "No decoder registered for method: $method")
-                return null
+            val decoder = requireNotNull(registry[method]) {
+                "No decoder registered for method: $method"
             }
 
             decoder.decodeErased(jsonString)
-        } catch (e: Exception) {
-            ShopifyCheckoutSheetKit.log.e("RPCRequestRegistry", "Failed to decode JSON-RPC message: ${e.message}")
-            null
-        }
+        }.onFailure { e ->
+            ShopifyCheckoutSheetKit.log.w("RPCRequestRegistry", "Failed to decode JSON-RPC message: ${e.message}")
+        }.getOrNull()
     }
 
     /**

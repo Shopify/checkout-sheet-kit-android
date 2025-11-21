@@ -225,7 +225,8 @@ class RPCRequestRegistryTest {
     fun `isRegistered returns true for registered methods`() {
         assertTrue("checkout.start should be registered", RPCRequestRegistry.isRegistered("checkout.start"))
         assertTrue("checkout.complete should be registered", RPCRequestRegistry.isRegistered("checkout.complete"))
-        assertTrue("checkout.addressChangeRequested should be registered", RPCRequestRegistry.isRegistered("checkout.addressChangeRequested"))
+        assertTrue("checkout.addressChangeRequested should be registered",
+            RPCRequestRegistry.isRegistered("checkout.addressChangeRequested"))
     }
 
     @Test
