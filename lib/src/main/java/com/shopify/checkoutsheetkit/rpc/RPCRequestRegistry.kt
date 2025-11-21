@@ -79,31 +79,29 @@ public object RPCRequestRegistry {
     public fun decode(jsonString: String): RPCRequest<*, *>? {
         return try {
             val jsonObject = json.parseToJsonElement(jsonString).jsonObject
-            val method = jsonObject[CheckoutMessageContract.METHOD_FIELD]?.jsonPrimitive?.content
 
-            when {
-                // Validate JSON-RPC version
-                jsonObject[CheckoutMessageContract.VERSION_FIELD]?.jsonPrimitive?.content != CheckoutMessageContract.VERSION -> {
-                    val version = jsonObject[CheckoutMessageContract.VERSION_FIELD]?.jsonPrimitive?.content
-                    ShopifyCheckoutSheetKit.log.e("RPCRequestRegistry", "Invalid JSON-RPC version: $version")
-                    null
-                }
-                // Check for method field
-                method == null -> {
-                    ShopifyCheckoutSheetKit.log.e("RPCRequestRegistry", "Missing method field in JSON-RPC message")
-                    null
-                }
-                // Decode if decoder exists
-                else -> {
-                    val decoder = registry[method]
-                    if (decoder == null) {
-                        ShopifyCheckoutSheetKit.log.d("RPCRequestRegistry", "No decoder registered for method: $method")
-                        null
-                    } else {
-                        decoder.decodeErased(jsonString)
-                    }
-                }
+            // Validate JSON-RPC version
+            val version = jsonObject[CheckoutMessageContract.VERSION_FIELD]?.jsonPrimitive?.content
+            if (version != CheckoutMessageContract.VERSION) {
+                ShopifyCheckoutSheetKit.log.e("RPCRequestRegistry", "Invalid JSON-RPC version: $version")
+                return null
             }
+
+            // Extract and validate method field
+            val method = jsonObject[CheckoutMessageContract.METHOD_FIELD]?.jsonPrimitive?.content
+            if (method == null) {
+                ShopifyCheckoutSheetKit.log.e("RPCRequestRegistry", "Missing method field in JSON-RPC message")
+                return null
+            }
+
+            // Decode using registered decoder
+            val decoder = registry[method]
+            if (decoder == null) {
+                ShopifyCheckoutSheetKit.log.d("RPCRequestRegistry", "No decoder registered for method: $method")
+                return null
+            }
+
+            decoder.decodeErased(jsonString)
         } catch (e: Exception) {
             ShopifyCheckoutSheetKit.log.e("RPCRequestRegistry", "Failed to decode JSON-RPC message: ${e.message}")
             null
