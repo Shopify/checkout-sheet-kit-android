@@ -22,6 +22,7 @@
  */
 package com.shopify.checkoutsheetkit
 
+import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryAddressInput
 import kotlinx.serialization.Serializable
 
 /**
@@ -64,8 +65,12 @@ public data class PaymentCard(
     val brand: String,
 ) {
     init {
-        require(last4.length == 4) { "last4 must be exactly 4 characters" }
+        require(last4.length == LAST_4_LENGTH) { "last4 must be exactly 4 characters" }
         require(brand.isNotEmpty()) { "brand must not be empty" }
+    }
+
+    public companion object {
+        private const val LAST_4_LENGTH = 4
     }
 }
 

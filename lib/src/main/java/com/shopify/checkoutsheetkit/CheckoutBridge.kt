@@ -72,53 +72,9 @@ internal class CheckoutBridge(
      */
     fun respondToEvent(eventId: String, responseData: String) {
         val event = pendingEvents[eventId]
-        when (event) {
-            is CheckoutAddressChangeStart -> {
-                try {
-                    val jsonParser = Json { ignoreUnknownKeys = true }
-                    val payload = jsonParser.decodeFromString<CheckoutAddressChangeStartResponsePayload>(responseData)
-                    event.respondWith(payload)
-                    pendingEvents.remove(eventId)
-                    log.d(LOG_TAG, "Successfully responded to event $eventId")
-                } catch (e: Exception) {
-                    log.e(LOG_TAG, "Failed to parse response data for event $eventId: ${e.message}")
-                }
-            }
-            is CheckoutSubmitStart -> {
-                try {
-                    val jsonParser = Json { ignoreUnknownKeys = true }
-                    val payload = jsonParser.decodeFromString<CheckoutSubmitStartResponsePayload>(responseData)
-                    event.respondWith(payload)
-                    pendingEvents.remove(eventId)
-                    log.d(LOG_TAG, "Successfully responded to event $eventId")
-                } catch (e: Exception) {
-                    log.e(LOG_TAG, "Failed to parse response data for event $eventId: ${e.message}")
-                    // Parse the response data as CheckoutAddressChangeStartResponsePayload
-                    val jsonParser = Json { ignoreUnknownKeys = true }
-                    val payload = jsonParser.decodeFromString<CheckoutAddressChangeStartResponsePayload>(responseData)
-                    event.respondWith(payload)
-                    pendingEvents.remove(eventId)
-                    log.d(LOG_TAG, "Successfully responded to event $eventId")
-                } catch (e: Exception) {
-                    log.e(LOG_TAG, "Failed to parse response data for event $eventId: ${e.message}")
-                }
-            }
-            is PaymentMethodChangeStart -> {
-                try {
-                    // Parse the response data as PaymentMethodChangePayload
-                    val jsonParser = Json { ignoreUnknownKeys = true }
-                    val payload = jsonParser.decodeFromString<PaymentMethodChangePayload>(responseData)
-                    event.respondWith(payload)
-                    pendingEvents.remove(eventId)
-                    log.d(LOG_TAG, "Successfully responded to payment method change event $eventId")
-                } catch (e: Exception) {
-                    log.e(LOG_TAG, "Failed to parse response data for payment method change event $eventId: ${e.message}")
-                }
-            }
-            else -> {
-                log.w(LOG_TAG, "No pending event found with ID $eventId")
-            }
-        }
+        if (event == null) return
+        event.respondWith(jsonString = responseData)
+        pendingEvents.remove(event.id)
     }
 
     /**
