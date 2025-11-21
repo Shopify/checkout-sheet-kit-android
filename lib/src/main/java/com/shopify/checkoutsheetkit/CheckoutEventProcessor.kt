@@ -35,6 +35,7 @@ import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutSubmitStart
+import com.shopify.checkoutsheetkit.rpc.events.PaymentMethodChangeStart
 
 /**
  * Interface to implement to allow responding to lifecycle events in checkout.
@@ -115,6 +116,14 @@ public interface CheckoutEventProcessor {
      * Provide a response via [CheckoutSubmitStart.respondWith].
      */
     public fun onSubmitStart(event: CheckoutSubmitStart)
+
+    /**
+     * Called when checkout requests that the buyer change their payment method.
+     *
+     * By default the request is cancelled. Override to present custom UI and provide a response
+     * via [PaymentMethodChangeStart.respondWith] (or cancel explicitly).
+     */
+    public fun onPaymentMethodChangeStart(event: PaymentMethodChangeStart)
 }
 
 internal class NoopEventProcessor : CheckoutEventProcessor {
@@ -154,6 +163,12 @@ internal class NoopEventProcessor : CheckoutEventProcessor {
     }
 
     override fun onGeolocationPermissionsHidePrompt() {/* noop */
+    }
+
+    override fun onCheckoutAddressChangeStart(event: CheckoutAddressChangeStart) {/* noop */
+    }
+
+    override fun onPaymentMethodChangeStart(event: PaymentMethodChangeStart) {/* noop */
     }
 }
 
@@ -205,6 +220,10 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
     }
 
     override fun onSubmitStart(event: CheckoutSubmitStart) {
+        // no-op override to implement
+    }
+
+    override fun onPaymentMethodChangeStart(event: PaymentMethodChangeStart) {
         // no-op override to implement
     }
 

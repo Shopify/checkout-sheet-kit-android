@@ -31,6 +31,7 @@ import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartRe
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartResponsePayload
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutSubmitStart
+import com.shopify.checkoutsheetkit.rpc.events.PaymentMethodChangeStart
 import com.shopify.checkoutsheetkit.rpc.CheckoutStart
 import com.shopify.checkoutsheetkit.rpc.CheckoutComplete
 import com.shopify.checkoutsheetkit.rpc.RPCRequest
@@ -92,6 +93,26 @@ internal class CheckoutBridge(
                     log.d(LOG_TAG, "Successfully responded to event $eventId")
                 } catch (e: Exception) {
                     log.e(LOG_TAG, "Failed to parse response data for event $eventId: ${e.message}")
+                    // Parse the response data as CheckoutAddressChangeStartResponsePayload
+                    val jsonParser = Json { ignoreUnknownKeys = true }
+                    val payload = jsonParser.decodeFromString<CheckoutAddressChangeStartResponsePayload>(responseData)
+                    event.respondWith(payload)
+                    pendingEvents.remove(eventId)
+                    log.d(LOG_TAG, "Successfully responded to event $eventId")
+                } catch (e: Exception) {
+                    log.e(LOG_TAG, "Failed to parse response data for event $eventId: ${e.message}")
+                }
+            }
+            is PaymentMethodChangeStart -> {
+                try {
+                    // Parse the response data as PaymentMethodChangePayload
+                    val jsonParser = Json { ignoreUnknownKeys = true }
+                    val payload = jsonParser.decodeFromString<PaymentMethodChangePayload>(responseData)
+                    event.respondWith(payload)
+                    pendingEvents.remove(eventId)
+                    log.d(LOG_TAG, "Successfully responded to payment method change event $eventId")
+                } catch (e: Exception) {
+                    log.e(LOG_TAG, "Failed to parse response data for payment method change event $eventId: ${e.message}")
                 }
             }
             else -> {
@@ -142,6 +163,12 @@ internal class CheckoutBridge(
                     log.d(LOG_TAG, "Received checkout.submitStart message with webView ref: ${webViewRef?.get()}")
                     onMainThread {
                         eventProcessor.onCheckoutSubmitStart(rpcRequest)
+                is PaymentMethodChangeStart -> {
+                    setupRequestForResponse(rpcRequest)
+
+                    log.d(LOG_TAG, "Received checkout.paymentMethodChangeStart message with webView ref: ${webViewRef?.get()}")
+                    onMainThread {
+                        eventProcessor.onPaymentMethodChangeStart(rpcRequest)
                     }
                 }
 
