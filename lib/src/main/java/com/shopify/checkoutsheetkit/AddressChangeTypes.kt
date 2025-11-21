@@ -35,7 +35,7 @@ public data class DeliveryAddressChangePayload(
 )
 
 @Serializable
-public class CartDelivery(
+public data class CartDelivery(
     public val addresses: List<CartSelectableAddressInput>,
 )
 
