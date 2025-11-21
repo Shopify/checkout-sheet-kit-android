@@ -33,6 +33,7 @@ import android.webkit.WebView
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
+import com.shopify.checkoutsheetkit.rpc.events.AddressChangeRequested
 
 /**
  * Event processor that can handle events internally, delegate to the CheckoutEventProcessor
@@ -115,7 +116,7 @@ public class CheckoutWebViewEventProcessor(
         }
     }
 
-    internal fun onAddressChangeRequested(event: CheckoutAddressChangeRequestedEvent) {
+    internal fun onAddressChangeRequested(event: AddressChangeRequested) {
         onMainThread {
             eventProcessor.onAddressChangeRequested(event)
         }

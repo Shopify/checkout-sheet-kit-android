@@ -27,14 +27,17 @@ import android.os.Looper
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
+import com.shopify.checkoutsheetkit.rpc.events.AddressChangeRequested
+import com.shopify.checkoutsheetkit.rpc.CheckoutStart
+import com.shopify.checkoutsheetkit.rpc.CheckoutComplete
+import com.shopify.checkoutsheetkit.rpc.RPCRequest
+import com.shopify.checkoutsheetkit.rpc.RPCRequestRegistry
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.lang.ref.WeakReference
 
 internal class CheckoutBridge(
     private var eventProcessor: CheckoutWebViewEventProcessor,
-    private val messageParser: CheckoutMessageParser = CheckoutMessageParser(Json { ignoreUnknownKeys = true }, log),
 ) {
 
     private var webViewRef: WeakReference<WebView>? = null
@@ -47,7 +50,7 @@ internal class CheckoutBridge(
      * the events.
      * This doesn't affect behaviour just means they're consistent
      */
-    private val pendingEvents = mutableMapOf<String, CheckoutMessageParser.JSONRPCMessage>()
+    private val pendingEvents = mutableMapOf<String, RPCRequest<*, *>>()
 
     fun setEventProcessor(eventProcessor: CheckoutWebViewEventProcessor) {
         this.eventProcessor = eventProcessor
@@ -66,7 +69,7 @@ internal class CheckoutBridge(
      */
     fun respondToEvent(eventId: String, responseData: String) {
         val event = pendingEvents[eventId]
-        if (event is CheckoutMessageParser.JSONRPCMessage.AddressChangeRequested) {
+        if (event is AddressChangeRequested) {
             try {
                 // Parse the response data as DeliveryAddressChangePayload
                 val jsonParser = Json { ignoreUnknownKeys = true }
@@ -82,44 +85,65 @@ internal class CheckoutBridge(
         }
     }
 
+    /**
+     * Sets up an RPC request for response handling by:
+     * 1. Setting the WebView reference on the request so it can respond directly
+     * 2. Storing the event in pendingEvents for potential React Native response
+     *
+     * @param rpcRequest The RPC request to set up
+     */
+    private fun setupRequestForResponse(rpcRequest: RPCRequest<*, *>) {
+        // Set the WebView reference on the request so it can respond directly
+        webViewRef?.get()?.let { webView ->
+            rpcRequest.webView = WeakReference(webView)
+        }
+
+        // Store the event for potential React Native response
+        rpcRequest.id?.let { id ->
+            pendingEvents[id] = rpcRequest
+        }
+    }
+
     // Allows Web to postMessages back to the SDK
     @Suppress("SwallowedException")
     @JavascriptInterface
     fun postMessage(message: String) {
         try {
             log.d(LOG_TAG, "Received message from checkout.")
-            when (val checkoutMessage = messageParser.parse(message)) {
-                is CheckoutMessageParser.JSONRPCMessage.AddressChangeRequested -> {
-                    log.d(LOG_TAG, "Received checkout.addressChangeStart message.")
-                    // Set the WebView reference on the message so it can respond directly
-                    webViewRef?.get()?.let { webView ->
-                        checkoutMessage.setWebView(webView)
-                    }
-                    // Store the event for potential React Native response
-                    checkoutMessage.id?.let { id ->
-                        pendingEvents[id] = checkoutMessage
-                    }
+
+            when (val rpcRequest = RPCRequestRegistry.decode(message)) {
+                is AddressChangeRequested -> {
+                    setupRequestForResponse(rpcRequest)
+
+                    log.d(LOG_TAG, "Received checkout.addressChangeRequested message with webView ref: ${webViewRef?.get()}")
                     onMainThread {
-                        eventProcessor.onAddressChangeRequested(checkoutMessage.toEvent())
+                        eventProcessor.onAddressChangeRequested(rpcRequest)
                     }
                 }
 
-                is CheckoutMessageParser.JSONRPCMessage.Started -> {
+                is CheckoutStart -> {
                     log.d(LOG_TAG, "Received checkout.start message. Dispatching decoded event.")
                     onMainThread {
-                        eventProcessor.onCheckoutViewStart(checkoutMessage.event)
+                        eventProcessor.onCheckoutViewStart(rpcRequest.params)
                     }
                 }
 
-                is CheckoutMessageParser.JSONRPCMessage.Completed -> {
+                is CheckoutComplete -> {
                     log.d(LOG_TAG, "Received checkout.complete message. Dispatching decoded event.")
                     onMainThread {
-                        eventProcessor.onCheckoutViewComplete(checkoutMessage.event)
+                        eventProcessor.onCheckoutViewComplete(rpcRequest.params)
                     }
                 }
 
                 null -> {
                     log.d(LOG_TAG, "Unsupported message received. Ignoring.")
+                }
+
+                else -> {
+                    // Future-proof: handle any other RPCRequest types
+                    setupRequestForResponse(rpcRequest)
+
+                    log.d(LOG_TAG, "Received RPC request of type ${rpcRequest::class.simpleName}, id: ${rpcRequest.id}")
                 }
             }
         } catch (e: Exception) {

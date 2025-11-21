@@ -35,6 +35,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
+import com.shopify.checkoutsheetkit.rpc.events.AddressChangeRequested
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
@@ -48,7 +49,8 @@ class MobileBuyEventProcessor(
     private val cartViewModel: CartViewModel,
     private val navController: NavController,
     private val logger: Logger,
-    private val context: Context
+    private val context: Context,
+    private val eventStore: com.shopify.checkout_sdk_mobile_buy_integration_sample.checkout.CheckoutEventStore
 ) : DefaultCheckoutEventProcessor(context) {
     override fun onCheckoutCompleted(checkoutCompleteEvent: CheckoutCompleteEvent) {
         logger.log(checkoutCompleteEvent)
@@ -81,6 +83,14 @@ class MobileBuyEventProcessor(
 
     override fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {
         return (context as MainActivity).onGeolocationPermissionsShowPrompt(origin, callback)
+    }
+
+    override fun onAddressChangeRequested(event: AddressChangeRequested) {
+        val eventId = eventStore.storeEvent(event)
+
+        GlobalScope.launch(Dispatchers.Main) {
+            navController.navigate("address/$eventId")
+        }
     }
 
     override fun onShowFileChooser(

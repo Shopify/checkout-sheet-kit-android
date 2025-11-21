@@ -28,7 +28,7 @@ import androidx.navigation.NavController
 import timber.log.Timber
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
-import com.shopify.checkoutsheetkit.CheckoutAddressChangeRequestedEvent
+import com.shopify.checkoutsheetkit.rpc.events.AddressChangeRequested
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
@@ -81,7 +81,7 @@ class CheckoutNavEventProcessor(
         Timber.d("Checkout canceled")
     }
 
-    override fun onAddressChangeRequested(event: CheckoutAddressChangeRequestedEvent) {
+    override fun onAddressChangeRequested(event: AddressChangeRequested) {
         Timber.d("Address change requested: $event")
 
         // Store event and get ID

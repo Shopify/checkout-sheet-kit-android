@@ -23,6 +23,7 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
@@ -31,6 +32,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartView
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.checkout.AddressSelectionScreen
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.checkout.CheckoutEventProvider
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.checkout.CheckoutEventStore
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.checkout.CheckoutNavHost
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.MobileBuyEventProcessor
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
@@ -76,6 +80,15 @@ sealed class Screen(val route: String) {
     data object Logs : Screen("logs")
     data object Login : Screen("login")
     data object Account : Screen("account")
+    data object Address : Screen("address/{eventId}") {
+        fun eventIdRouteVariable(backStackEntry: NavBackStackEntry): String {
+            return backStackEntry.arguments?.getString("eventId") ?: ""
+        }
+
+        fun route(eventId: String): String {
+            return "address/$eventId"
+        }
+    }
     data object InlineCheckout : Screen("inline-checkout/{checkoutUrl}") {
         fun checkoutUrlRouteVariable(backStackEntry: NavBackStackEntry): String {
             return backStackEntry.arguments?.getString("checkoutUrl") ?: ""
@@ -98,6 +111,7 @@ sealed class Screen(val route: String) {
                 Logs.route -> Logs
                 Login.route -> Login
                 Account.route -> Account
+                Address.route -> Address
                 InlineCheckout.route -> InlineCheckout
                 else -> throw RuntimeException("Unknown route")
             }
@@ -114,10 +128,13 @@ fun CheckoutSdkNavHost(
     logsViewModel: LogsViewModel,
     logger: Logger = koinInject<Logger>(),
 ) {
-    NavHost(
-        navController = navController,
-        startDestination = startDestination,
-    ) {
+    val eventStore = remember { CheckoutEventStore() }
+
+    CheckoutEventProvider {
+        NavHost(
+            navController = navController,
+            startDestination = startDestination,
+        ) {
 
         composable(Screen.Home.route) {
             HomeView(navController)
@@ -148,7 +165,15 @@ fun CheckoutSdkNavHost(
                     navController,
                     logger,
                     activity,
+                    eventStore
                 )
+            )
+        }
+
+        composable(Screen.Address.route) { backStackEntry ->
+            AddressSelectionScreen(
+                eventId = Screen.Address.eventIdRouteVariable(backStackEntry),
+                onNavigateBack = { navController.popBackStack() }
             )
         }
 
@@ -181,5 +206,6 @@ fun CheckoutSdkNavHost(
                 mainNavController = navController
             )
         }
+    }
     }
 }
