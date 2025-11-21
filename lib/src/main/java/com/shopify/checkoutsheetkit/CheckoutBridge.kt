@@ -85,6 +85,25 @@ internal class CheckoutBridge(
         }
     }
 
+    /**
+     * Sets up an RPC request for response handling by:
+     * 1. Setting the WebView reference on the request so it can respond directly
+     * 2. Storing the event in pendingEvents for potential React Native response
+     *
+     * @param rpcRequest The RPC request to set up
+     */
+    private fun setupRequestForResponse(rpcRequest: RPCRequest<*, *>) {
+        // Set the WebView reference on the request so it can respond directly
+        webViewRef?.get()?.let { webView ->
+            rpcRequest.webView = WeakReference(webView)
+        }
+
+        // Store the event for potential React Native response
+        rpcRequest.id?.let { id ->
+            pendingEvents[id] = rpcRequest
+        }
+    }
+
     // Allows Web to postMessages back to the SDK
     @Suppress("SwallowedException")
     @JavascriptInterface
@@ -94,15 +113,7 @@ internal class CheckoutBridge(
 
             when (val rpcRequest = RPCRequestRegistry.decode(message)) {
                 is AddressChangeRequested -> {
-                    // Set the WebView reference on the request so it can respond directly
-                    webViewRef?.get()?.let { webView ->
-                        rpcRequest.webView = WeakReference(webView)
-                    }
-
-                    // Store the event for potential React Native response
-                    rpcRequest.id?.let { id ->
-                        pendingEvents[id] = rpcRequest
-                    }
+                    setupRequestForResponse(rpcRequest)
 
                     log.d(LOG_TAG, "Received checkout.addressChangeRequested message with webView ref: ${webViewRef?.get()}")
                     onMainThread {
@@ -130,15 +141,7 @@ internal class CheckoutBridge(
 
                 else -> {
                     // Future-proof: handle any other RPCRequest types
-                    // Set WebView reference for requests that may need to respond
-                    webViewRef?.get()?.let { webView ->
-                        rpcRequest.webView = WeakReference(webView)
-                    }
-
-                    // Store the event for potential React Native response if it has an ID
-                    rpcRequest.id?.let { id ->
-                        pendingEvents[id] = rpcRequest
-                    }
+                    setupRequestForResponse(rpcRequest)
 
                     log.d(LOG_TAG, "Received RPC request of type ${rpcRequest::class.simpleName}, id: ${rpcRequest.id}")
                 }
