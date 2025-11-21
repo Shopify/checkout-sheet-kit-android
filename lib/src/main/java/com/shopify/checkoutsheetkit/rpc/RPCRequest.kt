@@ -268,7 +268,7 @@ public abstract class RPCRequest<P : Any, R : Any>(
      * Default implementation does nothing - subclasses can override.
      *
      * @param payload The payload to validate
-     * @throws Exception if validation fails
+     * @throws EventResponseError.ValidationFailed if validation fails
      */
     public open fun validate(payload: R) {
         // Default implementation does nothing

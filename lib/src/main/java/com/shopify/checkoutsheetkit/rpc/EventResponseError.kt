@@ -20,17 +20,17 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutsheetkit
+package com.shopify.checkoutsheetkit.rpc
 
-internal object CheckoutMessageContract {
-    const val VERSION_FIELD = "jsonrpc"
-    const val METHOD_FIELD = "method"
-    const val PARAMS_FIELD = "params"
-    const val ID_FIELD = "id"
-
-    const val VERSION = "2.0"
-
-    const val METHOD_ADDRESS_CHANGE_REQUESTED = "checkout.addressChangeRequested"
-    const val METHOD_COMPLETE  = "checkout.complete"
-    const val METHOD_START  = "checkout.start"
+/**
+ * Errors that can occur when responding to RPC events.
+ * Mirrors the Swift EventResponseError enum.
+ */
+public sealed class EventResponseError(message: String) : Exception(message) {
+    /**
+     * Validation of the response payload failed.
+     *
+     * @param message Description of the validation failure
+     */
+    public class ValidationFailed(message: String) : EventResponseError(message)
 }

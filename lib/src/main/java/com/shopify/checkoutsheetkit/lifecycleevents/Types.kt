@@ -375,3 +375,70 @@ private object DiscountValueSerializer : KSerializer<DiscountValue> {
         }
     }
 }
+
+// MARK: - RPC Response Types
+
+/**
+ * Response payload for address change start events.
+ * Contains either cart input data or error information.
+ */
+@Serializable
+public data class CheckoutAddressChangeStartResponsePayload(
+    val cart: CartInput? = null,
+    val errors: List<ResponseError>? = null,
+)
+
+/**
+ * Application-level error in cart response payload
+ */
+@Serializable
+public data class ResponseError(
+    val code: String,
+    val message: String,
+    val fieldTarget: String? = null,
+)
+
+// MARK: - Cart Input Types
+
+/**
+ * Cart input types for updating cart state from embedder responses
+ */
+@Serializable
+public data class CartInput(
+    val delivery: CartDeliveryInput? = null,
+    val buyerIdentity: CartBuyerIdentityInput? = null,
+    val discountCodes: List<String>? = null,
+)
+
+@Serializable
+public data class CartDeliveryInput(
+    val addresses: List<CartSelectableAddressInput>? = null,
+)
+
+@Serializable
+public data class CartSelectableAddressInput(
+    val address: CartDeliveryAddressInput,
+    val oneTimeUse: Boolean? = null,
+    val selected: Boolean? = null,
+)
+
+@Serializable
+public data class CartDeliveryAddressInput(
+    val address1: String? = null,
+    val address2: String? = null,
+    val city: String? = null,
+    val company: String? = null,
+    val countryCode: String? = null,
+    val firstName: String? = null,
+    val lastName: String? = null,
+    val phone: String? = null,
+    val provinceCode: String? = null,
+    val zip: String? = null,
+)
+
+@Serializable
+public data class CartBuyerIdentityInput(
+    val email: String? = null,
+    val phone: String? = null,
+    val countryCode: String? = null,
+)

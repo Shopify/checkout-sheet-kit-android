@@ -49,10 +49,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
-import com.shopify.checkoutsheetkit.CartDelivery
-import com.shopify.checkoutsheetkit.CartDeliveryAddressInput
-import com.shopify.checkoutsheetkit.CartSelectableAddressInput
-import com.shopify.checkoutsheetkit.DeliveryAddressChangePayload
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartResponsePayload
+import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryAddressInput
+import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryInput
+import com.shopify.checkoutsheetkit.lifecycleevents.CartInput
+import com.shopify.checkoutsheetkit.lifecycleevents.CartSelectableAddressInput
 import kotlinx.coroutines.launch
 
 /**
@@ -74,7 +75,7 @@ fun AddressSelectionScreen(
 ) {
     val eventStore = LocalCheckoutEventStore.current
     val event = remember(eventId) {
-        eventStore.getEvent(eventId) as? com.shopify.checkoutsheetkit.rpc.events.AddressChangeRequested
+        eventStore.getEvent(eventId) as? com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
     }
     val coroutineScope = rememberCoroutineScope()
 
@@ -154,16 +155,20 @@ fun AddressSelectionScreen(
         Button(
             onClick = {
                 coroutineScope.launch {
-                    val selectedAddress = addressOptions[selectedIndex].address
-                    val response = DeliveryAddressChangePayload(
-                        delivery = CartDelivery(
+                    val address = addressOptions[selectedIndex].address
+
+                    val cartInput = CartInput(
+                        delivery = CartDeliveryInput(
                             addresses = listOf(
                                 CartSelectableAddressInput(
-                                    address = selectedAddress
+                                    address = address,
+                                    selected = true
                                 )
                             )
                         )
                     )
+
+                    val response = CheckoutAddressChangeStartResponsePayload(cart = cartInput)
 
                     // Respond to the event
                     event?.respondWith(response)

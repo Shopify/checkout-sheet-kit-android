@@ -22,7 +22,7 @@
  */
 package com.shopify.checkoutsheetkit.rpc
 
-import com.shopify.checkoutsheetkit.rpc.events.AddressChangeRequested
+import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -140,17 +140,29 @@ class RPCRequestRegistryTest {
     }
 
     @Test
-    fun `decode returns AddressChangeRequested for address change method`() {
+    fun `decode returns CheckoutAddressChangeStart for address change method`() {
         val jsonString = """
             {
                 "jsonrpc": "2.0",
                 "id": "request-123",
-                "method": "checkout.addressChangeRequested",
+                "method": "checkout.addressChangeStart",
                 "params": {
                     "addressType": "shipping",
-                    "selectedAddress": {
-                        "firstName": "Ada",
-                        "lastName": "Lovelace"
+                    "cart": {
+                        "id": "gid://shopify/Cart/test-cart-123",
+                        "lines": [],
+                        "cost": {
+                            "subtotalAmount": {"amount": "100.00", "currencyCode": "USD"},
+                            "totalAmount": {"amount": "100.00", "currencyCode": "USD"}
+                        },
+                        "buyerIdentity": {
+                            "email": "test@example.com"
+                        },
+                        "deliveryGroups": [],
+                        "discountCodes": [],
+                        "appliedGiftCards": [],
+                        "discountAllocations": [],
+                        "delivery": {"addresses": []}
                     }
                 }
             }
@@ -159,13 +171,12 @@ class RPCRequestRegistryTest {
         val result = RPCRequestRegistry.decode(jsonString)
 
         assertNotNull("Should decode message successfully", result)
-        assertTrue("Should be an AddressChangeRequested", result is AddressChangeRequested)
-        val request = result as AddressChangeRequested
+        assertTrue("Should be a CheckoutAddressChangeStart", result is CheckoutAddressChangeStart)
+        val request = result as CheckoutAddressChangeStart
         assertEquals("request-123", request.id)
         assertEquals("shipping", request.params.addressType)
-        assertEquals("Ada", request.params.selectedAddress?.firstName)
-        assertEquals("Lovelace", request.params.selectedAddress?.lastName)
-        assertEquals("checkout.addressChangeRequested", request.method)
+        assertEquals("gid://shopify/Cart/test-cart-123", request.params.cart.id)
+        assertEquals("checkout.addressChangeStart", request.method)
     }
 
     @Test
@@ -225,8 +236,8 @@ class RPCRequestRegistryTest {
     fun `isRegistered returns true for registered methods`() {
         assertTrue("checkout.start should be registered", RPCRequestRegistry.isRegistered("checkout.start"))
         assertTrue("checkout.complete should be registered", RPCRequestRegistry.isRegistered("checkout.complete"))
-        assertTrue("checkout.addressChangeRequested should be registered",
-            RPCRequestRegistry.isRegistered("checkout.addressChangeRequested"))
+        assertTrue("checkout.addressChangeStart should be registered",
+            RPCRequestRegistry.isRegistered("checkout.addressChangeStart"))
     }
 
     @Test
@@ -240,7 +251,7 @@ class RPCRequestRegistryTest {
 
         assertTrue("Should contain checkout.start", methods.contains("checkout.start"))
         assertTrue("Should contain checkout.complete", methods.contains("checkout.complete"))
-        assertTrue("Should contain checkout.addressChangeRequested", methods.contains("checkout.addressChangeRequested"))
+        assertTrue("Should contain checkout.addressChangeStart", methods.contains("checkout.addressChangeStart"))
         assertEquals("Should have exactly 3 registered methods", 3, methods.size)
     }
 }

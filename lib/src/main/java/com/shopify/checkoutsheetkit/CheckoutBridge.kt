@@ -27,12 +27,12 @@ import android.os.Looper
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
-import com.shopify.checkoutsheetkit.rpc.events.AddressChangeRequested
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartResponsePayload
+import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
 import com.shopify.checkoutsheetkit.rpc.CheckoutStart
 import com.shopify.checkoutsheetkit.rpc.CheckoutComplete
 import com.shopify.checkoutsheetkit.rpc.RPCRequest
 import com.shopify.checkoutsheetkit.rpc.RPCRequestRegistry
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.lang.ref.WeakReference
 
@@ -69,11 +69,11 @@ internal class CheckoutBridge(
      */
     fun respondToEvent(eventId: String, responseData: String) {
         val event = pendingEvents[eventId]
-        if (event is AddressChangeRequested) {
+        if (event is CheckoutAddressChangeStart) {
             try {
-                // Parse the response data as DeliveryAddressChangePayload
+                // Parse the response data as CheckoutAddressChangeStartResponsePayload
                 val jsonParser = Json { ignoreUnknownKeys = true }
-                val payload = jsonParser.decodeFromString<DeliveryAddressChangePayload>(responseData)
+                val payload = jsonParser.decodeFromString<CheckoutAddressChangeStartResponsePayload>(responseData)
                 event.respondWith(payload)
                 pendingEvents.remove(eventId)
                 log.d(LOG_TAG, "Successfully responded to event $eventId")
@@ -112,12 +112,12 @@ internal class CheckoutBridge(
             log.d(LOG_TAG, "Received message from checkout.")
 
             when (val rpcRequest = RPCRequestRegistry.decode(message)) {
-                is AddressChangeRequested -> {
+                is CheckoutAddressChangeStart -> {
                     setupRequestForResponse(rpcRequest)
 
-                    log.d(LOG_TAG, "Received checkout.addressChangeRequested message with webView ref: ${webViewRef?.get()}")
+                    log.d(LOG_TAG, "Received checkout.addressChangeStart message with webView ref: ${webViewRef?.get()}")
                     onMainThread {
-                        eventProcessor.onAddressChangeRequested(rpcRequest)
+                        eventProcessor.onCheckoutAddressChangeStart(rpcRequest)
                     }
                 }
 
@@ -202,9 +202,3 @@ internal class CheckoutBridge(
         }
     }
 }
-
-@Serializable
-internal data class WebToSdkEvent(
-    val name: String,
-    val body: String = ""
-)

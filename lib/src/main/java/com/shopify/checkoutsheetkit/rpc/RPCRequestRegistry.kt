@@ -22,9 +22,8 @@
  */
 package com.shopify.checkoutsheetkit.rpc
 
-import com.shopify.checkoutsheetkit.CheckoutMessageContract
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
-import com.shopify.checkoutsheetkit.rpc.events.AddressChangeRequested
+import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -35,6 +34,8 @@ import kotlinx.serialization.json.jsonPrimitive
  * request type based on the method name.
  */
 public object RPCRequestRegistry {
+    private const val JSON_RPC_VERSION = "2.0"
+
     /**
      * List of all supported RPC request decoder types.
      * Add new request types here as they are implemented.
@@ -43,7 +44,7 @@ public object RPCRequestRegistry {
      * a companion object that implements it.
      */
     public val requestTypes: List<TypeErasedRPCDecodable> = listOf(
-        AddressChangeRequested.Companion,
+        CheckoutAddressChangeStart.Companion,
         CheckoutStart.Companion,
         CheckoutComplete.Companion
     )
@@ -80,12 +81,12 @@ public object RPCRequestRegistry {
         return runCatching {
             val jsonObject = json.parseToJsonElement(jsonString).jsonObject
 
-            val version = jsonObject[CheckoutMessageContract.VERSION_FIELD]?.jsonPrimitive?.content
-            require(version == CheckoutMessageContract.VERSION) {
+            val version = jsonObject["jsonrpc"]?.jsonPrimitive?.content
+            require(version == JSON_RPC_VERSION) {
                 "Invalid JSON-RPC version: $version"
             }
 
-            val method = requireNotNull(jsonObject[CheckoutMessageContract.METHOD_FIELD]?.jsonPrimitive?.content) {
+            val method = requireNotNull(jsonObject["method"]?.jsonPrimitive?.content) {
                 "Missing method field in JSON-RPC message"
             }
 
