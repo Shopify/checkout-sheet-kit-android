@@ -28,14 +28,16 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
 import com.shopify.checkoutsheetkit.rpc.events.AddressChangeRequested
+import com.shopify.checkoutsheetkit.rpc.CheckoutStart
+import com.shopify.checkoutsheetkit.rpc.CheckoutComplete
 import com.shopify.checkoutsheetkit.rpc.RPCRequest
+import com.shopify.checkoutsheetkit.rpc.RPCRequestRegistry
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import java.lang.ref.WeakReference
 
 internal class CheckoutBridge(
     private var eventProcessor: CheckoutWebViewEventProcessor,
-    private val messageParser: CheckoutMessageParser = CheckoutMessageParser(Json { ignoreUnknownKeys = true }, log),
 ) {
 
     private var webViewRef: WeakReference<WebView>? = null
@@ -89,10 +91,9 @@ internal class CheckoutBridge(
     fun postMessage(message: String) {
         try {
             log.d(LOG_TAG, "Received message from checkout.")
-            when (val checkoutMessage = messageParser.parse(message)) {
-                is CheckoutMessageParser.CheckoutMessage.Request -> {
-                    val rpcRequest = checkoutMessage.rpcRequest
 
+            when (val rpcRequest = RPCRequestRegistry.decode(message)) {
+                is AddressChangeRequested -> {
                     // Set the WebView reference on the request so it can respond directly
                     webViewRef?.get()?.let { webView ->
                         rpcRequest.webView = WeakReference(webView)
@@ -103,37 +104,43 @@ internal class CheckoutBridge(
                         pendingEvents[id] = rpcRequest
                     }
 
-                    // Dispatch to appropriate handler based on type
-                    log.d(LOG_TAG, "Dispatching RPC request of type: ${rpcRequest::class.simpleName}, id: ${rpcRequest.id}")
-                    when (rpcRequest) {
-                        is AddressChangeRequested -> {
-                            log.d(LOG_TAG, "Received checkout.addressChangeRequested message with webView ref: ${webViewRef?.get()}")
-                            onMainThread {
-                                eventProcessor.onAddressChangeRequested(rpcRequest)
-                            }
-                        }
-                        else -> {
-                            log.d(LOG_TAG, "Received RPC request of type ${rpcRequest::class.simpleName}")
-                        }
+                    log.d(LOG_TAG, "Received checkout.addressChangeRequested message with webView ref: ${webViewRef?.get()}")
+                    onMainThread {
+                        eventProcessor.onAddressChangeRequested(rpcRequest)
                     }
                 }
 
-                is CheckoutMessageParser.CheckoutMessage.StartNotification -> {
+                is CheckoutStart -> {
                     log.d(LOG_TAG, "Received checkout.start message. Dispatching decoded event.")
                     onMainThread {
-                        eventProcessor.onCheckoutViewStart(checkoutMessage.event)
+                        eventProcessor.onCheckoutViewStart(rpcRequest.params)
                     }
                 }
 
-                is CheckoutMessageParser.CheckoutMessage.CompleteNotification -> {
+                is CheckoutComplete -> {
                     log.d(LOG_TAG, "Received checkout.complete message. Dispatching decoded event.")
                     onMainThread {
-                        eventProcessor.onCheckoutViewComplete(checkoutMessage.event)
+                        eventProcessor.onCheckoutViewComplete(rpcRequest.params)
                     }
                 }
 
                 null -> {
                     log.d(LOG_TAG, "Unsupported message received. Ignoring.")
+                }
+
+                else -> {
+                    // Future-proof: handle any other RPCRequest types
+                    // Set WebView reference for requests that may need to respond
+                    webViewRef?.get()?.let { webView ->
+                        rpcRequest.webView = WeakReference(webView)
+                    }
+
+                    // Store the event for potential React Native response if it has an ID
+                    rpcRequest.id?.let { id ->
+                        pendingEvents[id] = rpcRequest
+                    }
+
+                    log.d(LOG_TAG, "Received RPC request of type ${rpcRequest::class.simpleName}, id: ${rpcRequest.id}")
                 }
             }
         } catch (e: Exception) {
