@@ -202,9 +202,3 @@ internal class CheckoutBridge(
         }
     }
 }
-
-@Serializable
-internal data class WebToSdkEvent(
-    val name: String,
-    val body: String = ""
-)
