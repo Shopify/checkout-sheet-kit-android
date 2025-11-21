@@ -1,7 +1,7 @@
 # Adding New Events to Checkout Sheet Kit Android
 
 This guide walks through adding new events for WebView-to-Android communication.
-We've implemented this pattern several times - see [`AddressChangeRequested`](lib/src/main/java/com/shopify/checkoutsheetkit/rpc/events/AddressChangeRequested.kt) as a reference.
+We've implemented this pattern several times - see [`CheckoutAddressChangeStart`](lib/src/main/java/com/shopify/checkoutsheetkit/rpc/events/CheckoutAddressChangeStart.kt) as a reference.
 
 ## Quick Checklist
 
@@ -15,7 +15,7 @@ When adding a new event, you need to modify these files:
 
 ## Step 1: Define Your Event
 
-Create a new file following the pattern in [`AddressChangeRequested.kt`](lib/src/main/java/com/shopify/checkoutsheetkit/rpc/events/AddressChangeRequested.kt):
+Create a new file following the pattern in [`CheckoutAddressChangeStart.kt`](lib/src/main/java/com/shopify/checkoutsheetkit/rpc/events/CheckoutAddressChangeStart.kt):
 
 ## Step 2: Register in RPCRequestRegistry
 
@@ -23,7 +23,7 @@ Add your event to the `requestTypes` list in [`RPCRequestRegistry.kt`](lib/src/m
 
 ```kotlin
 public val requestTypes: List<TypeErasedRPCDecodable> = listOf(
-    AddressChangeRequested.Companion,
+    CheckoutAddressChangeStart.Companion,
     CheckoutStart.Companion,
     CheckoutComplete.Companion,
     YourEvent.Companion  // Add here
@@ -32,7 +32,7 @@ public val requestTypes: List<TypeErasedRPCDecodable> = listOf(
 
 ## Step 3: Add Handler to CheckoutEventProcessor
 
-Add your handler method alongside existing ones like `onAddressChangeRequested` in [`CheckoutEventProcessor.kt`](lib/src/main/java/com/shopify/checkoutsheetkit/CheckoutEventProcessor.kt):
+Add your handler method alongside existing ones like `onCheckoutAddressChangeStart` in [`CheckoutEventProcessor.kt`](lib/src/main/java/com/shopify/checkoutsheetkit/CheckoutEventProcessor.kt):
 
 ```kotlin
 public interface CheckoutEventProcessor {
@@ -50,10 +50,10 @@ Add a case for your event in the `when` statement in [`CheckoutBridge.kt`](lib/s
 
 ```kotlin
 when (rpcRequest) {
-    is AddressChangeRequested -> {
-        log.d(LOG_TAG, "Received checkout.addressChangeRequested message")
+    is CheckoutAddressChangeStart -> {
+        log.d(LOG_TAG, "Received checkout.addressChangeStart message")
         onMainThread {
-            eventProcessor.onAddressChangeRequested(rpcRequest)
+            eventProcessor.onCheckoutAddressChangeStart(rpcRequest)
         }
     }
     is YourEvent -> {  // Add this case
@@ -73,7 +73,7 @@ For special handling, add a case in [`CheckoutMessageParser.kt`](lib/src/main/ja
 ```kotlin
 fun parse(rawMessage: String): CheckoutMessage? {
     return when (val decoded = RPCRequestRegistry.decode(rawMessage)) {
-        is AddressChangeRequested -> CheckoutMessage.Request(decoded)
+        is CheckoutAddressChangeStart -> CheckoutMessage.Request(decoded)
         is YourEvent -> CheckoutMessage.Request(decoded)  // Add if needed
         // ... other cases
     }
@@ -96,7 +96,7 @@ class MyEventProcessor : DefaultCheckoutEventProcessor(context) {
 
 ## Event Types
 
-- **Request-Response Events** (like `AddressChangeRequested`): Have an `id`, can respond with `event.respondWith(payload)`
+- **Request-Response Events** (like `CheckoutAddressChangeStart`): Have an `id`, can respond with `event.respondWith(payload)`
 - **Notification Events** (like `CheckoutStart`, `CheckoutComplete`): No `id` (pass `null`), one-way communication
 
 ## WebView Integration
@@ -143,6 +143,6 @@ fun `test decode YourEvent from JSON`() {
 
 See these existing events for reference:
 
-- [`AddressChangeRequested`](lib/src/main/java/com/shopify/checkoutsheetkit/rpc/events/AddressChangeRequested.kt) - Request-response pattern
+- [`CheckoutAddressChangeStart`](lib/src/main/java/com/shopify/checkoutsheetkit/rpc/events/CheckoutAddressChangeStart.kt) - Request-response pattern
 - [`CheckoutStart`](lib/src/main/java/com/shopify/checkoutsheetkit/rpc/CheckoutStart.kt) - Notification pattern
 - [`CheckoutComplete`](lib/src/main/java/com/shopify/checkoutsheetkit/rpc/CheckoutComplete.kt) - Notification with enum status

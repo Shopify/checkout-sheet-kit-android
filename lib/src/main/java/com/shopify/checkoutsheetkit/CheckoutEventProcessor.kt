@@ -33,7 +33,7 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
-import com.shopify.checkoutsheetkit.rpc.events.AddressChangeRequested
+import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
 
 /**
  * Interface to implement to allow responding to lifecycle events in checkout.
@@ -98,12 +98,13 @@ public interface CheckoutEventProcessor {
     public fun onGeolocationPermissionsHidePrompt()
 
     /**
-     * Called when checkout requests that the buyer change their delivery address.
+     * Called when native address selection is configured for the authenticated app and a customer
+     * indicates they want to start an address change.
      *
      * By default the request is cancelled. Override to present custom UI and provide a response
-     * via [AddressChangeRequested.respondWith] (or cancel explicitly).
+     * via [CheckoutAddressChangeStart.respondWith] or cancel explicitly.
      */
-    public fun onAddressChangeRequested(event: AddressChangeRequested)
+    public fun onCheckoutAddressChangeStart(event: CheckoutAddressChangeStart)
 }
 
 internal class NoopEventProcessor : CheckoutEventProcessor {
@@ -139,7 +140,7 @@ internal class NoopEventProcessor : CheckoutEventProcessor {
     override fun onGeolocationPermissionsHidePrompt() {/* noop */
     }
 
-    override fun onAddressChangeRequested(event: AddressChangeRequested) {/* noop */
+    override fun onCheckoutAddressChangeStart(event: CheckoutAddressChangeStart) {/* noop */
     }
 }
 
@@ -186,7 +187,7 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
         // no-op override to implement
     }
 
-    override fun onAddressChangeRequested(event: AddressChangeRequested) {
+    override fun onCheckoutAddressChangeStart(event: CheckoutAddressChangeStart) {
         // no-op override to implement
     }
 

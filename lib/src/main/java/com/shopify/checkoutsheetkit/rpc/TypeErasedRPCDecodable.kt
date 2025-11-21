@@ -34,7 +34,7 @@ package com.shopify.checkoutsheetkit.rpc
 public interface TypeErasedRPCDecodable {
     /**
      * The RPC method name that this decoder handles.
-     * (e.g., "checkout.addressChangeRequested")
+     * (e.g., "checkout.addressChangeStart")
      */
     public val method: String
 
