@@ -79,6 +79,7 @@ public object RPCRequestRegistry {
     public fun decode(jsonString: String): RPCRequest<*, *>? {
         return try {
             val jsonObject = json.parseToJsonElement(jsonString).jsonObject
+            val method = jsonObject[CheckoutMessageContract.METHOD_FIELD]?.jsonPrimitive?.content
 
             when {
                 // Validate JSON-RPC version
@@ -88,13 +89,12 @@ public object RPCRequestRegistry {
                     null
                 }
                 // Check for method field
-                jsonObject[CheckoutMessageContract.METHOD_FIELD]?.jsonPrimitive?.content == null -> {
+                method == null -> {
                     ShopifyCheckoutSheetKit.log.e("RPCRequestRegistry", "Missing method field in JSON-RPC message")
                     null
                 }
                 // Decode if decoder exists
                 else -> {
-                    val method = jsonObject[CheckoutMessageContract.METHOD_FIELD]?.jsonPrimitive?.content!!
                     val decoder = registry[method]
                     if (decoder == null) {
                         ShopifyCheckoutSheetKit.log.d("RPCRequestRegistry", "No decoder registered for method: $method")
