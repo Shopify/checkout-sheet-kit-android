@@ -82,7 +82,7 @@ internal object EmbedParamBuilder {
         )
 
         if (includeAuthentication) {
-            options?.authToken?.let {
+            options?.authentication?.let {
                 fields[EmbedFieldKey.AUTHENTICATION] = it
             }
         }

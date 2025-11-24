@@ -139,7 +139,7 @@ class CartViewModel(
 
         return try {
             val token = checkoutAppAuthenticationService.fetchAccessToken()
-            CheckoutOptions(authToken = token)
+            CheckoutOptions(authentication = token)
         } catch (e: Exception) {
             Timber.e("Failed to fetch checkout app authentication token, continuing without authentication: $e")
             null

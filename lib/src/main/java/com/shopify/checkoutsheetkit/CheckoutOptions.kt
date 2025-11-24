@@ -29,5 +29,5 @@ public data class CheckoutOptions(
     /**
      * JWT token for authenticated checkout sessions.
      */
-    val authToken: String? = null,
+    val authentication: String? = null,
 )

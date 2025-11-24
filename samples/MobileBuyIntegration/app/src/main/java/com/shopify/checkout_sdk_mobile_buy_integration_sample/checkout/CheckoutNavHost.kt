@@ -133,7 +133,7 @@ fun CheckoutNavHost(
                 if (authService.hasConfiguration()) {
                     try {
                         val token = authService.fetchAccessToken()
-                        val options = CheckoutOptions(authToken = token)
+                        val options = CheckoutOptions(authentication = token)
                         Timber.d("Loading checkout with authentication token")
                         checkoutWebView.loadCheckout(checkoutUrl, options)
                     } catch (e: Exception) {

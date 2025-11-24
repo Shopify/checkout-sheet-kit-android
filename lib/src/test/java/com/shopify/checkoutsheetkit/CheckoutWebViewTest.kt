@@ -191,7 +191,7 @@ class CheckoutWebViewTest {
     @Test
     fun `loadCheckout sends authentication once per token`() {
         withPreloadingEnabled {
-            val options = CheckoutOptions(authToken = "token-1")
+            val options = CheckoutOptions(authentication = "token-1")
             val view = CheckoutWebView.cacheableCheckoutView(URL, activity, true, options)
             val shadow = shadowOf(view)
 
