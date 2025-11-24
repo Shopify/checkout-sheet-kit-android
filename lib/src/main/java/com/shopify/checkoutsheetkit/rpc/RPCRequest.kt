@@ -114,22 +114,12 @@ public abstract class RPCRequest<P : Any, R : Any>(
         }
     }
 
-    @OptIn(InternalSerializationApi::class)
     private fun handleValidResponse(payload: R) {
-        try {
-            validate(payload)
-            hasResponded = true
-            sendSuccessResponse(payload)
-        } catch (e: Exception) {
-            ShopifyCheckoutSheetKit.log.e(
-                "RPCRequest",
-                "Validation failed for RPC request '$method' with id '$id': ${e.message}"
-            )
-            respondWithError("Validation failed: ${e.message}")
-        }
+        validate(payload) // Throws if validation fails
+        hasResponded = true
+        sendSuccessResponse(payload)
     }
 
-    @OptIn(InternalSerializationApi::class)
     private fun sendSuccessResponse(payload: R) {
         webView?.get()?.let { webView ->
             try {
@@ -183,39 +173,30 @@ public abstract class RPCRequest<P : Any, R : Any>(
      * Useful for language bindings (e.g., React Native).
      *
      * @param jsonString A JSON string representing the response payload
+     * @throws CheckoutEventResponseException.DecodingFailed if JSON parsing or deserialization fails
      */
     public fun respondWith(jsonString: String) {
-        // Since we can't use inline reified, we'll need to handle this differently
-        // For React Native bridge, the JSON should be parseable as JsonElement first
-        try {
-            val jsonElement = json.parseToJsonElement(jsonString)
-            // Try to decode it as the response type using the responseSerializer
-            // This approach requires the concrete class to provide proper deserialization
-            respondWithJsonElement(jsonElement)
+        val jsonElement = try {
+            json.parseToJsonElement(jsonString)
         } catch (e: Exception) {
-            ShopifyCheckoutSheetKit.log.e(
-                "RPCRequest",
-                "respondWith(json) failed to decode method: $method, id: $id, error: ${e.message}"
-            )
-            respondWithError(jsonString)
+            throw CheckoutEventResponseException.DecodingFailed("Failed to parse JSON: ${e.message}", e)
         }
+        respondWithJsonElement(jsonElement)
     }
 
     /**
      * Internal method to respond with a JsonElement.
      * Uses the responseSerializer to deserialize the JSON element to the response type.
+     *
+     * @throws CheckoutEventResponseException.DecodingFailed if deserialization fails
      */
     protected open fun respondWithJsonElement(jsonElement: JsonElement) {
-        try {
-            val payload = json.decodeFromJsonElement(responseSerializer, jsonElement)
-            respondWith(payload)
+        val payload = try {
+            json.decodeFromJsonElement(responseSerializer, jsonElement)
         } catch (e: Exception) {
-            ShopifyCheckoutSheetKit.log.e(
-                "RPCRequest",
-                "Failed to decode JSON response for method: $method, error: ${e.message}"
-            )
-            respondWithError("Failed to decode JSON response: ${e.message}")
+            throw CheckoutEventResponseException.DecodingFailed("Failed to decode response: ${e.message}", e)
         }
+        respondWith(payload)
     }
 
     /**
@@ -268,7 +249,7 @@ public abstract class RPCRequest<P : Any, R : Any>(
      * Default implementation does nothing - subclasses can override.
      *
      * @param payload The payload to validate
-     * @throws Exception if validation fails
+     * @throws CheckoutEventResponseException.ValidationFailed if validation fails
      */
     public open fun validate(payload: R) {
         // Default implementation does nothing

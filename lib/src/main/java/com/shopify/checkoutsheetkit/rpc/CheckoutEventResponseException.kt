@@ -20,40 +20,25 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutsheetkit
-
-import kotlinx.serialization.Serializable
+package com.shopify.checkoutsheetkit.rpc
 
 /**
- * Types used for address change requests and responses.
- * These represent the data structures for communication with the checkout WebView.
+ * Exceptions that can occur when responding to checkout RPC events.
+ * Mirrors the Swift EventResponseError enum.
  */
+public sealed class CheckoutEventResponseException(message: String, cause: Throwable? = null) : Exception(message, cause) {
+    /**
+     * Failed to decode the response payload.
+     *
+     * @param message Description of the decoding failure
+     * @param cause The underlying exception that caused the failure
+     */
+    public class DecodingFailed(message: String, cause: Throwable? = null) : CheckoutEventResponseException(message, cause)
 
-@Serializable
-public data class DeliveryAddressChangePayload(
-    val delivery: CartDelivery,
-)
-
-@Serializable
-public data class CartDelivery(
-    public val addresses: List<CartSelectableAddressInput>,
-)
-
-@Serializable
-public data class CartSelectableAddressInput(
-    public val address: CartDeliveryAddressInput,
-)
-
-@Serializable
-public data class CartDeliveryAddressInput(
-    public val firstName: String? = null,
-    public val lastName: String? = null,
-    public val company: String? = null,
-    public val address1: String? = null,
-    public val address2: String? = null,
-    public val city: String? = null,
-    public val countryCode: String? = null,
-    public val phone: String? = null,
-    public val provinceCode: String? = null,
-    public val zip: String? = null,
-)
+    /**
+     * Validation of the response payload failed.
+     *
+     * @param message Description of the validation failure
+     */
+    public class ValidationFailed(message: String) : CheckoutEventResponseException(message)
+}

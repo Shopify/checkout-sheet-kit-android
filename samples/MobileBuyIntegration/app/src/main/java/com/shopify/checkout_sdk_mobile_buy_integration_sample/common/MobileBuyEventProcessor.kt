@@ -35,7 +35,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
-import com.shopify.checkoutsheetkit.rpc.events.AddressChangeRequested
+import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
@@ -85,7 +85,7 @@ class MobileBuyEventProcessor(
         return (context as MainActivity).onGeolocationPermissionsShowPrompt(origin, callback)
     }
 
-    override fun onAddressChangeRequested(event: AddressChangeRequested) {
+    override fun onCheckoutAddressChangeStart(event: CheckoutAddressChangeStart) {
         val eventId = eventStore.storeEvent(event)
 
         GlobalScope.launch(Dispatchers.Main) {

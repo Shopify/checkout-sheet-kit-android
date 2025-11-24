@@ -41,6 +41,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -49,10 +50,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
-import com.shopify.checkoutsheetkit.CartDelivery
-import com.shopify.checkoutsheetkit.CartDeliveryAddressInput
-import com.shopify.checkoutsheetkit.CartSelectableAddressInput
-import com.shopify.checkoutsheetkit.DeliveryAddressChangePayload
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartResponsePayload
+import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryAddressInput
+import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryInput
+import com.shopify.checkoutsheetkit.lifecycleevents.CartInput
+import com.shopify.checkoutsheetkit.lifecycleevents.CartSelectableAddressInput
+import com.shopify.checkoutsheetkit.rpc.CheckoutEventResponseException
+import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
 import kotlinx.coroutines.launch
 
 /**
@@ -74,7 +78,7 @@ fun AddressSelectionScreen(
 ) {
     val eventStore = LocalCheckoutEventStore.current
     val event = remember(eventId) {
-        eventStore.getEvent(eventId) as? com.shopify.checkoutsheetkit.rpc.events.AddressChangeRequested
+        eventStore.getEvent(eventId) as? CheckoutAddressChangeStart
     }
     val coroutineScope = rememberCoroutineScope()
 
@@ -83,6 +87,7 @@ fun AddressSelectionScreen(
     }
 
     var selectedIndex by remember { mutableIntStateOf(0) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
     val addressOptions = remember {
         listOf(
             AddressOption(
@@ -114,17 +119,31 @@ fun AddressSelectionScreen(
                 )
             ),
             AddressOption(
-                label = "Invalid Address",
+                label = "❌ Invalid - SDK validation (3-letter country code)",
                 address = CartDeliveryAddressInput(
-                    firstName = "Invalid",
-                    lastName = "User",
-                    address1 = "123 Fake Street",
+                    firstName = "Test",
+                    lastName = "Invalid",
+                    address1 = "123 Error Street",
                     address2 = null,
                     city = "Austin",
-                    countryCode = "US",
+                    countryCode = "USA", // Invalid: SDK validates country code must be exactly 2 characters
                     phone = "+15125551234",
                     provinceCode = "TX",
-                    zip = "00000",
+                    zip = "78701",
+                )
+            ),
+            AddressOption(
+                label = "❌ Invalid - Backend validation (postcode invalid for country)",
+                address = CartDeliveryAddressInput(
+                    firstName = "Test",
+                    lastName = "User",
+                    address1 = "456 Nowhere Lane",
+                    address2 = null,
+                    city = "Portland",
+                    countryCode = "US",
+                    phone = "+15035551234",
+                    provinceCode = "OR",
+                    zip = "SA35HP",
                 )
             ),
         )
@@ -151,28 +170,54 @@ fun AddressSelectionScreen(
             }
         }
 
+        // Error message display
+        errorMessage?.let { error ->
+            Text(
+                text = error,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+        }
+
         Button(
             onClick = {
+                // Clear previous error
+                errorMessage = null
+
                 coroutineScope.launch {
-                    val selectedAddress = addressOptions[selectedIndex].address
-                    val response = DeliveryAddressChangePayload(
-                        delivery = CartDelivery(
+                    val address = addressOptions[selectedIndex].address
+
+                    val cartInput = CartInput(
+                        delivery = CartDeliveryInput(
                             addresses = listOf(
                                 CartSelectableAddressInput(
-                                    address = selectedAddress
+                                    address = address,
+                                    selected = true
                                 )
                             )
                         )
                     )
 
-                    // Respond to the event
-                    event?.respondWith(response)
+                    val response = CheckoutAddressChangeStartResponsePayload(cart = cartInput)
 
-                    // Clean up event from store
-                    eventStore.removeEvent(eventId)
+                    try {
+                        // Respond to the event - validation happens here
+                        event?.respondWith(response)
 
-                    // Navigate back to checkout
-                    onNavigateBack()
+                        // Clean up event from store
+                        eventStore.removeEvent(eventId)
+
+                        // Navigate back to checkout
+                        onNavigateBack()
+                    } catch (e: CheckoutEventResponseException.ValidationFailed) {
+                        // Show validation error to user
+                        errorMessage = "Validation failed: ${e.message}"
+                        // Stay on screen so user can select a different address
+                    } catch (e: CheckoutEventResponseException.DecodingFailed) {
+                        // Show decoding error to user
+                        errorMessage = "Decoding failed: ${e.message}"
+                    }
                 }
             },
             modifier = Modifier

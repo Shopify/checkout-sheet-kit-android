@@ -6,7 +6,7 @@ import androidx.activity.ComponentActivity;
 import androidx.annotation.NonNull;
 
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent;
-import com.shopify.checkoutsheetkit.rpc.events.AddressChangeRequested;
+import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart;
 
 import org.junit.After;
 import org.junit.Before;
@@ -58,7 +58,7 @@ public class InteropTest {
                 }
 
                 @Override
-                public void onAddressChangeRequested(@NonNull AddressChangeRequested event) {
+                public void onCheckoutAddressChangeStart(@NonNull CheckoutAddressChangeStart event) {
 
                 }
             };
@@ -66,7 +66,6 @@ public class InteropTest {
             assertThat(processor).isNotNull();
         }
     }
-
 
     @Test
     public void canConfigureCheckoutSheetKit() {
@@ -124,7 +123,7 @@ public class InteropTest {
                         }
 
                         @Override
-                        public void onAddressChangeRequested(@NonNull AddressChangeRequested event) {
+                        public void onCheckoutAddressChangeStart(@NonNull CheckoutAddressChangeStart event) {
                             // do nothing
                         }
                     }
