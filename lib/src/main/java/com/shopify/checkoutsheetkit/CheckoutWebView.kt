@@ -121,7 +121,9 @@ public class CheckoutWebView(context: Context, attributeSet: AttributeSet? = nul
         this.checkoutOptions = options
         Handler(Looper.getMainLooper()).post {
             val headers = if (isPreload) mutableMapOf("Shopify-Purpose" to "prefetch") else mutableMapOf()
-            val includeAuthentication = authenticationTracker.shouldSendToken(checkoutOptions?.authentication)
+            val includeAuthentication = checkoutOptions?.authentication?.let {
+                authenticationTracker.shouldSendToken(it)
+            } ?: false
 
             loadUrl(
                 url.toUri().withEmbedParam(

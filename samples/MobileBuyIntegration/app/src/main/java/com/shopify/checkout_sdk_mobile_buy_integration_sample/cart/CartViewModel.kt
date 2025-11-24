@@ -36,6 +36,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarEve
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.CustomerRepository
+import com.shopify.checkoutsheetkit.Authentication
 import com.shopify.checkoutsheetkit.CheckoutOptions
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
@@ -139,7 +140,7 @@ class CartViewModel(
 
         return try {
             val token = checkoutAppAuthenticationService.fetchAccessToken()
-            CheckoutOptions(authentication = token)
+            CheckoutOptions(authentication = Authentication.Token(token))
         } catch (e: Exception) {
             Timber.e("Failed to fetch checkout app authentication token, continuing without authentication: $e")
             null

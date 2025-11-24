@@ -142,7 +142,9 @@ public abstract class BaseWebView(context: Context, attributeSet: AttributeSet? 
                 view?.loadUrl(
                     requestUri.withEmbedParam(
                         options = checkoutOptions,
-                        includeAuthentication = authenticationTracker.shouldRetainToken(checkoutOptions?.authentication)
+                        includeAuthentication = checkoutOptions?.authentication?.let {
+                            authenticationTracker.shouldRetainToken(it)
+                        } ?: false
                     ),
                     headers
                 )

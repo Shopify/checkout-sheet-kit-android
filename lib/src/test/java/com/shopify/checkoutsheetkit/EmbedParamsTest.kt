@@ -244,7 +244,7 @@ class EmbedParamsTest {
     @Test
     fun `withEmbedParam adds authentication when provided`() {
         val options = CheckoutOptions(
-            authentication = "token-123",
+            authentication = Authentication.Token("token-123"),
         )
         val uri = "https://example.com".toUri()
 
@@ -257,7 +257,7 @@ class EmbedParamsTest {
     @Test
     fun `needsEmbedParam ignores authentication field when comparing embed parameters`() {
         val options = CheckoutOptions(
-            authentication = "token-abc",
+            authentication = Authentication.Token("token-abc"),
         )
         val withEmbed = "https://example.com".toUri().withEmbedParam(options = options)
         val uri = withEmbed.toUri()
@@ -269,7 +269,7 @@ class EmbedParamsTest {
 
     @Test
     fun `withEmbedParam excludes authentication when includeAuthentication is false`() {
-        val options = CheckoutOptions(authentication = "token-123")
+        val options = CheckoutOptions(authentication = Authentication.Token("token-123"))
         val uri = "https://example.com".toUri()
 
         val result = uri.withEmbedParam(options = options, includeAuthentication = false)
@@ -280,8 +280,8 @@ class EmbedParamsTest {
 
     @Test
     fun `withEmbedParam replaces existing authentication token in embed parameter`() {
-        val oldOptions = CheckoutOptions(authentication = "old-token")
-        val newOptions = CheckoutOptions(authentication = "new-token")
+        val oldOptions = CheckoutOptions(authentication = Authentication.Token("old-token"))
+        val newOptions = CheckoutOptions(authentication = Authentication.Token("new-token"))
         val withOldToken = "https://example.com".toUri()
             .withEmbedParam(options = oldOptions)
         val uri = withOldToken.toUri()
@@ -293,8 +293,8 @@ class EmbedParamsTest {
     }
 
     @Test
-    fun `withEmbedParam excludes authentication when options authToken is null`() {
-        val options = CheckoutOptions(authentication = null)
+    fun `withEmbedParam excludes authentication when options authentication is None`() {
+        val options = CheckoutOptions(authentication = Authentication.None)
         val uri = "https://example.com".toUri()
 
         val result = uri.withEmbedParam(options = options)

@@ -82,8 +82,11 @@ internal object EmbedParamBuilder {
         )
 
         if (includeAuthentication) {
-            options?.authentication?.let {
-                fields[EmbedFieldKey.AUTHENTICATION] = it
+            options?.authentication?.let { auth ->
+                when (auth) {
+                    is Authentication.Token -> fields[EmbedFieldKey.AUTHENTICATION] = auth.value
+                    is Authentication.None -> {} // No authentication to include
+                }
             }
         }
 
