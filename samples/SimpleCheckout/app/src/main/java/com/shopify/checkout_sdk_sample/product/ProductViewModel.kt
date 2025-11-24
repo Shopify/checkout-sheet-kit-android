@@ -65,19 +65,19 @@ class ProductViewModel : ViewModel() {
 
     /**
      * Sets the event processor that handles events that may occur during checkout
-     * onCheckoutStarted, onCheckoutCompleted, onCheckoutCanceled etc.
+     * onComplete, onFail, onCancel etc.
      */
     fun setEventProcessor(activity: ComponentActivity) {
         eventProcessor = object : DefaultCheckoutEventProcessor(activity) {
-            override fun onCheckoutCompleted(checkoutCompleteEvent: CheckoutCompleteEvent) {
+            override fun onComplete(checkoutCompleteEvent: CheckoutCompleteEvent) {
                 checkoutCompleted()
             }
 
-            override fun onCheckoutFailed(error: CheckoutException) {
+            override fun onFail(error: CheckoutException) {
                 checkoutFailed(error)
             }
 
-            override fun onCheckoutCanceled() {
+            override fun onCancel() {
                 checkoutCanceled()
             }
         }

@@ -54,11 +54,11 @@ class DefaultCheckoutEventProcessorTest {
     }
 
     @Test
-    fun `onCheckoutLinkClicked with http scheme launches action view intent with uri as data`() {
+    fun `onLinkClick with http scheme launches action view intent with uri as data`() {
         val processor = noopDefaultCheckoutEventProcessor(activity)
         val uri = Uri.parse("https://shopify.com")
 
-        processor.onCheckoutLinkClicked(uri)
+        processor.onLinkClick(uri)
 
         val intent = shadowActivity.peekNextStartedActivityForResult().intent
         assertThat(intent.data).isEqualTo(uri)
@@ -66,11 +66,11 @@ class DefaultCheckoutEventProcessorTest {
     }
 
     @Test
-    fun `onCheckoutLinkClicked with mailto scheme launches email intent with to address`() {
+    fun `onLinkClick with mailto scheme launches email intent with to address`() {
         val processor = noopDefaultCheckoutEventProcessor(activity)
         val uri = Uri.parse("mailto:test.user@shopify.com")
 
-        processor.onCheckoutLinkClicked(uri)
+        processor.onLinkClick(uri)
 
         val intent = shadowActivity.peekNextStartedActivityForResult().intent
         assertThat(intent.getStringArrayExtra(Intent.EXTRA_EMAIL)).isEqualTo(arrayOf("test.user@shopify.com"))
@@ -78,11 +78,11 @@ class DefaultCheckoutEventProcessorTest {
     }
 
     @Test
-    fun `onCheckoutLinkClicked with tel scheme launches action dial intent with phone number`() {
+    fun `onLinkClick with tel scheme launches action dial intent with phone number`() {
         val processor = noopDefaultCheckoutEventProcessor(activity)
         val uri = Uri.parse("tel:0123456789")
 
-        processor.onCheckoutLinkClicked(uri)
+        processor.onLinkClick(uri)
 
         val intent = shadowActivity.peekNextStartedActivityForResult().intent
         assertThat(intent.data).isEqualTo(uri)
@@ -90,7 +90,7 @@ class DefaultCheckoutEventProcessorTest {
     }
 
     @Test
-    fun `onCheckoutLinkedClick with known deep link scheme`() {
+    fun `onLinkClick with known deep link scheme`() {
         val uri = Uri.parse("geo:40.712776,-74.005974?q=Statue+of+Liberty")
 
         val pm: PackageManager = RuntimeEnvironment.getApplication().packageManager
@@ -102,7 +102,7 @@ class DefaultCheckoutEventProcessorTest {
         shadowPackageManager.addIntentFilterForActivity(activity.componentName, intentFilter)
 
         val processor = noopDefaultCheckoutEventProcessor(activity)
-        processor.onCheckoutLinkClicked(uri)
+        processor.onLinkClick(uri)
 
         val intent = shadowActivity.nextStartedActivity
         assertThat(intent.data).isEqualTo(uri)
@@ -110,46 +110,46 @@ class DefaultCheckoutEventProcessorTest {
     }
 
     @Test
-    fun `onCheckoutLinkedClick with unhandled scheme logs warning`() {
+    fun `onLinkClick with unhandled scheme logs warning`() {
         val log = mock<LogWrapper>()
         val processor = noopDefaultCheckoutEventProcessor(activity, log)
 
         val uri = Uri.parse("ftp:random")
 
-        processor.onCheckoutLinkClicked(uri)
+        processor.onLinkClick(uri)
 
         assertThat(shadowActivity.peekNextStartedActivityForResult()).isNull()
         verify(log).w("DefaultCheckoutEventProcessor", "Unrecognized scheme for link clicked in checkout 'ftp:random'")
     }
 
     @Test
-    fun `onCheckoutFailed returns an error description`() {
+    fun `onFail returns an error description`() {
         val log = mock<LogWrapper>()
         var description = ""
         var recoverable: Boolean? = null
         val processor =
             object : DefaultCheckoutEventProcessor(activity, log) {
-                override fun onCheckoutCompleted(checkoutCompleteEvent: CheckoutCompleteEvent) {
+                override fun onComplete(checkoutCompleteEvent: CheckoutCompleteEvent) {
                     /* not implemented */
                 }
 
-                override fun onCheckoutFailed(error: CheckoutException) {
+                override fun onFail(error: CheckoutException) {
                     description = error.errorDescription
                     recoverable = error.isRecoverable
                 }
 
-                override fun onCheckoutCanceled() {
+                override fun onCancel() {
                     /* not implemented */
                 }
 
-                override fun onCheckoutAddressChangeStart(event: CheckoutAddressChangeStart) {
+                override fun onAddressChangeStart(event: CheckoutAddressChangeStart) {
                     /* not implemented */
                 }
             }
 
         val error = object : CheckoutUnavailableException("error description", "unknown", true) {}
 
-        processor.onCheckoutFailed(error)
+        processor.onFail(error)
 
         assertThat(description).isEqualTo("error description")
         assertThat(recoverable).isTrue()

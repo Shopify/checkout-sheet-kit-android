@@ -43,22 +43,22 @@ public class InteropTest {
         try (ActivityController<ComponentActivity> controller = Robolectric.buildActivity(ComponentActivity.class)) {
             DefaultCheckoutEventProcessor processor = new DefaultCheckoutEventProcessor(controller.get()) {
                 @Override
-                public void onCheckoutCompleted(@NonNull CheckoutCompleteEvent checkoutCompletedEvent) {
+                public void onComplete(@NonNull CheckoutCompleteEvent checkoutCompletedEvent) {
 
                 }
 
                 @Override
-                public void onCheckoutFailed(@NonNull CheckoutException error) {
+                public void onFail(@NonNull CheckoutException error) {
 
                 }
 
                 @Override
-                public void onCheckoutCanceled() {
+                public void onCancel() {
 
                 }
 
                 @Override
-                public void onCheckoutAddressChangeStart(@NonNull CheckoutAddressChangeStart event) {
+                public void onAddressChangeStart(@NonNull CheckoutAddressChangeStart event) {
 
                 }
             };
@@ -108,22 +108,22 @@ public class InteropTest {
                     activity,
                     new DefaultCheckoutEventProcessor(activity) {
                         @Override
-                        public void onCheckoutCompleted(@NonNull CheckoutCompleteEvent checkoutCompletedEvent) {
+                        public void onComplete(@NonNull CheckoutCompleteEvent checkoutCompletedEvent) {
                             // do nothing
                         }
 
                         @Override
-                        public void onCheckoutFailed(@NonNull CheckoutException error) {
+                        public void onFail(@NonNull CheckoutException error) {
                             // do nothing
                         }
 
                         @Override
-                        public void onCheckoutCanceled() {
+                        public void onCancel() {
                             // do nothing
                         }
 
                         @Override
-                        public void onCheckoutAddressChangeStart(@NonNull CheckoutAddressChangeStart event) {
+                        public void onAddressChangeStart(@NonNull CheckoutAddressChangeStart event) {
                             // do nothing
                         }
                     }

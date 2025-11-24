@@ -44,12 +44,12 @@ public interface CheckoutEventProcessor {
      * Event triggered when checkout starts.
      * Provides the initial cart state at the beginning of the checkout flow.
      */
-    public fun onCheckoutStarted(checkoutStartEvent: CheckoutStartEvent)
+    public fun onStart(checkoutStartEvent: CheckoutStartEvent)
 
     /**
      * Event representing the successful completion of a checkout.
      */
-    public fun onCheckoutCompleted(checkoutCompleteEvent: CheckoutCompleteEvent)
+    public fun onComplete(checkoutCompleteEvent: CheckoutCompleteEvent)
 
     /**
      * Event representing an error that occurred during checkout. This can be used to display
@@ -58,18 +58,18 @@ public interface CheckoutEventProcessor {
      * @param error - the CheckoutErrorException that occurred
      * @see Exception
      */
-    public fun onCheckoutFailed(error: CheckoutException)
+    public fun onFail(error: CheckoutException)
 
     /**
      * Event representing the cancellation/closing of checkout by the buyer
      */
-    public fun onCheckoutCanceled()
+    public fun onCancel()
 
     /**
      * Event indicating that a link has been clicked within checkout that should be opened outside
      * of the WebView, e.g. in a system browser or email client. Protocols can be http/https/mailto/tel
      */
-    public fun onCheckoutLinkClicked(uri: Uri)
+    public fun onLinkClick(uri: Uri)
 
     /**
      * A permission has been requested by the web chrome client, e.g. to access the camera
@@ -104,23 +104,26 @@ public interface CheckoutEventProcessor {
      * By default the request is cancelled. Override to present custom UI and provide a response
      * via [CheckoutAddressChangeStart.respondWith] or cancel explicitly.
      */
-    public fun onCheckoutAddressChangeStart(event: CheckoutAddressChangeStart)
+    public fun onAddressChangeStart(event: CheckoutAddressChangeStart)
 }
 
 internal class NoopEventProcessor : CheckoutEventProcessor {
-    override fun onCheckoutStarted(checkoutStartEvent: CheckoutStartEvent) {/* noop */
+    override fun onStart(checkoutStartEvent: CheckoutStartEvent) {/* noop */
     }
 
-    override fun onCheckoutCompleted(checkoutCompleteEvent: CheckoutCompleteEvent) {/* noop */
+    override fun onComplete(checkoutCompleteEvent: CheckoutCompleteEvent) {/* noop */
     }
 
-    override fun onCheckoutFailed(error: CheckoutException) {/* noop */
+    override fun onFail(error: CheckoutException) {/* noop */
     }
 
-    override fun onCheckoutCanceled() {/* noop */
+    override fun onCancel() {/* noop */
     }
 
-    override fun onCheckoutLinkClicked(uri: Uri) {/* noop */
+    override fun onLinkClick(uri: Uri) {/* noop */
+    }
+
+    override fun onAddressChangeStart(event: CheckoutAddressChangeStart) {/* noop */
     }
 
     override fun onShowFileChooser(
@@ -139,9 +142,6 @@ internal class NoopEventProcessor : CheckoutEventProcessor {
 
     override fun onGeolocationPermissionsHidePrompt() {/* noop */
     }
-
-    override fun onCheckoutAddressChangeStart(event: CheckoutAddressChangeStart) {/* noop */
-    }
 }
 
 /**
@@ -154,11 +154,11 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
     private val log: LogWrapper = LogWrapper(),
 ) : CheckoutEventProcessor {
 
-    override fun onCheckoutStarted(checkoutStartEvent: CheckoutStartEvent) {
+    override fun onStart(checkoutStartEvent: CheckoutStartEvent) {
         // no-op, override to implement
     }
 
-    override fun onCheckoutLinkClicked(uri: Uri) {
+    override fun onLinkClick(uri: Uri) {
         when (uri.scheme) {
             "tel" -> context.launchPhoneApp(uri.schemeSpecificPart)
             "mailto" -> context.launchEmailApp(uri.schemeSpecificPart)
@@ -187,7 +187,7 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
         // no-op override to implement
     }
 
-    override fun onCheckoutAddressChangeStart(event: CheckoutAddressChangeStart) {
+    override fun onAddressChangeStart(event: CheckoutAddressChangeStart) {
         // no-op override to implement
     }
 

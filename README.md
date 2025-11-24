@@ -398,17 +398,22 @@ Extend the `DefaultCheckoutEventProcessor` abstract class to register callbacks 
 
 ```kotlin
 val processor = object : DefaultCheckoutEventProcessor(activity) {
-    override fun onCheckoutCompleted(checkoutCompleteEvent: CheckoutCompleteEvent) {
+    override fun onStart(checkoutStartEvent: CheckoutStartEvent) {
+        // Called when checkout starts.
+        // Provides the initial cart state at the beginning of the checkout flow.
+    }
+
+    override fun onComplete(checkoutCompleteEvent: CheckoutCompleteEvent) {
         // Called when the checkout was completed successfully by the buyer.
         // Use this to update UI, reset cart state, etc.
     }
 
-    override fun onCheckoutCanceled() {
+    override fun onCancel() {
         // Called when the checkout was canceled by the buyer.
         // Note: This will also be received after closing a completed checkout
     }
 
-    override fun onCheckoutFailed(error: CheckoutException) {
+    override fun onFail(error: CheckoutException) {
         // Called when the checkout encountered an error and has been aborted.
     }
 
@@ -469,9 +474,9 @@ In the event of a checkout error occurring, the Checkout Kit _may_ attempt to re
 There are some caveats to note when this scenario occurs:
 
 1. The checkout experience may look different to buyers. Though the sheet kit will attempt to load any checkout customizations for the storefront, there is no guarantee they will show in recovery mode.
-2. The `onCheckoutCompleted(checkoutCompleteEvent: CheckoutCompleteEvent)` will be emitted with partial data. Invocations will only receive the order ID via `checkoutCompleteEvent.orderConfirmation.order.id`.
+2. The `onComplete(checkoutCompleteEvent: CheckoutCompleteEvent)` will be emitted with partial data. Invocations will only receive the order ID via `checkoutCompleteEvent.orderConfirmation.order.id`.
 
-Should you wish to opt-out of this fallback experience entirely, you can do so by overriding `shouldRecoverFromError`. Errors given to the `onCheckoutFailed(error: CheckoutException)` lifecycle method will contain an `isRecoverable` property by default indicating whether the request should be retried or not.
+Should you wish to opt-out of this fallback experience entirely, you can do so by overriding `shouldRecoverFromError`. Errors given to the `onFail(error: CheckoutException)` lifecycle method will contain an `isRecoverable` property by default indicating whether the request should be retried or not.
 
 `preRecoveryActions()` can also be overridden to execute code before a fallback takes place, for example to add logging, or clear up any potentially problematic state such as in cookies. By default this function is a no-op.
 

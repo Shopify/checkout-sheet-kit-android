@@ -52,7 +52,7 @@ class MobileBuyEventProcessor(
     private val context: Context,
     private val eventStore: com.shopify.checkout_sdk_mobile_buy_integration_sample.checkout.CheckoutEventStore
 ) : DefaultCheckoutEventProcessor(context) {
-    override fun onCheckoutCompleted(checkoutCompleteEvent: CheckoutCompleteEvent) {
+    override fun onComplete(checkoutCompleteEvent: CheckoutCompleteEvent) {
         logger.log(checkoutCompleteEvent)
 
         cartViewModel.clearCart()
@@ -61,7 +61,7 @@ class MobileBuyEventProcessor(
         }
     }
 
-    override fun onCheckoutFailed(error: CheckoutException) {
+    override fun onFail(error: CheckoutException) {
         logger.log("Checkout failed", error)
 
         if (!error.isRecoverable) {
@@ -76,7 +76,7 @@ class MobileBuyEventProcessor(
         }
     }
 
-    override fun onCheckoutCanceled() {
+    override fun onCancel() {
         // optionally respond to checkout being canceled/closed
         logger.log("Checkout canceled")
     }
@@ -85,7 +85,7 @@ class MobileBuyEventProcessor(
         return (context as MainActivity).onGeolocationPermissionsShowPrompt(origin, callback)
     }
 
-    override fun onCheckoutAddressChangeStart(event: CheckoutAddressChangeStart) {
+    override fun onAddressChangeStart(event: CheckoutAddressChangeStart) {
         val eventId = eventStore.storeEvent(event)
 
         GlobalScope.launch(Dispatchers.Main) {

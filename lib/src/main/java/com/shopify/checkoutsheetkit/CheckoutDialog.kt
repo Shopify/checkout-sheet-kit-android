@@ -103,7 +103,7 @@ internal class CheckoutDialog(
         setOnCancelListener {
             log.d(LOG_TAG, "Cancel listener invoked, invoking onCheckoutCanceled.")
             CheckoutWebViewContainer.retainCacheEntry = RetainCacheEntry.IF_NOT_STALE
-            checkoutEventProcessor.onCheckoutCanceled()
+            checkoutEventProcessor.onCancel()
         }
 
         setOnDismissListener {
@@ -191,7 +191,7 @@ internal class CheckoutDialog(
     internal fun closeCheckoutDialogWithError(exception: CheckoutException) {
         log.d(LOG_TAG, "Closing dialog with error, marking cache entry stale, calling onCheckoutFailed.")
         CheckoutWebView.markCacheEntryStale()
-        checkoutEventProcessor.onCheckoutFailed(exception)
+        checkoutEventProcessor.onFail(exception)
 
         val isOneTimeUseUrl = this.checkoutUrl.isOneTimeUse()
         val shouldRecover = ShopifyCheckoutSheetKit.configuration.errorRecovery.shouldRecoverFromError(exception)
