@@ -153,15 +153,15 @@ Authentication tokens should be fetched from your authentication endpoint using 
 suspend fun fetchAuthToken(): String {
     // POST to your auth endpoint with client credentials
     val response = httpClient.post(authEndpoint) {
-        body = {
-            "client_id": clientId,
-            "client_secret": clientSecret,
-            "grant_type": "client_credentials"
-        }
+        setBody(mapOf(
+            "client_id" to clientId,
+            "client_secret" to clientSecret,
+            "grant_type" to "client_credentials"
+        ))
     }
 
     // Parse and return the JWT access token
-    return response.json().accessToken
+    return response.body<AuthTokenResponse>().accessToken
 }
 ```
 
@@ -232,7 +232,7 @@ val automatic = ColorScheme.Automatic(
     ),
     darkColors = Colors(
         headerBackground = Color.ResourceId(R.color.headerDark),
-        headerFont = Color.ResourceId(R.color.headerFontDark,
+        headerFont = Color.ResourceId(R.color.headerFontDark),
         webViewBackground = Color.ResourceId(R.color.webViewBgDark),
         progressIndicator = Color.ResourceId(R.color.indicatorDark),
     )
