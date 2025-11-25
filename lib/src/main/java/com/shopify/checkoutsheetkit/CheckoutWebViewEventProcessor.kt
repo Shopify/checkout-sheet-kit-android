@@ -48,7 +48,7 @@ public class CheckoutWebViewEventProcessor(
 ) {
     internal fun onCheckoutViewStart(checkoutStartEvent: CheckoutStartEvent) {
         log.d(LOG_TAG, "Calling onCheckoutStarted $checkoutStartEvent.")
-        eventProcessor.onCheckoutStarted(checkoutStartEvent)
+        eventProcessor.onStart(checkoutStartEvent)
     }
 
     internal fun onCheckoutViewComplete(checkoutCompleteEvent: CheckoutCompleteEvent) {
@@ -56,7 +56,7 @@ public class CheckoutWebViewEventProcessor(
         CheckoutWebView.markCacheEntryStale()
 
         log.d(LOG_TAG, "Calling onCheckoutCompleted $checkoutCompleteEvent.")
-        eventProcessor.onCheckoutCompleted(checkoutCompleteEvent)
+        eventProcessor.onComplete(checkoutCompleteEvent)
     }
 
     internal fun onCheckoutViewModalToggled(modalVisible: Boolean) {
@@ -67,7 +67,7 @@ public class CheckoutWebViewEventProcessor(
 
     internal fun onCheckoutViewLinkClicked(uri: Uri) {
         log.d(LOG_TAG, "Calling onCheckoutLinkClicked.")
-        eventProcessor.onCheckoutLinkClicked(uri)
+        eventProcessor.onLinkClick(uri)
     }
 
     internal fun onCheckoutViewFailedWithError(error: CheckoutException) {
@@ -118,7 +118,7 @@ public class CheckoutWebViewEventProcessor(
 
     internal fun onCheckoutAddressChangeStart(event: CheckoutAddressChangeStart) {
         onMainThread {
-            eventProcessor.onCheckoutAddressChangeStart(event)
+            eventProcessor.onAddressChangeStart(event)
         }
     }
 

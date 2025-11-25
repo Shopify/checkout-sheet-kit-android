@@ -68,7 +68,7 @@ class CheckoutWebViewClientTest {
         val overridden = webViewClient.shouldOverrideUrlLoading(view, mockRequest)
 
         assertThat(overridden).isTrue
-        verify(mockEventProcessor).onCheckoutLinkClicked(mockRequest.url)
+        verify(mockEventProcessor).onLinkClick(mockRequest.url)
     }
 
     @Test
@@ -80,7 +80,7 @@ class CheckoutWebViewClientTest {
         val overridden = webViewClient.shouldOverrideUrlLoading(view, mockRequest)
 
         assertThat(overridden).isTrue
-        verify(mockEventProcessor).onCheckoutLinkClicked(mockRequest.url)
+        verify(mockEventProcessor).onLinkClick(mockRequest.url)
     }
 
     @Test
@@ -92,7 +92,7 @@ class CheckoutWebViewClientTest {
         val overridden = webViewClient.shouldOverrideUrlLoading(view, mockRequest)
 
         assertThat(overridden).isTrue
-        verify(mockEventProcessor).onCheckoutLinkClicked(mockRequest.url)
+        verify(mockEventProcessor).onLinkClick(mockRequest.url)
     }
 
     @Test
@@ -104,7 +104,7 @@ class CheckoutWebViewClientTest {
         val overridden = webViewClient.shouldOverrideUrlLoading(view, mockRequest)
 
         assertThat(overridden).isFalse()
-        verify(mockEventProcessor, never()).onCheckoutLinkClicked(any())
+        verify(mockEventProcessor, never()).onLinkClick(any())
     }
 
     @Test
@@ -116,7 +116,7 @@ class CheckoutWebViewClientTest {
         val overridden = webViewClient.shouldOverrideUrlLoading(view, mockRequest)
 
         assertThat(overridden).isFalse
-        verify(mockEventProcessor, never()).onCheckoutLinkClicked(mockRequest.url)
+        verify(mockEventProcessor, never()).onLinkClick(mockRequest.url)
     }
 
     @Test
@@ -296,7 +296,7 @@ class CheckoutWebViewClientTest {
         val overridden = webViewClient.shouldOverrideUrlLoading(view, mockRequest)
 
         assertThat(overridden).isTrue
-        verify(mockEventProcessor).onCheckoutLinkClicked(Uri.parse("$host?random_param=1"))
+        verify(mockEventProcessor).onLinkClick(Uri.parse("$host?random_param=1"))
     }
 
     @Test

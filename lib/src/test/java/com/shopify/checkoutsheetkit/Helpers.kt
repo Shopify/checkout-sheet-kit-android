@@ -98,19 +98,19 @@ class CheckoutExceptionAssert(actual: CheckoutException) :
 
 fun noopDefaultCheckoutEventProcessor(activity: Activity, log: LogWrapper = LogWrapper()): DefaultCheckoutEventProcessor {
     return object : DefaultCheckoutEventProcessor(activity, log) {
-        override fun onCheckoutCompleted(checkoutCompleteEvent: CheckoutCompleteEvent) {
+        override fun onComplete(checkoutCompleteEvent: CheckoutCompleteEvent) {
             // no-op
         }
 
-        override fun onCheckoutFailed(error: CheckoutException) {
+        override fun onFail(error: CheckoutException) {
             // no-op
         }
 
-        override fun onCheckoutCanceled() {
+        override fun onCancel() {
             // no-op
         }
 
-        override fun onCheckoutAddressChangeStart(event: CheckoutAddressChangeStart) {
+        override fun onAddressChangeStart(event: CheckoutAddressChangeStart) {
             // no-op
         }
     }

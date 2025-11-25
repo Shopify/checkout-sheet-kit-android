@@ -51,17 +51,17 @@ class CheckoutNavEventProcessor(
     private val logger: Logger,
 ) : DefaultCheckoutEventProcessor(context) {
 
-    override fun onCheckoutStarted(checkoutStartEvent: CheckoutStartEvent) {
+    override fun onStart(checkoutStartEvent: CheckoutStartEvent) {
         Timber.d("Checkout start: $checkoutStartEvent")
         logger.log(checkoutStartEvent)
     }
 
-    override fun onCheckoutCompleted(checkoutCompleteEvent: CheckoutCompleteEvent) {
+    override fun onComplete(checkoutCompleteEvent: CheckoutCompleteEvent) {
         Timber.d("Checkout complete: $checkoutCompleteEvent")
         logger.log(checkoutCompleteEvent)
     }
 
-    override fun onCheckoutFailed(error: CheckoutException) {
+    override fun onFail(error: CheckoutException) {
         Timber.e(error, "Checkout failed: $error")
 
         // No fallback in inline flow - navigate back and show error
@@ -77,11 +77,11 @@ class CheckoutNavEventProcessor(
         }
     }
 
-    override fun onCheckoutCanceled() {
+    override fun onCancel() {
         Timber.d("Checkout canceled")
     }
 
-    override fun onCheckoutAddressChangeStart(event: CheckoutAddressChangeStart) {
+    override fun onAddressChangeStart(event: CheckoutAddressChangeStart) {
         Timber.d("Address change start: $event")
 
         // Store event and get ID
