@@ -521,7 +521,7 @@ class CheckoutDialogTest {
 
     @Test
     fun `present with CheckoutOptions includes authentication in embed parameter`() {
-        val options = CheckoutOptions(authToken = "test-token-123")
+        val options = CheckoutOptions(authentication = "test-token-123")
 
         ShopifyCheckoutSheetKit.present("https://shopify.com", activity, processor, options)
 

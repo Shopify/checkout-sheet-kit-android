@@ -51,7 +51,7 @@ internal class FallbackWebView(context: Context, attributeSet: AttributeSet? = n
     fun loadCheckout(url: String, options: CheckoutOptions? = checkoutOptions) {
         checkoutOptions = options
 
-        val includeAuthentication = authenticationTracker.shouldSendToken(checkoutOptions?.authToken)
+        val includeAuthentication = authenticationTracker.shouldSendToken(checkoutOptions?.authentication)
 
         loadUrl(
             url.toUri().withEmbedParam(

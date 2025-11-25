@@ -127,8 +127,8 @@ class CheckoutWebViewCacheTest {
     @Test
     fun `cache reuses view when only authentication changes`() {
         withPreloadingEnabled {
-            val authOne = CheckoutOptions(authToken = "token-1")
-            val authTwo = CheckoutOptions(authToken = "token-2")
+            val authOne = CheckoutOptions(authentication = "token-1")
+            val authTwo = CheckoutOptions(authentication = "token-2")
 
             val view = CheckoutWebView.cacheableCheckoutView(URL, activity, true, authOne)
             shadowOf(Looper.getMainLooper()).runToEndOfTasks()
