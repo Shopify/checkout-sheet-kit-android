@@ -22,14 +22,17 @@
  */
 package com.shopify.checkoutsheetkit
 
+import com.shopify.checkoutsheetkit.lifecycleevents.CardBrand
 import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryAddressInput
+import com.shopify.checkoutsheetkit.lifecycleevents.CartInput
+import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentInstrumentInput
+import com.shopify.checkoutsheetkit.lifecycleevents.ResponseError
 import com.shopify.checkoutsheetkit.rpc.RPCRequestRegistry
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutPaymentMethodChangeStart
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
-import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -40,16 +43,30 @@ import org.robolectric.annotation.Config
 class CheckoutPaymentMethodChangeStartTest {
 
     @Test
-    fun `test decode CheckoutPaymentMethodChangeStart with currentCard`() {
+    fun `test decode CheckoutPaymentMethodChangeStart with cart`() {
         val json = """
             {
                 "jsonrpc": "2.0",
                 "id": "test-123",
                 "method": "checkout.paymentMethodChangeStart",
                 "params": {
-                    "currentCard": {
-                        "last4": "4242",
-                        "brand": "visa"
+                    "cart": {
+                        "id": "cart-123",
+                        "lines": [],
+                        "cost": {
+                            "subtotalAmount": {"amount": "100.00", "currencyCode": "USD"},
+                            "totalAmount": {"amount": "100.00", "currencyCode": "USD"}
+                        },
+                        "buyerIdentity": {},
+                        "deliveryGroups": [],
+                        "discountCodes": [],
+                        "appliedGiftCards": [],
+                        "discountAllocations": [],
+                        "delivery": {"addresses": []},
+                        "paymentInstruments": [
+                            {"identifier": "instrument-1"},
+                            {"identifier": "instrument-2"}
+                        ]
                     }
                 }
             }
@@ -62,18 +79,35 @@ class CheckoutPaymentMethodChangeStartTest {
 
         val request = decoded as CheckoutPaymentMethodChangeStart
         assertEquals("test-123", request.id)
-        assertEquals("4242", request.params.currentCard?.last4)
-        assertEquals("visa", request.params.currentCard?.brand)
+        assertEquals("cart-123", request.params.cart.id)
+        assertEquals(2, request.params.cart.paymentInstruments.size)
+        assertEquals("instrument-1", request.params.cart.paymentInstruments[0].identifier)
+        assertEquals("instrument-2", request.params.cart.paymentInstruments[1].identifier)
     }
 
     @Test
-    fun `test decode CheckoutPaymentMethodChangeStart without currentCard`() {
+    fun `test decode CheckoutPaymentMethodChangeStart with empty paymentInstruments`() {
         val json = """
             {
                 "jsonrpc": "2.0",
                 "id": "test-456",
                 "method": "checkout.paymentMethodChangeStart",
-                "params": {}
+                "params": {
+                    "cart": {
+                        "id": "cart-456",
+                        "lines": [],
+                        "cost": {
+                            "subtotalAmount": {"amount": "50.00", "currencyCode": "CAD"},
+                            "totalAmount": {"amount": "50.00", "currencyCode": "CAD"}
+                        },
+                        "buyerIdentity": {},
+                        "deliveryGroups": [],
+                        "discountCodes": [],
+                        "appliedGiftCards": [],
+                        "discountAllocations": [],
+                        "delivery": {"addresses": []}
+                    }
+                }
             }
         """.trimIndent()
 
@@ -84,7 +118,8 @@ class CheckoutPaymentMethodChangeStartTest {
 
         val request = decoded as CheckoutPaymentMethodChangeStart
         assertEquals("test-456", request.id)
-        assertNull(request.params.currentCard)
+        assertEquals("cart-456", request.params.cart.id)
+        assertTrue(request.params.cart.paymentInstruments.isEmpty())
     }
 
     @Test
@@ -95,9 +130,20 @@ class CheckoutPaymentMethodChangeStartTest {
                 "id": "test-789",
                 "method": "checkout.paymentMethodChangeStart",
                 "params": {
-                    "currentCard": {
-                        "last4": "1234",
-                        "brand": "mastercard"
+                    "cart": {
+                        "id": "cart-789",
+                        "lines": [],
+                        "cost": {
+                            "subtotalAmount": {"amount": "25.00", "currencyCode": "USD"},
+                            "totalAmount": {"amount": "25.00", "currencyCode": "USD"}
+                        },
+                        "buyerIdentity": {},
+                        "deliveryGroups": [],
+                        "discountCodes": [],
+                        "appliedGiftCards": [],
+                        "discountAllocations": [],
+                        "delivery": {"addresses": []},
+                        "paymentInstruments": [{"identifier": "pi-abc"}]
                     }
                 }
             }
@@ -110,186 +156,182 @@ class CheckoutPaymentMethodChangeStartTest {
 
         val request = decoded as CheckoutPaymentMethodChangeStart
         assertEquals("test-789", request.id)
-        assertEquals("1234", request.params.currentCard?.last4)
-        assertEquals("mastercard", request.params.currentCard?.brand)
+        assertEquals("cart-789", request.params.cart.id)
+        assertEquals(1, request.params.cart.paymentInstruments.size)
+        assertEquals("pi-abc", request.params.cart.paymentInstruments[0].identifier)
     }
 
     @Test
     fun `test companion object provides correct method`() {
         assertEquals("checkout.paymentMethodChangeStart", CheckoutPaymentMethodChangeStart.method)
-        // Also test that instance method matches
+
+        val cart = createTestCart()
         val request = CheckoutPaymentMethodChangeStart(
             null,
-            CheckoutPaymentMethodChangeStartParams(null),
-            CheckoutPaymentMethodChangePayload.serializer()
+            CheckoutPaymentMethodChangeStartParams(cart),
+            CheckoutPaymentMethodChangeStartResponsePayload.serializer()
         )
         assertEquals("checkout.paymentMethodChangeStart", request.method)
     }
 
     @Test
     fun `test onCheckoutPaymentMethodChangeStart method name is consistent`() {
-        // Verify that the method name follows the CheckoutEventProcessor naming convention
-        // similar to onCheckoutAddressChangeStart
         assertEquals("checkout.paymentMethodChangeStart", CheckoutPaymentMethodChangeStart.method)
     }
 
     @Test
-    fun `test respondWith payload with useDeliveryAddress true`() {
-        val eventData = CheckoutPaymentMethodChangeStartParams(
-            currentCard = CurrentCard("4242", "visa")
-        )
+    fun `test respondWith payload with cart and payment instruments`() {
+        val cart = createTestCart()
+        val eventData = CheckoutPaymentMethodChangeStartParams(cart = cart)
         val request = CheckoutPaymentMethodChangeStart(
             id = "test-id",
             params = eventData,
-            responseSerializer = CheckoutPaymentMethodChangePayload.serializer()
+            responseSerializer = CheckoutPaymentMethodChangeStartResponsePayload.serializer()
         )
 
-        val payload = CheckoutPaymentMethodChangePayload(
-            card = PaymentCard(
-                last4 = "5678",
-                brand = "mastercard"
+        val payload = CheckoutPaymentMethodChangeStartResponsePayload(
+            cart = CartInput(
+                paymentInstruments = listOf(
+                    CartPaymentInstrumentInput(
+                        identifier = "new-instrument-123",
+                        lastDigits = "4242",
+                        cardHolderName = "John Doe",
+                        brand = CardBrand.VISA,
+                        expiryMonth = 12,
+                        expiryYear = 2025,
+                        billingAddress = CartDeliveryAddressInput(
+                            firstName = "John",
+                            lastName = "Doe",
+                            address1 = "123 Main St",
+                            city = "Toronto",
+                            countryCode = "CA",
+                            provinceCode = "ON",
+                            zip = "M5V 1A1"
+                        )
+                    )
+                )
             ),
-            billing = BillingInfo(
-                useDeliveryAddress = true,
-                address = null
-            )
+            errors = null
         )
 
-        // This will fail to send since no WebView is attached, but we're testing the flow
         request.respondWith(payload)
 
-        assertEquals("4242", request.params.currentCard?.last4)
-        assertEquals("visa", request.params.currentCard?.brand)
+        assertEquals("cart-id-123", request.params.cart.id)
     }
 
     @Test
-    fun `test respondWith payload with useDeliveryAddress false`() {
-        val eventData = CheckoutPaymentMethodChangeStartParams(null)
+    fun `test respondWith payload with errors`() {
+        val cart = createTestCart()
+        val eventData = CheckoutPaymentMethodChangeStartParams(cart = cart)
         val request = CheckoutPaymentMethodChangeStart(
             id = "test-id",
             params = eventData,
-            responseSerializer = CheckoutPaymentMethodChangePayload.serializer()
+            responseSerializer = CheckoutPaymentMethodChangeStartResponsePayload.serializer()
         )
 
-        val payload = CheckoutPaymentMethodChangePayload(
-            card = PaymentCard(
-                last4 = "5678",
-                brand = "amex"
-            ),
-            billing = BillingInfo(
-                useDeliveryAddress = false,
-                address = CartDeliveryAddressInput(
-                    firstName = "John",
-                    lastName = "Smith",
-                    address1 = "456 Oak St",
-                    city = "Vancouver",
-                    countryCode = "CA",
-                    provinceCode = "BC",
-                    zip = "V6B 2N2"
+        val payload = CheckoutPaymentMethodChangeStartResponsePayload(
+            cart = null,
+            errors = listOf(
+                ResponseError(
+                    code = "INVALID_PAYMENT_METHOD",
+                    message = "The selected payment method is not available",
+                    fieldTarget = "paymentInstruments"
                 )
             )
         )
 
-        // This will fail to send since no WebView is attached, but we're testing the flow
         request.respondWith(payload)
 
-        assertNull(request.params.currentCard)
+        assertNotNull(request.params.cart)
     }
 
     @Test
-    fun `test PaymentCard validation requires exactly 4 characters for last4`() {
-        assertThrows(IllegalArgumentException::class.java) {
-            PaymentCard(last4 = "123", brand = "visa")
-        }
-
-        assertThrows(IllegalArgumentException::class.java) {
-            PaymentCard(last4 = "12345", brand = "visa")
-        }
-
-        // Should not throw
-        val validCard = PaymentCard(last4 = "1234", brand = "visa")
-        assertEquals("1234", validCard.last4)
-    }
-
-    @Test
-    fun `test PaymentCard validation requires non-empty brand`() {
-        assertThrows(IllegalArgumentException::class.java) {
-            PaymentCard(last4 = "1234", brand = "")
-        }
-
-        // Should not throw
-        val validCard = PaymentCard(last4 = "1234", brand = "visa")
-        assertEquals("visa", validCard.brand)
-    }
-
-    @Test
-    fun `test BillingInfo validation requires address when useDeliveryAddress is false`() {
-        assertThrows(IllegalArgumentException::class.java) {
-            BillingInfo(useDeliveryAddress = false, address = null)
-        }
-
-        // Should not throw when useDeliveryAddress is true
-        val validBillingWithoutAddress = BillingInfo(useDeliveryAddress = true, address = null)
-        assertTrue(validBillingWithoutAddress.useDeliveryAddress)
-
-        // Should not throw when address is provided with useDeliveryAddress false
-        val validBillingWithAddress = BillingInfo(
-            useDeliveryAddress = false,
-            address = CartDeliveryAddressInput(firstName = "Test")
+    fun `test respondWith null cart is valid`() {
+        val cart = createTestCart()
+        val eventData = CheckoutPaymentMethodChangeStartParams(cart = cart)
+        val request = CheckoutPaymentMethodChangeStart(
+            id = "test-id",
+            params = eventData,
+            responseSerializer = CheckoutPaymentMethodChangeStartResponsePayload.serializer()
         )
-        assertEquals("Test", validBillingWithAddress.address?.firstName)
-    }
 
-    @Test
-    fun `test BillingInfo validation requires non-empty countryCode when provided`() {
-        assertThrows(IllegalArgumentException::class.java) {
-            BillingInfo(
-                useDeliveryAddress = false,
-                address = CartDeliveryAddressInput(countryCode = "")
-            )
-        }
-
-        // Should not throw when countryCode is null
-        val validBillingNullCountry = BillingInfo(
-            useDeliveryAddress = false,
-            address = CartDeliveryAddressInput(countryCode = null)
+        val payload = CheckoutPaymentMethodChangeStartResponsePayload(
+            cart = null,
+            errors = null
         )
-        assertNull(validBillingNullCountry.address?.countryCode)
 
-        // Should not throw when countryCode is non-empty
-        val validBillingWithCountry = BillingInfo(
-            useDeliveryAddress = false,
-            address = CartDeliveryAddressInput(countryCode = "CA")
-        )
-        assertEquals("CA", validBillingWithCountry.address?.countryCode)
+        request.respondWith(payload)
+
+        assertNotNull(request.params.cart)
     }
 
     @Test
     fun `test respondWith JSON string`() {
         val json = """
             {
-                "card": {
-                    "last4": "9876",
-                    "brand": "discover"
-                },
-                "billing": {
-                    "useDeliveryAddress": true
+                "cart": {
+                    "paymentInstruments": [
+                        {
+                            "identifier": "pi-json-123",
+                            "lastDigits": "1234",
+                            "cardHolderName": "Jane Smith",
+                            "brand": "MASTERCARD",
+                            "expiryMonth": 6,
+                            "expiryYear": 2026,
+                            "billingAddress": {
+                                "firstName": "Jane",
+                                "lastName": "Smith",
+                                "address1": "456 Oak Ave",
+                                "city": "Vancouver",
+                                "countryCode": "CA",
+                                "provinceCode": "BC",
+                                "zip": "V6B 2N2"
+                            }
+                        }
+                    ]
                 }
             }
         """.trimIndent()
 
-        val eventData = CheckoutPaymentMethodChangeStartParams(
-            currentCard = CurrentCard("1111", "visa")
-        )
+        val cart = createTestCart()
+        val eventData = CheckoutPaymentMethodChangeStartParams(cart = cart)
         val request = CheckoutPaymentMethodChangeStart(
             id = "test-id",
             params = eventData,
-            responseSerializer = CheckoutPaymentMethodChangePayload.serializer()
+            responseSerializer = CheckoutPaymentMethodChangeStartResponsePayload.serializer()
         )
 
-        // This will fail to send since no WebView is attached, but we're testing the parsing
         request.respondWith(json)
 
-        assertEquals("1111", request.params.currentCard?.last4)
+        assertEquals("cart-id-123", request.params.cart.id)
+    }
+
+    @Test
+    fun `test exposes cart from params`() {
+        val cart = createTestCart(
+            id = "exposed-cart-id",
+            totalAmount = "199.99"
+        )
+        val eventData = CheckoutPaymentMethodChangeStartParams(cart = cart)
+        val request = CheckoutPaymentMethodChangeStart(
+            id = "request-id",
+            params = eventData,
+            responseSerializer = CheckoutPaymentMethodChangeStartResponsePayload.serializer()
+        )
+
+        assertEquals("exposed-cart-id", request.params.cart.id)
+        assertEquals("199.99", request.params.cart.cost.totalAmount.amount)
+    }
+
+    @Test
+    fun `test CardBrand enum values`() {
+        assertEquals("VISA", CardBrand.VISA.name)
+        assertEquals("MASTERCARD", CardBrand.MASTERCARD.name)
+        assertEquals("AMERICAN_EXPRESS", CardBrand.AMERICAN_EXPRESS.name)
+        assertEquals("DISCOVER", CardBrand.DISCOVER.name)
+        assertEquals("DINERS_CLUB", CardBrand.DINERS_CLUB.name)
+        assertEquals("JCB", CardBrand.JCB.name)
+        assertEquals("MAESTRO", CardBrand.MAESTRO.name)
+        assertEquals("UNKNOWN", CardBrand.UNKNOWN.name)
     }
 }

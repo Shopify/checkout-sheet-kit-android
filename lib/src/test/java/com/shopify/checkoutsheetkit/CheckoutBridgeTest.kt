@@ -157,15 +157,13 @@ class CheckoutBridgeTest {
     }
 
     fun `postMessage dispatches payment method change start to event processor`() {
+        val cart = createTestCart()
         val jsonRpcMessage = """{
             "jsonrpc":"2.0",
             "id":"payment-request-1",
             "method":"checkout.paymentMethodChangeStart",
             "params":{
-                "currentCard":{
-                    "last4":"4242",
-                    "brand":"visa"
-                }
+                "cart":${Json.encodeToString(cart)}
             }
         }""".trimIndent()
 
@@ -175,8 +173,7 @@ class CheckoutBridgeTest {
         verify(mockEventProcessor).onCheckoutPaymentMethodChangeStart(eventCaptor.capture())
 
         val event = eventCaptor.firstValue
-        assertThat(event.params.currentCard?.last4).isEqualTo("4242")
-        assertThat(event.params.currentCard?.brand).isEqualTo("visa")
+        assertThat(event.params.cart.id).isEqualTo(cart.id)
     }
 
     @Test

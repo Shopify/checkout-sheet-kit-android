@@ -22,8 +22,8 @@
  */
 package com.shopify.checkoutsheetkit.rpc.events
 
-import com.shopify.checkoutsheetkit.CheckoutPaymentMethodChangePayload
 import com.shopify.checkoutsheetkit.CheckoutPaymentMethodChangeStartParams
+import com.shopify.checkoutsheetkit.CheckoutPaymentMethodChangeStartResponsePayload
 import com.shopify.checkoutsheetkit.rpc.RPCDecoder
 import com.shopify.checkoutsheetkit.rpc.RPCRequest
 import com.shopify.checkoutsheetkit.rpc.TypeErasedRPCDecodable
@@ -37,8 +37,8 @@ private const val PAYMENT_METHOD_CHANGE_START_METHOD = "checkout.paymentMethodCh
 public class CheckoutPaymentMethodChangeStart(
     id: String?,
     params: CheckoutPaymentMethodChangeStartParams,
-    responseSerializer: kotlinx.serialization.KSerializer<CheckoutPaymentMethodChangePayload>
-) : RPCRequest<CheckoutPaymentMethodChangeStartParams, CheckoutPaymentMethodChangePayload>(id, params, responseSerializer) {
+    responseSerializer: kotlinx.serialization.KSerializer<CheckoutPaymentMethodChangeStartResponsePayload>
+) : RPCRequest<CheckoutPaymentMethodChangeStartParams, CheckoutPaymentMethodChangeStartResponsePayload>(id, params, responseSerializer) {
 
     override val method: String = PAYMENT_METHOD_CHANGE_START_METHOD
 

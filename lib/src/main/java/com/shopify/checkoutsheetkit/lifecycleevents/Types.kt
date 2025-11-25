@@ -61,7 +61,8 @@ public data class Cart(
     public val discountCodes: List<CartDiscountCode> = emptyList(),
     public val appliedGiftCards: List<AppliedGiftCard> = emptyList(),
     public val discountAllocations: List<CartDiscountAllocation> = emptyList(),
-    public val delivery: CartDelivery
+    public val delivery: CartDelivery,
+    public val paymentInstruments: List<CartPaymentInstrument> = emptyList()
 )
 
 @Serializable
@@ -422,6 +423,9 @@ public data class CartInput(
 
     /** The case-insensitive discount codes that the customer added at checkout. */
     val discountCodes: List<String>? = null,
+
+    /** Payment instruments for the cart. */
+    val paymentInstruments: List<CartPaymentInstrumentInput>? = null,
 )
 
 /**
@@ -519,4 +523,47 @@ public data class Checkout(
      * The checkout session identifier
      */
     val id: String
+)
+
+@Serializable
+public enum class CardBrand {
+    @SerialName("VISA")
+    VISA,
+
+    @SerialName("MASTERCARD")
+    MASTERCARD,
+
+    @SerialName("AMERICAN_EXPRESS")
+    AMERICAN_EXPRESS,
+
+    @SerialName("DISCOVER")
+    DISCOVER,
+
+    @SerialName("DINERS_CLUB")
+    DINERS_CLUB,
+
+    @SerialName("JCB")
+    JCB,
+
+    @SerialName("MAESTRO")
+    MAESTRO,
+
+    @SerialName("UNKNOWN")
+    UNKNOWN
+}
+
+@Serializable
+public data class CartPaymentInstrument(
+    public val identifier: String
+)
+
+@Serializable
+public data class CartPaymentInstrumentInput(
+    val identifier: String,
+    val lastDigits: String,
+    val cardHolderName: String,
+    val brand: CardBrand,
+    val expiryMonth: Int,
+    val expiryYear: Int,
+    val billingAddress: CartDeliveryAddressInput
 )

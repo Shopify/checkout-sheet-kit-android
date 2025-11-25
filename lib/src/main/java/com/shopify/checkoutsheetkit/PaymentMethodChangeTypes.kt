@@ -22,72 +22,18 @@
  */
 package com.shopify.checkoutsheetkit
 
-import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryAddressInput
+import com.shopify.checkoutsheetkit.lifecycleevents.Cart
+import com.shopify.checkoutsheetkit.lifecycleevents.CartInput
+import com.shopify.checkoutsheetkit.lifecycleevents.ResponseError
 import kotlinx.serialization.Serializable
 
-/**
- * Types used for payment method change requests and responses.
- * These represent the data structures for communication with the checkout WebView.
- */
-
-/**
- * Represents the current card information sent from the WebView
- */
-@Serializable
-public data class CurrentCard(
-    val last4: String,
-    val brand: String,
-)
-
-/**
- * Parameters for the payment method change request
- */
 @Serializable
 public data class CheckoutPaymentMethodChangeStartParams(
-    val currentCard: CurrentCard? = null,
+    val cart: Cart
 )
 
-/**
- * Response payload for payment method change
- */
 @Serializable
-public data class CheckoutPaymentMethodChangePayload(
-    val card: PaymentCard,
-    val billing: BillingInfo,
+public data class CheckoutPaymentMethodChangeStartResponsePayload(
+    val cart: CartInput? = null,
+    val errors: List<ResponseError>? = null,
 )
-
-/**
- * Payment card information for the response
- */
-@Serializable
-public data class PaymentCard(
-    val last4: String,
-    val brand: String,
-) {
-    init {
-        require(last4.length == LAST_4_LENGTH) { "last4 must be exactly 4 characters" }
-        require(brand.isNotEmpty()) { "brand must not be empty" }
-    }
-
-    public companion object {
-        private const val LAST_4_LENGTH = 4
-    }
-}
-
-/**
- * Billing information for the payment method
- */
-@Serializable
-public data class BillingInfo(
-    val useDeliveryAddress: Boolean,
-    val address: CartDeliveryAddressInput? = null,
-) {
-    init {
-        if (!useDeliveryAddress) {
-            requireNotNull(address) { "address is required when useDeliveryAddress is false" }
-            address.countryCode?.let {
-                require(it.isNotEmpty()) { "countryCode cannot be empty when provided" }
-            }
-        }
-    }
-}
