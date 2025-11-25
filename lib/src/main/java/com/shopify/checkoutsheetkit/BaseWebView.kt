@@ -139,12 +139,13 @@ public abstract class BaseWebView(context: Context, attributeSet: AttributeSet? 
                 requestUri.needsEmbedParam(options = checkoutOptions)
             ) {
                 val headers = request.requestHeaders ?: mutableMapOf()
+                val includeAuthentication = checkoutOptions?.let {
+                    authenticationTracker.shouldRetainToken(it.authentication)
+                } ?: false
                 view?.loadUrl(
                     requestUri.withEmbedParam(
                         options = checkoutOptions,
-                        includeAuthentication = checkoutOptions?.authentication?.let {
-                            authenticationTracker.shouldRetainToken(it)
-                        } ?: false
+                        includeAuthentication = includeAuthentication
                     ),
                     headers
                 )

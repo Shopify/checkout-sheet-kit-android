@@ -95,7 +95,7 @@ public object ShopifyCheckoutSheetKit {
     public fun preload(
         checkoutUrl: String,
         context: ComponentActivity,
-        options: CheckoutOptions? = null,
+        options: CheckoutOptions = CheckoutOptions(),
     ) {
         log.d("ShopifyCheckoutSheetKit", "Preload called. Preloading enabled ${configuration.preloading.enabled}.")
         if (!configuration.preloading.enabled) return
@@ -136,7 +136,7 @@ public object ShopifyCheckoutSheetKit {
         checkoutUrl: String,
         context: ComponentActivity,
         checkoutEventProcessor: T,
-        options: CheckoutOptions? = null,
+        options: CheckoutOptions = CheckoutOptions(),
     ): CheckoutSheetKitDialog? {
         log.d("ShopifyCheckoutSheetKit", "Present called with checkoutUrl $checkoutUrl.")
         if (context.isDestroyed || context.isFinishing) {
