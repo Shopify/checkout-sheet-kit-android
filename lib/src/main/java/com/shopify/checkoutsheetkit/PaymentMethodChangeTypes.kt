@@ -43,7 +43,7 @@ public data class CurrentCard(
  * Parameters for the payment method change request
  */
 @Serializable
-public data class PaymentMethodChangeStartParams(
+public data class CheckoutPaymentMethodChangeStartParams(
     val currentCard: CurrentCard? = null,
 )
 
@@ -51,7 +51,7 @@ public data class PaymentMethodChangeStartParams(
  * Response payload for payment method change
  */
 @Serializable
-public data class PaymentMethodChangePayload(
+public data class CheckoutPaymentMethodChangePayload(
     val card: PaymentCard,
     val billing: BillingInfo,
 )

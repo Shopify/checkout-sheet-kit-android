@@ -35,7 +35,7 @@ import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutSubmitStart
-import com.shopify.checkoutsheetkit.rpc.events.PaymentMethodChangeStart
+import com.shopify.checkoutsheetkit.rpc.events.CheckoutPaymentMethodChangeStart
 
 /**
  * Event processor that can handle events internally, delegate to the CheckoutEventProcessor
@@ -131,9 +131,9 @@ public class CheckoutWebViewEventProcessor(
         }
     }
 
-    internal fun onPaymentMethodChangeStart(event: PaymentMethodChangeStart) {
+    internal fun onCheckoutPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStart) {
         onMainThread {
-            eventProcessor.onPaymentMethodChangeStart(event)
+            eventProcessor.onCheckoutPaymentMethodChangeStart(event)
         }
     }
 

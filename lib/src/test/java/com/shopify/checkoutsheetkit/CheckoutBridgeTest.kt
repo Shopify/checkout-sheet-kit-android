@@ -31,8 +31,8 @@ import com.shopify.checkoutsheetkit.lifecycleevents.CartSelectableAddressInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryAddressInput
 import com.shopify.checkoutsheetkit.lifecycleevents.PaymentTokenInput
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
+import com.shopify.checkoutsheetkit.rpc.events.CheckoutPaymentMethodChangeStart
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutSubmitStart
-import com.shopify.checkoutsheetkit.rpc.events.PaymentMethodChangeStart
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.After
@@ -153,6 +153,9 @@ class CheckoutBridgeTest {
             .contains("\"result\":")
             .contains("\"token\":\"tok_test_123\"")
             .contains("\"tokenType\":\"card\"")
+            .contains("\"tokenProvider\":\"delegated\"")
+    }
+
     fun `postMessage dispatches payment method change start to event processor`() {
         val jsonRpcMessage = """{
             "jsonrpc":"2.0",
@@ -168,8 +171,8 @@ class CheckoutBridgeTest {
 
         checkoutBridge.postMessage(jsonRpcMessage)
 
-        val eventCaptor = argumentCaptor<PaymentMethodChangeStart>()
-        verify(mockEventProcessor).onPaymentMethodChangeStart(eventCaptor.capture())
+        val eventCaptor = argumentCaptor<CheckoutPaymentMethodChangeStart>()
+        verify(mockEventProcessor).onCheckoutPaymentMethodChangeStart(eventCaptor.capture())
 
         val event = eventCaptor.firstValue
         assertThat(event.params.currentCard?.last4).isEqualTo("4242")

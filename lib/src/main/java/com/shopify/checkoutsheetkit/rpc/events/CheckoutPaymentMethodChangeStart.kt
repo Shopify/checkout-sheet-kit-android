@@ -22,8 +22,8 @@
  */
 package com.shopify.checkoutsheetkit.rpc.events
 
-import com.shopify.checkoutsheetkit.PaymentMethodChangePayload
-import com.shopify.checkoutsheetkit.PaymentMethodChangeStartParams
+import com.shopify.checkoutsheetkit.CheckoutPaymentMethodChangePayload
+import com.shopify.checkoutsheetkit.CheckoutPaymentMethodChangeStartParams
 import com.shopify.checkoutsheetkit.rpc.RPCDecoder
 import com.shopify.checkoutsheetkit.rpc.RPCRequest
 import com.shopify.checkoutsheetkit.rpc.TypeErasedRPCDecodable
@@ -34,16 +34,16 @@ private const val PAYMENT_METHOD_CHANGE_START_METHOD = "checkout.paymentMethodCh
  * RPC request for payment method change requests from checkout.
  * This replaces the deprecated CheckoutCardChangeRequested event.
  */
-public class PaymentMethodChangeStart(
+public class CheckoutPaymentMethodChangeStart(
     id: String?,
-    params: PaymentMethodChangeStartParams,
-    responseSerializer: kotlinx.serialization.KSerializer<PaymentMethodChangePayload>
-) : RPCRequest<PaymentMethodChangeStartParams, PaymentMethodChangePayload>(id, params, responseSerializer) {
+    params: CheckoutPaymentMethodChangeStartParams,
+    responseSerializer: kotlinx.serialization.KSerializer<CheckoutPaymentMethodChangePayload>
+) : RPCRequest<CheckoutPaymentMethodChangeStartParams, CheckoutPaymentMethodChangePayload>(id, params, responseSerializer) {
 
     override val method: String = PAYMENT_METHOD_CHANGE_START_METHOD
 
     public companion object : TypeErasedRPCDecodable by RPCDecoder.create(
         method = PAYMENT_METHOD_CHANGE_START_METHOD,
-        factory = ::PaymentMethodChangeStart
+        factory = ::CheckoutPaymentMethodChangeStart
     )
 }

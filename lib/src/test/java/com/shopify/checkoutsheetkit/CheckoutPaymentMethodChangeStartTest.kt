@@ -24,7 +24,7 @@ package com.shopify.checkoutsheetkit
 
 import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryAddressInput
 import com.shopify.checkoutsheetkit.rpc.RPCRequestRegistry
-import com.shopify.checkoutsheetkit.rpc.events.PaymentMethodChangeStart
+import com.shopify.checkoutsheetkit.rpc.events.CheckoutPaymentMethodChangeStart
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -37,10 +37,10 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [28])
-class PaymentMethodChangeStartTest {
+class CheckoutPaymentMethodChangeStartTest {
 
     @Test
-    fun `test decode PaymentMethodChangeStart with currentCard`() {
+    fun `test decode CheckoutPaymentMethodChangeStart with currentCard`() {
         val json = """
             {
                 "jsonrpc": "2.0",
@@ -55,19 +55,19 @@ class PaymentMethodChangeStartTest {
             }
         """.trimIndent()
 
-        val decoded = PaymentMethodChangeStart.Companion.decodeErased(json)
+        val decoded = CheckoutPaymentMethodChangeStart.Companion.decodeErased(json)
 
         assertNotNull(decoded)
-        assertTrue(decoded is PaymentMethodChangeStart)
+        assertTrue(decoded is CheckoutPaymentMethodChangeStart)
 
-        val request = decoded as PaymentMethodChangeStart
+        val request = decoded as CheckoutPaymentMethodChangeStart
         assertEquals("test-123", request.id)
         assertEquals("4242", request.params.currentCard?.last4)
         assertEquals("visa", request.params.currentCard?.brand)
     }
 
     @Test
-    fun `test decode PaymentMethodChangeStart without currentCard`() {
+    fun `test decode CheckoutPaymentMethodChangeStart without currentCard`() {
         val json = """
             {
                 "jsonrpc": "2.0",
@@ -77,18 +77,18 @@ class PaymentMethodChangeStartTest {
             }
         """.trimIndent()
 
-        val decoded = PaymentMethodChangeStart.Companion.decodeErased(json)
+        val decoded = CheckoutPaymentMethodChangeStart.Companion.decodeErased(json)
 
         assertNotNull(decoded)
-        assertTrue(decoded is PaymentMethodChangeStart)
+        assertTrue(decoded is CheckoutPaymentMethodChangeStart)
 
-        val request = decoded as PaymentMethodChangeStart
+        val request = decoded as CheckoutPaymentMethodChangeStart
         assertEquals("test-456", request.id)
         assertNull(request.params.currentCard)
     }
 
     @Test
-    fun `test registry can decode PaymentMethodChangeStart`() {
+    fun `test registry can decode CheckoutPaymentMethodChangeStart`() {
         val json = """
             {
                 "jsonrpc": "2.0",
@@ -106,9 +106,9 @@ class PaymentMethodChangeStartTest {
         val decoded = RPCRequestRegistry.decode(json)
 
         assertNotNull(decoded)
-        assertTrue(decoded is PaymentMethodChangeStart)
+        assertTrue(decoded is CheckoutPaymentMethodChangeStart)
 
-        val request = decoded as PaymentMethodChangeStart
+        val request = decoded as CheckoutPaymentMethodChangeStart
         assertEquals("test-789", request.id)
         assertEquals("1234", request.params.currentCard?.last4)
         assertEquals("mastercard", request.params.currentCard?.brand)
@@ -116,28 +116,35 @@ class PaymentMethodChangeStartTest {
 
     @Test
     fun `test companion object provides correct method`() {
-        assertEquals("checkout.paymentMethodChangeStart", PaymentMethodChangeStart.method)
+        assertEquals("checkout.paymentMethodChangeStart", CheckoutPaymentMethodChangeStart.method)
         // Also test that instance method matches
-        val request = PaymentMethodChangeStart(
+        val request = CheckoutPaymentMethodChangeStart(
             null,
-            PaymentMethodChangeStartParams(null),
-            PaymentMethodChangePayload.serializer()
+            CheckoutPaymentMethodChangeStartParams(null),
+            CheckoutPaymentMethodChangePayload.serializer()
         )
         assertEquals("checkout.paymentMethodChangeStart", request.method)
     }
 
     @Test
+    fun `test onCheckoutPaymentMethodChangeStart method name is consistent`() {
+        // Verify that the method name follows the CheckoutEventProcessor naming convention
+        // similar to onCheckoutAddressChangeStart
+        assertEquals("checkout.paymentMethodChangeStart", CheckoutPaymentMethodChangeStart.method)
+    }
+
+    @Test
     fun `test respondWith payload with useDeliveryAddress true`() {
-        val eventData = PaymentMethodChangeStartParams(
+        val eventData = CheckoutPaymentMethodChangeStartParams(
             currentCard = CurrentCard("4242", "visa")
         )
-        val request = PaymentMethodChangeStart(
+        val request = CheckoutPaymentMethodChangeStart(
             id = "test-id",
             params = eventData,
-            responseSerializer = PaymentMethodChangePayload.serializer()
+            responseSerializer = CheckoutPaymentMethodChangePayload.serializer()
         )
 
-        val payload = PaymentMethodChangePayload(
+        val payload = CheckoutPaymentMethodChangePayload(
             card = PaymentCard(
                 last4 = "5678",
                 brand = "mastercard"
@@ -157,14 +164,14 @@ class PaymentMethodChangeStartTest {
 
     @Test
     fun `test respondWith payload with useDeliveryAddress false`() {
-        val eventData = PaymentMethodChangeStartParams(null)
-        val request = PaymentMethodChangeStart(
+        val eventData = CheckoutPaymentMethodChangeStartParams(null)
+        val request = CheckoutPaymentMethodChangeStart(
             id = "test-id",
             params = eventData,
-            responseSerializer = PaymentMethodChangePayload.serializer()
+            responseSerializer = CheckoutPaymentMethodChangePayload.serializer()
         )
 
-        val payload = PaymentMethodChangePayload(
+        val payload = CheckoutPaymentMethodChangePayload(
             card = PaymentCard(
                 last4 = "5678",
                 brand = "amex"
@@ -271,13 +278,13 @@ class PaymentMethodChangeStartTest {
             }
         """.trimIndent()
 
-        val eventData = PaymentMethodChangeStartParams(
+        val eventData = CheckoutPaymentMethodChangeStartParams(
             currentCard = CurrentCard("1111", "visa")
         )
-        val request = PaymentMethodChangeStart(
+        val request = CheckoutPaymentMethodChangeStart(
             id = "test-id",
             params = eventData,
-            responseSerializer = PaymentMethodChangePayload.serializer()
+            responseSerializer = CheckoutPaymentMethodChangePayload.serializer()
         )
 
         // This will fail to send since no WebView is attached, but we're testing the parsing

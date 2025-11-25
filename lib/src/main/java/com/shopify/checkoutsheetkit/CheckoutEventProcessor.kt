@@ -36,6 +36,7 @@ import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutSubmitStart
 import com.shopify.checkoutsheetkit.rpc.events.PaymentMethodChangeStart
+import com.shopify.checkoutsheetkit.rpc.events.CheckoutPaymentMethodChangeStart
 
 /**
  * Interface to implement to allow responding to lifecycle events in checkout.
@@ -121,9 +122,9 @@ public interface CheckoutEventProcessor {
      * Called when checkout requests that the buyer change their payment method.
      *
      * By default the request is cancelled. Override to present custom UI and provide a response
-     * via [PaymentMethodChangeStart.respondWith] (or cancel explicitly).
+     * via [CheckoutPaymentMethodChangeStart.respondWith] (or cancel explicitly).
      */
-    public fun onPaymentMethodChangeStart(event: PaymentMethodChangeStart)
+    public fun onCheckoutPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStart)
 }
 
 internal class NoopEventProcessor : CheckoutEventProcessor {
@@ -168,7 +169,7 @@ internal class NoopEventProcessor : CheckoutEventProcessor {
     override fun onCheckoutAddressChangeStart(event: CheckoutAddressChangeStart) {/* noop */
     }
 
-    override fun onPaymentMethodChangeStart(event: PaymentMethodChangeStart) {/* noop */
+    override fun onCheckoutPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStart) {/* noop */
     }
 }
 
