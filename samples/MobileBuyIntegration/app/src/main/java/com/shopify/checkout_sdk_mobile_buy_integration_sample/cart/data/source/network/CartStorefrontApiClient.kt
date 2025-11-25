@@ -123,6 +123,27 @@ class CartStorefrontApiClient(
         executor.executeMutation(mutation, successCallback, failureCallback)
     }
 
+    fun cartDeliveryAddressesAdd(
+        cartId: ID,
+        deliveryAddresses: List<Storefront.CartSelectableAddressInput>,
+        successCallback: (GraphResponse<Storefront.Mutation>) -> Unit,
+        failureCallback: ((GraphError) -> Unit)? = {},
+    ) {
+        val mutation = Storefront.mutation { mutation ->
+            mutation.cartDeliveryAddressesAdd(cartId, deliveryAddresses) { payload ->
+                payload.cart { cartQuery ->
+                    cartQueryFragment(cartQuery)
+                }.userErrors { errors ->
+                    errors.message()
+                    errors.code()
+                    errors.field()
+                }
+            }
+        }
+
+        executor.executeMutation(mutation, successCallback, failureCallback)
+    }
+
     private fun cartQueryFragment(cartQuery: CartQuery): CartQuery {
         return cartQuery
             .checkoutUrl()
