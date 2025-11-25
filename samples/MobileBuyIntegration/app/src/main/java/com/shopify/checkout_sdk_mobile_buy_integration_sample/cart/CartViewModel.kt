@@ -117,7 +117,11 @@ class CartViewModel(
     ) = viewModelScope.launch {
         Timber.i("Presenting checkout with $url")
         val options = fetchCheckoutOptions()
-        ShopifyCheckoutSheetKit.present(url, activity, eventProcessor, options)
+        when {
+            options == null -> ShopifyCheckoutSheetKit.present(url, activity, eventProcessor)
+            else -> ShopifyCheckoutSheetKit.present(url, activity, eventProcessor, options)
+        }
+
     }
 
     fun preloadCheckout(
@@ -127,7 +131,11 @@ class CartViewModel(
         if (state is CartState.Cart) {
             Timber.i("Preloading checkout with url ${state.checkoutUrl}")
             val options = fetchCheckoutOptions()
-            ShopifyCheckoutSheetKit.preload(state.checkoutUrl, activity, options)
+            when  {
+                options == null -> ShopifyCheckoutSheetKit.preload(state.checkoutUrl, activity)
+                else -> ShopifyCheckoutSheetKit.preload(state.checkoutUrl, activity, options)
+            }
+
         } else {
             Timber.i("Skipping checkout preload, cart is empty")
         }
