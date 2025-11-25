@@ -151,8 +151,8 @@ class CheckoutDialogTest {
         dialog.cancel()
         shadowOf(Looper.getMainLooper()).runToEndOfTasks()
 
-        verify(mockEventProcessor).onCheckoutCanceled()
-        verify(mockEventProcessor, never()).onCheckoutFailed(any())
+        verify(mockEventProcessor).onCancel()
+        verify(mockEventProcessor, never()).onFail(any())
     }
 
     @Test
@@ -187,8 +187,8 @@ class CheckoutDialogTest {
         checkoutDialog.closeCheckoutDialogWithError(error)
         shadowOf(Looper.getMainLooper()).runToEndOfTasks()
 
-        verify(mockEventProcessor, never()).onCheckoutCanceled()
-        verify(mockEventProcessor).onCheckoutFailed(error)
+        verify(mockEventProcessor, never()).onCancel()
+        verify(mockEventProcessor).onFail(error)
     }
 
     @Test
@@ -205,8 +205,8 @@ class CheckoutDialogTest {
         // attemptToRecoverFromError creates a FallbackWebView and removes the CheckoutWebView
         assertThat(checkoutDialog.containsChildOfType(FallbackWebView::class.java)).isTrue()
         assertThat(checkoutDialog.containsChildOfType(CheckoutWebView::class.java)).isFalse()
-        verify(mockEventProcessor, never()).onCheckoutCanceled()
-        verify(mockEventProcessor).onCheckoutFailed(any())
+        verify(mockEventProcessor, never()).onCancel()
+        verify(mockEventProcessor).onFail(any())
     }
 
     @Test
@@ -223,8 +223,8 @@ class CheckoutDialogTest {
         // attemptToRecoverFromError creates a FallbackWebView and removes the CheckoutWebView
         assertThat(checkoutDialog.containsChildOfType(FallbackWebView::class.java)).isFalse()
         assertThat(checkoutDialog.containsChildOfType(CheckoutWebView::class.java)).isFalse()
-        verify(mockEventProcessor, never()).onCheckoutCanceled()
-        verify(mockEventProcessor).onCheckoutFailed(any())
+        verify(mockEventProcessor, never()).onCancel()
+        verify(mockEventProcessor).onFail(any())
     }
 
     @Test
@@ -249,8 +249,8 @@ class CheckoutDialogTest {
         // attemptToRecoverFromError creates a FallbackWebView and removes the CheckoutWebView
         assertThat(checkoutDialog.containsChildOfType(FallbackWebView::class.java)).isFalse()
         assertThat(checkoutDialog.containsChildOfType(CheckoutWebView::class.java)).isFalse()
-        verify(mockEventProcessor, never()).onCheckoutCanceled()
-        verify(mockEventProcessor).onCheckoutFailed(error)
+        verify(mockEventProcessor, never()).onCancel()
+        verify(mockEventProcessor).onFail(error)
     }
 
     @Test
@@ -266,7 +266,7 @@ class CheckoutDialogTest {
         header.menu.performIdentifierAction(R.id.checkoutSdkCloseBtn, 0)
         ShadowLooper.runUiThreadTasks()
 
-        verify(mockEventProcessor, timeout(2000)).onCheckoutCanceled()
+        verify(mockEventProcessor, timeout(2000)).onCancel()
     }
 
     @Test
@@ -383,7 +383,7 @@ class CheckoutDialogTest {
         val completeEvent = emptyCompleteEvent()
 
         fallbackView.getEventProcessor().onCheckoutViewComplete(completeEvent)
-        verify(mockProcessor).onCheckoutCompleted(completeEvent)
+        verify(mockProcessor).onComplete(completeEvent)
     }
 
     @Test
@@ -521,7 +521,7 @@ class CheckoutDialogTest {
 
     @Test
     fun `present with CheckoutOptions includes authentication in embed parameter`() {
-        val options = CheckoutOptions(authToken = "test-token-123")
+        val options = CheckoutOptions(authentication = Authentication.Token("test-token-123"))
 
         ShopifyCheckoutSheetKit.present("https://shopify.com", activity, processor, options)
 

@@ -78,7 +78,7 @@ class CheckoutWebViewContainerTest {
             val activity = activityController.get()
 
             val container = CheckoutWebViewContainer(activity)
-            val checkoutWebView = CheckoutWebView.cacheableCheckoutView("https://shopify.dev", activity)
+            val checkoutWebView = CheckoutWebView.cacheableCheckoutView("https://shopify.dev", activity, false, CheckoutOptions())
             val shadow = shadowOf(checkoutWebView)
 
             container.addView(checkoutWebView)
@@ -101,7 +101,7 @@ class CheckoutWebViewContainerTest {
                 val activity = activityController.get()
 
                 val container = CheckoutWebViewContainer(activity)
-                val checkoutWebView = CheckoutWebView.cacheableCheckoutView("https://shopify.dev", activity, true)
+                val checkoutWebView = CheckoutWebView.cacheableCheckoutView("https://shopify.dev", activity, true, CheckoutOptions())
                 val shadow = shadowOf(checkoutWebView)
 
                 container.addView(checkoutWebView)
@@ -125,7 +125,7 @@ class CheckoutWebViewContainerTest {
                 val activity = activityController.get()
 
                 val container = CheckoutWebViewContainer(activity)
-                val checkoutWebView = CheckoutWebView.cacheableCheckoutView("https://shopify.dev", activity, true)
+                val checkoutWebView = CheckoutWebView.cacheableCheckoutView("https://shopify.dev", activity, true, CheckoutOptions())
                 val shadow = shadowOf(checkoutWebView)
 
                 container.addView(checkoutWebView)
@@ -149,7 +149,7 @@ class CheckoutWebViewContainerTest {
                 val activity = activityController.get()
 
                 val container = CheckoutWebViewContainer(activity)
-                val checkoutWebView = CheckoutWebView.cacheableCheckoutView("https://shopify.dev", activity, true)
+                val checkoutWebView = CheckoutWebView.cacheableCheckoutView("https://shopify.dev", activity, true, CheckoutOptions())
                 val shadow = shadowOf(checkoutWebView)
 
                 container.addView(checkoutWebView)
@@ -175,7 +175,7 @@ class CheckoutWebViewContainerTest {
                 val activity = activityController.get()
 
                 val container = CheckoutWebViewContainer(activity)
-                val checkoutWebView = CheckoutWebView.cacheableCheckoutView("https://shopify.dev", activity, true)
+                val checkoutWebView = CheckoutWebView.cacheableCheckoutView("https://shopify.dev", activity, true, CheckoutOptions())
                 val shadow = shadowOf(checkoutWebView)
 
                 container.addView(checkoutWebView)

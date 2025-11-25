@@ -48,15 +48,15 @@ internal class FallbackWebView(context: Context, attributeSet: AttributeSet? = n
         this.checkoutEventProcessor = processor
     }
 
-    fun loadCheckout(url: String, options: CheckoutOptions? = checkoutOptions) {
+    fun loadCheckout(url: String, options: CheckoutOptions = CheckoutOptions()) {
         checkoutOptions = options
 
-        val includeAuthentication = authenticationTracker.shouldSendToken(checkoutOptions?.authToken)
+        val includeAuthentication = authenticationTracker.shouldSendToken(options.authentication)
 
         loadUrl(
             url.toUri().withEmbedParam(
                 isRecovery = true,
-                options = checkoutOptions,
+                options = options,
                 includeAuthentication = includeAuthentication
             )
         )

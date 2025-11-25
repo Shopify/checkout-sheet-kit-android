@@ -108,7 +108,7 @@ class FallbackWebViewTest {
 
             view.loadCheckout(
                 url = "https://checkout.shopify.com",
-                options = CheckoutOptions(authToken = "token-1")
+                options = CheckoutOptions(authentication = Authentication.Token("token-1"))
             )
 
             view.FallbackWebViewClient().onPageFinished(view, "https://checkout.shopify.com")
