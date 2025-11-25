@@ -52,7 +52,14 @@ class CartRepository(
                         continuation.resumeWith(Result.failure(RuntimeException("Failed to create cart, $errors")))
                     } else {
                         Timber.i("cart ${cartCreateResponse.cart.checkoutUrl}")
-                        continuation.resumeWith(Result.success(cartCreateResponse.cart.toLocal()))
+                        val cart = cartCreateResponse.cart
+
+                        // If demo buyer identity is enabled and no customer access token, add delivery addresses
+                        if (demoBuyerIdentityEnabled && customerAccessToken == null) {
+                            addDeliveryAddresses(cart, continuation)
+                        } else {
+                            continuation.resumeWith(Result.success(cart.toLocal()))
+                        }
                     }
                 },
                 failureCallback = { exception ->
@@ -60,6 +67,33 @@ class CartRepository(
                 }
             )
         }
+    }
+
+    private fun addDeliveryAddresses(
+        cart: Storefront.Cart,
+        continuation: kotlin.coroutines.Continuation<CartState.Cart>
+    ) {
+        cartStorefrontApiClient.cartDeliveryAddressesAdd(
+            cartId = cart.id,
+            deliveryAddresses = DemoBuyerIdentity.deliveryAddresses,
+            successCallback = { response ->
+                val cartDeliveryAddressesAddResponse = response.data?.cartDeliveryAddressesAdd
+                if (cartDeliveryAddressesAddResponse?.cart == null) {
+                    val errors = cartDeliveryAddressesAddResponse?.userErrors?.joinToString { "${it.field} - ${it.message}" }
+                    Timber.w("Failed to add delivery addresses, $errors")
+                    // Don't fail the entire cart creation if delivery addresses fail to add
+                    continuation.resumeWith(Result.success(cart.toLocal()))
+                } else {
+                    Timber.i("Added delivery addresses to cart")
+                    continuation.resumeWith(Result.success(cartDeliveryAddressesAddResponse.cart.toLocal()))
+                }
+            },
+            failureCallback = { exception ->
+                Timber.w("Failed to add delivery addresses", exception)
+                // Don't fail the entire cart creation if delivery addresses fail to add
+                continuation.resumeWith(Result.success(cart.toLocal()))
+            }
+        )
     }
 
     suspend fun addCartLine(cartId: ID, variantId: ID, quantity: Int): CartState.Cart {
@@ -120,7 +154,7 @@ class CartRepository(
         return if (demoBuyerIdentityEnabled) {
             // No token available, instead of authenticating, prefill checkout with known customer data
             Timber.i("Using demo buyer identity data to prefill checkout")
-            DemoBuyerIdentity.value
+            DemoBuyerIdentity.buyerIdentity
         } else {
             // We could e.g. set a country code in the absence of other customer information
             Storefront.CartBuyerIdentityInput().setCountryCode(Storefront.CountryCode.CA)
