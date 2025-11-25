@@ -66,7 +66,7 @@ class CheckoutWebViewTest {
 
     @Test
     fun `configures web view on initialization`() {
-        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
+        val view = CheckoutWebView.cacheableCheckoutView(URL, activity, false, CheckoutOptions())
 
         assertThat(view.visibility).isEqualTo(VISIBLE)
         assertThat(view.settings.javaScriptEnabled).isTrue
@@ -85,7 +85,7 @@ class CheckoutWebViewTest {
     fun `sends prefetch header for preloads`() {
         withPreloadingEnabled {
             val isPreload = true
-            val view = CheckoutWebView.cacheableCheckoutView(URL, activity, isPreload)
+            val view = CheckoutWebView.cacheableCheckoutView(URL, activity, isPreload, CheckoutOptions())
 
             val shadow = shadowOf(view)
             ShadowLooper.shadowMainLooper().runToEndOfTasks()
@@ -97,7 +97,7 @@ class CheckoutWebViewTest {
     @Test
     fun `does not send prefetch header for preloads`() {
         val isPreload = false
-        val view = CheckoutWebView.cacheableCheckoutView(URL, activity, isPreload)
+        val view = CheckoutWebView.cacheableCheckoutView(URL, activity, isPreload, CheckoutOptions())
 
         val shadow = shadowOf(view)
         ShadowLooper.shadowMainLooper().runToEndOfTasks()
@@ -107,7 +107,7 @@ class CheckoutWebViewTest {
 
     @Test
     fun `attaches javascript interface onAttachedToWindow`() {
-        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
+        val view = CheckoutWebView.cacheableCheckoutView(URL, activity, false, CheckoutOptions())
 
         val shadow = shadowOf(view)
         shadow.callOnAttachedToWindow()
@@ -118,7 +118,7 @@ class CheckoutWebViewTest {
 
     @Test
     fun `removes javascript interface onDetachedFromWindow`() {
-        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
+        val view = CheckoutWebView.cacheableCheckoutView(URL, activity, false, CheckoutOptions())
 
         val shadow = shadowOf(view)
         shadow.callOnDetachedFromWindow()
@@ -128,7 +128,7 @@ class CheckoutWebViewTest {
 
     @Test
     fun `calls update progress when new progress is reported by WebChromeClient`() {
-        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
+        val view = CheckoutWebView.cacheableCheckoutView(URL, activity, false, CheckoutOptions())
         val webViewEventProcessor = mock<CheckoutWebViewEventProcessor>()
         view.setEventProcessor(webViewEventProcessor)
 
@@ -143,7 +143,7 @@ class CheckoutWebViewTest {
 
     @Test
     fun `calls processors onPermissionRequest when resource permission requested`() {
-        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
+        val view = CheckoutWebView.cacheableCheckoutView(URL, activity, false, CheckoutOptions())
         val webViewEventProcessor = mock<CheckoutWebViewEventProcessor>()
         view.setEventProcessor(webViewEventProcessor)
 
@@ -159,7 +159,7 @@ class CheckoutWebViewTest {
 
     @Test
     fun `calls processors onShowFileChooser when called on webChromeClient`() {
-        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
+        val view = CheckoutWebView.cacheableCheckoutView(URL, activity, false, CheckoutOptions())
         val webViewEventProcessor = mock<CheckoutWebViewEventProcessor>()
         view.setEventProcessor(webViewEventProcessor)
 
@@ -174,7 +174,7 @@ class CheckoutWebViewTest {
 
     @Test
     fun `calls processors onGeolocationPermissionsShowPrompt when called on webChromeClient`() {
-        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
+        val view = CheckoutWebView.cacheableCheckoutView(URL, activity, false, CheckoutOptions())
         val webViewEventProcessor = mock<CheckoutWebViewEventProcessor>()
         view.setEventProcessor(webViewEventProcessor)
 
@@ -191,7 +191,7 @@ class CheckoutWebViewTest {
     @Test
     fun `loadCheckout sends authentication once per token`() {
         withPreloadingEnabled {
-            val options = CheckoutOptions(authentication = "token-1")
+            val options = CheckoutOptions(authentication = Authentication.Token("token-1"))
             val view = CheckoutWebView.cacheableCheckoutView(URL, activity, true, options)
             val shadow = shadowOf(view)
 
@@ -226,7 +226,7 @@ class CheckoutWebViewTest {
         withPreloadingEnabled {
             Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
                 val ctx = activityController.get()
-                val webView = CheckoutWebView.cacheableCheckoutView("https://shopify.dev", ctx, true)
+                val webView = CheckoutWebView.cacheableCheckoutView("https://shopify.dev", ctx, true, CheckoutOptions())
                 val container = CheckoutWebViewContainer(ctx)
                 container.addView(webView)
                 assertThat(webView.parent).isNotNull()
@@ -246,7 +246,7 @@ class CheckoutWebViewTest {
         withPreloadingEnabled {
             Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
                 val ctx = activityController.get()
-                val webView = CheckoutWebView.cacheableCheckoutView("https://shopify.dev", ctx, true)
+                val webView = CheckoutWebView.cacheableCheckoutView("https://shopify.dev", ctx, true, CheckoutOptions())
                 webView.removeFromParent()
                 shadowOf(Looper.getMainLooper()).runToEndOfTasks()
 

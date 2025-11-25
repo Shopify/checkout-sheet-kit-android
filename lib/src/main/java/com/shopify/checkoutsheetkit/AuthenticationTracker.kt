@@ -30,10 +30,15 @@ internal class AuthenticationTracker {
      * Determines if the token should be sent in the URL and marks it as pending.
      * Call this before loading a checkout to decide whether to include the token.
      *
-     * @param token The auth token to potentially send
+     * @param authentication The authentication to potentially send
      * @return true if the token should be included in the URL
      */
-    fun shouldSendToken(token: String?): Boolean {
+    fun shouldSendToken(authentication: Authentication): Boolean {
+        val token = when (authentication) {
+            is Authentication.Token -> authentication.value
+            is Authentication.None -> null
+        }
+
         if (token == null) {
             reset()
             return false
@@ -48,10 +53,15 @@ internal class AuthenticationTracker {
      * Checks if the token should be retained in the URL during navigation without modifying state.
      * Use this during subsequent navigations to determine if the token is still required.
      *
-     * @param token The auth token to check
+     * @param authentication The authentication to check
      * @return true if the token should be retained in the URL
      */
-    fun shouldRetainToken(token: String?): Boolean {
+    fun shouldRetainToken(authentication: Authentication): Boolean {
+        val token = when (authentication) {
+            is Authentication.Token -> authentication.value
+            is Authentication.None -> null
+        }
+
         if (token == null) {
             return false
         }

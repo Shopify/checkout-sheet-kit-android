@@ -54,7 +54,7 @@ internal class CheckoutDialog(
     private val checkoutUrl: String,
     private val checkoutEventProcessor: CheckoutEventProcessor,
     context: Context,
-    private val options: CheckoutOptions?,
+    private val options: CheckoutOptions,
 ) : Dialog(context) {
 
     fun start(context: ComponentActivity) {

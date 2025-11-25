@@ -23,11 +23,28 @@
 package com.shopify.checkoutsheetkit
 
 /**
+ * Authentication type for checkout sessions.
+ */
+public sealed class Authentication {
+    /**
+     * No authentication required.
+     */
+    public object None : Authentication()
+
+    /**
+     * Token-based authentication for authenticated checkout sessions.
+     *
+     * @property value The JWT token for authentication
+     */
+    public data class Token(val value: String) : Authentication()
+}
+
+/**
  * Options for configuring an individual checkout session.
  */
 public data class CheckoutOptions(
     /**
-     * JWT token for authenticated checkout sessions.
+     * Authentication for checkout sessions.
      */
-    val authentication: String? = null,
+    val authentication: Authentication = Authentication.None,
 )

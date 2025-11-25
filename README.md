@@ -128,8 +128,11 @@ To allow customizing checkout with app specific branding, and/or to receive PII 
 you will need to pass an app authentication token to checkout via `CheckoutOptions` when calling `preload` or `present`.
 
 ```kotlin
+import com.shopify.checkoutsheetkit.Authentication
+import com.shopify.checkoutsheetkit.CheckoutOptions
+
 val checkoutOptions = CheckoutOptions(
-    authToken = jwtToken
+    authentication = Authentication.Token(jwtToken)
 )
 
 ShopifyCheckoutSheetKit.preload(checkoutUrl, context, checkoutOptions)
@@ -150,15 +153,15 @@ Authentication tokens should be fetched from your authentication endpoint using 
 suspend fun fetchAuthToken(): String {
     // POST to your auth endpoint with client credentials
     val response = httpClient.post(authEndpoint) {
-        body = {
-            "client_id": clientId,
-            "client_secret": clientSecret,
-            "grant_type": "client_credentials"
-        }
+        setBody(mapOf(
+            "client_id" to clientId,
+            "client_secret" to clientSecret,
+            "grant_type" to "client_credentials"
+        ))
     }
 
     // Parse and return the JWT access token
-    return response.json().accessToken
+    return response.body<AuthTokenResponse>().accessToken
 }
 ```
 
@@ -172,7 +175,7 @@ suspend fun presentCheckout(url: String, activity: ComponentActivity) {
         null // Fallback to unauthenticated checkout
     }
 
-    val options = token?.let { CheckoutOptions(authToken = it) }
+    val options = token?.let { CheckoutOptions(authentication = Authentication.Token(it)) }
     ShopifyCheckoutSheetKit.present(url, activity, processor, options)
 }
 ```
@@ -229,7 +232,7 @@ val automatic = ColorScheme.Automatic(
     ),
     darkColors = Colors(
         headerBackground = Color.ResourceId(R.color.headerDark),
-        headerFont = Color.ResourceId(R.color.headerFontDark,
+        headerFont = Color.ResourceId(R.color.headerFontDark),
         webViewBackground = Color.ResourceId(R.color.webViewBgDark),
         progressIndicator = Color.ResourceId(R.color.indicatorDark),
     )
@@ -465,7 +468,7 @@ In the event of a checkout error occurring, the Checkout Kit _may_ attempt to re
 
 There are some caveats to note when this scenario occurs:
 
-1. The checkout experience may look different to buyers. Though the sheet kit will attempt to load any checkoput customizations for the storefront, there is no guarantee they will show in recovery mode.
+1. The checkout experience may look different to buyers. Though the sheet kit will attempt to load any checkout customizations for the storefront, there is no guarantee they will show in recovery mode.
 2. The `onCheckoutCompleted(checkoutCompleteEvent: CheckoutCompleteEvent)` will be emitted with partial data. Invocations will only receive the order ID via `checkoutCompleteEvent.orderConfirmation.order.id`.
 
 Should you wish to opt-out of this fallback experience entirely, you can do so by overriding `shouldRecoverFromError`. Errors given to the `onCheckoutFailed(error: CheckoutException)` lifecycle method will contain an `isRecoverable` property by default indicating whether the request should be retried or not.

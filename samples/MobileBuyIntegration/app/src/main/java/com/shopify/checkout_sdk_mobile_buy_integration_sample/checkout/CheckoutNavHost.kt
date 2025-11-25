@@ -46,6 +46,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CheckoutAppAuthenticationService
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
+import com.shopify.checkoutsheetkit.Authentication
 import com.shopify.checkoutsheetkit.CheckoutOptions
 import com.shopify.checkoutsheetkit.CheckoutWebView
 import com.shopify.checkoutsheetkit.CheckoutWebViewEventProcessor
@@ -133,7 +134,7 @@ fun CheckoutNavHost(
                 if (authService.hasConfiguration()) {
                     try {
                         val token = authService.fetchAccessToken()
-                        val options = CheckoutOptions(authentication = token)
+                        val options = CheckoutOptions(authentication = Authentication.Token(token))
                         Timber.d("Loading checkout with authentication token")
                         checkoutWebView.loadCheckout(checkoutUrl, options)
                     } catch (e: Exception) {
