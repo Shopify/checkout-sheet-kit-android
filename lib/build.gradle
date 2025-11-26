@@ -15,7 +15,7 @@ def resolveEnvVarValue(name, defaultValue) {
     return rawValue ? rawValue : defaultValue
 }
 
-def versionName = resolveEnvVarValue("CHECKOUT_SHEET_KIT_VERSION", "3.5.3")
+def versionName = resolveEnvVarValue("CHECKOUT_SHEET_KIT_VERSION", "4.0.0-SNAPSHOT")
 
 ext {
     app_compat_version = '1.7.1'
@@ -119,8 +119,16 @@ signing {
     def signingKeyId = findProperty("signingKeyId")
     def signingKey = findProperty("signingKey")
     def signingPassword = findProperty("signingPassword")
-    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+
+    // Configure signing if credentials are present
+    if (signingKeyId && signingKey && signingPassword) {
+        useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+    }
     sign publishing.publications
+
+    // Only require signing for remote publications (not mavenLocal)
+    // If publishing remotely without credentials, this will fail with a clear error
+    required { !gradle.taskGraph.hasTask("publishToMavenLocal") }
 }
 
 detekt {
