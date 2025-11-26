@@ -31,35 +31,38 @@ import com.shopify.buy3.Storefront
  * Note checkout will only use this delivery information if the store delivers to that address
  */
 object DemoBuyerIdentity {
-    internal val value = Storefront.CartBuyerIdentityInput()
+    internal val buyerIdentity = Storefront.CartBuyerIdentityInput()
         .setEmail("john.smith@example.com")
         .setCountryCode(Storefront.CountryCode.US)
         .setPhone("+12125551234")
-        .setDeliveryAddressPreferences(
-            listOf(
-                Storefront.DeliveryAddressInput().setDeliveryAddress(
-                    Storefront.MailingAddressInput()
-                        .setAddress1("150 5th Avenue")
-                        .setCity("New York")
-                        .setCountry("US")
-                        .setFirstName("John")
-                        .setLastName("Smith")
-                        .setProvince("NY")
-                        .setPhone("+12125551234")
-                        .setZip("10011")
-                ),
-                Storefront.DeliveryAddressInput().setDeliveryAddress(
-                    Storefront.MailingAddressInput()
-                        .setAddress1("89 Haight Street")
-                        .setAddress2("Apt 2B")
-                        .setCity("San Francisco")
-                        .setCountry("US")
-                        .setFirstName("John")
-                        .setLastName("Smith")
-                        .setProvince("CA")
-                        .setPhone("+12125551234")
-                        .setZip("94117")
-                )
+
+    internal val deliveryAddresses = listOf(
+        Storefront.CartSelectableAddressInput(
+            Storefront.CartAddressInput().setDeliveryAddress(
+                Storefront.CartDeliveryAddressInput()
+                    .setAddress1("150 5th Avenue")
+                    .setCity("New York")
+                    .setCountryCode(Storefront.CountryCode.US)
+                    .setFirstName("John")
+                    .setLastName("Smith")
+                    .setProvinceCode("NY")
+                    .setPhone("+12125551234")
+                    .setZip("10011")
+            )
+        ),
+        Storefront.CartSelectableAddressInput(
+            Storefront.CartAddressInput().setDeliveryAddress(
+                Storefront.CartDeliveryAddressInput()
+                    .setAddress1("89 Haight Street")
+                    .setAddress2("Apt 2B")
+                    .setCity("San Francisco")
+                    .setCountryCode(Storefront.CountryCode.US)
+                    .setFirstName("John")
+                    .setLastName("Smith")
+                    .setProvinceCode("CA")
+                    .setPhone("+12125551234")
+                    .setZip("94117")
             )
         )
+    )
 }
