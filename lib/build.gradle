@@ -120,15 +120,11 @@ signing {
     def signingKey = findProperty("signingKey")
     def signingPassword = findProperty("signingPassword")
 
-    // Configure signing if credentials are present
+    // Only sign publications when credentials are present
     if (signingKeyId && signingKey && signingPassword) {
         useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+        sign publishing.publications
     }
-    sign publishing.publications
-
-    // Only require signing for remote publications (not mavenLocal)
-    // If publishing remotely without credentials, this will fail with a clear error
-    required { !gradle.taskGraph.hasTask("publishToMavenLocal") }
 }
 
 detekt {
