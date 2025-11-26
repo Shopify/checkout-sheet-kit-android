@@ -24,11 +24,15 @@ package com.shopify.checkoutsheetkit
 
 import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartResponsePayload
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartResponsePayload
 import com.shopify.checkoutsheetkit.lifecycleevents.CartInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CartSelectableAddressInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryAddressInput
+import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentTokenInput
+import com.shopify.checkoutsheetkit.lifecycleevents.Checkout
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
+import com.shopify.checkoutsheetkit.rpc.events.CheckoutSubmitStart
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.After
@@ -85,6 +89,70 @@ class CheckoutBridgeTest {
         val event = eventCaptor.firstValue
         assertThat(event.params.addressType).isEqualTo("shipping")
         assertThat(event.params.cart.id).isEqualTo(cart.id)
+    }
+
+    @Test
+    fun `postMessage dispatches submit start to event processor`() {
+        val cart = createTestCart()
+        val jsonRpcMessage = """{
+            "jsonrpc":"2.0",
+            "id":"request-id-submit",
+            "method":"checkout.submitStart",
+            "params":{
+                "cart":${Json.encodeToString(cart)},
+                "checkout":{"id":"checkout-session-123"}
+            }
+        }""".trimIndent()
+
+        checkoutBridge.postMessage(jsonRpcMessage)
+
+        val eventCaptor = argumentCaptor<CheckoutSubmitStart>()
+        verify(mockEventProcessor).onCheckoutSubmitStart(eventCaptor.capture())
+        val event = eventCaptor.firstValue
+        assertThat(event.params.cart.id).isEqualTo(cart.id)
+        assertThat(event.params.checkout.id).isEqualTo("checkout-session-123")
+    }
+
+    @Test
+    fun `submitStart respondWith posts payment token to window`() {
+        val cart = createTestCart()
+        val jsonRpcMessage = """{
+            "jsonrpc":"2.0",
+            "id":"request-id-submit-response",
+            "method":"checkout.submitStart",
+            "params":{
+                "cart":${Json.encodeToString(cart)},
+                "checkout":{"id":"checkout-session-456"}
+            }
+        }""".trimIndent()
+
+        val mockWebView = mock<CheckoutWebView>()
+        checkoutBridge.setWebView(mockWebView)
+        checkoutBridge.postMessage(jsonRpcMessage)
+
+        val eventCaptor = argumentCaptor<CheckoutSubmitStart>()
+        verify(mockEventProcessor).onCheckoutSubmitStart(eventCaptor.capture())
+        val event = eventCaptor.firstValue
+
+        val payload = CheckoutSubmitStartResponsePayload(
+            payment = CartPaymentTokenInput(
+                token = "tok_test_123",
+                tokenType = "card",
+                tokenProvider = "delegated"
+            )
+        )
+
+        event.respondWith(payload)
+        ShadowLooper.runUiThreadTasks()
+
+        val scriptCaptor = argumentCaptor<String>()
+        verify(mockWebView).evaluateJavascript(scriptCaptor.capture(), anyOrNull())
+        assertThat(scriptCaptor.firstValue)
+            .contains("window.postMessage")
+            .contains("\"id\":\"request-id-submit-response\"")
+            .contains("\"result\":")
+            .contains("\"token\":\"tok_test_123\"")
+            .contains("\"tokenType\":\"card\"")
     }
 
     @Test
