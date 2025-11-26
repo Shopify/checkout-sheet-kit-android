@@ -34,6 +34,7 @@ import android.webkit.WebView
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
+import com.shopify.checkoutsheetkit.rpc.events.CheckoutSubmitStart
 
 /**
  * Interface to implement to allow responding to lifecycle events in checkout.
@@ -105,6 +106,15 @@ public interface CheckoutEventProcessor {
      * via [CheckoutAddressChangeStart.respondWith] or cancel explicitly.
      */
     public fun onAddressChangeStart(event: CheckoutAddressChangeStart)
+
+    /**
+     * Called when native payment delegation is configured for the authenticated app and the buyer
+     * attempts to submit the checkout.
+     *
+     * Override to provide payment tokens, update cart data, or handle custom submission logic.
+     * Provide a response via [CheckoutSubmitStart.respondWith].
+     */
+    public fun onSubmitStart(event: CheckoutSubmitStart)
 }
 
 internal class NoopEventProcessor : CheckoutEventProcessor {
@@ -124,6 +134,9 @@ internal class NoopEventProcessor : CheckoutEventProcessor {
     }
 
     override fun onAddressChangeStart(event: CheckoutAddressChangeStart) {/* noop */
+    }
+
+    override fun onSubmitStart(event: CheckoutSubmitStart) {/* noop */
     }
 
     override fun onShowFileChooser(
@@ -188,6 +201,10 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
     }
 
     override fun onAddressChangeStart(event: CheckoutAddressChangeStart) {
+        // no-op override to implement
+    }
+
+    override fun onSubmitStart(event: CheckoutSubmitStart) {
         // no-op override to implement
     }
 

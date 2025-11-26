@@ -24,6 +24,7 @@ package com.shopify.checkoutsheetkit.rpc
 
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
+import com.shopify.checkoutsheetkit.rpc.events.CheckoutSubmitStart
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -45,6 +46,7 @@ public object RPCRequestRegistry {
      */
     public val requestTypes: List<TypeErasedRPCDecodable> = listOf(
         CheckoutAddressChangeStart.Companion,
+        CheckoutSubmitStart.Companion,
         CheckoutStart.Companion,
         CheckoutComplete.Companion
     )

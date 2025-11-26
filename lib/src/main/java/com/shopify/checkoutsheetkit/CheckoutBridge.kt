@@ -28,7 +28,9 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartResponsePayload
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartResponsePayload
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
+import com.shopify.checkoutsheetkit.rpc.events.CheckoutSubmitStart
 import com.shopify.checkoutsheetkit.rpc.CheckoutStart
 import com.shopify.checkoutsheetkit.rpc.CheckoutComplete
 import com.shopify.checkoutsheetkit.rpc.RPCRequest
@@ -69,19 +71,34 @@ internal class CheckoutBridge(
      */
     fun respondToEvent(eventId: String, responseData: String) {
         val event = pendingEvents[eventId]
-        if (event is CheckoutAddressChangeStart) {
-            try {
-                // Parse the response data as CheckoutAddressChangeStartResponsePayload
-                val jsonParser = Json { ignoreUnknownKeys = true }
-                val payload = jsonParser.decodeFromString<CheckoutAddressChangeStartResponsePayload>(responseData)
-                event.respondWith(payload)
-                pendingEvents.remove(eventId)
-                log.d(LOG_TAG, "Successfully responded to event $eventId")
-            } catch (e: Exception) {
-                log.e(LOG_TAG, "Failed to parse response data for event $eventId: ${e.message}")
+        when (event) {
+            is CheckoutAddressChangeStart -> {
+                try {
+                    // Parse the response data as CheckoutAddressChangeStartResponsePayload
+                    val jsonParser = Json { ignoreUnknownKeys = true }
+                    val payload = jsonParser.decodeFromString<CheckoutAddressChangeStartResponsePayload>(responseData)
+                    event.respondWith(payload)
+                    pendingEvents.remove(eventId)
+                    log.d(LOG_TAG, "Successfully responded to event $eventId")
+                } catch (e: Exception) {
+                    log.e(LOG_TAG, "Failed to parse response data for event $eventId: ${e.message}")
+                }
             }
-        } else {
-            log.w(LOG_TAG, "No pending event found with ID $eventId")
+            is CheckoutSubmitStart -> {
+                try {
+                    // Parse the response data as CheckoutSubmitStartResponsePayload
+                    val jsonParser = Json { ignoreUnknownKeys = true }
+                    val payload = jsonParser.decodeFromString<CheckoutSubmitStartResponsePayload>(responseData)
+                    event.respondWith(payload)
+                    pendingEvents.remove(eventId)
+                    log.d(LOG_TAG, "Successfully responded to event $eventId")
+                } catch (e: Exception) {
+                    log.e(LOG_TAG, "Failed to parse response data for event $eventId: ${e.message}")
+                }
+            }
+            else -> {
+                log.w(LOG_TAG, "No pending event found with ID $eventId")
+            }
         }
     }
 
@@ -118,6 +135,15 @@ internal class CheckoutBridge(
                     log.d(LOG_TAG, "Received checkout.addressChangeStart message with webView ref: ${webViewRef?.get()}")
                     onMainThread {
                         eventProcessor.onCheckoutAddressChangeStart(rpcRequest)
+                    }
+                }
+
+                is CheckoutSubmitStart -> {
+                    setupRequestForResponse(rpcRequest)
+
+                    log.d(LOG_TAG, "Received checkout.submitStart message with webView ref: ${webViewRef?.get()}")
+                    onMainThread {
+                        eventProcessor.onCheckoutSubmitStart(rpcRequest)
                     }
                 }
 
