@@ -118,7 +118,7 @@ public class CheckoutWebViewEventProcessor(
         }
     }
 
-    internal fun onCheckoutAddressChangeStart(event: CheckoutAddressChangeStart) {
+    internal fun onCheckoutViewAddressChangeStart(event: CheckoutAddressChangeStart) {
         onMainThread {
             eventProcessor.onAddressChangeStart(event)
         }
@@ -131,9 +131,16 @@ public class CheckoutWebViewEventProcessor(
         }
     }
 
-    internal fun onCheckoutPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStart) {
+    internal fun onCheckoutSubmitStart(event: CheckoutSubmitStart) {
+        log.d(LOG_TAG, "Calling onCheckoutSubmitStart.")
         onMainThread {
-            eventProcessor.onCheckoutPaymentMethodChangeStart(event)
+            eventProcessor.onSubmitStart(event)
+        }
+    }
+
+    internal fun onCheckoutViewPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStart) {
+        onMainThread {
+            eventProcessor.onPaymentMethodChangeStart(event)
         }
     }
 

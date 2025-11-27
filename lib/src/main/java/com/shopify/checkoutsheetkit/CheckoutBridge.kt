@@ -110,7 +110,7 @@ internal class CheckoutBridge(
 
                     log.d(LOG_TAG, "Received checkout.addressChangeStart message with webView ref: ${webViewRef?.get()}")
                     onMainThread {
-                        eventProcessor.onCheckoutAddressChangeStart(rpcRequest)
+                        eventProcessor.onCheckoutViewAddressChangeStart(rpcRequest)
                     }
                 }
 
@@ -128,7 +128,7 @@ internal class CheckoutBridge(
 
                     log.d(LOG_TAG, "Received checkout.paymentMethodChangeStart message with webView ref: ${webViewRef?.get()}")
                     onMainThread {
-                        eventProcessor.onCheckoutPaymentMethodChangeStart(rpcRequest)
+                        eventProcessor.onCheckoutViewPaymentMethodChangeStart(rpcRequest)
                     }
                 }
 

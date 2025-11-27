@@ -105,7 +105,7 @@ public interface CheckoutEventProcessor {
      * indicates they want to start an address change.
      *
      * By default the request is cancelled. Override to present custom UI and provide a response
-     * via [CheckoutAddressChangeStart.respondWith] or cancel explicitly.
+     * via [AddressChangeStart.respondWith] or cancel explicitly.
      */
     public fun onAddressChangeStart(event: CheckoutAddressChangeStart)
 
@@ -124,7 +124,7 @@ public interface CheckoutEventProcessor {
      * By default the request is cancelled. Override to present custom UI and provide a response
      * via [CheckoutPaymentMethodChangeStart.respondWith] (or cancel explicitly).
      */
-    public fun onCheckoutPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStart)
+    public fun onPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStart)
 }
 
 internal class NoopEventProcessor : CheckoutEventProcessor {
@@ -166,10 +166,10 @@ internal class NoopEventProcessor : CheckoutEventProcessor {
     override fun onGeolocationPermissionsHidePrompt() {/* noop */
     }
 
-    override fun onCheckoutAddressChangeStart(event: CheckoutAddressChangeStart) {/* noop */
+    override fun onAddressChangeStart(event: CheckoutAddressChangeStart) {/* noop */
     }
 
-    override fun onCheckoutPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStart) {/* noop */
+    override fun onPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStart) {/* noop */
     }
 }
 
@@ -224,7 +224,7 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
         // no-op override to implement
     }
 
-    override fun onPaymentMethodChangeStart(event: PaymentMethodChangeStart) {
+    override fun onPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStart) {
         // no-op override to implement
     }
 
