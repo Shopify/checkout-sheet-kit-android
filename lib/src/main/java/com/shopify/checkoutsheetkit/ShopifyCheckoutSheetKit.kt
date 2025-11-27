@@ -95,7 +95,7 @@ public object ShopifyCheckoutSheetKit {
     public fun preload(
         checkoutUrl: String,
         context: ComponentActivity,
-        options: CheckoutOptions = CheckoutOptions(),
+        options: CheckoutOptions? = CheckoutOptions(),
     ) {
         log.d("ShopifyCheckoutSheetKit", "Preload called. Preloading enabled ${configuration.preloading.enabled}.")
         if (!configuration.preloading.enabled) return
@@ -108,7 +108,7 @@ public object ShopifyCheckoutSheetKit {
             }
 
             log.d("ShopifyCheckoutSheetKit", "Calling loadCheckout on existing view with url $checkoutUrl.")
-            cacheEntry.view.loadCheckout(checkoutUrl, false, options)
+            cacheEntry.view.loadCheckout(checkoutUrl, false, options ?: CheckoutOptions())
         } else {
             log.d("ShopifyCheckoutSheetKit", "Fetching cacheable WebView.")
             CheckoutWebView.markCacheEntryStale()
@@ -116,7 +116,7 @@ public object ShopifyCheckoutSheetKit {
                 url = checkoutUrl,
                 activity = context,
                 isPreload = true,
-                options = options,
+                options = options ?: CheckoutOptions(),
             )
         }
     }
@@ -136,7 +136,7 @@ public object ShopifyCheckoutSheetKit {
         checkoutUrl: String,
         context: ComponentActivity,
         checkoutEventProcessor: T,
-        options: CheckoutOptions = CheckoutOptions(),
+        options: CheckoutOptions? = CheckoutOptions(),
     ): CheckoutSheetKitDialog? {
         log.d("ShopifyCheckoutSheetKit", "Present called with checkoutUrl $checkoutUrl.")
         if (context.isDestroyed || context.isFinishing) {
@@ -144,7 +144,7 @@ public object ShopifyCheckoutSheetKit {
             return null
         }
         log.d("ShopifyCheckoutSheetKit", "Constructing Dialog")
-        val dialog = CheckoutDialog(checkoutUrl, checkoutEventProcessor, context, options)
+        val dialog = CheckoutDialog(checkoutUrl, checkoutEventProcessor, context, options ?: CheckoutOptions())
         context.lifecycle.addObserver(object : DefaultLifecycleObserver {
             override fun onDestroy(owner: LifecycleOwner) {
                 log.d("ShopifyCheckoutSheetKit", "Context is being destroyed, dismissing dialog.")

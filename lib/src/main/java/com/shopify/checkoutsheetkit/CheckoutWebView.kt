@@ -111,8 +111,8 @@ public class CheckoutWebView(context: Context, attributeSet: AttributeSet? = nul
         checkoutBridge.setWebView(null)
     }
 
-    public fun loadCheckout(url: String, options: CheckoutOptions = CheckoutOptions()) {
-        loadCheckout(url, false, options)
+    public fun loadCheckout(url: String, options: CheckoutOptions? = CheckoutOptions()) {
+        loadCheckout(url, false, options ?: CheckoutOptions())
     }
 
     internal fun loadCheckout(url: String, isPreload: Boolean, options: CheckoutOptions = CheckoutOptions()) {
