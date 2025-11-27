@@ -558,12 +558,36 @@ public data class CartPaymentInstrument(
 )
 
 @Serializable
-public data class CartPaymentInstrumentInput(
-    val identifier: String,
-    val lastDigits: String,
-    val cardHolderName: String,
+public data class ExpiryInput(
+    val month: Int,
+    val year: Int,
+)
+
+@Serializable
+public data class CartPaymentInstrumentDisplayInput(
+    val last4: String,
     val brand: CardBrand,
-    val expiryMonth: Int,
-    val expiryYear: Int,
-    val billingAddress: CartDeliveryAddressInput
+    val cardHolderName: String,
+    val expiry: ExpiryInput,
+)
+
+@Serializable
+public data class MailingAddressInput(
+    val address1: String? = null,
+    val address2: String? = null,
+    val city: String? = null,
+    val company: String? = null,
+    val countryCode: String? = null,
+    val firstName: String? = null,
+    val lastName: String? = null,
+    val phone: String? = null,
+    val provinceCode: String? = null,
+    val zip: String? = null,
+)
+
+@Serializable
+public data class CartPaymentInstrumentInput(
+    val externalReference: String,
+    val display: CartPaymentInstrumentDisplayInput,
+    val billingAddress: MailingAddressInput,
 )

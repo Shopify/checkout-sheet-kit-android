@@ -115,7 +115,7 @@ fun noopDefaultCheckoutEventProcessor(activity: Activity, log: LogWrapper = LogW
             // no-op
         }
 
-        override fun onCheckoutPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStart) {
+        override fun onPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStart) {
             // no-op
         }
     }

@@ -147,7 +147,7 @@ class DefaultCheckoutEventProcessorTest {
                     /* not implemented */
                 }
 
-                override fun onCheckoutPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStart) {
+                override fun onPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStart) {
                     /* not implemented */
                 }
             }

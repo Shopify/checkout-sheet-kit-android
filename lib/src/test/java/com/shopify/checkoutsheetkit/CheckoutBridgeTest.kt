@@ -84,7 +84,7 @@ class CheckoutBridgeTest {
         checkoutBridge.postMessage(jsonRpcMessage)
 
         val eventCaptor = argumentCaptor<CheckoutAddressChangeStart>()
-        verify(mockEventProcessor).onCheckoutAddressChangeStart(eventCaptor.capture())
+        verify(mockEventProcessor).onCheckoutViewAddressChangeStart(eventCaptor.capture())
 
         val event = eventCaptor.firstValue
         assertThat(event.params.addressType).isEqualTo("shipping")
@@ -170,7 +170,7 @@ class CheckoutBridgeTest {
         checkoutBridge.postMessage(jsonRpcMessage)
 
         val eventCaptor = argumentCaptor<CheckoutPaymentMethodChangeStart>()
-        verify(mockEventProcessor).onCheckoutPaymentMethodChangeStart(eventCaptor.capture())
+        verify(mockEventProcessor).onCheckoutViewPaymentMethodChangeStart(eventCaptor.capture())
 
         val event = eventCaptor.firstValue
         assertThat(event.params.cart.id).isEqualTo(cart.id)
@@ -248,7 +248,7 @@ class CheckoutBridgeTest {
         checkoutBridge.postMessage(jsonRpcMessage)
 
         val eventCaptor = argumentCaptor<CheckoutAddressChangeStart>()
-        verify(mockEventProcessor).onCheckoutAddressChangeStart(eventCaptor.capture())
+        verify(mockEventProcessor).onCheckoutViewAddressChangeStart(eventCaptor.capture())
         val event = eventCaptor.firstValue
 
         val payload = CheckoutAddressChangeStartResponsePayload(
@@ -305,7 +305,7 @@ class CheckoutBridgeTest {
         checkoutBridge.postMessage(jsonRpcMessage)
 
         val eventCaptor = argumentCaptor<CheckoutAddressChangeStart>()
-        verify(mockEventProcessor).onCheckoutAddressChangeStart(eventCaptor.capture())
+        verify(mockEventProcessor).onCheckoutViewAddressChangeStart(eventCaptor.capture())
         val event = eventCaptor.firstValue
 
         val payload = CheckoutAddressChangeStartResponsePayload(

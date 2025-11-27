@@ -23,9 +23,11 @@
 package com.shopify.checkoutsheetkit
 
 import com.shopify.checkoutsheetkit.lifecycleevents.CardBrand
-import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryAddressInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CartInput
+import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentInstrumentDisplayInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentInstrumentInput
+import com.shopify.checkoutsheetkit.lifecycleevents.ExpiryInput
+import com.shopify.checkoutsheetkit.lifecycleevents.MailingAddressInput
 import com.shopify.checkoutsheetkit.lifecycleevents.ResponseError
 import com.shopify.checkoutsheetkit.rpc.RPCRequestRegistry
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutPaymentMethodChangeStart
@@ -193,13 +195,17 @@ class CheckoutPaymentMethodChangeStartTest {
             cart = CartInput(
                 paymentInstruments = listOf(
                     CartPaymentInstrumentInput(
-                        identifier = "new-instrument-123",
-                        lastDigits = "4242",
-                        cardHolderName = "John Doe",
-                        brand = CardBrand.VISA,
-                        expiryMonth = 12,
-                        expiryYear = 2025,
-                        billingAddress = CartDeliveryAddressInput(
+                        externalReference = "new-instrument-123",
+                        display = CartPaymentInstrumentDisplayInput(
+                            last4 = "4242",
+                            cardHolderName = "John Doe",
+                            brand = CardBrand.VISA,
+                            expiry = ExpiryInput(
+                                month = 12,
+                                year = 2025
+                            )
+                        ),
+                        billingAddress = MailingAddressInput(
                             firstName = "John",
                             lastName = "Doe",
                             address1 = "123 Main St",
@@ -272,12 +278,16 @@ class CheckoutPaymentMethodChangeStartTest {
                 "cart": {
                     "paymentInstruments": [
                         {
-                            "identifier": "pi-json-123",
-                            "lastDigits": "1234",
-                            "cardHolderName": "Jane Smith",
-                            "brand": "MASTERCARD",
-                            "expiryMonth": 6,
-                            "expiryYear": 2026,
+                            "externalReference": "pi-json-123",
+                            "display": {
+                                "last4": "1234",
+                                "cardHolderName": "Jane Smith",
+                                "brand": "MASTERCARD",
+                                "expiry": {
+                                    "month": 6,
+                                    "year": 2026
+                                }
+                            },
                             "billingAddress": {
                                 "firstName": "Jane",
                                 "lastName": "Smith",
