@@ -39,6 +39,7 @@ import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
+import com.shopify.checkoutsheetkit.rpc.events.CheckoutPaymentMethodChangeStart
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -90,6 +91,15 @@ class MobileBuyEventProcessor(
 
         GlobalScope.launch(Dispatchers.Main) {
             navController.navigate("address/$eventId")
+        }
+    }
+
+    override fun onPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStart) {
+        super.onPaymentMethodChangeStart(event)
+        val eventId = eventStore.storeEvent(event)
+
+        GlobalScope.launch(Dispatchers.Main) {
+            navController.navigate("payment/$eventId")
         }
     }
 

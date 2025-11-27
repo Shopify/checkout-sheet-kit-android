@@ -36,6 +36,7 @@ import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartResponsePayload
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutSubmitStart
+import com.shopify.checkoutsheetkit.rpc.events.CheckoutPaymentMethodChangeStart
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -107,5 +108,18 @@ class CheckoutNavEventProcessor(
                 )
             )
         )
+    }
+
+    override fun onPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStart) {
+        super.onPaymentMethodChangeStart(event)
+        Timber.d("Payment method change start: $event")
+
+        // Store event and get ID
+        val eventId = eventStore.storeEvent(event)
+
+        // Navigate to payment screen within checkout nav graph
+        GlobalScope.launch(Dispatchers.Main) {
+            checkoutNavController.navigate(CheckoutScreen.Payment.route(eventId))
+        }
     }
 }
