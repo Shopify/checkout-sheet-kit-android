@@ -387,6 +387,17 @@ public data class CheckoutAddressChangeStartResponsePayload(
 )
 
 /**
+ * Response payload for submit start events.
+ * Contains optional payment token, cart updates, or error information.
+ */
+@Serializable
+public data class CheckoutSubmitStartResponsePayload(
+    val payment: PaymentTokenInput? = null,
+    val cart: CartInput? = null,
+    val errors: List<ResponseError>? = null,
+)
+
+/**
  * Application-level error in cart response payload
  */
 @Serializable
@@ -487,4 +498,25 @@ public data class CartBuyerIdentityInput(
 
     /** The country where the buyer is located. Two-letter country code (ISO 3166-1 alpha-2, e.g. US, GB, CA). */
     val countryCode: String? = null,
+)
+
+/**
+ * Payment token input structure for checkout submission.
+ */
+@Serializable
+public data class PaymentTokenInput(
+    val token: String,
+    val tokenType: String,
+    val tokenProvider: String,
+)
+
+/**
+ * Checkout session information.
+ */
+@Serializable
+public data class Checkout(
+    /**
+     * The checkout session identifier
+     */
+    val id: String
 )

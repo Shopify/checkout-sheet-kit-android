@@ -252,6 +252,7 @@ class RPCRequestRegistryTest {
         assertTrue("Should contain checkout.start", methods.contains("checkout.start"))
         assertTrue("Should contain checkout.complete", methods.contains("checkout.complete"))
         assertTrue("Should contain checkout.addressChangeStart", methods.contains("checkout.addressChangeStart"))
-        assertEquals("Should have exactly 3 registered methods", 3, methods.size)
+        assertTrue("Should contain checkout.submitStart", methods.contains("checkout.submitStart"))
+        assertEquals("Should have exactly 4 registered methods", 4, methods.size)
     }
 }

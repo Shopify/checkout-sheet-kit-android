@@ -31,8 +31,11 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
+import com.shopify.checkoutsheetkit.lifecycleevents.PaymentTokenInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartResponsePayload
+import com.shopify.checkoutsheetkit.rpc.events.CheckoutSubmitStart
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -91,5 +94,18 @@ class CheckoutNavEventProcessor(
         GlobalScope.launch(Dispatchers.Main) {
             checkoutNavController.navigate(CheckoutScreen.Address.route(eventId))
         }
+    }
+
+    override fun onSubmitStart(event: CheckoutSubmitStart) {
+        Timber.d("Submit start ${event.params}")
+        event.respondWith(
+            payload = CheckoutSubmitStartResponsePayload(
+                payment = PaymentTokenInput(
+                    token = "my-token",
+                    tokenProvider = "test-provider",
+                    tokenType = "test"
+                )
+            )
+        )
     }
 }

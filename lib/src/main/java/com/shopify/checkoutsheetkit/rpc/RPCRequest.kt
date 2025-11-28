@@ -82,7 +82,7 @@ public abstract class RPCRequest<P : Any, R : Any>(
     private var hasResponded = false
 
     @OptIn(ExperimentalSerializationApi::class)
-    public val json: Json = Json {
+    private val json: Json = Json {
         ignoreUnknownKeys = true
         encodeDefaults = true
         explicitNulls = false // Exclude null fields from JSON output
