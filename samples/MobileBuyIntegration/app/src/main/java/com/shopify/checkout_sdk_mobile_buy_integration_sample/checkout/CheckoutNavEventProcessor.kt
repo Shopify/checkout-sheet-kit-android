@@ -31,7 +31,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
-import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentTokenInput
+import com.shopify.checkoutsheetkit.lifecycleevents.PaymentTokenInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartResponsePayload
@@ -100,7 +100,7 @@ class CheckoutNavEventProcessor(
         Timber.d("Submit start ${event.params}")
         event.respondWith(
             payload = CheckoutSubmitStartResponsePayload(
-                payment = CartPaymentTokenInput(
+                payment = PaymentTokenInput(
                     token = "my-token",
                     tokenProvider = "test-provider",
                     tokenType = "test"

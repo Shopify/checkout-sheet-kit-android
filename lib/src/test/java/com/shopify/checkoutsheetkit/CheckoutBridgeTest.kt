@@ -29,8 +29,7 @@ import com.shopify.checkoutsheetkit.lifecycleevents.CartInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CartSelectableAddressInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryAddressInput
-import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentTokenInput
-import com.shopify.checkoutsheetkit.lifecycleevents.Checkout
+import com.shopify.checkoutsheetkit.lifecycleevents.PaymentTokenInput
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutSubmitStart
 import kotlinx.serialization.encodeToString
@@ -135,7 +134,7 @@ class CheckoutBridgeTest {
         val event = eventCaptor.firstValue
 
         val payload = CheckoutSubmitStartResponsePayload(
-            payment = CartPaymentTokenInput(
+            payment = PaymentTokenInput(
                 token = "tok_test_123",
                 tokenType = "card",
                 tokenProvider = "delegated"

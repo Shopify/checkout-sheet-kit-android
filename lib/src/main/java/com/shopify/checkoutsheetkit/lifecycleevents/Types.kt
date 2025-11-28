@@ -392,7 +392,7 @@ public data class CheckoutAddressChangeStartResponsePayload(
  */
 @Serializable
 public data class CheckoutSubmitStartResponsePayload(
-    val payment: CartPaymentTokenInput? = null,
+    val payment: PaymentTokenInput? = null,
     val cart: CartInput? = null,
     val errors: List<ResponseError>? = null,
 )
@@ -504,7 +504,7 @@ public data class CartBuyerIdentityInput(
  * Payment token input structure for checkout submission.
  */
 @Serializable
-public data class CartPaymentTokenInput(
+public data class PaymentTokenInput(
     val token: String,
     val tokenType: String,
     val tokenProvider: String,

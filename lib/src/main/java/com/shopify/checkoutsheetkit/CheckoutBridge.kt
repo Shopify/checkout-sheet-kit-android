@@ -74,7 +74,6 @@ internal class CheckoutBridge(
         when (event) {
             is CheckoutAddressChangeStart -> {
                 try {
-                    // Parse the response data as CheckoutAddressChangeStartResponsePayload
                     val jsonParser = Json { ignoreUnknownKeys = true }
                     val payload = jsonParser.decodeFromString<CheckoutAddressChangeStartResponsePayload>(responseData)
                     event.respondWith(payload)
@@ -86,7 +85,6 @@ internal class CheckoutBridge(
             }
             is CheckoutSubmitStart -> {
                 try {
-                    // Parse the response data as CheckoutSubmitStartResponsePayload
                     val jsonParser = Json { ignoreUnknownKeys = true }
                     val payload = jsonParser.decodeFromString<CheckoutSubmitStartResponsePayload>(responseData)
                     event.respondWith(payload)
