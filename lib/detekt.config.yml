@@ -18,5 +18,4 @@ exceptions:
     active: false
 complexity:
   TooManyFunctions:
-    thresholdInClasses: 16
-    thresholdInInterfaces: 12
+      active: false

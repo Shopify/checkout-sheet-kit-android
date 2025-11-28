@@ -107,7 +107,7 @@ class CheckoutBridgeTest {
         checkoutBridge.postMessage(jsonRpcMessage)
 
         val eventCaptor = argumentCaptor<CheckoutSubmitStart>()
-        verify(mockEventProcessor).onCheckoutSubmitStart(eventCaptor.capture())
+        verify(mockEventProcessor).onCheckoutViewSubmitStart(eventCaptor.capture())
         val event = eventCaptor.firstValue
         assertThat(event.params.cart.id).isEqualTo(cart.id)
         assertThat(event.params.checkout.id).isEqualTo("checkout-session-123")
@@ -131,7 +131,7 @@ class CheckoutBridgeTest {
         checkoutBridge.postMessage(jsonRpcMessage)
 
         val eventCaptor = argumentCaptor<CheckoutSubmitStart>()
-        verify(mockEventProcessor).onCheckoutSubmitStart(eventCaptor.capture())
+        verify(mockEventProcessor).onCheckoutViewSubmitStart(eventCaptor.capture())
         val event = eventCaptor.firstValue
 
         val payload = CheckoutSubmitStartResponsePayload(
