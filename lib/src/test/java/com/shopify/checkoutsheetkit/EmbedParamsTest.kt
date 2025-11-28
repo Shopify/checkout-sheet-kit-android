@@ -87,7 +87,7 @@ class EmbedParamsTest {
     }
 
     @Test
-    fun `withEmbedParam adds embed parameter with only branding for automatic color scheme`() {
+    fun `withEmbedParam adds embed parameter with color scheme set for automatic color scheme`() {
         ShopifyCheckoutSheetKit.configure {
             it.colorScheme = ColorScheme.Automatic()
         }
@@ -95,7 +95,7 @@ class EmbedParamsTest {
         assertThat("https://example.com".toUri().withEmbedParam().toUri())
             .hasBaseUrl("https://example.com")
             .withEmbedParameters(EmbedFieldKey.BRANDING to EmbedFieldValue.BRANDING_APP)
-            .withoutEmbedParameters(EmbedFieldKey.COLOR_SCHEME)
+            .withEmbedParameters(EmbedFieldKey.COLOR_SCHEME to EmbedFieldValue.COLOR_SCHEME_AUTO)
     }
 
     @Test
