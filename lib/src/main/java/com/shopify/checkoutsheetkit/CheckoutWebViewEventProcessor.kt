@@ -124,14 +124,7 @@ public class CheckoutWebViewEventProcessor(
         }
     }
 
-    internal fun onCheckoutSubmitStart(event: CheckoutSubmitStart) {
-        log.d(LOG_TAG, "Calling onCheckoutSubmitStart.")
-        onMainThread {
-            eventProcessor.onSubmitStart(event)
-        }
-    }
-
-    internal fun onCheckoutSubmitStart(event: CheckoutSubmitStart) {
+    internal fun onCheckoutViewSubmitStart(event: CheckoutSubmitStart) {
         log.d(LOG_TAG, "Calling onCheckoutSubmitStart.")
         onMainThread {
             eventProcessor.onSubmitStart(event)

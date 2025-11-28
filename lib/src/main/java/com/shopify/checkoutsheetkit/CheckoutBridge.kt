@@ -31,7 +31,6 @@ import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartRe
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartResponsePayload
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutSubmitStart
-import com.shopify.checkoutsheetkit.rpc.events.PaymentMethodChangeStart
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutPaymentMethodChangeStart
 import com.shopify.checkoutsheetkit.rpc.CheckoutStart
 import com.shopify.checkoutsheetkit.rpc.CheckoutComplete
@@ -119,11 +118,11 @@ internal class CheckoutBridge(
 
                     log.d(LOG_TAG, "Received checkout.submitStart message with webView ref: ${webViewRef?.get()}")
                     onMainThread {
-                        eventProcessor.onCheckoutSubmitStart(rpcRequest)
+                        eventProcessor.onCheckoutViewSubmitStart(rpcRequest)
                     }
                 }
 
-                is PaymentMethodChangeStart -> {
+                is CheckoutPaymentMethodChangeStart -> {
                     setupRequestForResponse(rpcRequest)
 
                     log.d(LOG_TAG, "Received checkout.paymentMethodChangeStart message with webView ref: ${webViewRef?.get()}")

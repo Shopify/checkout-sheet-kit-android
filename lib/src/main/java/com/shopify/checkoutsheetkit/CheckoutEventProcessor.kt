@@ -35,7 +35,6 @@ import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutSubmitStart
-import com.shopify.checkoutsheetkit.rpc.events.PaymentMethodChangeStart
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutPaymentMethodChangeStart
 
 /**
@@ -141,9 +140,6 @@ internal class NoopEventProcessor : CheckoutEventProcessor {
     }
 
     override fun onLinkClick(uri: Uri) {/* noop */
-    }
-
-    override fun onAddressChangeStart(event: CheckoutAddressChangeStart) {/* noop */
     }
 
     override fun onSubmitStart(event: CheckoutSubmitStart) {/* noop */
