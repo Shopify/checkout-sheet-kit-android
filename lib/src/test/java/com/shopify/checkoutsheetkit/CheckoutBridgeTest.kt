@@ -31,6 +31,7 @@ import com.shopify.checkoutsheetkit.lifecycleevents.CartSelectableAddressInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryAddressInput
 import com.shopify.checkoutsheetkit.lifecycleevents.PaymentTokenInput
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
+import com.shopify.checkoutsheetkit.rpc.events.CheckoutPaymentMethodChangeStart
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutSubmitStart
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -83,7 +84,7 @@ class CheckoutBridgeTest {
         checkoutBridge.postMessage(jsonRpcMessage)
 
         val eventCaptor = argumentCaptor<CheckoutAddressChangeStart>()
-        verify(mockEventProcessor).onCheckoutAddressChangeStart(eventCaptor.capture())
+        verify(mockEventProcessor).onCheckoutViewAddressChangeStart(eventCaptor.capture())
 
         val event = eventCaptor.firstValue
         assertThat(event.params.addressType).isEqualTo("shipping")
@@ -106,7 +107,7 @@ class CheckoutBridgeTest {
         checkoutBridge.postMessage(jsonRpcMessage)
 
         val eventCaptor = argumentCaptor<CheckoutSubmitStart>()
-        verify(mockEventProcessor).onCheckoutSubmitStart(eventCaptor.capture())
+        verify(mockEventProcessor).onCheckoutViewSubmitStart(eventCaptor.capture())
         val event = eventCaptor.firstValue
         assertThat(event.params.cart.id).isEqualTo(cart.id)
         assertThat(event.params.checkout.id).isEqualTo("checkout-session-123")
@@ -130,7 +131,7 @@ class CheckoutBridgeTest {
         checkoutBridge.postMessage(jsonRpcMessage)
 
         val eventCaptor = argumentCaptor<CheckoutSubmitStart>()
-        verify(mockEventProcessor).onCheckoutSubmitStart(eventCaptor.capture())
+        verify(mockEventProcessor).onCheckoutViewSubmitStart(eventCaptor.capture())
         val event = eventCaptor.firstValue
 
         val payload = CheckoutSubmitStartResponsePayload(
@@ -152,6 +153,28 @@ class CheckoutBridgeTest {
             .contains("\"result\":")
             .contains("\"token\":\"tok_test_123\"")
             .contains("\"tokenType\":\"card\"")
+            .contains("\"tokenProvider\":\"delegated\"")
+    }
+
+    @Test
+    fun `postMessage dispatches payment method change start to event processor`() {
+        val cart = createTestCart()
+        val jsonRpcMessage = """{
+            "jsonrpc":"2.0",
+            "id":"payment-request-1",
+            "method":"checkout.paymentMethodChangeStart",
+            "params":{
+                "cart":${Json.encodeToString(cart)}
+            }
+        }""".trimIndent()
+
+        checkoutBridge.postMessage(jsonRpcMessage)
+
+        val eventCaptor = argumentCaptor<CheckoutPaymentMethodChangeStart>()
+        verify(mockEventProcessor).onCheckoutViewPaymentMethodChangeStart(eventCaptor.capture())
+
+        val event = eventCaptor.firstValue
+        assertThat(event.params.cart.id).isEqualTo(cart.id)
     }
 
     @Test
@@ -226,7 +249,7 @@ class CheckoutBridgeTest {
         checkoutBridge.postMessage(jsonRpcMessage)
 
         val eventCaptor = argumentCaptor<CheckoutAddressChangeStart>()
-        verify(mockEventProcessor).onCheckoutAddressChangeStart(eventCaptor.capture())
+        verify(mockEventProcessor).onCheckoutViewAddressChangeStart(eventCaptor.capture())
         val event = eventCaptor.firstValue
 
         val payload = CheckoutAddressChangeStartResponsePayload(
@@ -283,7 +306,7 @@ class CheckoutBridgeTest {
         checkoutBridge.postMessage(jsonRpcMessage)
 
         val eventCaptor = argumentCaptor<CheckoutAddressChangeStart>()
-        verify(mockEventProcessor).onCheckoutAddressChangeStart(eventCaptor.capture())
+        verify(mockEventProcessor).onCheckoutViewAddressChangeStart(eventCaptor.capture())
         val event = eventCaptor.firstValue
 
         val payload = CheckoutAddressChangeStartResponsePayload(

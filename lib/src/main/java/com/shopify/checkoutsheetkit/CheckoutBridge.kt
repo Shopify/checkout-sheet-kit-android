@@ -31,6 +31,7 @@ import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartRe
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartResponsePayload
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutSubmitStart
+import com.shopify.checkoutsheetkit.rpc.events.CheckoutPaymentMethodChangeStart
 import com.shopify.checkoutsheetkit.rpc.CheckoutStart
 import com.shopify.checkoutsheetkit.rpc.CheckoutComplete
 import com.shopify.checkoutsheetkit.rpc.RPCRequest
@@ -71,33 +72,9 @@ internal class CheckoutBridge(
      */
     fun respondToEvent(eventId: String, responseData: String) {
         val event = pendingEvents[eventId]
-        when (event) {
-            is CheckoutAddressChangeStart -> {
-                try {
-                    val jsonParser = Json { ignoreUnknownKeys = true }
-                    val payload = jsonParser.decodeFromString<CheckoutAddressChangeStartResponsePayload>(responseData)
-                    event.respondWith(payload)
-                    pendingEvents.remove(eventId)
-                    log.d(LOG_TAG, "Successfully responded to event $eventId")
-                } catch (e: Exception) {
-                    log.e(LOG_TAG, "Failed to parse response data for event $eventId: ${e.message}")
-                }
-            }
-            is CheckoutSubmitStart -> {
-                try {
-                    val jsonParser = Json { ignoreUnknownKeys = true }
-                    val payload = jsonParser.decodeFromString<CheckoutSubmitStartResponsePayload>(responseData)
-                    event.respondWith(payload)
-                    pendingEvents.remove(eventId)
-                    log.d(LOG_TAG, "Successfully responded to event $eventId")
-                } catch (e: Exception) {
-                    log.e(LOG_TAG, "Failed to parse response data for event $eventId: ${e.message}")
-                }
-            }
-            else -> {
-                log.w(LOG_TAG, "No pending event found with ID $eventId")
-            }
-        }
+        if (event == null) return
+        event.respondWith(jsonString = responseData)
+        pendingEvents.remove(event.id)
     }
 
     /**
@@ -132,7 +109,7 @@ internal class CheckoutBridge(
 
                     log.d(LOG_TAG, "Received checkout.addressChangeStart message with webView ref: ${webViewRef?.get()}")
                     onMainThread {
-                        eventProcessor.onCheckoutAddressChangeStart(rpcRequest)
+                        eventProcessor.onCheckoutViewAddressChangeStart(rpcRequest)
                     }
                 }
 
@@ -141,7 +118,16 @@ internal class CheckoutBridge(
 
                     log.d(LOG_TAG, "Received checkout.submitStart message with webView ref: ${webViewRef?.get()}")
                     onMainThread {
-                        eventProcessor.onCheckoutSubmitStart(rpcRequest)
+                        eventProcessor.onCheckoutViewSubmitStart(rpcRequest)
+                    }
+                }
+
+                is CheckoutPaymentMethodChangeStart -> {
+                    setupRequestForResponse(rpcRequest)
+
+                    log.d(LOG_TAG, "Received checkout.paymentMethodChangeStart message with webView ref: ${webViewRef?.get()}")
+                    onMainThread {
+                        eventProcessor.onCheckoutViewPaymentMethodChangeStart(rpcRequest)
                     }
                 }
 

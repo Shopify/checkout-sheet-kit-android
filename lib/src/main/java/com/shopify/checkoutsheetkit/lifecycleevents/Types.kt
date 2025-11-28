@@ -61,7 +61,8 @@ public data class Cart(
     public val discountCodes: List<CartDiscountCode> = emptyList(),
     public val appliedGiftCards: List<AppliedGiftCard> = emptyList(),
     public val discountAllocations: List<CartDiscountAllocation> = emptyList(),
-    public val delivery: CartDelivery
+    public val delivery: CartDelivery,
+    public val paymentInstruments: List<CartPaymentInstrument> = emptyList()
 )
 
 @Serializable
@@ -422,6 +423,9 @@ public data class CartInput(
 
     /** The case-insensitive discount codes that the customer added at checkout. */
     val discountCodes: List<String>? = null,
+
+    /** Payment instruments for the cart. */
+    val paymentInstruments: List<CartPaymentInstrumentInput>? = null,
 )
 
 /**
@@ -519,4 +523,63 @@ public data class Checkout(
      * The checkout session identifier
      */
     val id: String
+)
+
+@Serializable
+public enum class CardBrand {
+    @SerialName("VISA")
+    VISA,
+
+    @SerialName("MASTERCARD")
+    MASTERCARD,
+
+    @SerialName("AMERICAN_EXPRESS")
+    AMERICAN_EXPRESS,
+
+    @SerialName("DISCOVER")
+    DISCOVER,
+
+    @SerialName("DINERS_CLUB")
+    DINERS_CLUB,
+
+    @SerialName("JCB")
+    JCB,
+
+    @SerialName("MAESTRO")
+    MAESTRO,
+
+    @SerialName("UNKNOWN")
+    UNKNOWN
+}
+
+@Serializable
+public data class CartPaymentInstrument(
+    public val identifier: String
+)
+
+@Serializable
+public data class ExpiryInput(
+    public val month: Int,
+    public val year: Int,
+)
+
+@Serializable
+public data class CartPaymentInstrumentDisplayInput(
+    public val last4: String,
+    public val brand: CardBrand,
+    public val cardHolderName: String,
+    public val expiry: ExpiryInput,
+)
+
+/**
+ * Type alias for CartDeliveryAddressInput used in payment instrument billing addresses.
+ * This doesn't follow the Storefront API design so we are aliasing to an existing conforming shape.
+ */
+public typealias CartMailingAddressInput = CartDeliveryAddressInput
+
+@Serializable
+public data class CartPaymentInstrumentInput(
+    public val externalReference: String,
+    public val display: CartPaymentInstrumentDisplayInput,
+    public val billingAddress: CartMailingAddressInput,
 )

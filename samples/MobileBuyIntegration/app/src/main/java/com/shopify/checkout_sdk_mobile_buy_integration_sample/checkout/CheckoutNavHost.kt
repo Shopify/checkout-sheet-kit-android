@@ -70,6 +70,16 @@ sealed class CheckoutScreen(val route: String) {
             return backStackEntry.arguments?.getString("eventId") ?: ""
         }
     }
+
+    data object Payment : CheckoutScreen("payment/{eventId}") {
+        fun route(eventId: String): String {
+            return "payment/$eventId"
+        }
+
+        fun getEventId(backStackEntry: NavBackStackEntry): String {
+            return backStackEntry.arguments?.getString("eventId") ?: ""
+        }
+    }
 }
 
 /**
@@ -171,6 +181,13 @@ fun CheckoutNavHost(
                 composable(CheckoutScreen.Address.route) { backStackEntry ->
                     AddressSelectionScreen(
                         eventId = CheckoutScreen.Address.getEventId(backStackEntry),
+                        onNavigateBack = { checkoutNavController.popBackStack() }
+                    )
+                }
+
+                composable(CheckoutScreen.Payment.route) { backStackEntry ->
+                    PaymentSelectionScreen(
+                        eventId = CheckoutScreen.Payment.getEventId(backStackEntry),
                         onNavigateBack = { checkoutNavController.popBackStack() }
                     )
                 }

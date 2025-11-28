@@ -29,6 +29,7 @@ import android.net.Uri
 import androidx.activity.ComponentActivity
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
+import com.shopify.checkoutsheetkit.rpc.events.CheckoutPaymentMethodChangeStart
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -143,6 +144,10 @@ class DefaultCheckoutEventProcessorTest {
                 }
 
                 override fun onAddressChangeStart(event: CheckoutAddressChangeStart) {
+                    /* not implemented */
+                }
+
+                override fun onPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStart) {
                     /* not implemented */
                 }
             }
