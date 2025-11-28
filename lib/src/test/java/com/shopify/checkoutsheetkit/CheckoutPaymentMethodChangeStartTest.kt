@@ -31,6 +31,7 @@ import com.shopify.checkoutsheetkit.lifecycleevents.MailingAddressInput
 import com.shopify.checkoutsheetkit.lifecycleevents.ResponseError
 import com.shopify.checkoutsheetkit.rpc.RPCRequestRegistry
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutPaymentMethodChangeStart
+import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -344,4 +345,114 @@ class CheckoutPaymentMethodChangeStartTest {
         assertEquals("MAESTRO", CardBrand.MAESTRO.name)
         assertEquals("UNKNOWN", CardBrand.UNKNOWN.name)
     }
+
+    @Test
+    fun `test ExpiryInput deserialization`() {
+        val json = """{"month":6,"year":2026}"""
+        val expiry = Json.decodeFromString<ExpiryInput>(json)
+
+        assertEquals(6, expiry.month)
+        assertEquals(2026, expiry.year)
+    }
+
+    @Test
+    fun `test CartPaymentInstrumentDisplayInput deserialization`() {
+        val json = """
+            {
+                "last4": "5555",
+                "brand": "MASTERCARD",
+                "cardHolderName": "Jane Smith",
+                "expiry": {"month": 3, "year": 2027}
+            }
+        """.trimIndent()
+
+        val display = Json.decodeFromString<CartPaymentInstrumentDisplayInput>(json)
+
+        assertEquals("5555", display.last4)
+        assertEquals(CardBrand.MASTERCARD, display.brand)
+        assertEquals("Jane Smith", display.cardHolderName)
+        assertEquals(3, display.expiry.month)
+        assertEquals(2027, display.expiry.year)
+    }
+
+    @Test
+    fun `test MailingAddressInput deserialization with optional fields`() {
+        val json = """
+            {
+                "firstName": "Jane",
+                "lastName": "Smith",
+                "address1": "456 Oak Ave",
+                "city": "San Francisco",
+                "countryCode": "US",
+                "provinceCode": "CA",
+                "zip": "94102"
+            }
+        """.trimIndent()
+
+        val address = Json.decodeFromString<MailingAddressInput>(json)
+
+        assertEquals("Jane", address.firstName)
+        assertEquals("Smith", address.lastName)
+        assertEquals("456 Oak Ave", address.address1)
+        assertNull(address.address2)
+        assertEquals("San Francisco", address.city)
+        assertNull(address.company)
+        assertEquals("US", address.countryCode)
+        assertNull(address.phone)
+        assertEquals("CA", address.provinceCode)
+        assertEquals("94102", address.zip)
+    }
+
+    @Test
+    fun `test CartPaymentInstrumentInput deserialization`() {
+        val json = """
+            {
+                "externalReference": "payment-456",
+                "display": {
+                    "last4": "0005",
+                    "brand": "AMERICAN_EXPRESS",
+                    "cardHolderName": "Alex Johnson",
+                    "expiry": {"month": 9, "year": 2028}
+                },
+                "billingAddress": {
+                    "firstName": "Alex",
+                    "lastName": "Johnson",
+                    "address1": "789 Pine St",
+                    "city": "Chicago",
+                    "countryCode": "US",
+                    "provinceCode": "IL",
+                    "zip": "60601"
+                }
+            }
+        """.trimIndent()
+
+        val paymentInstrument = Json.decodeFromString<CartPaymentInstrumentInput>(json)
+
+        assertEquals("payment-456", paymentInstrument.externalReference)
+        assertEquals("0005", paymentInstrument.display.last4)
+        assertEquals(CardBrand.AMERICAN_EXPRESS, paymentInstrument.display.brand)
+        assertEquals("Alex Johnson", paymentInstrument.display.cardHolderName)
+        assertEquals(9, paymentInstrument.display.expiry.month)
+        assertEquals(2028, paymentInstrument.display.expiry.year)
+        assertEquals("Alex", paymentInstrument.billingAddress.firstName)
+        assertEquals("Johnson", paymentInstrument.billingAddress.lastName)
+        assertEquals("789 Pine St", paymentInstrument.billingAddress.address1)
+        assertEquals("Chicago", paymentInstrument.billingAddress.city)
+        assertEquals("US", paymentInstrument.billingAddress.countryCode)
+        assertEquals("IL", paymentInstrument.billingAddress.provinceCode)
+        assertEquals("60601", paymentInstrument.billingAddress.zip)
+    }
+
+    @Test
+    fun `test CardBrand deserialization values`() {
+        assertEquals(CardBrand.VISA, Json.decodeFromString<CardBrand>("\"VISA\""))
+        assertEquals(CardBrand.MASTERCARD, Json.decodeFromString<CardBrand>("\"MASTERCARD\""))
+        assertEquals(CardBrand.AMERICAN_EXPRESS, Json.decodeFromString<CardBrand>("\"AMERICAN_EXPRESS\""))
+        assertEquals(CardBrand.DISCOVER, Json.decodeFromString<CardBrand>("\"DISCOVER\""))
+        assertEquals(CardBrand.DINERS_CLUB, Json.decodeFromString<CardBrand>("\"DINERS_CLUB\""))
+        assertEquals(CardBrand.JCB, Json.decodeFromString<CardBrand>("\"JCB\""))
+        assertEquals(CardBrand.MAESTRO, Json.decodeFromString<CardBrand>("\"MAESTRO\""))
+        assertEquals(CardBrand.UNKNOWN, Json.decodeFromString<CardBrand>("\"UNKNOWN\""))
+    }
+
 }
