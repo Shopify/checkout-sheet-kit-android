@@ -104,7 +104,7 @@ public interface CheckoutEventProcessor {
      * indicates they want to start an address change.
      *
      * By default the request is cancelled. Override to present custom UI and provide a response
-     * via [AddressChangeStart.respondWith] or cancel explicitly.
+     * via [CheckoutAddressChangeStart.respondWith] or cancel explicitly.
      */
     public fun onAddressChangeStart(event: CheckoutAddressChangeStart)
 
