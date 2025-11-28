@@ -27,7 +27,7 @@ import com.shopify.checkoutsheetkit.lifecycleevents.CartInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentInstrumentDisplayInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentInstrumentInput
 import com.shopify.checkoutsheetkit.lifecycleevents.ExpiryInput
-import com.shopify.checkoutsheetkit.lifecycleevents.MailingAddressInput
+import com.shopify.checkoutsheetkit.lifecycleevents.CartMailingAddressInput
 import com.shopify.checkoutsheetkit.lifecycleevents.ResponseError
 import com.shopify.checkoutsheetkit.rpc.RPCRequestRegistry
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutPaymentMethodChangeStart
@@ -206,7 +206,7 @@ class CheckoutPaymentMethodChangeStartTest {
                                 year = 2025
                             )
                         ),
-                        billingAddress = MailingAddressInput(
+                        billingAddress = CartMailingAddressInput(
                             firstName = "John",
                             lastName = "Doe",
                             address1 = "123 Main St",
@@ -376,7 +376,7 @@ class CheckoutPaymentMethodChangeStartTest {
     }
 
     @Test
-    fun `test MailingAddressInput deserialization with optional fields`() {
+    fun `test CartMailingAddressInput deserialization with optional fields`() {
         val json = """
             {
                 "firstName": "Jane",
@@ -389,7 +389,7 @@ class CheckoutPaymentMethodChangeStartTest {
             }
         """.trimIndent()
 
-        val address = Json.decodeFromString<MailingAddressInput>(json)
+        val address = Json.decodeFromString<CartMailingAddressInput>(json)
 
         assertEquals("Jane", address.firstName)
         assertEquals("Smith", address.lastName)

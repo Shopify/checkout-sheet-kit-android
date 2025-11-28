@@ -156,6 +156,7 @@ class CheckoutBridgeTest {
             .contains("\"tokenProvider\":\"delegated\"")
     }
 
+    @Test
     fun `postMessage dispatches payment method change start to event processor`() {
         val cart = createTestCart()
         val jsonRpcMessage = """{

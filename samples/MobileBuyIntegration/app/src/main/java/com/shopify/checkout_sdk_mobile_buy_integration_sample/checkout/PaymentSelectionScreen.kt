@@ -56,7 +56,7 @@ import com.shopify.checkoutsheetkit.lifecycleevents.CartInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentInstrumentDisplayInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentInstrumentInput
 import com.shopify.checkoutsheetkit.lifecycleevents.ExpiryInput
-import com.shopify.checkoutsheetkit.lifecycleevents.MailingAddressInput
+import com.shopify.checkoutsheetkit.lifecycleevents.CartMailingAddressInput
 import com.shopify.checkoutsheetkit.rpc.CheckoutEventResponseException
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutPaymentMethodChangeStart
 import kotlinx.coroutines.launch
@@ -95,7 +95,7 @@ fun PaymentSelectionScreen(
                         cardHolderName = "John Doe",
                         expiry = ExpiryInput(month = 12, year = 2025)
                     ),
-                    billingAddress = MailingAddressInput(
+                    billingAddress = CartMailingAddressInput(
                         firstName = "John",
                         lastName = "Doe",
                         address1 = "150 5th Avenue",
@@ -116,7 +116,7 @@ fun PaymentSelectionScreen(
                         cardHolderName = "Jane Smith",
                         expiry = ExpiryInput(month = 6, year = 2026)
                     ),
-                    billingAddress = MailingAddressInput(
+                    billingAddress = CartMailingAddressInput(
                         firstName = "Jane",
                         lastName = "Smith",
                         address1 = "89 Haight Street",
@@ -138,7 +138,7 @@ fun PaymentSelectionScreen(
                         cardHolderName = "Alex Johnson",
                         expiry = ExpiryInput(month = 3, year = 2027)
                     ),
-                    billingAddress = MailingAddressInput(
+                    billingAddress = CartMailingAddressInput(
                         firstName = "Alex",
                         lastName = "Johnson",
                         address1 = "456 Oak Ave",
