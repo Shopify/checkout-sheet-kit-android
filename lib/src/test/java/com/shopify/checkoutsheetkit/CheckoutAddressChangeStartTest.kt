@@ -32,22 +32,18 @@ import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CartSelectableAddressInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryAddressInput
 import com.shopify.checkoutsheetkit.lifecycleevents.Money
+import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
 import com.shopify.checkoutsheetkit.rpc.CheckoutEventResponseException
 import com.shopify.checkoutsheetkit.rpc.RPCRequestRegistry
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStartEvent
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
+import org.assertj.core.api.Assertions.assertThatCode
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
-import org.assertj.core.api.Assertions.assertThatCode
-import org.assertj.core.api.Assertions.assertThatThrownBy
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [28])
 class CheckoutAddressChangeStartTest {
 
     @Test
@@ -81,13 +77,13 @@ class CheckoutAddressChangeStartTest {
 
         val decoded = CheckoutAddressChangeStart.Companion.decodeErased(json)
 
-        assertNotNull(decoded)
-        assertTrue(decoded is CheckoutAddressChangeStart)
+        assertThat(decoded).isNotNull()
+        assertThat(decoded).isInstanceOf(CheckoutAddressChangeStart::class.java)
 
         val request = decoded as CheckoutAddressChangeStart
-        assertEquals("test-123", request.id)
-        assertEquals("shipping", request.params.addressType)
-        assertEquals("gid://shopify/Cart/test-cart-123", request.params.cart.id)
+        assertThat(request.id).isEqualTo("test-123")
+        assertThat(request.params.addressType).isEqualTo("shipping")
+        assertThat(request.params.cart.id).isEqualTo("gid://shopify/Cart/test-cart-123")
     }
 
     @Test
@@ -121,13 +117,13 @@ class CheckoutAddressChangeStartTest {
 
         val decoded = CheckoutAddressChangeStart.Companion.decodeErased(json)
 
-        assertNotNull(decoded)
-        assertTrue(decoded is CheckoutAddressChangeStart)
+        assertThat(decoded).isNotNull()
+        assertThat(decoded).isInstanceOf(CheckoutAddressChangeStart::class.java)
 
         val request = decoded as CheckoutAddressChangeStart
-        assertEquals("test-456", request.id)
-        assertEquals("billing", request.params.addressType)
-        assertEquals("gid://shopify/Cart/test-cart-456", request.params.cart.id)
+        assertThat(request.id).isEqualTo("test-456")
+        assertThat(request.params.addressType).isEqualTo("billing")
+        assertThat(request.params.cart.id).isEqualTo("gid://shopify/Cart/test-cart-456")
     }
 
     @Test
@@ -161,17 +157,17 @@ class CheckoutAddressChangeStartTest {
 
         val decoded = RPCRequestRegistry.decode(json)
 
-        assertNotNull(decoded)
-        assertTrue(decoded is CheckoutAddressChangeStart)
+        assertThat(decoded).isNotNull()
+        assertThat(decoded).isInstanceOf(CheckoutAddressChangeStart::class.java)
 
         val request = decoded as CheckoutAddressChangeStart
-        assertEquals("test-789", request.id)
-        assertEquals("shipping", request.params.addressType)
+        assertThat(request.id).isEqualTo("test-789")
+        assertThat(request.params.addressType).isEqualTo("shipping")
     }
 
     @Test
     fun `test companion object provides correct method`() {
-        assertEquals("checkout.addressChangeStart", CheckoutAddressChangeStart.method)
+        assertThat(CheckoutAddressChangeStart.method).isEqualTo("checkout.addressChangeStart")
     }
 
     @Test
@@ -207,8 +203,8 @@ class CheckoutAddressChangeStartTest {
         // This will fail to send since no WebView is attached, but we're testing the flow
         request.respondWith(payload)
 
-        assertEquals("shipping", request.params.addressType)
-        assertEquals(cart.id, request.params.cart.id)
+        assertThat(request.params.addressType).isEqualTo("shipping")
+        assertThat(request.params.cart.id).isEqualTo(cart.id)
     }
 
     @Test
@@ -246,7 +242,7 @@ class CheckoutAddressChangeStartTest {
         // This will fail to send since no WebView is attached, but we're testing the parsing
         request.respondWith(json)
 
-        assertEquals("shipping", request.params.addressType)
+        assertThat(request.params.addressType).isEqualTo("shipping")
     }
 
     @Test
@@ -266,8 +262,8 @@ class CheckoutAddressChangeStartTest {
             responseSerializer = CheckoutAddressChangeStartResponsePayload.serializer()
         )
 
-        assertEquals(cart, request.params.cart)
-        assertEquals("gid://shopify/Cart/test-cart", request.params.cart.id)
+        assertThat(request.params.cart).isEqualTo(cart)
+        assertThat(request.params.cart.id).isEqualTo("gid://shopify/Cart/test-cart")
     }
 
     @Test
