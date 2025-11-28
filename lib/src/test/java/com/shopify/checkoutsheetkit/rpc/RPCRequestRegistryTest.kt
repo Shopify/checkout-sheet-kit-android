@@ -22,12 +22,8 @@
  */
 package com.shopify.checkoutsheetkit.rpc
 
+import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -75,11 +71,13 @@ class RPCRequestRegistryTest {
 
         val result = RPCRequestRegistry.decode(jsonString)
 
-        assertNotNull("Should decode message successfully", result)
-        assertTrue("Should be a CheckoutStart", result is CheckoutStart)
+        assertThat(result)
+            .isNotNull()
+            .isInstanceOf(CheckoutStart::class.java)
+
         val request = result as CheckoutStart
-        assertEquals("cart-123", request.params.cart.id)
-        assertEquals("checkout.start", request.method)
+        assertThat(request.params.cart.id).isEqualTo("cart-123")
+        assertThat(request.method).isEqualTo("checkout.start")
     }
 
     @Test
@@ -130,13 +128,15 @@ class RPCRequestRegistryTest {
 
         val result = RPCRequestRegistry.decode(jsonString)
 
-        assertNotNull("Should decode message successfully", result)
-        assertTrue("Should be a CheckoutComplete", result is CheckoutComplete)
+        assertThat(result)
+            .isNotNull()
+            .isInstanceOf(CheckoutComplete::class.java)
+
         val request = result as CheckoutComplete
-        assertEquals("order-123", request.params.orderConfirmation.order.id)
-        assertEquals("#1001", request.params.orderConfirmation.number)
-        assertEquals("cart-456", request.params.cart.id)
-        assertEquals("checkout.complete", request.method)
+        assertThat(request.params.orderConfirmation.order.id).isEqualTo("order-123")
+        assertThat(request.params.orderConfirmation.number).isEqualTo("#1001")
+        assertThat(request.params.cart.id).isEqualTo("cart-456")
+        assertThat(request.method).isEqualTo("checkout.complete")
     }
 
     @Test
@@ -170,13 +170,15 @@ class RPCRequestRegistryTest {
 
         val result = RPCRequestRegistry.decode(jsonString)
 
-        assertNotNull("Should decode message successfully", result)
-        assertTrue("Should be a CheckoutAddressChangeStart", result is CheckoutAddressChangeStart)
+        assertThat(result)
+            .isNotNull()
+            .isInstanceOf(CheckoutAddressChangeStart::class.java)
+
         val request = result as CheckoutAddressChangeStart
-        assertEquals("request-123", request.id)
-        assertEquals("shipping", request.params.addressType)
-        assertEquals("gid://shopify/Cart/test-cart-123", request.params.cart.id)
-        assertEquals("checkout.addressChangeStart", request.method)
+        assertThat(request.id).isEqualTo("request-123")
+        assertThat(request.params.addressType).isEqualTo("shipping")
+        assertThat(request.params.cart.id).isEqualTo("gid://shopify/Cart/test-cart-123")
+        assertThat(request.method).isEqualTo("checkout.addressChangeStart")
     }
 
     @Test
@@ -191,7 +193,7 @@ class RPCRequestRegistryTest {
 
         val result = RPCRequestRegistry.decode(jsonString)
 
-        assertNull("Should return null for unsupported method", result)
+        assertThat(result).isNull()
     }
 
     @Test
@@ -200,7 +202,7 @@ class RPCRequestRegistryTest {
 
         val result = RPCRequestRegistry.decode(invalidJson)
 
-        assertNull("Should return null for invalid JSON", result)
+        assertThat(result).isNull()
     }
 
     @Test
@@ -215,7 +217,7 @@ class RPCRequestRegistryTest {
 
         val result = RPCRequestRegistry.decode(jsonString)
 
-        assertNull("Should return null for wrong JSON-RPC version", result)
+        assertThat(result).isNull()
     }
 
     @Test
@@ -229,31 +231,31 @@ class RPCRequestRegistryTest {
 
         val result = RPCRequestRegistry.decode(jsonString)
 
-        assertNull("Should return null for missing method field", result)
+        assertThat(result).isNull()
     }
 
     @Test
     fun `isRegistered returns true for registered methods`() {
-        assertTrue("checkout.start should be registered", RPCRequestRegistry.isRegistered("checkout.start"))
-        assertTrue("checkout.complete should be registered", RPCRequestRegistry.isRegistered("checkout.complete"))
-        assertTrue("checkout.addressChangeStart should be registered",
-            RPCRequestRegistry.isRegistered("checkout.addressChangeStart"))
+        assertThat(RPCRequestRegistry.isRegistered("checkout.start")).isTrue()
+        assertThat(RPCRequestRegistry.isRegistered("checkout.complete")).isTrue()
+        assertThat(RPCRequestRegistry.isRegistered("checkout.addressChangeStart")).isTrue()
     }
 
     @Test
     fun `isRegistered returns false for unregistered methods`() {
-        assertFalse("checkout.unsupported should not be registered", RPCRequestRegistry.isRegistered("checkout.unsupported"))
+        assertThat(RPCRequestRegistry.isRegistered("checkout.unsupported")).isFalse()
     }
 
     @Test
     fun `getRegisteredMethods returns all registered methods`() {
         val methods = RPCRequestRegistry.getRegisteredMethods()
 
-        assertTrue("Should contain checkout.start", methods.contains("checkout.start"))
-        assertTrue("Should contain checkout.complete", methods.contains("checkout.complete"))
-        assertTrue("Should contain checkout.addressChangeStart", methods.contains("checkout.addressChangeStart"))
-        assertTrue("Should contain checkout.submitStart", methods.contains("checkout.submitStart"))
-        assertTrue("Should contain checkout.paymentMethodChangeStart", methods.contains("checkout.paymentMethodChangeStart"))
-        assertEquals("Should have exactly 5 registered methods", 5, methods.size)
+        assertThat(methods).containsExactlyInAnyOrder(
+            "checkout.start",
+            "checkout.complete",
+            "checkout.addressChangeStart",
+            "checkout.submitStart",
+            "checkout.paymentMethodChangeStart",
+        )
     }
 }

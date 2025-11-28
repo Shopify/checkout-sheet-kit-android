@@ -22,6 +22,7 @@
  */
 package com.shopify.checkoutsheetkit
 
+import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
 import com.shopify.checkoutsheetkit.lifecycleevents.CardBrand
 import com.shopify.checkoutsheetkit.lifecycleevents.CartInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentInstrumentDisplayInput
@@ -32,17 +33,11 @@ import com.shopify.checkoutsheetkit.lifecycleevents.ResponseError
 import com.shopify.checkoutsheetkit.rpc.RPCRequestRegistry
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutPaymentMethodChangeStart
 import kotlinx.serialization.json.Json
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [28])
 class CheckoutPaymentMethodChangeStartTest {
 
     @Test
@@ -77,15 +72,14 @@ class CheckoutPaymentMethodChangeStartTest {
 
         val decoded = CheckoutPaymentMethodChangeStart.Companion.decodeErased(json)
 
-        assertNotNull(decoded)
-        assertTrue(decoded is CheckoutPaymentMethodChangeStart)
+        assertThat(decoded).isNotNull().isInstanceOf(CheckoutPaymentMethodChangeStart::class.java)
 
         val request = decoded as CheckoutPaymentMethodChangeStart
-        assertEquals("test-123", request.id)
-        assertEquals("cart-123", request.params.cart.id)
-        assertEquals(2, request.params.cart.paymentInstruments.size)
-        assertEquals("instrument-1", request.params.cart.paymentInstruments[0].identifier)
-        assertEquals("instrument-2", request.params.cart.paymentInstruments[1].identifier)
+        assertThat(request.id).isEqualTo("test-123")
+        assertThat(request.params.cart.id).isEqualTo("cart-123")
+        assertThat(request.params.cart.paymentInstruments).hasSize(2)
+        assertThat(request.params.cart.paymentInstruments[0].identifier).isEqualTo("instrument-1")
+        assertThat(request.params.cart.paymentInstruments[1].identifier).isEqualTo("instrument-2")
     }
 
     @Test
@@ -116,13 +110,12 @@ class CheckoutPaymentMethodChangeStartTest {
 
         val decoded = CheckoutPaymentMethodChangeStart.Companion.decodeErased(json)
 
-        assertNotNull(decoded)
-        assertTrue(decoded is CheckoutPaymentMethodChangeStart)
+        assertThat(decoded).isNotNull().isInstanceOf(CheckoutPaymentMethodChangeStart::class.java)
 
         val request = decoded as CheckoutPaymentMethodChangeStart
-        assertEquals("test-456", request.id)
-        assertEquals("cart-456", request.params.cart.id)
-        assertTrue(request.params.cart.paymentInstruments.isEmpty())
+        assertThat(request.id).isEqualTo("test-456")
+        assertThat(request.params.cart.id).isEqualTo("cart-456")
+        assertThat(request.params.cart.paymentInstruments).isEmpty()
     }
 
     @Test
@@ -154,19 +147,18 @@ class CheckoutPaymentMethodChangeStartTest {
 
         val decoded = RPCRequestRegistry.decode(json)
 
-        assertNotNull(decoded)
-        assertTrue(decoded is CheckoutPaymentMethodChangeStart)
+        assertThat(decoded).isNotNull().isInstanceOf(CheckoutPaymentMethodChangeStart::class.java)
 
         val request = decoded as CheckoutPaymentMethodChangeStart
-        assertEquals("test-789", request.id)
-        assertEquals("cart-789", request.params.cart.id)
-        assertEquals(1, request.params.cart.paymentInstruments.size)
-        assertEquals("pi-abc", request.params.cart.paymentInstruments[0].identifier)
+        assertThat(request.id).isEqualTo("test-789")
+        assertThat(request.params.cart.id).isEqualTo("cart-789")
+        assertThat(request.params.cart.paymentInstruments).hasSize(1)
+        assertThat(request.params.cart.paymentInstruments[0].identifier).isEqualTo("pi-abc")
     }
 
     @Test
     fun `test companion object provides correct method`() {
-        assertEquals("checkout.paymentMethodChangeStart", CheckoutPaymentMethodChangeStart.method)
+        assertThat(CheckoutPaymentMethodChangeStart.method).isEqualTo("checkout.paymentMethodChangeStart")
 
         val cart = createTestCart()
         val request = CheckoutPaymentMethodChangeStart(
@@ -174,12 +166,12 @@ class CheckoutPaymentMethodChangeStartTest {
             CheckoutPaymentMethodChangeStartParams(cart),
             CheckoutPaymentMethodChangeStartResponsePayload.serializer()
         )
-        assertEquals("checkout.paymentMethodChangeStart", request.method)
+        assertThat(request.method).isEqualTo("checkout.paymentMethodChangeStart")
     }
 
     @Test
     fun `test onCheckoutPaymentMethodChangeStart method name is consistent`() {
-        assertEquals("checkout.paymentMethodChangeStart", CheckoutPaymentMethodChangeStart.method)
+        assertThat(CheckoutPaymentMethodChangeStart.method).isEqualTo("checkout.paymentMethodChangeStart")
     }
 
     @Test
@@ -223,7 +215,7 @@ class CheckoutPaymentMethodChangeStartTest {
 
         request.respondWith(payload)
 
-        assertEquals("cart-id-123", request.params.cart.id)
+        assertThat(request.params.cart.id).isEqualTo("cart-id-123")
     }
 
     @Test
@@ -249,7 +241,7 @@ class CheckoutPaymentMethodChangeStartTest {
 
         request.respondWith(payload)
 
-        assertNotNull(request.params.cart)
+        assertThat(request.params.cart).isNotNull()
     }
 
     @Test
@@ -269,7 +261,7 @@ class CheckoutPaymentMethodChangeStartTest {
 
         request.respondWith(payload)
 
-        assertNotNull(request.params.cart)
+        assertThat(request.params.cart).isNotNull()
     }
 
     @Test
@@ -314,7 +306,7 @@ class CheckoutPaymentMethodChangeStartTest {
 
         request.respondWith(json)
 
-        assertEquals("cart-id-123", request.params.cart.id)
+        assertThat(request.params.cart.id).isEqualTo("cart-id-123")
     }
 
     @Test
@@ -330,20 +322,26 @@ class CheckoutPaymentMethodChangeStartTest {
             responseSerializer = CheckoutPaymentMethodChangeStartResponsePayload.serializer()
         )
 
-        assertEquals("exposed-cart-id", request.params.cart.id)
-        assertEquals("199.99", request.params.cart.cost.totalAmount.amount)
+        assertThat(request.params.cart.id).isEqualTo("exposed-cart-id")
+        assertThat(request.params.cart.cost.totalAmount.amount).isEqualTo("199.99")
     }
 
     @Test
     fun `test CardBrand enum values`() {
-        assertEquals("VISA", CardBrand.VISA.name)
-        assertEquals("MASTERCARD", CardBrand.MASTERCARD.name)
-        assertEquals("AMERICAN_EXPRESS", CardBrand.AMERICAN_EXPRESS.name)
-        assertEquals("DISCOVER", CardBrand.DISCOVER.name)
-        assertEquals("DINERS_CLUB", CardBrand.DINERS_CLUB.name)
-        assertEquals("JCB", CardBrand.JCB.name)
-        assertEquals("MAESTRO", CardBrand.MAESTRO.name)
-        assertEquals("UNKNOWN", CardBrand.UNKNOWN.name)
+        val expectedValues = listOf(
+            CardBrand.VISA to "VISA",
+            CardBrand.MASTERCARD to "MASTERCARD",
+            CardBrand.AMERICAN_EXPRESS to "AMERICAN_EXPRESS",
+            CardBrand.DISCOVER to "DISCOVER",
+            CardBrand.DINERS_CLUB to "DINERS_CLUB",
+            CardBrand.JCB to "JCB",
+            CardBrand.MAESTRO to "MAESTRO",
+            CardBrand.UNKNOWN to "UNKNOWN"
+        )
+
+        expectedValues.forEach { (brand, expectedName) ->
+            assertThat(brand.name).isEqualTo(expectedName)
+        }
     }
 
     @Test
@@ -351,8 +349,12 @@ class CheckoutPaymentMethodChangeStartTest {
         val json = """{"month":6,"year":2026}"""
         val expiry = Json.decodeFromString<ExpiryInput>(json)
 
-        assertEquals(6, expiry.month)
-        assertEquals(2026, expiry.year)
+        assertThat(expiry).isEqualTo(
+            ExpiryInput(
+                month = 6,
+                year = 2026
+            )
+        )
     }
 
     @Test
@@ -368,11 +370,14 @@ class CheckoutPaymentMethodChangeStartTest {
 
         val display = Json.decodeFromString<CartPaymentInstrumentDisplayInput>(json)
 
-        assertEquals("5555", display.last4)
-        assertEquals(CardBrand.MASTERCARD, display.brand)
-        assertEquals("Jane Smith", display.cardHolderName)
-        assertEquals(3, display.expiry.month)
-        assertEquals(2027, display.expiry.year)
+        assertThat(display).isEqualTo(
+            CartPaymentInstrumentDisplayInput(
+                last4 = "5555",
+                brand = CardBrand.MASTERCARD,
+                cardHolderName = "Jane Smith",
+                expiry = ExpiryInput(month = 3, year = 2027)
+            )
+        )
     }
 
     @Test
@@ -391,16 +396,17 @@ class CheckoutPaymentMethodChangeStartTest {
 
         val address = Json.decodeFromString<CartMailingAddressInput>(json)
 
-        assertEquals("Jane", address.firstName)
-        assertEquals("Smith", address.lastName)
-        assertEquals("456 Oak Ave", address.address1)
-        assertNull(address.address2)
-        assertEquals("San Francisco", address.city)
-        assertNull(address.company)
-        assertEquals("US", address.countryCode)
-        assertNull(address.phone)
-        assertEquals("CA", address.provinceCode)
-        assertEquals("94102", address.zip)
+        assertThat(address).isEqualTo(
+            CartMailingAddressInput(
+                firstName = "Jane",
+                lastName = "Smith",
+                address1 = "456 Oak Ave",
+                city = "San Francisco",
+                countryCode = "US",
+                provinceCode = "CA",
+                zip = "94102"
+            )
+        )
     }
 
     @Test
@@ -428,31 +434,46 @@ class CheckoutPaymentMethodChangeStartTest {
 
         val paymentInstrument = Json.decodeFromString<CartPaymentInstrumentInput>(json)
 
-        assertEquals("payment-456", paymentInstrument.externalReference)
-        assertEquals("0005", paymentInstrument.display.last4)
-        assertEquals(CardBrand.AMERICAN_EXPRESS, paymentInstrument.display.brand)
-        assertEquals("Alex Johnson", paymentInstrument.display.cardHolderName)
-        assertEquals(9, paymentInstrument.display.expiry.month)
-        assertEquals(2028, paymentInstrument.display.expiry.year)
-        assertEquals("Alex", paymentInstrument.billingAddress.firstName)
-        assertEquals("Johnson", paymentInstrument.billingAddress.lastName)
-        assertEquals("789 Pine St", paymentInstrument.billingAddress.address1)
-        assertEquals("Chicago", paymentInstrument.billingAddress.city)
-        assertEquals("US", paymentInstrument.billingAddress.countryCode)
-        assertEquals("IL", paymentInstrument.billingAddress.provinceCode)
-        assertEquals("60601", paymentInstrument.billingAddress.zip)
+        assertThat(paymentInstrument).isEqualTo(
+            CartPaymentInstrumentInput(
+                externalReference = "payment-456",
+                display = CartPaymentInstrumentDisplayInput(
+                    last4 = "0005",
+                    brand = CardBrand.AMERICAN_EXPRESS,
+                    cardHolderName = "Alex Johnson",
+                    expiry = ExpiryInput(month = 9, year = 2028)
+                ),
+                billingAddress = CartMailingAddressInput(
+                    firstName = "Alex",
+                    lastName = "Johnson",
+                    address1 = "789 Pine St",
+                    city = "Chicago",
+                    countryCode = "US",
+                    provinceCode = "IL",
+                    zip = "60601"
+                )
+            )
+        )
     }
 
     @Test
     fun `test CardBrand deserialization values`() {
-        assertEquals(CardBrand.VISA, Json.decodeFromString<CardBrand>("\"VISA\""))
-        assertEquals(CardBrand.MASTERCARD, Json.decodeFromString<CardBrand>("\"MASTERCARD\""))
-        assertEquals(CardBrand.AMERICAN_EXPRESS, Json.decodeFromString<CardBrand>("\"AMERICAN_EXPRESS\""))
-        assertEquals(CardBrand.DISCOVER, Json.decodeFromString<CardBrand>("\"DISCOVER\""))
-        assertEquals(CardBrand.DINERS_CLUB, Json.decodeFromString<CardBrand>("\"DINERS_CLUB\""))
-        assertEquals(CardBrand.JCB, Json.decodeFromString<CardBrand>("\"JCB\""))
-        assertEquals(CardBrand.MAESTRO, Json.decodeFromString<CardBrand>("\"MAESTRO\""))
-        assertEquals(CardBrand.UNKNOWN, Json.decodeFromString<CardBrand>("\"UNKNOWN\""))
+        val testCases = listOf(
+            "VISA" to CardBrand.VISA,
+            "MASTERCARD" to CardBrand.MASTERCARD,
+            "AMERICAN_EXPRESS" to CardBrand.AMERICAN_EXPRESS,
+            "DISCOVER" to CardBrand.DISCOVER,
+            "DINERS_CLUB" to CardBrand.DINERS_CLUB,
+            "JCB" to CardBrand.JCB,
+            "MAESTRO" to CardBrand.MAESTRO,
+            "UNKNOWN" to CardBrand.UNKNOWN
+        )
+
+        testCases.forEach { (jsonValue, expectedBrand) ->
+            assertThat(Json.decodeFromString<CardBrand>("\"$jsonValue\""))
+                .describedAs("CardBrand deserialization for $jsonValue")
+                .isEqualTo(expectedBrand)
+        }
     }
 
 }
