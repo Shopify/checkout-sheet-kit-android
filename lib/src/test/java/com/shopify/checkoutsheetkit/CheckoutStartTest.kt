@@ -22,12 +22,9 @@
  */
 package com.shopify.checkoutsheetkit
 
+import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
 import com.shopify.checkoutsheetkit.rpc.CheckoutStart
 import com.shopify.checkoutsheetkit.rpc.RPCRequestRegistry
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -77,12 +74,12 @@ class CheckoutStartTest {
 
         val result = RPCRequestRegistry.decode(json)
 
-        assertNotNull("Should decode message successfully", result)
-        assertTrue("Should be a CheckoutStart", result is CheckoutStart)
+        assertThat(result).describedAs("Should decode message successfully").isNotNull()
+        assertThat(result).isInstanceOf(CheckoutStart::class.java)
         val request = result as CheckoutStart
-        assertEquals("cart-123", request.params.cart.id)
-        assertEquals("checkout.start", request.method)
-        assertNull("Should have null id for notification", request.id)
+        assertThat(request.params.cart.id).isEqualTo("cart-123")
+        assertThat(request.method).isEqualTo("checkout.start")
+        assertThat(request.id).describedAs("Should have null id for notification").isNull()
     }
 
     @Test
@@ -99,7 +96,7 @@ class CheckoutStartTest {
 
         val result = RPCRequestRegistry.decode(json)
 
-        assertNull("Should return null when cart is null", result)
+        assertThat(result).describedAs("Should return null when cart is null").isNull()
     }
 
     @Test
@@ -114,7 +111,7 @@ class CheckoutStartTest {
 
         val result = RPCRequestRegistry.decode(json)
 
-        assertNull("Should return null when cart is missing", result)
+        assertThat(result).describedAs("Should return null when cart is missing").isNull()
     }
 
     @Test
@@ -129,7 +126,7 @@ class CheckoutStartTest {
 
         val result = RPCRequestRegistry.decode(json)
 
-        assertNull("Should return null when params is empty", result)
+        assertThat(result).describedAs("Should return null when params is empty").isNull()
     }
 
     @Test
@@ -144,7 +141,7 @@ class CheckoutStartTest {
 
         val result = RPCRequestRegistry.decode(json)
 
-        assertNull("Should return null when params is null", result)
+        assertThat(result).describedAs("Should return null when params is null").isNull()
     }
 
     @Test
@@ -158,7 +155,7 @@ class CheckoutStartTest {
 
         val result = RPCRequestRegistry.decode(json)
 
-        assertNull("Should return null when params is missing", result)
+        assertThat(result).describedAs("Should return null when params is missing").isNull()
     }
 
     @Test
@@ -192,7 +189,7 @@ class CheckoutStartTest {
 
         val result = RPCRequestRegistry.decode(json)
 
-        assertNull("Should return null when cart id is missing", result)
+        assertThat(result).describedAs("Should return null when cart id is missing").isNull()
     }
 
     @Test
@@ -217,7 +214,7 @@ class CheckoutStartTest {
 
         val result = RPCRequestRegistry.decode(json)
 
-        assertNull("Should return null when cart cost is missing", result)
+        assertThat(result).describedAs("Should return null when cart cost is missing").isNull()
     }
 
     @Test
@@ -252,18 +249,18 @@ class CheckoutStartTest {
 
         val result = RPCRequestRegistry.decode(json)
 
-        assertNotNull("Should decode with minimal required fields", result)
-        assertTrue("Should be a CheckoutStart", result is CheckoutStart)
+        assertThat(result).describedAs("Should decode with minimal required fields").isNotNull()
+        assertThat(result).isInstanceOf(CheckoutStart::class.java)
         val request = result as CheckoutStart
-        assertEquals("minimal-cart", request.params.cart.id)
-        assertEquals("100.00", request.params.cart.cost.subtotalAmount.amount)
-        assertEquals("113.00", request.params.cart.cost.totalAmount.amount)
-        assertEquals("CAD", request.params.cart.cost.subtotalAmount.currencyCode)
+        assertThat(request.params.cart.id).isEqualTo("minimal-cart")
+        assertThat(request.params.cart.cost.subtotalAmount.amount).isEqualTo("100.00")
+        assertThat(request.params.cart.cost.totalAmount.amount).isEqualTo("113.00")
+        assertThat(request.params.cart.cost.subtotalAmount.currencyCode).isEqualTo("CAD")
     }
 
     @Test
     fun `test companion object provides correct method`() {
-        assertEquals("checkout.start", CheckoutStart.method)
+        assertThat(CheckoutStart.method).isEqualTo("checkout.start")
     }
 
     @Test
@@ -298,9 +295,9 @@ class CheckoutStartTest {
 
         val result = RPCRequestRegistry.decode(json) as? CheckoutStart
 
-        assertNotNull("Should decode successfully", result)
-        assertNull("Should not have an id (notification event)", result?.id)
-        assertTrue("Should be identified as a notification", result?.isNotification ?: false)
+        assertThat(result).describedAs("Should decode successfully").isNotNull()
+        assertThat(result?.id).describedAs("Should not have an id (notification event)").isNull()
+        assertThat(result?.isNotification ?: false).describedAs("Should be identified as a notification").isTrue()
     }
 
     @Test
@@ -336,9 +333,9 @@ class CheckoutStartTest {
 
         val result = RPCRequestRegistry.decode(json)
 
-        assertNotNull("Should decode even with id present", result)
-        assertTrue("Should be a CheckoutStart", result is CheckoutStart)
+        assertThat(result).describedAs("Should decode even with id present").isNotNull()
+        assertThat(result).isInstanceOf(CheckoutStart::class.java)
         val request = result as CheckoutStart
-        assertNull("Id should be null for notification events", request.id)
+        assertThat(request.id).describedAs("Id should be null for notification events").isNull()
     }
 }

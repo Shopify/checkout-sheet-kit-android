@@ -22,6 +22,7 @@
  */
 package com.shopify.checkoutsheetkit
 
+import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
 import com.shopify.checkoutsheetkit.lifecycleevents.Checkout
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartResponsePayload
 import com.shopify.checkoutsheetkit.rpc.CheckoutEventResponseException
@@ -30,9 +31,6 @@ import com.shopify.checkoutsheetkit.rpc.events.CheckoutSubmitStart
 import com.shopify.checkoutsheetkit.rpc.events.CheckoutSubmitStartEvent
 import org.assertj.core.api.Assertions.assertThatCode
 import org.assertj.core.api.Assertions.assertThatThrownBy
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -73,17 +71,16 @@ class CheckoutSubmitStartTest {
 
         val decoded = RPCRequestRegistry.decode(json)
 
-        assertNotNull(decoded)
-        assertTrue(decoded is CheckoutSubmitStart)
+        assertThat(decoded).isNotNull().isInstanceOf(CheckoutSubmitStart::class.java)
 
         val request = decoded as CheckoutSubmitStart
-        assertEquals("test-789", request.id)
-        assertEquals("checkout-session-789", request.params.checkout.id)
+        assertThat(request.id).isEqualTo("test-789")
+        assertThat(request.params.checkout.id).isEqualTo("checkout-session-789")
     }
 
     @Test
     fun `companion object provides correct method`() {
-        assertEquals("checkout.submitStart", CheckoutSubmitStart.method)
+        assertThat(CheckoutSubmitStart.method).isEqualTo("checkout.submitStart")
     }
 
     @Test
