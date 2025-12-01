@@ -23,23 +23,24 @@
 package com.shopify.checkoutsheetkit
 
 import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.Money
-import com.shopify.checkoutsheetkit.rpc.CheckoutStart
 import com.shopify.checkoutsheetkit.rpc.RPCRequestRegistry
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
-class CheckoutStartTest {
+class CheckoutStartEventTest {
 
     @Test
-    fun `test decode CheckoutStart with valid minimal cart`() {
+    fun `test decode CheckoutStartEvent with valid minimal cart`() {
         val json = """
             {
                 "jsonrpc": "2.0",
                 "method": "checkout.start",
                 "params": {
+                    "locale": "en-US",
                     "cart": {
                         "id": "cart-123",
                         "lines": [],
@@ -65,6 +66,9 @@ class CheckoutStartTest {
                         "discountAllocations": [],
                         "delivery": {
                             "addresses": []
+                        },
+                        "payment": {
+                            "instruments": []
                         }
                     }
                 }
@@ -74,11 +78,10 @@ class CheckoutStartTest {
         val result = RPCRequestRegistry.decode(json)
 
         assertThat(result).isNotNull()
-        assertThat(result).isInstanceOf(CheckoutStart::class.java)
-        val request = result as CheckoutStart
-        assertThat(request.params.cart.id).isEqualTo("cart-123")
-        assertThat(request.method).isEqualTo("checkout.start")
-        assertThat(request.id).describedAs("Should have null id for notification").isNull()
+        assertThat(result).isInstanceOf(CheckoutStartEvent::class.java)
+        val event = result as CheckoutStartEvent
+        assertThat(event.cart.id).isEqualTo("cart-123")
+        assertThat(event.method).isEqualTo("checkout.start")
     }
 
     @Test
@@ -223,6 +226,7 @@ class CheckoutStartTest {
                 "jsonrpc": "2.0",
                 "method": "checkout.start",
                 "params": {
+                    "locale": "en-US",
                     "cart": {
                         "id": "minimal-cart",
                         "lines": [],
@@ -240,6 +244,9 @@ class CheckoutStartTest {
                         "deliveryGroups": [],
                         "delivery": {
                             "addresses": []
+                        },
+                        "payment": {
+                            "instruments": []
                         }
                     }
                 }
@@ -249,25 +256,26 @@ class CheckoutStartTest {
         val result = RPCRequestRegistry.decode(json)
 
         assertThat(result).isNotNull()
-        assertThat(result).isInstanceOf(CheckoutStart::class.java)
-        val request = result as CheckoutStart
-        assertThat(request.params.cart.id).isEqualTo("minimal-cart")
-        assertThat(request.params.cart.cost.subtotalAmount).isEqualTo(Money(amount = "100.00", currencyCode = "CAD"))
-        assertThat(request.params.cart.cost.totalAmount).isEqualTo(Money(amount = "113.00", currencyCode = "CAD"))
+        assertThat(result).isInstanceOf(CheckoutStartEvent::class.java)
+        val event = result as CheckoutStartEvent
+        assertThat(event.cart.id).isEqualTo("minimal-cart")
+        assertThat(event.cart.cost.subtotalAmount).isEqualTo(Money(amount = "100.00", currencyCode = "CAD"))
+        assertThat(event.cart.cost.totalAmount).isEqualTo(Money(amount = "113.00", currencyCode = "CAD"))
     }
 
     @Test
     fun `test companion object provides correct method`() {
-        assertThat(CheckoutStart.method).isEqualTo("checkout.start")
+        assertThat(CheckoutStartEvent.method).isEqualTo("checkout.start")
     }
 
     @Test
-    fun `test CheckoutStart is a notification event`() {
+    fun `test CheckoutStartEvent is a notification event`() {
         val json = """
             {
                 "jsonrpc": "2.0",
                 "method": "checkout.start",
                 "params": {
+                    "locale": "en-US",
                     "cart": {
                         "id": "cart-123",
                         "lines": [],
@@ -285,27 +293,30 @@ class CheckoutStartTest {
                         "deliveryGroups": [],
                         "delivery": {
                             "addresses": []
+                        },
+                        "payment": {
+                            "instruments": []
                         }
                     }
                 }
             }
         """.trimIndent()
 
-        val result = RPCRequestRegistry.decode(json) as? CheckoutStart
+        val result = RPCRequestRegistry.decode(json) as? CheckoutStartEvent
 
         assertThat(result).isNotNull()
-        assertThat(result!!.id).describedAs("Should not have an id (notification event)").isNull()
-        assertThat(result.isNotification).isTrue()
+        assertThat(result!!).isInstanceOf(CheckoutNotification::class.java)
     }
 
     @Test
-    fun `test decode with id still works but id is ignored`() {
+    fun `test decode with id in JSON returns notification event without id`() {
         val json = """
             {
                 "jsonrpc": "2.0",
                 "id": "should-be-ignored",
                 "method": "checkout.start",
                 "params": {
+                    "locale": "en-US",
                     "cart": {
                         "id": "cart-123",
                         "lines": [],
@@ -323,6 +334,9 @@ class CheckoutStartTest {
                         "deliveryGroups": [],
                         "delivery": {
                             "addresses": []
+                        },
+                        "payment": {
+                            "instruments": []
                         }
                     }
                 }
@@ -332,8 +346,8 @@ class CheckoutStartTest {
         val result = RPCRequestRegistry.decode(json)
 
         assertThat(result).isNotNull()
-        assertThat(result).isInstanceOf(CheckoutStart::class.java)
-        val request = result as CheckoutStart
-        assertThat(request.id).describedAs("Id should be null for notification events").isNull()
+        assertThat(result).isInstanceOf(CheckoutStartEvent::class.java)
+        val event = result as CheckoutStartEvent
+        assertThat(event).isInstanceOf(CheckoutNotification::class.java)
     }
 }

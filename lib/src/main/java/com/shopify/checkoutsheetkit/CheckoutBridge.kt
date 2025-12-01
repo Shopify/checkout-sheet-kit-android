@@ -27,16 +27,13 @@ import android.os.Looper
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartResponsePayload
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartResponsePayload
-import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
-import com.shopify.checkoutsheetkit.rpc.events.CheckoutSubmitStart
-import com.shopify.checkoutsheetkit.rpc.events.CheckoutPaymentMethodChangeStart
-import com.shopify.checkoutsheetkit.rpc.CheckoutStart
-import com.shopify.checkoutsheetkit.rpc.CheckoutComplete
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutPaymentMethodChangeStartEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartEvent
 import com.shopify.checkoutsheetkit.rpc.RPCRequest
 import com.shopify.checkoutsheetkit.rpc.RPCRequestRegistry
-import kotlinx.serialization.json.Json
 import java.lang.ref.WeakReference
 
 internal class CheckoutBridge(
@@ -91,9 +88,7 @@ internal class CheckoutBridge(
         }
 
         // Store the event for potential React Native response
-        rpcRequest.id?.let { id ->
-            pendingEvents[id] = rpcRequest
-        }
+        pendingEvents[rpcRequest.id] = rpcRequest
     }
 
     // Allows Web to postMessages back to the SDK
@@ -103,70 +98,81 @@ internal class CheckoutBridge(
         try {
             log.d(LOG_TAG, "Received message from checkout.")
 
-            when (val rpcRequest = RPCRequestRegistry.decode(message)) {
-                is CheckoutAddressChangeStart -> {
-                    setupRequestForResponse(rpcRequest)
+            when (val event = RPCRequestRegistry.decode(message)) {
+                is CheckoutAddressChangeStartEvent -> handleRpcRequest(
+                    rpcRequest = event.rpcRequest,
+                    logMessage = "checkout.addressChangeStart",
+                    dispatch = { eventProcessor.onCheckoutViewAddressChangeStart(event) }
+                )
 
-                    log.d(LOG_TAG, "Received checkout.addressChangeStart message with webView ref: ${webViewRef?.get()}")
-                    onMainThread {
-                        eventProcessor.onCheckoutViewAddressChangeStart(rpcRequest)
-                    }
-                }
+                is CheckoutSubmitStartEvent -> handleRpcRequest(
+                    rpcRequest = event.rpcRequest,
+                    logMessage = "checkout.submitStart",
+                    dispatch = { eventProcessor.onCheckoutViewSubmitStart(event) }
+                )
 
-                is CheckoutSubmitStart -> {
-                    setupRequestForResponse(rpcRequest)
+                is CheckoutPaymentMethodChangeStartEvent -> handleRpcRequest(
+                    rpcRequest = event.rpcRequest,
+                    logMessage = "checkout.paymentMethodChangeStart",
+                    dispatch = { eventProcessor.onCheckoutViewPaymentMethodChangeStart(event) }
+                )
 
-                    log.d(LOG_TAG, "Received checkout.submitStart message with webView ref: ${webViewRef?.get()}")
-                    onMainThread {
-                        eventProcessor.onCheckoutViewSubmitStart(rpcRequest)
-                    }
-                }
+                is CheckoutStartEvent -> handleNotification(
+                    logMessage = "checkout.start",
+                    dispatch = { eventProcessor.onCheckoutViewStart(event) }
+                )
 
-                is CheckoutPaymentMethodChangeStart -> {
-                    setupRequestForResponse(rpcRequest)
+                is CheckoutCompleteEvent -> handleNotification(
+                    logMessage = "checkout.complete",
+                    dispatch = { eventProcessor.onCheckoutViewComplete(event) }
+                )
 
-                    log.d(LOG_TAG, "Received checkout.paymentMethodChangeStart message with webView ref: ${webViewRef?.get()}")
-                    onMainThread {
-                        eventProcessor.onCheckoutViewPaymentMethodChangeStart(rpcRequest)
-                    }
-                }
+                null -> log.d(LOG_TAG, "Unsupported message received. Ignoring.")
 
-                is CheckoutStart -> {
-                    log.d(LOG_TAG, "Received checkout.start message. Dispatching decoded event.")
-                    onMainThread {
-                        eventProcessor.onCheckoutViewStart(rpcRequest.params)
-                    }
-                }
-
-                is CheckoutComplete -> {
-                    log.d(LOG_TAG, "Received checkout.complete message. Dispatching decoded event.")
-                    onMainThread {
-                        eventProcessor.onCheckoutViewComplete(rpcRequest.params)
-                    }
-                }
-
-                null -> {
-                    log.d(LOG_TAG, "Unsupported message received. Ignoring.")
-                }
-
-                else -> {
-                    // Future-proof: handle any other RPCRequest types
-                    setupRequestForResponse(rpcRequest)
-
-                    log.d(LOG_TAG, "Received RPC request of type ${rpcRequest::class.simpleName}, id: ${rpcRequest.id}")
-                }
+                else -> handleUnknownEvent(event)
             }
         } catch (e: Exception) {
-            log.d(LOG_TAG, "Failed to decode message with error: $e. Calling onCheckoutFailedWithError")
-            onMainThread {
-                eventProcessor.onCheckoutViewFailedWithError(
-                    CheckoutSheetKitException(
-                        errorDescription = "Error decoding message from checkout.",
-                        errorCode = CheckoutSheetKitException.ERROR_RECEIVING_MESSAGE_FROM_CHECKOUT,
-                        isRecoverable = true,
-                    ),
-                )
-            }
+            handleDecodingError(e)
+        }
+    }
+
+    private fun handleRpcRequest(
+        rpcRequest: RPCRequest<*, *>,
+        logMessage: String,
+        dispatch: () -> Unit
+    ) {
+        setupRequestForResponse(rpcRequest)
+        log.d(LOG_TAG, "Received $logMessage message with webView ref: ${webViewRef?.get()}")
+        onMainThread { dispatch() }
+    }
+
+    private fun handleNotification(
+        logMessage: String,
+        dispatch: () -> Unit
+    ) {
+        log.d(LOG_TAG, "Received $logMessage message. Dispatching decoded event.")
+        onMainThread { dispatch() }
+    }
+
+    private fun handleUnknownEvent(event: Any) {
+        if (event is RPCRequest<*, *>) {
+            setupRequestForResponse(event)
+            log.d(LOG_TAG, "Received RPC request of type ${event::class.simpleName}, id: ${event.id}")
+        } else {
+            log.d(LOG_TAG, "Received unknown notification type: ${event::class.simpleName}. Ignoring.")
+        }
+    }
+
+    private fun handleDecodingError(e: Exception) {
+        log.d(LOG_TAG, "Failed to decode message with error: $e. Calling onCheckoutFailedWithError")
+        onMainThread {
+            eventProcessor.onCheckoutViewFailedWithError(
+                CheckoutSheetKitException(
+                    errorDescription = "Error decoding message from checkout.",
+                    errorCode = CheckoutSheetKitException.ERROR_RECEIVING_MESSAGE_FROM_CHECKOUT,
+                    isRecoverable = true,
+                ),
+            )
         }
     }
 

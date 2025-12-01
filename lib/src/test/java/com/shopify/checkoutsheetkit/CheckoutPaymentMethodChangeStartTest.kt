@@ -31,7 +31,7 @@ import com.shopify.checkoutsheetkit.lifecycleevents.ExpiryInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CartMailingAddressInput
 import com.shopify.checkoutsheetkit.lifecycleevents.ResponseError
 import com.shopify.checkoutsheetkit.rpc.RPCRequestRegistry
-import com.shopify.checkoutsheetkit.rpc.events.CheckoutPaymentMethodChangeStart
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutPaymentMethodChangeStartEvent
 import kotlinx.serialization.json.Json
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -61,25 +61,27 @@ class CheckoutPaymentMethodChangeStartTest {
                         "appliedGiftCards": [],
                         "discountAllocations": [],
                         "delivery": {"addresses": []},
-                        "paymentInstruments": [
-                            {"identifier": "instrument-1"},
-                            {"identifier": "instrument-2"}
-                        ]
+                        "payment": {
+                            "instruments": [
+                                {"externalReference": "instrument-1"},
+                                {"externalReference": "instrument-2"}
+                            ]
+                        }
                     }
                 }
             }
         """.trimIndent()
 
-        val decoded = CheckoutPaymentMethodChangeStart.Companion.decodeErased(json)
+        val decoded = CheckoutPaymentMethodChangeStartEvent.Companion.decodeErased(json)
 
-        assertThat(decoded).isNotNull().isInstanceOf(CheckoutPaymentMethodChangeStart::class.java)
+        assertThat(decoded).isNotNull().isInstanceOf(CheckoutPaymentMethodChangeStartEvent::class.java)
 
-        val request = decoded as CheckoutPaymentMethodChangeStart
+        val request = decoded as CheckoutPaymentMethodChangeStartEvent
         assertThat(request.id).isEqualTo("test-123")
-        assertThat(request.params.cart.id).isEqualTo("cart-123")
-        assertThat(request.params.cart.paymentInstruments).hasSize(2)
-        assertThat(request.params.cart.paymentInstruments[0].identifier).isEqualTo("instrument-1")
-        assertThat(request.params.cart.paymentInstruments[1].identifier).isEqualTo("instrument-2")
+        assertThat(request.cart.id).isEqualTo("cart-123")
+        assertThat(request.cart.payment.instruments).hasSize(2)
+        assertThat(request.cart.payment.instruments[0].externalReference).isEqualTo("instrument-1")
+        assertThat(request.cart.payment.instruments[1].externalReference).isEqualTo("instrument-2")
     }
 
     @Test
@@ -102,20 +104,21 @@ class CheckoutPaymentMethodChangeStartTest {
                         "discountCodes": [],
                         "appliedGiftCards": [],
                         "discountAllocations": [],
-                        "delivery": {"addresses": []}
+                        "delivery": {"addresses": []},
+                        "payment": {"instruments": []}
                     }
                 }
             }
         """.trimIndent()
 
-        val decoded = CheckoutPaymentMethodChangeStart.Companion.decodeErased(json)
+        val decoded = CheckoutPaymentMethodChangeStartEvent.Companion.decodeErased(json)
 
-        assertThat(decoded).isNotNull().isInstanceOf(CheckoutPaymentMethodChangeStart::class.java)
+        assertThat(decoded).isNotNull().isInstanceOf(CheckoutPaymentMethodChangeStartEvent::class.java)
 
-        val request = decoded as CheckoutPaymentMethodChangeStart
+        val request = decoded as CheckoutPaymentMethodChangeStartEvent
         assertThat(request.id).isEqualTo("test-456")
-        assertThat(request.params.cart.id).isEqualTo("cart-456")
-        assertThat(request.params.cart.paymentInstruments).isEmpty()
+        assertThat(request.cart.id).isEqualTo("cart-456")
+        assertThat(request.cart.payment.instruments).isEmpty()
     }
 
     @Test
@@ -139,7 +142,7 @@ class CheckoutPaymentMethodChangeStartTest {
                         "appliedGiftCards": [],
                         "discountAllocations": [],
                         "delivery": {"addresses": []},
-                        "paymentInstruments": [{"identifier": "pi-abc"}]
+                        "payment": {"instruments": [{"externalReference": "pi-abc"}]}
                     }
                 }
             }
@@ -147,22 +150,22 @@ class CheckoutPaymentMethodChangeStartTest {
 
         val decoded = RPCRequestRegistry.decode(json)
 
-        assertThat(decoded).isNotNull().isInstanceOf(CheckoutPaymentMethodChangeStart::class.java)
+        assertThat(decoded).isNotNull().isInstanceOf(CheckoutPaymentMethodChangeStartEvent::class.java)
 
-        val request = decoded as CheckoutPaymentMethodChangeStart
+        val request = decoded as CheckoutPaymentMethodChangeStartEvent
         assertThat(request.id).isEqualTo("test-789")
-        assertThat(request.params.cart.id).isEqualTo("cart-789")
-        assertThat(request.params.cart.paymentInstruments).hasSize(1)
-        assertThat(request.params.cart.paymentInstruments[0].identifier).isEqualTo("pi-abc")
+        assertThat(request.cart.id).isEqualTo("cart-789")
+        assertThat(request.cart.payment.instruments).hasSize(1)
+        assertThat(request.cart.payment.instruments[0].externalReference).isEqualTo("pi-abc")
     }
 
     @Test
     fun `test companion object provides correct method`() {
-        assertThat(CheckoutPaymentMethodChangeStart.method).isEqualTo("checkout.paymentMethodChangeStart")
+        assertThat(CheckoutPaymentMethodChangeStartEvent.method).isEqualTo("checkout.paymentMethodChangeStart")
 
         val cart = createTestCart()
-        val request = CheckoutPaymentMethodChangeStart(
-            null,
+        val request = CheckoutPaymentMethodChangeStartEvent(
+            "test-id",
             CheckoutPaymentMethodChangeStartParams(cart),
             CheckoutPaymentMethodChangeStartResponsePayload.serializer()
         )
@@ -171,14 +174,64 @@ class CheckoutPaymentMethodChangeStartTest {
 
     @Test
     fun `test onCheckoutPaymentMethodChangeStart method name is consistent`() {
-        assertThat(CheckoutPaymentMethodChangeStart.method).isEqualTo("checkout.paymentMethodChangeStart")
+        assertThat(CheckoutPaymentMethodChangeStartEvent.method).isEqualTo("checkout.paymentMethodChangeStart")
+    }
+
+    @Test
+    fun `test toString includes id, method and cart`() {
+        val cart = createTestCart()
+        val request = CheckoutPaymentMethodChangeStartEvent(
+            id = "test-123",
+            params = CheckoutPaymentMethodChangeStartParams(cart = cart),
+            responseSerializer = CheckoutPaymentMethodChangeStartResponsePayload.serializer()
+        )
+        val result = request.toString()
+
+        assertThat(result).contains("id='test-123'")
+        assertThat(result).contains("method='checkout.paymentMethodChangeStart'")
+        assertThat(result).contains("cart=Cart(")
+    }
+
+    @Test
+    fun `test equals returns true for same id`() {
+        val request1 = CheckoutPaymentMethodChangeStartEvent(
+            id = "same-id",
+            params = CheckoutPaymentMethodChangeStartParams(cart = createTestCart()),
+            responseSerializer = CheckoutPaymentMethodChangeStartResponsePayload.serializer()
+        )
+        val request2 = CheckoutPaymentMethodChangeStartEvent(
+            id = "same-id",
+            params = CheckoutPaymentMethodChangeStartParams(
+                cart = createTestCart(id = "different-cart") // Different cart
+            ),
+            responseSerializer = CheckoutPaymentMethodChangeStartResponsePayload.serializer()
+        )
+
+        assertThat(request1).isEqualTo(request2)
+        assertThat(request1.hashCode()).isEqualTo(request2.hashCode())
+    }
+
+    @Test
+    fun `test equals returns false for different id`() {
+        val request1 = CheckoutPaymentMethodChangeStartEvent(
+            id = "id-1",
+            params = CheckoutPaymentMethodChangeStartParams(cart = createTestCart()),
+            responseSerializer = CheckoutPaymentMethodChangeStartResponsePayload.serializer()
+        )
+        val request2 = CheckoutPaymentMethodChangeStartEvent(
+            id = "id-2",
+            params = CheckoutPaymentMethodChangeStartParams(cart = createTestCart()),
+            responseSerializer = CheckoutPaymentMethodChangeStartResponsePayload.serializer()
+        )
+
+        assertThat(request1).isNotEqualTo(request2)
     }
 
     @Test
     fun `test respondWith payload with cart and payment instruments`() {
         val cart = createTestCart()
         val eventData = CheckoutPaymentMethodChangeStartParams(cart = cart)
-        val request = CheckoutPaymentMethodChangeStart(
+        val request = CheckoutPaymentMethodChangeStartEvent(
             id = "test-id",
             params = eventData,
             responseSerializer = CheckoutPaymentMethodChangeStartResponsePayload.serializer()
@@ -215,14 +268,14 @@ class CheckoutPaymentMethodChangeStartTest {
 
         request.respondWith(payload)
 
-        assertThat(request.params.cart.id).isEqualTo("cart-id-123")
+        assertThat(request.cart.id).isEqualTo("cart-id-123")
     }
 
     @Test
     fun `test respondWith payload with errors`() {
         val cart = createTestCart()
         val eventData = CheckoutPaymentMethodChangeStartParams(cart = cart)
-        val request = CheckoutPaymentMethodChangeStart(
+        val request = CheckoutPaymentMethodChangeStartEvent(
             id = "test-id",
             params = eventData,
             responseSerializer = CheckoutPaymentMethodChangeStartResponsePayload.serializer()
@@ -241,14 +294,14 @@ class CheckoutPaymentMethodChangeStartTest {
 
         request.respondWith(payload)
 
-        assertThat(request.params.cart).isNotNull()
+        assertThat(request.cart).isNotNull()
     }
 
     @Test
     fun `test respondWith null cart is valid`() {
         val cart = createTestCart()
         val eventData = CheckoutPaymentMethodChangeStartParams(cart = cart)
-        val request = CheckoutPaymentMethodChangeStart(
+        val request = CheckoutPaymentMethodChangeStartEvent(
             id = "test-id",
             params = eventData,
             responseSerializer = CheckoutPaymentMethodChangeStartResponsePayload.serializer()
@@ -261,7 +314,7 @@ class CheckoutPaymentMethodChangeStartTest {
 
         request.respondWith(payload)
 
-        assertThat(request.params.cart).isNotNull()
+        assertThat(request.cart).isNotNull()
     }
 
     @Test
@@ -298,7 +351,7 @@ class CheckoutPaymentMethodChangeStartTest {
 
         val cart = createTestCart()
         val eventData = CheckoutPaymentMethodChangeStartParams(cart = cart)
-        val request = CheckoutPaymentMethodChangeStart(
+        val request = CheckoutPaymentMethodChangeStartEvent(
             id = "test-id",
             params = eventData,
             responseSerializer = CheckoutPaymentMethodChangeStartResponsePayload.serializer()
@@ -306,7 +359,7 @@ class CheckoutPaymentMethodChangeStartTest {
 
         request.respondWith(json)
 
-        assertThat(request.params.cart.id).isEqualTo("cart-id-123")
+        assertThat(request.cart.id).isEqualTo("cart-id-123")
     }
 
     @Test
@@ -316,14 +369,14 @@ class CheckoutPaymentMethodChangeStartTest {
             totalAmount = "199.99"
         )
         val eventData = CheckoutPaymentMethodChangeStartParams(cart = cart)
-        val request = CheckoutPaymentMethodChangeStart(
+        val request = CheckoutPaymentMethodChangeStartEvent(
             id = "request-id",
             params = eventData,
             responseSerializer = CheckoutPaymentMethodChangeStartResponsePayload.serializer()
         )
 
-        assertThat(request.params.cart.id).isEqualTo("exposed-cart-id")
-        assertThat(request.params.cart.cost.totalAmount.amount).isEqualTo("199.99")
+        assertThat(request.cart.id).isEqualTo("exposed-cart-id")
+        assertThat(request.cart.cost.totalAmount.amount).isEqualTo("199.99")
     }
 
     @Test

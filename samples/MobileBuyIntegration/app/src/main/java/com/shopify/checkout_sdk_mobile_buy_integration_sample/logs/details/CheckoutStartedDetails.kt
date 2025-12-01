@@ -37,7 +37,7 @@ fun CheckoutStartedDetails(
     prettyJson: Json,
 ) {
     // Reconstruct the event for display
-    val event = cart?.let { CheckoutStartEvent(cart = it) }
+    val event = cart?.let { CheckoutStartEvent(locale = "en-US", cart = it) }
 
     LogDetails(
         header = "Details",

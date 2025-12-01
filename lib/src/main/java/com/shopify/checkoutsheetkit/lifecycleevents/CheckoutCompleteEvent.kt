@@ -22,13 +22,38 @@
  */
 package com.shopify.checkoutsheetkit.lifecycleevents
 
+import com.shopify.checkoutsheetkit.CheckoutNotification
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
+import com.shopify.checkoutsheetkit.rpc.RPCNotificationDecoder
+import com.shopify.checkoutsheetkit.rpc.TypeErasedRPCDecodable
 import kotlinx.serialization.Serializable
 
+/**
+ * Event triggered when checkout is successfully completed.
+ * Contains order confirmation details and final cart state.
+ */
 @Serializable
 public data class CheckoutCompleteEvent(
+    /**
+     * Order confirmation details including order ID, number, and status.
+     */
     public val orderConfirmation: OrderConfirmation,
+    /**
+     * The final cart state at the time of checkout completion.
+     */
     public val cart: Cart
-)
+) : CheckoutNotification {
+    override val method: String = Companion.method
+
+    internal companion object : TypeErasedRPCDecodable {
+        override val method: String = "checkout.complete"
+        private val decoder = RPCNotificationDecoder.create<CheckoutCompleteEvent>(method)
+
+        override fun decodeErased(jsonString: String): CheckoutNotification {
+            return decoder.decodeErased(jsonString)
+        }
+    }
+}
 
 internal fun emptyCompleteEvent(id: String? = null): CheckoutCompleteEvent {
     return CheckoutCompleteEvent(
@@ -55,7 +80,8 @@ internal fun emptyCompleteEvent(id: String? = null): CheckoutCompleteEvent {
             discountCodes = emptyList(),
             appliedGiftCards = emptyList(),
             discountAllocations = emptyList(),
-            delivery = CartDelivery(addresses = emptyList())
+            delivery = CartDelivery(addresses = emptyList()),
+            payment = CartPayment(instruments = emptyList())
         )
     )
 }

@@ -22,13 +22,34 @@
  */
 package com.shopify.checkoutsheetkit.lifecycleevents
 
+import com.shopify.checkoutsheetkit.CheckoutNotification
+import com.shopify.checkoutsheetkit.rpc.RPCNotificationDecoder
+import com.shopify.checkoutsheetkit.rpc.TypeErasedRPCDecodable
 import kotlinx.serialization.Serializable
 
 /**
  * Event triggered when checkout starts.
- * Provides the initial cart state at the beginning of the checkout flow.
+ * Provides the initial cart state and locale at the beginning of the checkout flow.
  */
 @Serializable
 public data class CheckoutStartEvent(
+    /**
+     * The locale for the checkout session (e.g., "en-US", "fr-CA").
+     */
+    public val locale: String,
+    /**
+     * The initial cart state at the beginning of checkout.
+     */
     public val cart: Cart
-)
+) : CheckoutNotification {
+    override val method: String = Companion.method
+
+    internal companion object : TypeErasedRPCDecodable {
+        override val method: String = "checkout.start"
+        private val decoder = RPCNotificationDecoder.create<CheckoutStartEvent>(method)
+
+        override fun decodeErased(jsonString: String): CheckoutNotification {
+            return decoder.decodeErased(jsonString)
+        }
+    }
+}

@@ -55,8 +55,8 @@ import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryAddressInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CartInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CartSelectableAddressInput
-import com.shopify.checkoutsheetkit.rpc.CheckoutEventResponseException
-import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutEventResponseException
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartEvent
 import kotlinx.coroutines.launch
 
 /**
@@ -78,7 +78,7 @@ fun AddressSelectionScreen(
 ) {
     val eventStore = LocalCheckoutEventStore.current
     val event = remember(eventId) {
-        eventStore.getEvent(eventId) as? CheckoutAddressChangeStart
+        eventStore.getEvent<CheckoutAddressChangeStartEvent>(eventId)
     }
     val coroutineScope = rememberCoroutineScope()
 
@@ -210,10 +210,6 @@ fun AddressSelectionScreen(
 
                         // Navigate back to checkout
                         onNavigateBack()
-                    } catch (e: CheckoutEventResponseException.ValidationFailed) {
-                        // Show validation error to user
-                        errorMessage = "Validation failed: ${e.message}"
-                        // Stay on screen so user can select a different address
                     } catch (e: CheckoutEventResponseException.DecodingFailed) {
                         // Show decoding error to user
                         errorMessage = "Decoding failed: ${e.message}"

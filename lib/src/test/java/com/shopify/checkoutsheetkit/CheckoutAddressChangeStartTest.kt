@@ -22,22 +22,16 @@
  */
 package com.shopify.checkoutsheetkit
 
-import com.shopify.checkoutsheetkit.lifecycleevents.Cart
-import com.shopify.checkoutsheetkit.lifecycleevents.CartBuyerIdentity
-import com.shopify.checkoutsheetkit.lifecycleevents.CartCost
-import com.shopify.checkoutsheetkit.lifecycleevents.CartDelivery
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartResponsePayload
 import com.shopify.checkoutsheetkit.lifecycleevents.CartInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CartSelectableAddressInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryAddressInput
-import com.shopify.checkoutsheetkit.lifecycleevents.Money
 import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
-import com.shopify.checkoutsheetkit.rpc.CheckoutEventResponseException
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutEventResponseException
 import com.shopify.checkoutsheetkit.rpc.RPCRequestRegistry
-import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
-import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStartEvent
-import org.assertj.core.api.Assertions.assertThatCode
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartParams
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -69,21 +63,22 @@ class CheckoutAddressChangeStartTest {
                         "discountCodes": [],
                         "appliedGiftCards": [],
                         "discountAllocations": [],
-                        "delivery": {"addresses": []}
+                        "delivery": {"addresses": []},
+                        "payment": {"instruments": []}
                     }
                 }
             }
         """.trimIndent()
 
-        val decoded = CheckoutAddressChangeStart.Companion.decodeErased(json)
+        val decoded = CheckoutAddressChangeStartEvent.Companion.decodeErased(json)
 
         assertThat(decoded).isNotNull()
-        assertThat(decoded).isInstanceOf(CheckoutAddressChangeStart::class.java)
+        assertThat(decoded).isInstanceOf(CheckoutAddressChangeStartEvent::class.java)
 
-        val request = decoded as CheckoutAddressChangeStart
+        val request = decoded as CheckoutAddressChangeStartEvent
         assertThat(request.id).isEqualTo("test-123")
-        assertThat(request.params.addressType).isEqualTo("shipping")
-        assertThat(request.params.cart.id).isEqualTo("gid://shopify/Cart/test-cart-123")
+        assertThat(request.addressType).isEqualTo("shipping")
+        assertThat(request.cart.id).isEqualTo("gid://shopify/Cart/test-cart-123")
     }
 
     @Test
@@ -109,21 +104,22 @@ class CheckoutAddressChangeStartTest {
                         "discountCodes": [],
                         "appliedGiftCards": [],
                         "discountAllocations": [],
-                        "delivery": {"addresses": []}
+                        "delivery": {"addresses": []},
+                        "payment": {"instruments": []}
                     }
                 }
             }
         """.trimIndent()
 
-        val decoded = CheckoutAddressChangeStart.Companion.decodeErased(json)
+        val decoded = CheckoutAddressChangeStartEvent.Companion.decodeErased(json)
 
         assertThat(decoded).isNotNull()
-        assertThat(decoded).isInstanceOf(CheckoutAddressChangeStart::class.java)
+        assertThat(decoded).isInstanceOf(CheckoutAddressChangeStartEvent::class.java)
 
-        val request = decoded as CheckoutAddressChangeStart
+        val request = decoded as CheckoutAddressChangeStartEvent
         assertThat(request.id).isEqualTo("test-456")
-        assertThat(request.params.addressType).isEqualTo("billing")
-        assertThat(request.params.cart.id).isEqualTo("gid://shopify/Cart/test-cart-456")
+        assertThat(request.addressType).isEqualTo("billing")
+        assertThat(request.cart.id).isEqualTo("gid://shopify/Cart/test-cart-456")
     }
 
     @Test
@@ -149,7 +145,8 @@ class CheckoutAddressChangeStartTest {
                         "discountCodes": [],
                         "appliedGiftCards": [],
                         "discountAllocations": [],
-                        "delivery": {"addresses": []}
+                        "delivery": {"addresses": []},
+                        "payment": {"instruments": []}
                     }
                 }
             }
@@ -158,26 +155,26 @@ class CheckoutAddressChangeStartTest {
         val decoded = RPCRequestRegistry.decode(json)
 
         assertThat(decoded).isNotNull()
-        assertThat(decoded).isInstanceOf(CheckoutAddressChangeStart::class.java)
+        assertThat(decoded).isInstanceOf(CheckoutAddressChangeStartEvent::class.java)
 
-        val request = decoded as CheckoutAddressChangeStart
+        val request = decoded as CheckoutAddressChangeStartEvent
         assertThat(request.id).isEqualTo("test-789")
-        assertThat(request.params.addressType).isEqualTo("shipping")
+        assertThat(request.addressType).isEqualTo("shipping")
     }
 
     @Test
     fun `test companion object provides correct method`() {
-        assertThat(CheckoutAddressChangeStart.method).isEqualTo("checkout.addressChangeStart")
+        assertThat(CheckoutAddressChangeStartEvent.method).isEqualTo("checkout.addressChangeStart")
     }
 
     @Test
     fun `test respondWith payload`() {
         val cart = createTestCart()
-        val eventData = CheckoutAddressChangeStartEvent(
+        val eventData = CheckoutAddressChangeStartParams(
             addressType = "shipping",
             cart = cart
         )
-        val request = CheckoutAddressChangeStart(
+        val request = CheckoutAddressChangeStartEvent(
             id = "test-id",
             params = eventData,
             responseSerializer = CheckoutAddressChangeStartResponsePayload.serializer()
@@ -203,8 +200,8 @@ class CheckoutAddressChangeStartTest {
         // This will fail to send since no WebView is attached, but we're testing the flow
         request.respondWith(payload)
 
-        assertThat(request.params.addressType).isEqualTo("shipping")
-        assertThat(request.params.cart.id).isEqualTo(cart.id)
+        assertThat(request.addressType).isEqualTo("shipping")
+        assertThat(request.cart.id).isEqualTo(cart.id)
     }
 
     @Test
@@ -229,11 +226,11 @@ class CheckoutAddressChangeStartTest {
         """.trimIndent()
 
         val cart = createTestCart()
-        val eventData = CheckoutAddressChangeStartEvent(
+        val eventData = CheckoutAddressChangeStartParams(
             addressType = "shipping",
             cart = cart
         )
-        val request = CheckoutAddressChangeStart(
+        val request = CheckoutAddressChangeStartEvent(
             id = "test-id",
             params = eventData,
             responseSerializer = CheckoutAddressChangeStartResponsePayload.serializer()
@@ -242,7 +239,7 @@ class CheckoutAddressChangeStartTest {
         // This will fail to send since no WebView is attached, but we're testing the parsing
         request.respondWith(json)
 
-        assertThat(request.params.addressType).isEqualTo("shipping")
+        assertThat(request.addressType).isEqualTo("shipping")
     }
 
     @Test
@@ -252,176 +249,18 @@ class CheckoutAddressChangeStartTest {
             subtotalAmount = "100.00",
             totalAmount = "100.00"
         )
-        val eventData = CheckoutAddressChangeStartEvent(
+        val eventData = CheckoutAddressChangeStartParams(
             addressType = "billing",
             cart = cart
         )
-        val request = CheckoutAddressChangeStart(
+        val request = CheckoutAddressChangeStartEvent(
             id = "test-id",
             params = eventData,
             responseSerializer = CheckoutAddressChangeStartResponsePayload.serializer()
         )
 
-        assertThat(request.params.cart).isEqualTo(cart)
-        assertThat(request.params.cart.id).isEqualTo("gid://shopify/Cart/test-cart")
-    }
-
-    @Test
-    fun `validate accepts valid 2-character country code`() {
-        val request = createTestRequest()
-        val payload = CheckoutAddressChangeStartResponsePayload(
-            cart = CartInput(
-                delivery = CartDeliveryInput(
-                    addresses = listOf(
-                        CartSelectableAddressInput(
-                            address = CartDeliveryAddressInput(countryCode = "US")
-                        )
-                    )
-                )
-            )
-        )
-
-        assertThatCode { request.validate(payload) }
-            .doesNotThrowAnyException()
-    }
-
-    @Test
-    fun `validate rejects empty country code`() {
-        val request = createTestRequest()
-        val payload = CheckoutAddressChangeStartResponsePayload(
-            cart = CartInput(
-                delivery = CartDeliveryInput(
-                    addresses = listOf(
-                        CartSelectableAddressInput(
-                            address = CartDeliveryAddressInput(countryCode = "")
-                        )
-                    )
-                )
-            )
-        )
-
-        assertThatThrownBy { request.validate(payload) }
-            .isInstanceOf(CheckoutEventResponseException.ValidationFailed::class.java)
-            .hasMessageContaining("Country code is required")
-    }
-
-    @Test
-    fun `validate rejects null country code`() {
-        val request = createTestRequest()
-        val payload = CheckoutAddressChangeStartResponsePayload(
-            cart = CartInput(
-                delivery = CartDeliveryInput(
-                    addresses = listOf(
-                        CartSelectableAddressInput(
-                            address = CartDeliveryAddressInput(countryCode = null)
-                        )
-                    )
-                )
-            )
-        )
-
-        assertThatThrownBy { request.validate(payload) }
-            .isInstanceOf(CheckoutEventResponseException.ValidationFailed::class.java)
-            .hasMessageContaining("Country code is required")
-    }
-
-    @Test
-    fun `validate rejects 1-character country code`() {
-        val request = createTestRequest()
-        val payload = CheckoutAddressChangeStartResponsePayload(
-            cart = CartInput(
-                delivery = CartDeliveryInput(
-                    addresses = listOf(
-                        CartSelectableAddressInput(
-                            address = CartDeliveryAddressInput(countryCode = "U")
-                        )
-                    )
-                )
-            )
-        )
-
-        assertThatThrownBy { request.validate(payload) }
-            .isInstanceOf(CheckoutEventResponseException.ValidationFailed::class.java)
-            .hasMessageContaining("must be exactly 2 characters")
-            .hasMessageContaining("got: 'U'")
-    }
-
-    @Test
-    fun `validate rejects 3-character country code`() {
-        val request = createTestRequest()
-        val payload = CheckoutAddressChangeStartResponsePayload(
-            cart = CartInput(
-                delivery = CartDeliveryInput(
-                    addresses = listOf(
-                        CartSelectableAddressInput(
-                            address = CartDeliveryAddressInput(countryCode = "USA")
-                        )
-                    )
-                )
-            )
-        )
-
-        assertThatThrownBy { request.validate(payload) }
-            .isInstanceOf(CheckoutEventResponseException.ValidationFailed::class.java)
-            .hasMessageContaining("must be exactly 2 characters")
-            .hasMessageContaining("got: 'USA'")
-    }
-
-    @Test
-    fun `validate rejects empty addresses list`() {
-        val request = createTestRequest()
-        val payload = CheckoutAddressChangeStartResponsePayload(
-            cart = CartInput(
-                delivery = CartDeliveryInput(addresses = emptyList())
-            )
-        )
-
-        assertThatThrownBy { request.validate(payload) }
-            .isInstanceOf(CheckoutEventResponseException.ValidationFailed::class.java)
-            .hasMessageContaining("At least one address is required")
-    }
-
-    @Test
-    fun `validate rejects null addresses list`() {
-        val request = createTestRequest()
-        val payload = CheckoutAddressChangeStartResponsePayload(
-            cart = CartInput(
-                delivery = CartDeliveryInput(addresses = null)
-            )
-        )
-
-        assertThatThrownBy { request.validate(payload) }
-            .isInstanceOf(CheckoutEventResponseException.ValidationFailed::class.java)
-            .hasMessageContaining("At least one address is required")
-    }
-
-    @Test
-    fun `validate includes index in error message for invalid country code`() {
-        val request = createTestRequest()
-        val payload = CheckoutAddressChangeStartResponsePayload(
-            cart = CartInput(
-                delivery = CartDeliveryInput(
-                    addresses = listOf(
-                        CartSelectableAddressInput(address = CartDeliveryAddressInput(countryCode = "US")),
-                        CartSelectableAddressInput(address = CartDeliveryAddressInput(countryCode = "CAN"))
-                    )
-                )
-            )
-        )
-
-        assertThatThrownBy { request.validate(payload) }
-            .isInstanceOf(CheckoutEventResponseException.ValidationFailed::class.java)
-            .hasMessageContaining("at index 1")
-            .hasMessageContaining("got: 'CAN'")
-    }
-
-    @Test
-    fun `validate allows null cart in payload`() {
-        val request = createTestRequest()
-        val payload = CheckoutAddressChangeStartResponsePayload(cart = null)
-
-        assertThatCode { request.validate(payload) }
-            .doesNotThrowAnyException()
+        assertThat(request.cart).isEqualTo(cart)
+        assertThat(request.cart.id).isEqualTo("gid://shopify/Cart/test-cart")
     }
 
     @Test
@@ -451,33 +290,57 @@ class CheckoutAddressChangeStartTest {
     }
 
     @Test
-    fun `respondWith JSON string throws ValidationFailed on missing country code`() {
+    fun `test toString includes id, method, addressType and cart`() {
         val request = createTestRequest()
-        val jsonWithoutCountryCode = """
-            {
-                "cart": {
-                    "delivery": {
-                        "addresses": [
-                            {
-                                "address": {
-                                    "firstName": "Test"
-                                },
-                                "selected": true
-                            }
-                        ]
-                    }
-                }
-            }
-        """.trimIndent()
+        val result = request.toString()
 
-        assertThatThrownBy { request.respondWith(jsonWithoutCountryCode) }
-            .isInstanceOf(CheckoutEventResponseException.ValidationFailed::class.java)
-            .hasMessageContaining("Country code is required")
+        assertThat(result).contains("id='test-id'")
+        assertThat(result).contains("method='checkout.addressChangeStart'")
+        assertThat(result).contains("addressType='shipping'")
+        assertThat(result).contains("cart=Cart(")
     }
 
-    private fun createTestRequest() = CheckoutAddressChangeStart(
+    @Test
+    fun `test equals returns true for same id`() {
+        val request1 = CheckoutAddressChangeStartEvent(
+            id = "same-id",
+            params = CheckoutAddressChangeStartParams(
+                addressType = "shipping",
+                cart = createTestCart()
+            ),
+            responseSerializer = CheckoutAddressChangeStartResponsePayload.serializer()
+        )
+        val request2 = CheckoutAddressChangeStartEvent(
+            id = "same-id",
+            params = CheckoutAddressChangeStartParams(
+                addressType = "billing", // Different addressType
+                cart = createTestCart(id = "different-cart") // Different cart
+            ),
+            responseSerializer = CheckoutAddressChangeStartResponsePayload.serializer()
+        )
+
+        assertThat(request1).isEqualTo(request2)
+        assertThat(request1.hashCode()).isEqualTo(request2.hashCode())
+    }
+
+    @Test
+    fun `test equals returns false for different id`() {
+        val request1 = createTestRequest()
+        val request2 = CheckoutAddressChangeStartEvent(
+            id = "different-id",
+            params = CheckoutAddressChangeStartParams(
+                addressType = "shipping",
+                cart = createTestCart()
+            ),
+            responseSerializer = CheckoutAddressChangeStartResponsePayload.serializer()
+        )
+
+        assertThat(request1).isNotEqualTo(request2)
+    }
+
+    private fun createTestRequest() = CheckoutAddressChangeStartEvent(
         id = "test-id",
-        params = CheckoutAddressChangeStartEvent(
+        params = CheckoutAddressChangeStartParams(
             addressType = "shipping",
             cart = createTestCart(
                 id = "gid://shopify/Cart/test-cart",

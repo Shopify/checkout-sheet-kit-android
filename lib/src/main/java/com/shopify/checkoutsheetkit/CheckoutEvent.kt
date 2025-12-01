@@ -20,23 +20,42 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutsheetkit.rpc
+package com.shopify.checkoutsheetkit
 
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
-import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.serializer
+/**
+ * Base interface for all checkout events (notifications and requests).
+ */
+public interface CheckoutNotification {
+    /**
+     * The method name that identifies this event type.
+     * e.g., "checkout.start", "checkout.addressChangeStart"
+     */
+    public val method: String
+}
 
-internal class CheckoutStart(
-    params: CheckoutStartEvent
-) : RPCRequest<CheckoutStartEvent, Unit>(
-    id = null,
-    params = params,
-    responseSerializer = Unit.serializer()
-) {
-    override val method = "checkout.start"
+/**
+ * Interface for checkout events that expect a response (bidirectional).
+ *
+ * @param R The type of response payload this request expects
+ */
+public interface CheckoutRequest<R> : CheckoutNotification {
+    /**
+     * Unique identifier for this request, used to correlate responses.
+     */
+    public val id: String
 
-    companion object : TypeErasedRPCDecodable by RPCDecoder.create(
-        method = "checkout.start",
-        factory = { _, params: CheckoutStartEvent, _ -> CheckoutStart(params) }
-    )
+    /**
+     * Respond with a strongly-typed payload.
+     *
+     * @param payload The response payload
+     */
+    public fun respondWith(payload: R)
+
+    /**
+     * Respond with a JSON string payload.
+     * Useful for language bindings (e.g., React Native).
+     *
+     * @param jsonString A JSON string representing the response payload
+     */
+    public fun respondWith(jsonString: String)
 }
