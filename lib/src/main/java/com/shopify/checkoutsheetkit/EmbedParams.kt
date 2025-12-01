@@ -44,6 +44,7 @@ internal object EmbedFieldValue {
     internal const val BRANDING_APP = "app"
     internal const val BRANDING_SHOP = "shop"
     internal const val ENTRY_SHEET = "sheet"
+    internal const val COLOR_SCHEME_AUTO = "auto"
 }
 
 private object EmbedSeparators {
@@ -66,7 +67,7 @@ internal object EmbedParamBuilder {
         }
         val colorScheme = when (configuredColorScheme) {
             is ColorScheme.Web -> null
-            is ColorScheme.Automatic -> null
+            is ColorScheme.Automatic -> EmbedFieldValue.COLOR_SCHEME_AUTO
             else -> configuredColorScheme.id
         }
 
