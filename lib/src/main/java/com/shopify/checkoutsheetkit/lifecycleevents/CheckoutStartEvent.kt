@@ -24,7 +24,6 @@ package com.shopify.checkoutsheetkit.lifecycleevents
 
 import com.shopify.checkoutsheetkit.CheckoutNotification
 import com.shopify.checkoutsheetkit.rpc.RPCNotificationDecoder
-import com.shopify.checkoutsheetkit.rpc.TypeErasedRPCDecodable
 import kotlinx.serialization.Serializable
 
 /**
@@ -42,14 +41,9 @@ public data class CheckoutStartEvent(
      */
     public val cart: Cart
 ) : CheckoutNotification {
-    override val method: String = Companion.method
+    override val method: String = "checkout.start"
 
-    internal companion object : TypeErasedRPCDecodable {
-        override val method: String = "checkout.start"
-        private val decoder = RPCNotificationDecoder.create<CheckoutStartEvent>(method)
-
-        override fun decodeErased(jsonString: String): CheckoutNotification {
-            return decoder.decodeErased(jsonString)
-        }
+    internal companion object {
+        internal val decoder = RPCNotificationDecoder.create<CheckoutStartEvent>("checkout.start")
     }
 }

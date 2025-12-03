@@ -171,21 +171,13 @@ internal class RPCRequest<P : Any, R : Any>(
         } catch (e: Exception) {
             throw CheckoutEventResponseException.DecodingFailed("Failed to parse JSON: ${e.message}", e)
         }
-        respondWithJsonElement(jsonElement)
-    }
 
-    /**
-     * Internal method to respond with a JsonElement.
-     * Uses the responseSerializer to deserialize the JSON element to the response type.
-     *
-     * @throws CheckoutEventResponseException.DecodingFailed if deserialization fails
-     */
-    internal fun respondWithJsonElement(jsonElement: JsonElement) {
         val payload = try {
             json.decodeFromJsonElement(responseSerializer, jsonElement)
         } catch (e: Exception) {
             throw CheckoutEventResponseException.DecodingFailed("Failed to decode response: ${e.message}", e)
         }
+
         respondWith(payload)
     }
 }

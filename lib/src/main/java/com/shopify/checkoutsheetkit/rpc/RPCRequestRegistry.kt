@@ -48,11 +48,11 @@ internal object RPCRequestRegistry {
      * Note: Each decoder must implement TypeErasedRPCDecodable and provide
      * a companion object that implements it.
      */
-    public val requestTypes: List<TypeErasedRPCDecodable> = listOf(
+    val requestTypes: List<TypeErasedRPCDecodable> = listOf(
         CheckoutAddressChangeStartEvent.Companion,
         CheckoutSubmitStartEvent.Companion,
-        CheckoutStartEvent.Companion,
-        CheckoutCompleteEvent.Companion,
+        CheckoutStartEvent.decoder,
+        CheckoutCompleteEvent.decoder,
         CheckoutPaymentMethodChangeStartEvent.Companion
     )
 

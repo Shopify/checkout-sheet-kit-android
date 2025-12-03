@@ -265,7 +265,7 @@ class CheckoutStartEventTest {
 
     @Test
     fun `test companion object provides correct method`() {
-        assertThat(CheckoutStartEvent.method).isEqualTo("checkout.start")
+        assertThat(CheckoutStartEvent.decoder.method).isEqualTo("checkout.start")
     }
 
     @Test

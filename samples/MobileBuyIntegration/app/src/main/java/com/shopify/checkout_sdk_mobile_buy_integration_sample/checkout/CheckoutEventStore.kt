@@ -32,7 +32,7 @@ import com.shopify.checkoutsheetkit.CheckoutRequest
  * Stores any CheckoutRequest (address change, payment change, etc.) by ID for deferred response.
  */
 class CheckoutEventStore {
-    private val events = mutableMapOf<String, CheckoutRequest<*>>()
+    val events = mutableMapOf<String, CheckoutRequest<*>>()
 
     fun storeEvent(event: CheckoutRequest<*>): String {
         events[event.id] = event

@@ -22,7 +22,6 @@
  */
 package com.shopify.checkoutsheetkit.rpc
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -31,12 +30,8 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 internal data class RPCEnvelope<P>(
-    @SerialName("jsonrpc")
     val jsonrpc: String,
-    @SerialName("id")
     val id: String? = null,
-    @SerialName("method")
     val method: String,
-    @SerialName("params")
     val params: P
 )
