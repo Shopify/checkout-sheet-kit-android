@@ -22,6 +22,8 @@
  */
 package com.shopify.checkoutsheetkit
 
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutEventResponseException
+
 /**
  * Base interface for all checkout events (notifications and requests).
  */
@@ -56,6 +58,7 @@ public interface CheckoutRequest<R> : CheckoutNotification {
      * Useful for language bindings (e.g., React Native).
      *
      * @param jsonString A JSON string representing the response payload
+     * @throws CheckoutEventResponseException.DecodingFailed if JSON parsing or deserialization fails
      */
     public fun respondWith(jsonString: String)
 }

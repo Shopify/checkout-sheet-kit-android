@@ -32,6 +32,7 @@ import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutEventResponseExcepti
 import com.shopify.checkoutsheetkit.rpc.RPCRequestRegistry
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartParams
+import org.assertj.core.api.Assertions.assertThatCode
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -240,6 +241,62 @@ class CheckoutAddressChangeStartTest {
         request.respondWith(json)
 
         assertThat(request.addressType).isEqualTo("shipping")
+    }
+
+    @Test
+    fun `test multiple respondWith calls are ignored`() {
+        val cart = createTestCart()
+        val eventData = CheckoutAddressChangeStartParams(
+            addressType = "shipping",
+            cart = cart
+        )
+        val request = CheckoutAddressChangeStartEvent(
+            id = "test-id",
+            params = eventData,
+            responseSerializer = CheckoutAddressChangeStartResponsePayload.serializer()
+        )
+
+        val payload1 = CheckoutAddressChangeStartResponsePayload(
+            cart = CartInput(
+                delivery = CartDeliveryInput(
+                    addresses = listOf(
+                        CartSelectableAddressInput(
+                            address = CartDeliveryAddressInput(
+                                firstName = "First",
+                                lastName = "Response",
+                                countryCode = "US"
+                            ),
+                            selected = true
+                        )
+                    )
+                )
+            )
+        )
+
+        val payload2 = CheckoutAddressChangeStartResponsePayload(
+            cart = CartInput(
+                delivery = CartDeliveryInput(
+                    addresses = listOf(
+                        CartSelectableAddressInput(
+                            address = CartDeliveryAddressInput(
+                                firstName = "Second",
+                                lastName = "Response",
+                                countryCode = "CA"
+                            ),
+                            selected = true
+                        )
+                    )
+                )
+            )
+        )
+
+        // First call should succeed (no WebView, so won't actually send, but won't throw)
+        assertThatCode { request.respondWith(payload1) }
+            .doesNotThrowAnyException()
+
+        // Second call should be ignored (logged but not throw)
+        assertThatCode { request.respondWith(payload2) }
+            .doesNotThrowAnyException()
     }
 
     @Test
