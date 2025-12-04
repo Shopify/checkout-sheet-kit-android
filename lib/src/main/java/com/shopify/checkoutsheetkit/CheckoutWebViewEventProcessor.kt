@@ -33,9 +33,9 @@ import android.webkit.WebView
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
-import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
-import com.shopify.checkoutsheetkit.rpc.events.CheckoutSubmitStart
-import com.shopify.checkoutsheetkit.rpc.events.CheckoutPaymentMethodChangeStart
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutPaymentMethodChangeStartEvent
 
 /**
  * Event processor that can handle events internally, delegate to the CheckoutEventProcessor
@@ -118,20 +118,20 @@ public class CheckoutWebViewEventProcessor(
         }
     }
 
-    internal fun onCheckoutViewAddressChangeStart(event: CheckoutAddressChangeStart) {
+    internal fun onCheckoutViewAddressChangeStart(event: CheckoutAddressChangeStartEvent) {
         onMainThread {
             eventProcessor.onAddressChangeStart(event)
         }
     }
 
-    internal fun onCheckoutViewSubmitStart(event: CheckoutSubmitStart) {
+    internal fun onCheckoutViewSubmitStart(event: CheckoutSubmitStartEvent) {
         log.d(LOG_TAG, "Calling onCheckoutSubmitStart.")
         onMainThread {
             eventProcessor.onSubmitStart(event)
         }
     }
 
-    internal fun onCheckoutViewPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStart) {
+    internal fun onCheckoutViewPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStartEvent) {
         onMainThread {
             eventProcessor.onPaymentMethodChangeStart(event)
         }

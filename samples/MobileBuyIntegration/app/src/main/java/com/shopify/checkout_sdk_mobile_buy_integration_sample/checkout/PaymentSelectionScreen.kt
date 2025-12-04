@@ -57,8 +57,8 @@ import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentInstrumentDisplay
 import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentInstrumentInput
 import com.shopify.checkoutsheetkit.lifecycleevents.ExpiryInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CartMailingAddressInput
-import com.shopify.checkoutsheetkit.rpc.CheckoutEventResponseException
-import com.shopify.checkoutsheetkit.rpc.events.CheckoutPaymentMethodChangeStart
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutEventResponseException
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutPaymentMethodChangeStartEvent
 import kotlinx.coroutines.launch
 
 data class PaymentOption(
@@ -73,7 +73,7 @@ fun PaymentSelectionScreen(
 ) {
     val eventStore = LocalCheckoutEventStore.current
     val event = remember(eventId) {
-        eventStore.getEvent(eventId) as? CheckoutPaymentMethodChangeStart
+        eventStore.getEvent<CheckoutPaymentMethodChangeStartEvent>(eventId)
     }
     val coroutineScope = rememberCoroutineScope()
 
@@ -199,8 +199,6 @@ fun PaymentSelectionScreen(
                         event?.respondWith(response)
                         eventStore.removeEvent(eventId)
                         onNavigateBack()
-                    } catch (e: CheckoutEventResponseException.ValidationFailed) {
-                        errorMessage = "Validation failed: ${e.message}"
                     } catch (e: CheckoutEventResponseException.DecodingFailed) {
                         errorMessage = "Decoding failed: ${e.message}"
                     }

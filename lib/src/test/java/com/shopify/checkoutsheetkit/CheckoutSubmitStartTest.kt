@@ -25,10 +25,10 @@ package com.shopify.checkoutsheetkit
 import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
 import com.shopify.checkoutsheetkit.lifecycleevents.Checkout
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartResponsePayload
-import com.shopify.checkoutsheetkit.rpc.CheckoutEventResponseException
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutEventResponseException
 import com.shopify.checkoutsheetkit.rpc.RPCRequestRegistry
-import com.shopify.checkoutsheetkit.rpc.events.CheckoutSubmitStart
-import com.shopify.checkoutsheetkit.rpc.events.CheckoutSubmitStartEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartParams
 import org.assertj.core.api.Assertions.assertThatCode
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.Test
@@ -58,7 +58,8 @@ class CheckoutSubmitStartTest {
                         "discountCodes": [],
                         "appliedGiftCards": [],
                         "discountAllocations": [],
-                        "delivery": {"addresses": []}
+                        "delivery": {"addresses": []},
+                        "payment": {"instruments": []}
                     },
                     "checkout": {
                         "id": "checkout-session-789"
@@ -69,16 +70,16 @@ class CheckoutSubmitStartTest {
 
         val decoded = RPCRequestRegistry.decode(json)
 
-        assertThat(decoded).isNotNull().isInstanceOf(CheckoutSubmitStart::class.java)
+        assertThat(decoded).isNotNull().isInstanceOf(CheckoutSubmitStartEvent::class.java)
 
-        val request = decoded as CheckoutSubmitStart
+        val request = decoded as CheckoutSubmitStartEvent
         assertThat(request.id).isEqualTo("test-789")
-        assertThat(request.params.checkout.id).isEqualTo("checkout-session-789")
+        assertThat(request.checkout.id).isEqualTo("checkout-session-789")
     }
 
     @Test
     fun `companion object provides correct method`() {
-        assertThat(CheckoutSubmitStart.method).isEqualTo("checkout.submitStart")
+        assertThat(CheckoutSubmitStartEvent.method).isEqualTo("checkout.submitStart")
     }
 
     @Test
@@ -116,9 +117,58 @@ class CheckoutSubmitStartTest {
             .hasCauseInstanceOf(Exception::class.java)
     }
 
-    private fun createTestRequest() = CheckoutSubmitStart(
+    @Test
+    fun `test toString includes id, method, cart and checkout`() {
+        val request = createTestRequest()
+        val result = request.toString()
+
+        assertThat(result).contains("id='test-id'")
+        assertThat(result).contains("method='checkout.submitStart'")
+        assertThat(result).contains("cart=Cart(")
+        assertThat(result).contains("checkout=Checkout(")
+    }
+
+    @Test
+    fun `test equals returns true for same id`() {
+        val request1 = CheckoutSubmitStartEvent(
+            id = "same-id",
+            params = CheckoutSubmitStartParams(
+                cart = createTestCart(),
+                checkout = Checkout(id = "checkout-1")
+            ),
+            responseSerializer = CheckoutSubmitStartResponsePayload.serializer()
+        )
+        val request2 = CheckoutSubmitStartEvent(
+            id = "same-id",
+            params = CheckoutSubmitStartParams(
+                cart = createTestCart(id = "different-cart"), // Different cart
+                checkout = Checkout(id = "checkout-2") // Different checkout
+            ),
+            responseSerializer = CheckoutSubmitStartResponsePayload.serializer()
+        )
+
+        assertThat(request1).isEqualTo(request2)
+        assertThat(request1.hashCode()).isEqualTo(request2.hashCode())
+    }
+
+    @Test
+    fun `test equals returns false for different id`() {
+        val request1 = createTestRequest()
+        val request2 = CheckoutSubmitStartEvent(
+            id = "different-id",
+            params = CheckoutSubmitStartParams(
+                cart = createTestCart(),
+                checkout = Checkout(id = "checkout-123")
+            ),
+            responseSerializer = CheckoutSubmitStartResponsePayload.serializer()
+        )
+
+        assertThat(request1).isNotEqualTo(request2)
+    }
+
+    private fun createTestRequest() = CheckoutSubmitStartEvent(
         id = "test-id",
-        params = CheckoutSubmitStartEvent(
+        params = CheckoutSubmitStartParams(
             cart = createTestCart(
                 id = "gid://shopify/Cart/test-cart",
                 subtotalAmount = "100.00",

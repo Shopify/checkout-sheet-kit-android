@@ -22,10 +22,13 @@
  */
 package com.shopify.checkoutsheetkit.rpc
 
+import com.shopify.checkoutsheetkit.CheckoutNotification
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
-import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
-import com.shopify.checkoutsheetkit.rpc.events.CheckoutSubmitStart
-import com.shopify.checkoutsheetkit.rpc.events.CheckoutPaymentMethodChangeStart
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutPaymentMethodChangeStartEvent
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -35,7 +38,7 @@ import kotlinx.serialization.json.jsonPrimitive
  * This allows us to decode incoming JSON-RPC messages into the appropriate
  * request type based on the method name.
  */
-public object RPCRequestRegistry {
+internal object RPCRequestRegistry {
     private const val JSON_RPC_VERSION = "2.0"
 
     /**
@@ -45,12 +48,12 @@ public object RPCRequestRegistry {
      * Note: Each decoder must implement TypeErasedRPCDecodable and provide
      * a companion object that implements it.
      */
-    public val requestTypes: List<TypeErasedRPCDecodable> = listOf(
-        CheckoutAddressChangeStart.Companion,
-        CheckoutSubmitStart.Companion,
-        CheckoutStart.Companion,
-        CheckoutComplete.Companion,
-        CheckoutPaymentMethodChangeStart.Companion
+    val requestTypes: List<TypeErasedRPCDecodable> = listOf(
+        CheckoutAddressChangeStartEvent.Companion,
+        CheckoutSubmitStartEvent.Companion,
+        CheckoutStartEvent.decoder,
+        CheckoutCompleteEvent.decoder,
+        CheckoutPaymentMethodChangeStartEvent.Companion
     )
 
     private val registry: Map<String, TypeErasedRPCDecodable> by lazy {
@@ -76,12 +79,13 @@ public object RPCRequestRegistry {
     }
 
     /**
-     * Decode a JSON-RPC message into the appropriate request type.
+     * Decode a JSON-RPC message into the appropriate request or notification type.
      *
      * @param jsonString The JSON string to decode
-     * @return The decoded RPC request, or null if the method is not registered
+     * @return The decoded event (CheckoutNotification for notifications, CheckoutRequest for requests),
+     * or null if the method is not registered
      */
-    public fun decode(jsonString: String): RPCRequest<*, *>? {
+    public fun decode(jsonString: String): CheckoutNotification? {
         return runCatching {
             val jsonObject = json.parseToJsonElement(jsonString).jsonObject
 

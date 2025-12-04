@@ -26,22 +26,28 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
-import com.shopify.checkoutsheetkit.RespondableEvent
+import com.shopify.checkoutsheetkit.CheckoutRequest
 
 /**
- * Stores any RespondableEvent (address change, payment change, etc.) by ID for deferred response.
+ * Stores any CheckoutRequest (address change, payment change, etc.) by ID for deferred response.
  */
 class CheckoutEventStore {
-    private val events = mutableMapOf<String, RespondableEvent>()
+    val events = mutableMapOf<String, CheckoutRequest<*>>()
 
-    fun storeEvent(event: RespondableEvent): String {
-        val eventId = event.id ?: event.hashCode().toString()
-        events[eventId] = event
-        return eventId
+    fun storeEvent(event: CheckoutRequest<*>): String {
+        events[event.id] = event
+        return event.id
     }
 
-    fun getEvent(eventId: String): RespondableEvent? {
-        return events[eventId]
+    /**
+     * Retrieves a stored event by ID with type-safe casting.
+     *
+     * @param T The expected event type
+     * @param eventId The ID of the stored event
+     * @return The event cast to the specified type, or null if not found or wrong type
+     */
+    inline fun <reified T : CheckoutRequest<*>> getEvent(eventId: String): T? {
+        return events[eventId] as? T
     }
 
     fun removeEvent(eventId: String) {

@@ -23,7 +23,9 @@
 package com.shopify.checkoutsheetkit.rpc
 
 import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
-import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartEvent
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -38,6 +40,7 @@ class RPCRequestRegistryTest {
                 "jsonrpc": "2.0",
                 "method": "checkout.start",
                 "params": {
+                    "locale": "en-US",
                     "cart": {
                         "id": "cart-123",
                         "lines": [],
@@ -63,6 +66,9 @@ class RPCRequestRegistryTest {
                         "discountAllocations": [],
                         "delivery": {
                             "addresses": []
+                        },
+                        "payment": {
+                            "instruments": []
                         }
                     }
                 }
@@ -73,15 +79,15 @@ class RPCRequestRegistryTest {
 
         assertThat(result)
             .isNotNull()
-            .isInstanceOf(CheckoutStart::class.java)
+            .isInstanceOf(CheckoutStartEvent::class.java)
 
-        val request = result as CheckoutStart
-        assertThat(request.params.cart.id).isEqualTo("cart-123")
-        assertThat(request.method).isEqualTo("checkout.start")
+        val event = result as CheckoutStartEvent
+        assertThat(event.cart.id).isEqualTo("cart-123")
+        assertThat(event.method).isEqualTo("checkout.start")
     }
 
     @Test
-    fun `decode returns CheckoutComplete for checkout complete method`() {
+    fun `decode returns CheckoutCompleteEvent for checkout complete method`() {
         val jsonString = """
             {
                 "jsonrpc": "2.0",
@@ -120,6 +126,9 @@ class RPCRequestRegistryTest {
                         "discountAllocations": [],
                         "delivery": {
                             "addresses": []
+                        },
+                        "payment": {
+                            "instruments": []
                         }
                     }
                 }
@@ -130,13 +139,13 @@ class RPCRequestRegistryTest {
 
         assertThat(result)
             .isNotNull()
-            .isInstanceOf(CheckoutComplete::class.java)
+            .isInstanceOf(CheckoutCompleteEvent::class.java)
 
-        val request = result as CheckoutComplete
-        assertThat(request.params.orderConfirmation.order.id).isEqualTo("order-123")
-        assertThat(request.params.orderConfirmation.number).isEqualTo("#1001")
-        assertThat(request.params.cart.id).isEqualTo("cart-456")
-        assertThat(request.method).isEqualTo("checkout.complete")
+        val event = result as CheckoutCompleteEvent
+        assertThat(event.orderConfirmation.order.id).isEqualTo("order-123")
+        assertThat(event.orderConfirmation.number).isEqualTo("#1001")
+        assertThat(event.cart.id).isEqualTo("cart-456")
+        assertThat(event.method).isEqualTo("checkout.complete")
     }
 
     @Test
@@ -162,7 +171,8 @@ class RPCRequestRegistryTest {
                         "discountCodes": [],
                         "appliedGiftCards": [],
                         "discountAllocations": [],
-                        "delivery": {"addresses": []}
+                        "delivery": {"addresses": []},
+                        "payment": {"instruments": []}
                     }
                 }
             }
@@ -172,12 +182,12 @@ class RPCRequestRegistryTest {
 
         assertThat(result)
             .isNotNull()
-            .isInstanceOf(CheckoutAddressChangeStart::class.java)
+            .isInstanceOf(CheckoutAddressChangeStartEvent::class.java)
 
-        val request = result as CheckoutAddressChangeStart
+        val request = result as CheckoutAddressChangeStartEvent
         assertThat(request.id).isEqualTo("request-123")
-        assertThat(request.params.addressType).isEqualTo("shipping")
-        assertThat(request.params.cart.id).isEqualTo("gid://shopify/Cart/test-cart-123")
+        assertThat(request.addressType).isEqualTo("shipping")
+        assertThat(request.cart.id).isEqualTo("gid://shopify/Cart/test-cart-123")
         assertThat(request.method).isEqualTo("checkout.addressChangeStart")
     }
 

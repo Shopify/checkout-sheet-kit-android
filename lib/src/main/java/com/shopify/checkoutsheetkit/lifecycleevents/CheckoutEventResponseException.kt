@@ -20,7 +20,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutsheetkit.rpc
+package com.shopify.checkoutsheetkit.lifecycleevents
 
 /**
  * Exceptions that can occur when responding to checkout RPC events.
@@ -34,11 +34,4 @@ public sealed class CheckoutEventResponseException(message: String, cause: Throw
      * @param cause The underlying exception that caused the failure
      */
     public class DecodingFailed(message: String, cause: Throwable? = null) : CheckoutEventResponseException(message, cause)
-
-    /**
-     * Validation of the response payload failed.
-     *
-     * @param message Description of the validation failure
-     */
-    public class ValidationFailed(message: String) : CheckoutEventResponseException(message)
 }

@@ -31,11 +31,11 @@ import android.webkit.PermissionRequest
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebView
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutPaymentMethodChangeStartEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
-import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
-import com.shopify.checkoutsheetkit.rpc.events.CheckoutSubmitStart
-import com.shopify.checkoutsheetkit.rpc.events.CheckoutPaymentMethodChangeStart
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartEvent
 
 /**
  * Interface to implement to allow responding to lifecycle events in checkout.
@@ -46,12 +46,12 @@ public interface CheckoutEventProcessor {
      * Event triggered when checkout starts.
      * Provides the initial cart state at the beginning of the checkout flow.
      */
-    public fun onStart(checkoutStartEvent: CheckoutStartEvent)
+    public fun onStart(event: CheckoutStartEvent)
 
     /**
      * Event representing the successful completion of a checkout.
      */
-    public fun onComplete(checkoutCompleteEvent: CheckoutCompleteEvent)
+    public fun onComplete(event: CheckoutCompleteEvent)
 
     /**
      * Event representing an error that occurred during checkout. This can be used to display
@@ -104,33 +104,33 @@ public interface CheckoutEventProcessor {
      * indicates they want to start an address change.
      *
      * By default the request is cancelled. Override to present custom UI and provide a response
-     * via [CheckoutAddressChangeStart.respondWith] or cancel explicitly.
+     * via [CheckoutAddressChangeStartEvent.respondWith] or cancel explicitly.
      */
-    public fun onAddressChangeStart(event: CheckoutAddressChangeStart)
+    public fun onAddressChangeStart(event: CheckoutAddressChangeStartEvent)
 
     /**
      * Called when native payment delegation is configured for the authenticated app and the buyer
      * attempts to submit the checkout.
      *
      * Override to provide payment tokens, update cart data, or handle custom submission logic.
-     * Provide a response via [CheckoutSubmitStart.respondWith].
+     * Provide a response via [CheckoutSubmitStartEvent.respondWith].
      */
-    public fun onSubmitStart(event: CheckoutSubmitStart)
+    public fun onSubmitStart(event: CheckoutSubmitStartEvent)
 
     /**
      * Called when checkout requests that the buyer change their payment method.
      *
      * By default the request is cancelled. Override to present custom UI and provide a response
-     * via [CheckoutPaymentMethodChangeStart.respondWith] (or cancel explicitly).
+     * via [CheckoutPaymentMethodChangeStartEvent.respondWith] (or cancel explicitly).
      */
-    public fun onPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStart)
+    public fun onPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStartEvent)
 }
 
 internal class NoopEventProcessor : CheckoutEventProcessor {
-    override fun onStart(checkoutStartEvent: CheckoutStartEvent) {/* noop */
+    override fun onStart(event: CheckoutStartEvent) {/* noop */
     }
 
-    override fun onComplete(checkoutCompleteEvent: CheckoutCompleteEvent) {/* noop */
+    override fun onComplete(event: CheckoutCompleteEvent) {/* noop */
     }
 
     override fun onFail(error: CheckoutException) {/* noop */
@@ -142,7 +142,7 @@ internal class NoopEventProcessor : CheckoutEventProcessor {
     override fun onLinkClick(uri: Uri) {/* noop */
     }
 
-    override fun onSubmitStart(event: CheckoutSubmitStart) {/* noop */
+    override fun onSubmitStart(event: CheckoutSubmitStartEvent) {/* noop */
     }
 
     override fun onShowFileChooser(
@@ -162,10 +162,10 @@ internal class NoopEventProcessor : CheckoutEventProcessor {
     override fun onGeolocationPermissionsHidePrompt() {/* noop */
     }
 
-    override fun onAddressChangeStart(event: CheckoutAddressChangeStart) {/* noop */
+    override fun onAddressChangeStart(event: CheckoutAddressChangeStartEvent) {/* noop */
     }
 
-    override fun onPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStart) {/* noop */
+    override fun onPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStartEvent) {/* noop */
     }
 }
 
@@ -179,7 +179,7 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
     private val log: LogWrapper = LogWrapper(),
 ) : CheckoutEventProcessor {
 
-    override fun onStart(checkoutStartEvent: CheckoutStartEvent) {
+    override fun onStart(event: CheckoutStartEvent) {
         // no-op, override to implement
     }
 
@@ -212,15 +212,15 @@ public abstract class DefaultCheckoutEventProcessor @JvmOverloads constructor(
         // no-op override to implement
     }
 
-    override fun onAddressChangeStart(event: CheckoutAddressChangeStart) {
+    override fun onAddressChangeStart(event: CheckoutAddressChangeStartEvent) {
         // no-op override to implement
     }
 
-    override fun onSubmitStart(event: CheckoutSubmitStart) {
+    override fun onSubmitStart(event: CheckoutSubmitStartEvent) {
         // no-op override to implement
     }
 
-    override fun onPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStart) {
+    override fun onPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStartEvent) {
         // no-op override to implement
     }
 

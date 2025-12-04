@@ -28,8 +28,8 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.activity.ComponentActivity
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
-import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
-import com.shopify.checkoutsheetkit.rpc.events.CheckoutPaymentMethodChangeStart
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutPaymentMethodChangeStartEvent
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -130,7 +130,7 @@ class DefaultCheckoutEventProcessorTest {
         var recoverable: Boolean? = null
         val processor =
             object : DefaultCheckoutEventProcessor(activity, log) {
-                override fun onComplete(checkoutCompleteEvent: CheckoutCompleteEvent) {
+                override fun onComplete(event: CheckoutCompleteEvent) {
                     /* not implemented */
                 }
 
@@ -143,11 +143,11 @@ class DefaultCheckoutEventProcessorTest {
                     /* not implemented */
                 }
 
-                override fun onAddressChangeStart(event: CheckoutAddressChangeStart) {
+                override fun onAddressChangeStart(event: CheckoutAddressChangeStartEvent) {
                     /* not implemented */
                 }
 
-                override fun onPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStart) {
+                override fun onPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStartEvent) {
                     /* not implemented */
                 }
             }

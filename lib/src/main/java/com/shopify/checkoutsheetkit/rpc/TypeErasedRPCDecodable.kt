@@ -22,27 +22,29 @@
  */
 package com.shopify.checkoutsheetkit.rpc
 
+import com.shopify.checkoutsheetkit.CheckoutNotification
+
 /**
- * Interface to enable type-erased decoding of RPC requests.
+ * Interface to enable type-erased decoding of RPC messages.
  * Mirrors the Swift TypeErasedRPCDecodable protocol.
  *
- * This interface allows us to decode RPC requests without knowing their specific
- * type parameters at compile time, working around Kotlin's type erasure limitations.
+ * This interface allows us to decode both RPC requests and notifications without knowing
+ * their specific type parameters at compile time, working around Kotlin's type erasure limitations.
  *
- * Implement this in the companion object of your RPC request classes.
+ * Implement this in the companion object of your RPC request/notification classes.
  */
-public interface TypeErasedRPCDecodable {
+internal interface TypeErasedRPCDecodable {
     /**
      * The RPC method name that this decoder handles.
-     * (e.g., "checkout.addressChangeStart")
+     * (e.g., "checkout.addressChangeStart", "checkout.start")
      */
-    public val method: String
+    val method: String
 
     /**
-     * Decode an RPC request from a JSON string without type parameters.
+     * Decode an RPC message from a JSON string without type parameters.
      *
      * @param jsonString The JSON string to decode
-     * @return The decoded RPC request as a type-erased RPCRequest<*, *>
+     * @return The decoded event (CheckoutNotification for notifications, CheckoutRequest for requests)
      */
-    public fun decodeErased(jsonString: String): RPCRequest<*, *>
+    fun decodeErased(jsonString: String): CheckoutNotification
 }

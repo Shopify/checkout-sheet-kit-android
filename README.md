@@ -398,12 +398,12 @@ Extend the `DefaultCheckoutEventProcessor` abstract class to register callbacks 
 
 ```kotlin
 val processor = object : DefaultCheckoutEventProcessor(activity) {
-    override fun onStart(checkoutStartEvent: CheckoutStartEvent) {
+    override fun onStart(event: CheckoutStartEvent) {
         // Called when checkout starts.
         // Provides the initial cart state at the beginning of the checkout flow.
     }
 
-    override fun onComplete(checkoutCompleteEvent: CheckoutCompleteEvent) {
+    override fun onComplete(event: CheckoutCompleteEvent) {
         // Called when the checkout was completed successfully by the buyer.
         // Use this to update UI, reset cart state, etc.
     }
@@ -457,6 +457,26 @@ val processor = object : DefaultCheckoutEventProcessor(activity) {
     override fun onPermissionRequest(permissionRequest: PermissionRequest) {
         // Called when a permission has been requested, e.g. to access the camera
         // implement to grant/deny/request permissions.
+    }
+
+    override fun onAddressChangeStart(event: CheckoutAddressChangeStartEvent) {
+        // Called when the buyer requests to change their shipping or billing address.
+        // Note: Only emitted when the feature is enabled for an authenticated app.
+        // Respond with updated address information using event.respondWith()
+        // See the MobileBuyIntegration sample for a complete example.
+    }
+
+    override fun onSubmitStart(event: CheckoutSubmitStartEvent) {
+        // Called when checkout submission starts.
+        // Note: Only emitted when the feature is enabled for an authenticated app.
+        // Use this to provide payment authorization if required.
+        // Respond using event.respondWith() to proceed with submission.
+    }
+
+    override fun onPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStartEvent) {
+        // Called when the buyer requests to change their payment method.
+        // Note: Only emitted when the feature is enabled for an authenticated app.
+        // Respond with updated payment information using event.respondWith()
     }
 }
 ```

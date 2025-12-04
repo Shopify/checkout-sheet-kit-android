@@ -24,8 +24,9 @@ package com.shopify.checkoutsheetkit.rpc
 
 import android.webkit.WebView
 import com.shopify.checkoutsheetkit.CheckoutBridge
-import com.shopify.checkoutsheetkit.RespondableEvent
+import com.shopify.checkoutsheetkit.CheckoutRequest
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutEventResponseException
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
@@ -43,41 +44,43 @@ import kotlinx.serialization.serializer
 import java.lang.ref.WeakReference
 
 /**
- * Abstract base class for all RPC request implementations.
+ * Internal RPC request implementation.
  * Mirrors the Swift RPCRequest protocol with type parameters for request params and response payload.
  *
  * @param P The type of parameters for this request
  * @param R The type of response payload this request expects
  */
-public abstract class RPCRequest<P : Any, R : Any>(
+internal class RPCRequest<P : Any, R : Any>(
     /**
-     * An identifier established by the client. If null, this is a notification.
+     * An identifier established by the client, used to correlate responses.
      */
-    public override val id: String?,
+    override val id: String,
     /**
      * The parameters from the JSON-RPC request.
+     * Contains event-specific data like cart and checkout information.
      */
-    public open val params: P,
+    val params: P,
     /**
      * The serializer for the response type.
      */
-    private val responseSerializer: KSerializer<R>
-) : RespondableEvent {
+    private val responseSerializer: KSerializer<R>,
+    /**
+     * The RPC method name for this request type.
+     */
+    override val method: String
+) : CheckoutRequest<R> {
 
     /**
      * The JSON-RPC version. Must be exactly "2.0".
+     * Internal implementation detail.
      */
-    public open val jsonrpc: String = "2.0"
+    internal val jsonrpc: String = "2.0"
 
     /**
      * Weak reference to the WebView for sending responses.
+     * Internal - used by the SDK to send responses back through the bridge.
      */
-    public var webView: WeakReference<WebView>? = null
-
-    /**
-     * Whether this is a notification (no response expected).
-     */
-    public val isNotification: Boolean get() = id == null
+    internal var webView: WeakReference<WebView>? = null
 
     private var hasResponded = false
 
@@ -88,11 +91,6 @@ public abstract class RPCRequest<P : Any, R : Any>(
         explicitNulls = false // Exclude null fields from JSON output
     }
 
-    /**
-     * The RPC method name for this request type.
-     * Subclasses must override this to provide their method name.
-     */
-    public abstract val method: String
 
     /**
      * Respond to this request with the specified payload.
@@ -100,22 +98,21 @@ public abstract class RPCRequest<P : Any, R : Any>(
      * @param payload The response payload
      */
     @OptIn(InternalSerializationApi::class)
-    public fun respondWith(payload: R) {
+    override fun respondWith(payload: R) {
         ShopifyCheckoutSheetKit.log.d(
             "RPCRequest",
             "respondWith called for method '$method' with id '$id'. " +
-                "webView: ${webView?.get()}, hasResponded: $hasResponded, isNotification: $isNotification"
+                "webView: ${webView?.get()}, hasResponded: $hasResponded"
         )
 
-        when {
-            hasResponded -> logMultipleResponseAttempt()
-            isNotification -> logNotificationResponseAttempt()
-            else -> handleValidResponse(payload)
+        if (hasResponded) {
+            logMultipleResponseAttempt()
+        } else {
+            handleValidResponse(payload)
         }
     }
 
     private fun handleValidResponse(payload: R) {
-        validate(payload) // Throws if validation fails
         hasResponded = true
         sendSuccessResponse(payload)
     }
@@ -129,7 +126,7 @@ public abstract class RPCRequest<P : Any, R : Any>(
                 )
                 val responseJsonObject = buildJsonObject {
                     put("jsonrpc", JsonPrimitive(jsonrpc))
-                    id?.let { put("id", JsonPrimitive(it)) }
+                    put("id", JsonPrimitive(id))
                     put("result", payloadJson)
                 }
                 val responseJson = json.encodeToString(responseJsonObject)
@@ -154,13 +151,6 @@ public abstract class RPCRequest<P : Any, R : Any>(
         )
     }
 
-    private fun logNotificationResponseAttempt() {
-        ShopifyCheckoutSheetKit.log.w(
-            "RPCRequest",
-            "Attempted to respond to RPC notification '$method'. Notifications do not expect responses."
-        )
-    }
-
     private fun logWebViewLost() {
         ShopifyCheckoutSheetKit.log.w(
             "RPCRequest",
@@ -175,113 +165,19 @@ public abstract class RPCRequest<P : Any, R : Any>(
      * @param jsonString A JSON string representing the response payload
      * @throws CheckoutEventResponseException.DecodingFailed if JSON parsing or deserialization fails
      */
-    public fun respondWith(jsonString: String) {
+    override fun respondWith(jsonString: String) {
         val jsonElement = try {
             json.parseToJsonElement(jsonString)
         } catch (e: Exception) {
             throw CheckoutEventResponseException.DecodingFailed("Failed to parse JSON: ${e.message}", e)
         }
-        respondWithJsonElement(jsonElement)
-    }
 
-    /**
-     * Internal method to respond with a JsonElement.
-     * Uses the responseSerializer to deserialize the JSON element to the response type.
-     *
-     * @throws CheckoutEventResponseException.DecodingFailed if deserialization fails
-     */
-    protected open fun respondWithJsonElement(jsonElement: JsonElement) {
         val payload = try {
             json.decodeFromJsonElement(responseSerializer, jsonElement)
         } catch (e: Exception) {
             throw CheckoutEventResponseException.DecodingFailed("Failed to decode response: ${e.message}", e)
         }
+
         respondWith(payload)
-    }
-
-    /**
-     * Respond to this request with an error.
-     *
-     * @param error The error message
-     */
-    public fun respondWithError(error: String) {
-        when {
-            hasResponded -> {
-                ShopifyCheckoutSheetKit.log.w(
-                    "RPCRequest",
-                    "Attempted to respond to RPC request '$method' with id '$id' multiple times. Ignoring."
-                )
-            }
-            isNotification -> {
-                ShopifyCheckoutSheetKit.log.w(
-                    "RPCRequest",
-                    "Attempted to respond to RPC notification '$method'. Notifications do not expect responses."
-                )
-            }
-            else -> {
-                hasResponded = true
-
-                webView?.get()?.let { webView ->
-                    try {
-                        // Build error response JSON manually using JsonObject
-                        val responseJsonObject = buildJsonObject {
-                            put("jsonrpc", JsonPrimitive(jsonrpc))
-                            id?.let { put("id", JsonPrimitive(it)) }
-                            put("error", JsonPrimitive(error))
-                        }
-
-                        // Convert JsonObject to string
-                        val responseJson = json.encodeToString(responseJsonObject)
-                        CheckoutBridge.sendResponse(webView, responseJson)
-                    } catch (e: Exception) {
-                        ShopifyCheckoutSheetKit.log.e(
-                            "RPCRequest",
-                            "Failed to encode error response for RPC request '$method' with id '$id': ${e.message}"
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Validate the response payload before sending.
-     * Default implementation does nothing - subclasses can override.
-     *
-     * @param payload The payload to validate
-     * @throws CheckoutEventResponseException.ValidationFailed if validation fails
-     */
-    public open fun validate(payload: R) {
-        // Default implementation does nothing
-        // Subclasses can override to add validation
-    }
-
-    public companion object {
-        /**
-         * Generic RPC envelope for decoding requests
-         */
-        @Serializable
-        public data class RPCEnvelope<P>(
-            @SerialName("jsonrpc")
-            val jsonrpc: String,
-            @SerialName("id")
-            val id: String? = null,
-            @SerialName("method")
-            val method: String,
-            @SerialName("params")
-            val params: P
-        )
-
-        /**
-         * Helper function for decoding RPC requests with type information
-         */
-        public inline fun <reified P : Any> decodeRequest(
-            jsonString: String,
-            factory: (id: String?, params: P) -> RPCRequest<*, *>
-        ): RPCRequest<*, *> {
-            val json = Json { ignoreUnknownKeys = true }
-            val envelope = json.decodeFromString<RPCEnvelope<P>>(jsonString)
-            return factory(envelope.id, envelope.params)
-        }
     }
 }

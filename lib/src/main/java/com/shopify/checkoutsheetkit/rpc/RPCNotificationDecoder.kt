@@ -22,44 +22,42 @@
  */
 package com.shopify.checkoutsheetkit.rpc
 
+import com.shopify.checkoutsheetkit.CheckoutNotification
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.serializer
 
 /**
- * Simple decoder implementation that can be used as a companion object delegate.
- * This eliminates the need to implement decodeErased in every RPC request.
+ * RPC decoder for notification events (unidirectional, no response expected).
+ * Decodes the RPC envelope and returns the params directly as a CheckoutNotification.
+ * This eliminates the need to implement decodeErased in every notification event.
  */
-public class RPCDecoder<P : Any, R : Any>(
+internal class RPCNotificationDecoder<T : CheckoutNotification>(
     override val method: String,
-    private val paramsSerializer: KSerializer<P>,
-    private val responseSerializer: KSerializer<R>,
-    private val factory: (id: String?, params: P, responseSerializer: KSerializer<R>) -> RPCRequest<P, R>
+    private val eventSerializer: KSerializer<T>
 ) : TypeErasedRPCDecodable {
 
     private val json = Json { ignoreUnknownKeys = true }
 
-    override fun decodeErased(jsonString: String): RPCRequest<*, *> {
+    override fun decodeErased(jsonString: String): CheckoutNotification {
         val envelope = json.decodeFromString(
-            RPCRequest.Companion.RPCEnvelope.serializer(paramsSerializer),
+            RPCEnvelope.serializer(eventSerializer),
             jsonString
         )
-        return factory(envelope.id, envelope.params, responseSerializer)
+        return envelope.params
     }
 
-    public companion object {
+    companion object {
         /**
-         * Create a decoder using an inline reified function to capture the serializers automatically.
+         * Create a decoder using an inline reified function to capture the serializer automatically.
          */
-        public inline fun <reified P : Any, reified R : Any> create(
-            method: String,
-            noinline factory: (id: String?, params: P, responseSerializer: KSerializer<R>) -> RPCRequest<P, R>
-        ): RPCDecoder<P, R> {
-            return RPCDecoder(
+        inline fun <reified T : CheckoutNotification> create(
+            method: String
+        ): RPCNotificationDecoder<T> {
+            return RPCNotificationDecoder(
                 method = method,
-                paramsSerializer = kotlinx.serialization.serializer(),
-                responseSerializer = kotlinx.serialization.serializer(),
-                factory = factory
+                eventSerializer = serializer()
             )
         }
     }

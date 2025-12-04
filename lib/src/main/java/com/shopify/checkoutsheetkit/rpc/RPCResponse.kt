@@ -31,7 +31,7 @@ import kotlinx.serialization.Serializable
  * @param R The type of the result payload
  */
 @Serializable
-public data class RPCResponse<R>(
+internal data class RPCResponse<R>(
     /**
      * A String specifying the version of the JSON-RPC protocol. MUST be exactly "2.0".
      */

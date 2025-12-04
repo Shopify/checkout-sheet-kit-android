@@ -25,8 +25,8 @@ package com.shopify.checkoutsheetkit
 import android.app.Activity
 import android.net.Uri
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
-import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
-import com.shopify.checkoutsheetkit.rpc.events.CheckoutPaymentMethodChangeStart
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutPaymentMethodChangeStartEvent
 import org.assertj.core.api.AbstractAssert
 
 fun withPreloadingEnabled(block: () -> Unit) {
@@ -99,7 +99,7 @@ class CheckoutExceptionAssert(actual: CheckoutException) :
 
 fun noopDefaultCheckoutEventProcessor(activity: Activity, log: LogWrapper = LogWrapper()): DefaultCheckoutEventProcessor {
     return object : DefaultCheckoutEventProcessor(activity, log) {
-        override fun onComplete(checkoutCompleteEvent: CheckoutCompleteEvent) {
+        override fun onComplete(event: CheckoutCompleteEvent) {
             // no-op
         }
 
@@ -111,11 +111,11 @@ fun noopDefaultCheckoutEventProcessor(activity: Activity, log: LogWrapper = LogW
             // no-op
         }
 
-        override fun onAddressChangeStart(event: CheckoutAddressChangeStart) {
+        override fun onAddressChangeStart(event: CheckoutAddressChangeStartEvent) {
             // no-op
         }
 
-        override fun onPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStart) {
+        override fun onPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStartEvent) {
             // no-op
         }
     }

@@ -62,7 +62,7 @@ public data class Cart(
     public val appliedGiftCards: List<AppliedGiftCard> = emptyList(),
     public val discountAllocations: List<CartDiscountAllocation> = emptyList(),
     public val delivery: CartDelivery,
-    public val paymentInstruments: List<CartPaymentInstrument> = emptyList()
+    public val payment: CartPayment
 )
 
 @Serializable
@@ -169,7 +169,7 @@ public data class CartBuyerIdentity(
 
 @Serializable
 public data class Customer(
-    public val id: String? = null,
+    public val id: String,
     public val firstName: String? = null,
     public val lastName: String? = null,
     public val email: String? = null,
@@ -239,6 +239,11 @@ public enum class CartDeliveryGroupType {
 @Serializable
 public data class CartDelivery(
     public val addresses: List<CartSelectableAddress> = emptyList()
+)
+
+@Serializable
+public data class CartPayment(
+    public val instruments: List<CartPaymentInstrument> = emptyList()
 )
 
 /**
@@ -554,7 +559,7 @@ public enum class CardBrand {
 
 @Serializable
 public data class CartPaymentInstrument(
-    public val identifier: String
+    public val externalReference: String
 )
 
 @Serializable
