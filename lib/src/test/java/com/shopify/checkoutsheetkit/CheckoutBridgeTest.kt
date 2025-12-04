@@ -100,7 +100,7 @@ class CheckoutBridgeTest {
             "method":"checkout.submitStart",
             "params":{
                 "cart":${Json.encodeToString(cart)},
-                "checkout":{"id":"checkout-session-123"}
+                "sessionId":"checkout-session-123"
             }
         }""".trimIndent()
 
@@ -110,7 +110,7 @@ class CheckoutBridgeTest {
         verify(mockEventProcessor).onCheckoutViewSubmitStart(eventCaptor.capture())
         val event = eventCaptor.firstValue
         assertThat(event.cart.id).isEqualTo(cart.id)
-        assertThat(event.checkout.id).isEqualTo("checkout-session-123")
+        assertThat(event.sessionId).isEqualTo("checkout-session-123")
     }
 
     @Test
@@ -122,7 +122,7 @@ class CheckoutBridgeTest {
             "method":"checkout.submitStart",
             "params":{
                 "cart":${Json.encodeToString(cart)},
-                "checkout":{"id":"checkout-session-456"}
+                "sessionId":"checkout-session-456"
             }
         }""".trimIndent()
 

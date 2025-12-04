@@ -519,17 +519,6 @@ public data class PaymentTokenInput(
     val tokenProvider: String,
 )
 
-/**
- * Checkout session information.
- */
-@Serializable
-public data class Checkout(
-    /**
-     * The checkout session identifier
-     */
-    val id: String
-)
-
 @Serializable
 public enum class CardBrand {
     @SerialName("VISA")

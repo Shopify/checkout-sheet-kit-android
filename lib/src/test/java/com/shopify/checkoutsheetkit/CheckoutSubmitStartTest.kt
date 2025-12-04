@@ -23,7 +23,6 @@
 package com.shopify.checkoutsheetkit
 
 import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
-import com.shopify.checkoutsheetkit.lifecycleevents.Checkout
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartResponsePayload
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutEventResponseException
 import com.shopify.checkoutsheetkit.rpc.RPCRequestRegistry
@@ -61,9 +60,7 @@ class CheckoutSubmitStartTest {
                         "delivery": {"addresses": []},
                         "payment": {"instruments": []}
                     },
-                    "checkout": {
-                        "id": "checkout-session-789"
-                    }
+                    "sessionId": "checkout-session-789"
                 }
             }
         """.trimIndent()
@@ -74,7 +71,7 @@ class CheckoutSubmitStartTest {
 
         val request = decoded as CheckoutSubmitStartEvent
         assertThat(request.id).isEqualTo("test-789")
-        assertThat(request.checkout.id).isEqualTo("checkout-session-789")
+        assertThat(request.sessionId).isEqualTo("checkout-session-789")
     }
 
     @Test
@@ -118,14 +115,14 @@ class CheckoutSubmitStartTest {
     }
 
     @Test
-    fun `test toString includes id, method, cart and checkout`() {
+    fun `test toString includes id, method, cart and sessionId`() {
         val request = createTestRequest()
         val result = request.toString()
 
         assertThat(result).contains("id='test-id'")
         assertThat(result).contains("method='checkout.submitStart'")
         assertThat(result).contains("cart=Cart(")
-        assertThat(result).contains("checkout=Checkout(")
+        assertThat(result).contains("sessionId='checkout-session-123'")
     }
 
     @Test
@@ -134,7 +131,7 @@ class CheckoutSubmitStartTest {
             id = "same-id",
             params = CheckoutSubmitStartParams(
                 cart = createTestCart(),
-                checkout = Checkout(id = "checkout-1")
+                sessionId = "checkout-1"
             ),
             responseSerializer = CheckoutSubmitStartResponsePayload.serializer()
         )
@@ -142,7 +139,7 @@ class CheckoutSubmitStartTest {
             id = "same-id",
             params = CheckoutSubmitStartParams(
                 cart = createTestCart(id = "different-cart"), // Different cart
-                checkout = Checkout(id = "checkout-2") // Different checkout
+                sessionId = "checkout-2" // Different session
             ),
             responseSerializer = CheckoutSubmitStartResponsePayload.serializer()
         )
@@ -158,7 +155,7 @@ class CheckoutSubmitStartTest {
             id = "different-id",
             params = CheckoutSubmitStartParams(
                 cart = createTestCart(),
-                checkout = Checkout(id = "checkout-123")
+                sessionId = "checkout-123"
             ),
             responseSerializer = CheckoutSubmitStartResponsePayload.serializer()
         )
@@ -174,7 +171,7 @@ class CheckoutSubmitStartTest {
                 subtotalAmount = "100.00",
                 totalAmount = "100.00"
             ),
-            checkout = Checkout(id = "checkout-session-123")
+            sessionId = "checkout-session-123"
         ),
         responseSerializer = CheckoutSubmitStartResponsePayload.serializer()
     )
