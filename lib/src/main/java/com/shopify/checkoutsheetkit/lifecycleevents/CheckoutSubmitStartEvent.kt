@@ -52,10 +52,10 @@ public class CheckoutSubmitStartEvent internal constructor(
         get() = request.params.cart
 
     /**
-     * The checkout session information.
+     * The checkout session identifier.
      */
-    public val checkout: Checkout
-        get() = request.params.checkout
+    public val sessionId: String
+        get() = request.params.sessionId
 
     internal val rpcRequest: RPCRequest<*, *> get() = request
 
@@ -68,7 +68,7 @@ public class CheckoutSubmitStartEvent internal constructor(
     )
 
     override fun toString(): String {
-        return "CheckoutSubmitStartEvent(id='$id', method='$method', cart=$cart, checkout=$checkout)"
+        return "CheckoutSubmitStartEvent(id='$id', method='$method', cart=$cart, sessionId='$sessionId')"
     }
 
     override fun equals(other: Any?): Boolean {
@@ -88,5 +88,5 @@ public class CheckoutSubmitStartEvent internal constructor(
 @Serializable
 internal data class CheckoutSubmitStartParams(
     val cart: Cart,
-    val checkout: Checkout
+    val sessionId: String
 )
