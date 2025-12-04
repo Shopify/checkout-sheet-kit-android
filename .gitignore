@@ -11,3 +11,5 @@ local.properties
 .env
 upload-keystore.jks
 .claude/
+*.aab
+*.apk
