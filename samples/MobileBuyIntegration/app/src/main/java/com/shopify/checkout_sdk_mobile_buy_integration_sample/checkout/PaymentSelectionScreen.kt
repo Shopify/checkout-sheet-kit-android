@@ -52,12 +52,12 @@ import androidx.compose.ui.unit.dp
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
 import com.shopify.checkoutsheetkit.CheckoutPaymentMethodChangeStartResponsePayload
 import com.shopify.checkoutsheetkit.lifecycleevents.CardBrand
-import com.shopify.checkoutsheetkit.lifecycleevents.CartMailingAddressInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CartPayment
 import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentInstrument
 import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentMethod
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutEventResponseException
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutPaymentMethodChangeStartEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.MailingAddress
 import kotlinx.coroutines.launch
 
 data class PaymentOption(
@@ -68,7 +68,7 @@ data class PaymentOption(
     val cardHolderName: String,
     val month: Int,
     val year: Int,
-    val billingAddress: CartMailingAddressInput,
+    val billingAddress: MailingAddress,
 )
 
 @Composable
@@ -98,13 +98,13 @@ fun PaymentSelectionScreen(
                 cardHolderName = "John Doe",
                 month = 12,
                 year = 2025,
-                billingAddress = CartMailingAddressInput(
+                billingAddress = MailingAddress(
                     firstName = "John",
                     lastName = "Doe",
                     address1 = "150 5th Avenue",
                     city = "New York",
-                    countryCode = "US",
-                    provinceCode = "NY",
+                    country = "US",
+                    province = "NY",
                     zip = "10011"
                 )
             ),
@@ -116,14 +116,14 @@ fun PaymentSelectionScreen(
                 cardHolderName = "Jane Smith",
                 month = 6,
                 year = 2026,
-                billingAddress = CartMailingAddressInput(
+                billingAddress = MailingAddress(
                     firstName = "Jane",
                     lastName = "Smith",
                     address1 = "89 Haight Street",
                     address2 = "Apt 2B",
                     city = "San Francisco",
-                    countryCode = "US",
-                    provinceCode = "CA",
+                    country = "US",
+                    province = "CA",
                     zip = "94117"
                 )
             ),
@@ -135,13 +135,13 @@ fun PaymentSelectionScreen(
                 cardHolderName = "Alex Johnson",
                 month = 3,
                 year = 2027,
-                billingAddress = CartMailingAddressInput(
+                billingAddress = MailingAddress(
                     firstName = "Alex",
                     lastName = "Johnson",
                     address1 = "456 Oak Ave",
                     city = "Chicago",
-                    countryCode = "US",
-                    provinceCode = "IL",
+                    country = "US",
+                    province = "IL",
                     zip = "60601"
                 )
             ),
@@ -191,7 +191,13 @@ fun PaymentSelectionScreen(
                                 CartPaymentMethod(
                                     instruments = listOf(
                                         CartPaymentInstrument(
-                                            externalReferenceId = paymentOption.externalReferenceId
+                                            externalReferenceId = paymentOption.externalReferenceId,
+                                            lastDigits = paymentOption.lastDigits,
+                                            brand = paymentOption.brand,
+                                            cardHolderName = paymentOption.cardHolderName,
+                                            month = paymentOption.month,
+                                            year = paymentOption.year,
+                                            billingAddress = paymentOption.billingAddress,
                                         )
                                     )
                                 )

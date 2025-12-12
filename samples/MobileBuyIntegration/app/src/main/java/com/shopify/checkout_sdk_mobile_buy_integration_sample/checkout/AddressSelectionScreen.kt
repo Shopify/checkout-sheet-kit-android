@@ -190,7 +190,11 @@ fun AddressSelectionScreen(
                     val updatedCart = event?.cart?.copy(
                         delivery = CartDelivery(
                             addresses = listOf(
-                                CartSelectableAddress(address = address)
+                                CartSelectableAddress(
+                                    address = address,
+                                    selected = true,
+                                    oneTimeUse = false
+                                )
                             )
                         )
                     )

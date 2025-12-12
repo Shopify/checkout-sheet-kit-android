@@ -487,6 +487,13 @@ class CheckoutPaymentMethodChangeStartTest {
         }
     }
 
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    private val testJson = Json {
+        ignoreUnknownKeys = true
+        encodeDefaults = true
+        explicitNulls = false
+    }
+
     @Test
     fun `test serializing CartPaymentInstrument includes all credit card display fields`() {
         val instrument = CartPaymentInstrument(
@@ -502,40 +509,30 @@ class CheckoutPaymentMethodChangeStartTest {
                 city = "John",
                 province = "Smith",
                 country = "US",
-                countryCodeV2 = null,
                 zip = "NY",
-                firstName = "10001",
-                lastName = null,
-                phone = null,
-                company = null
-            ),
-            credentials = null
+                firstName = "10001"
+            )
         )
 
-        val json = Json.encodeToString(CartPaymentInstrument.serializer(), instrument)
+        val json = testJson.encodeToString(CartPaymentInstrument.serializer(), instrument)
 
         val expected = """
             {
-              "year": 2027,
               "externalReferenceId": "card-mc-5555",
+              "cardHolderName": "John Smith",
+              "lastDigits": "5555",
               "month": 6,
+              "year": 2027,
               "brand": "MASTERCARD",
               "billingAddress": {
-                "country": "US",
-                "countryCodeV2": null,
-                "address2": "New York",
-                "province": "Smith",
                 "address1": "123 Main St",
+                "address2": "New York",
                 "city": "John",
-                "firstName": "10001",
-                "phone": null,
-                "lastName": null,
-                "company": null,
-                "zip": "NY"
-              },
-              "lastDigits": "5555",
-              "cardHolderName": "John Smith",
-              "credentials": null
+                "province": "Smith",
+                "country": "US",
+                "zip": "NY",
+                "firstName": "10001"
+              }
             }
         """.trimIndent()
 
@@ -559,8 +556,7 @@ class CheckoutPaymentMethodChangeStartTest {
                             title = "Gustave table lamp"
                         ),
                         image = MerchandiseImage(
-                            url = "https://cdn.shopify.com/s/files/1/0987/0986/4470/files/gustave_table_lamp.png?v=1761595805",
-                            altText = null
+                            url = "https://cdn.shopify.com/s/files/1/0987/0986/4470/files/gustave_table_lamp.png?v=1761595805"
                         ),
                         selectedOptions = listOf(
                             SelectedOption(name = "Lens color", value = "Black")
@@ -580,8 +576,6 @@ class CheckoutPaymentMethodChangeStartTest {
             ),
             buyerIdentity = CartBuyerIdentity(
                 countryCode = "US",
-                customer = null,
-                phone = null,
                 email = "checkout-kit@shopify.com"
             ),
             deliveryGroups = listOf(
@@ -618,7 +612,6 @@ class CheckoutPaymentMethodChangeStartTest {
                         province = "CA",
                         address2 = "Haight-Ashbury",
                         country = "US",
-                        company = null,
                         address1 = "89 Haight Street",
                         firstName = "Evelyn",
                         lastName = "Hartley",
@@ -638,7 +631,6 @@ class CheckoutPaymentMethodChangeStartTest {
                             phone = "+441792547555",
                             zip = "94117",
                             city = "San Francisco",
-                            company = null,
                             firstName = "Evelyn",
                             provinceCode = "CA",
                             address2 = "Haight-Ashbury",
@@ -662,20 +654,15 @@ class CheckoutPaymentMethodChangeStartTest {
                                 brand = CardBrand.MASTERCARD,
                                 billingAddress = MailingAddress(
                                     country = "US",
-                                    countryCodeV2 = null,
                                     address2 = "New York",
                                     province = "Smith",
                                     address1 = "123 Main St",
                                     city = "John",
                                     firstName = "10001",
-                                    phone = null,
-                                    lastName = null,
-                                    company = null,
                                     zip = "NY"
                                 ),
                                 lastDigits = "5555",
-                                cardHolderName = "John Smith",
-                                credentials = null
+                                cardHolderName = "John Smith"
                             )
                         )
                     )
@@ -683,143 +670,134 @@ class CheckoutPaymentMethodChangeStartTest {
             )
         )
 
-        val json = Json.encodeToString(Cart.serializer(), cart)
+        val json = testJson.encodeToString(Cart.serializer(), cart)
 
         val expected = """
             {
-              "delivery": {
-                "addresses": [
-                  {
-                    "address": {
-                      "phone": "+441792547555",
-                      "zip": "94117",
-                      "city": "San Francisco",
-                      "company": null,
-                      "firstName": "Evelyn",
-                      "provinceCode": "CA",
-                      "address2": "Haight-Ashbury",
-                      "lastName": "Hartley",
-                      "address1": "89 Haight Street",
-                      "countryCode": "US"
-                    },
-                    "oneTimeUse": false,
-                    "selected": true
-                  }
-                ]
-              },
+              "id": "hWN6LirFdNUjAcpXvpm52A1T",
               "lines": [
                 {
+                  "id": "ed22744d9f67fb682fa63510629c1f44",
                   "quantity": 1,
                   "merchandise": {
-                    "image": {
-                      "altText": null,
-                      "url": "https://cdn.shopify.com/s/files/1/0987/0986/4470/files/gustave_table_lamp.png?v=1761595805"
-                    },
                     "id": "gid://shopify/ProductVariantMerchandise/63449294405654",
+                    "title": "Gustave table lamp",
                     "product": {
                       "id": "gid://shopify/Product/14919569440790",
                       "title": "Gustave table lamp"
                     },
-                    "title": "Gustave table lamp",
-                    "selectedOptions": [{ "value": "Black", "name": "Lens color" }]
+                    "image": {
+                      "url": "https://cdn.shopify.com/s/files/1/0987/0986/4470/files/gustave_table_lamp.png?v=1761595805"
+                    },
+                    "selectedOptions": [{ "name": "Lens color", "value": "Black" }]
                   },
-                  "discountAllocations": [],
                   "cost": {
-                    "amountPerQuantity": { "currencyCode": "USD", "amount": "50.00" },
-                    "subtotalAmount": { "currencyCode": "USD", "amount": "50.00" },
-                    "totalAmount": { "currencyCode": "USD", "amount": "50.00" }
+                    "amountPerQuantity": { "amount": "50.00", "currencyCode": "USD" },
+                    "subtotalAmount": { "amount": "50.00", "currencyCode": "USD" },
+                    "totalAmount": { "amount": "50.00", "currencyCode": "USD" }
                   },
-                  "id": "ed22744d9f67fb682fa63510629c1f44"
+                  "discountAllocations": []
                 }
               ],
-              "id": "hWN6LirFdNUjAcpXvpm52A1T",
               "cost": {
                 "subtotalAmount": { "amount": "50.00", "currencyCode": "USD" },
                 "totalAmount": { "amount": "50.00", "currencyCode": "USD" }
               },
-              "payment": {
-                "methods": [
-                  {
-                    "instruments": [
-                      {
-                        "year": 2027,
-                        "externalReferenceId": "card-mc-5555",
-                        "month": 6,
-                        "brand": "MASTERCARD",
-                        "billingAddress": {
-                          "country": "US",
-                          "countryCodeV2": null,
-                          "address2": "New York",
-                          "province": "Smith",
-                          "address1": "123 Main St",
-                          "city": "John",
-                          "firstName": "10001",
-                          "phone": null,
-                          "lastName": null,
-                          "company": null,
-                          "zip": "NY"
-                        },
-                        "lastDigits": "5555",
-                        "cardHolderName": "John Smith",
-                        "credentials": null
-                      }
-                    ]
-                  }
-                ]
+              "buyerIdentity": {
+                "email": "checkout-kit@shopify.com",
+                "countryCode": "US"
               },
               "deliveryGroups": [
                 {
-                  "selectedDeliveryOption": {
-                    "title": "Economy",
-                    "code": "Economy",
-                    "description": "",
-                    "estimatedCost": { "amount": "0.00", "currencyCode": "USD" },
-                    "handle": "05ac113615eb8c229a25856a76f7dd90-8388085074acab7e91de633521be86f0",
-                    "deliveryMethodType": "SHIPPING"
+                  "deliveryAddress": {
+                    "address1": "89 Haight Street",
+                    "address2": "Haight-Ashbury",
+                    "city": "San Francisco",
+                    "province": "CA",
+                    "country": "US",
+                    "countryCodeV2": "US",
+                    "zip": "94117",
+                    "firstName": "Evelyn",
+                    "lastName": "Hartley",
+                    "phone": "+441792547555"
                   },
-                  "groupType": "ONE_TIME_PURCHASE",
                   "deliveryOptions": [
                     {
-                      "title": "Economy",
                       "code": "Economy",
+                      "title": "Economy",
                       "description": "",
-                      "estimatedCost": { "currencyCode": "USD", "amount": "0.00" },
                       "handle": "05ac113615eb8c229a25856a76f7dd90-8388085074acab7e91de633521be86f0",
+                      "estimatedCost": { "amount": "0.00", "currencyCode": "USD" },
                       "deliveryMethodType": "SHIPPING"
                     },
                     {
-                      "title": "Standard",
                       "code": "Standard",
+                      "title": "Standard",
                       "description": "",
-                      "estimatedCost": { "amount": "6.90", "currencyCode": "USD" },
                       "handle": "05ac113615eb8c229a25856a76f7dd90-6d5a64f58240381019fc074473bab3ab",
+                      "estimatedCost": { "amount": "6.90", "currencyCode": "USD" },
                       "deliveryMethodType": "SHIPPING"
                     }
                   ],
-                  "deliveryAddress": {
-                    "phone": "+441792547555",
-                    "province": "CA",
-                    "address2": "Haight-Ashbury",
-                    "country": "US",
-                    "company": null,
-                    "address1": "89 Haight Street",
-                    "firstName": "Evelyn",
-                    "lastName": "Hartley",
-                    "countryCodeV2": "US",
-                    "city": "San Francisco",
-                    "zip": "94117"
-                  }
+                  "selectedDeliveryOption": {
+                    "code": "Economy",
+                    "title": "Economy",
+                    "description": "",
+                    "handle": "05ac113615eb8c229a25856a76f7dd90-8388085074acab7e91de633521be86f0",
+                    "estimatedCost": { "amount": "0.00", "currencyCode": "USD" },
+                    "deliveryMethodType": "SHIPPING"
+                  },
+                  "groupType": "ONE_TIME_PURCHASE"
                 }
               ],
               "discountCodes": [],
               "appliedGiftCards": [],
-              "buyerIdentity": {
-                "countryCode": "US",
-                "customer": null,
-                "phone": null,
-                "email": "checkout-kit@shopify.com"
+              "discountAllocations": [],
+              "delivery": {
+                "addresses": [
+                  {
+                    "address": {
+                      "address1": "89 Haight Street",
+                      "address2": "Haight-Ashbury",
+                      "city": "San Francisco",
+                      "countryCode": "US",
+                      "firstName": "Evelyn",
+                      "lastName": "Hartley",
+                      "phone": "+441792547555",
+                      "provinceCode": "CA",
+                      "zip": "94117"
+                    },
+                    "selected": true,
+                    "oneTimeUse": false
+                  }
+                ]
               },
-              "discountAllocations": []
+              "payment": {
+                "methods": [
+                  {
+                    "__typename": "CreditCardPaymentMethod",
+                    "instruments": [
+                      {
+                        "externalReferenceId": "card-mc-5555",
+                        "cardHolderName": "John Smith",
+                        "lastDigits": "5555",
+                        "month": 6,
+                        "year": 2027,
+                        "brand": "MASTERCARD",
+                        "billingAddress": {
+                          "address1": "123 Main St",
+                          "address2": "New York",
+                          "city": "John",
+                          "province": "Smith",
+                          "country": "US",
+                          "zip": "NY",
+                          "firstName": "10001"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
             }
         """.trimIndent()
 

@@ -433,6 +433,13 @@ class CheckoutAddressChangeStartTest {
         responseSerializer = CheckoutAddressChangeStartResponsePayload.serializer()
     )
 
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    private val testJson = Json {
+        ignoreUnknownKeys = true
+        encodeDefaults = true
+        explicitNulls = false
+    }
+
     @Test
     fun `test serializing CartSelectableAddress includes selected and oneTimeUse fields`() {
         val selectableAddress = CartSelectableAddress(
@@ -442,7 +449,6 @@ class CheckoutAddressChangeStartTest {
                 provinceCode = "CA",
                 firstName = "Evelyn",
                 address2 = "Haight-Ashbury",
-                company = null,
                 phone = "+441792547555",
                 lastName = "Hartley",
                 zip = "94117",
@@ -452,24 +458,23 @@ class CheckoutAddressChangeStartTest {
             oneTimeUse = false
         )
 
-        val json = Json.encodeToString(CartSelectableAddress.serializer(), selectableAddress)
+        val json = testJson.encodeToString(CartSelectableAddress.serializer(), selectableAddress)
 
         val expected = """
             {
-              "selected": true,
-              "oneTimeUse": false,
               "address": {
-                "city": "San Francisco",
                 "address1": "89 Haight Street",
-                "provinceCode": "CA",
-                "firstName": "Evelyn",
                 "address2": "Haight-Ashbury",
-                "company": null,
-                "phone": "+441792547555",
+                "city": "San Francisco",
+                "countryCode": "US",
+                "firstName": "Evelyn",
                 "lastName": "Hartley",
-                "zip": "94117",
-                "countryCode": "US"
-              }
+                "phone": "+441792547555",
+                "provinceCode": "CA",
+                "zip": "94117"
+              },
+              "selected": true,
+              "oneTimeUse": false
             }
         """.trimIndent()
 
@@ -493,8 +498,7 @@ class CheckoutAddressChangeStartTest {
                             title = "Gustave table lamp"
                         ),
                         image = MerchandiseImage(
-                            url = "https://cdn.shopify.com/s/files/1/0987/0986/4470/files/gustave_table_lamp.png?v=1761595805",
-                            altText = null
+                            url = "https://cdn.shopify.com/s/files/1/0987/0986/4470/files/gustave_table_lamp.png?v=1761595805"
                         ),
                         selectedOptions = listOf(
                             SelectedOption(name = "Lens color", value = "Black")
@@ -513,10 +517,8 @@ class CheckoutAddressChangeStartTest {
                 totalAmount = Money(amount = "50.00", currencyCode = "USD")
             ),
             buyerIdentity = CartBuyerIdentity(
-                customer = null,
                 countryCode = "US",
-                email = "checkout-kit@shopify.com",
-                phone = null
+                email = "checkout-kit@shopify.com"
             ),
             deliveryGroups = listOf(
                 CartDeliveryGroup(
@@ -538,8 +540,6 @@ class CheckoutAddressChangeStartTest {
                         lastName = "Osgood",
                         phone = "1-888-746-7439",
                         city = "Jonesville",
-                        company = null,
-                        address2 = null,
                         countryCodeV2 = "US"
                     ),
                     deliveryOptions = listOf(
@@ -574,7 +574,6 @@ class CheckoutAddressChangeStartTest {
                             provinceCode = "CA",
                             firstName = "Evelyn",
                             address2 = "Haight-Ashbury",
-                            company = null,
                             phone = "+441792547555",
                             lastName = "Hartley",
                             zip = "94117",
@@ -588,114 +587,108 @@ class CheckoutAddressChangeStartTest {
             payment = CartPayment(methods = emptyList())
         )
 
-        val json = Json.encodeToString(Cart.serializer(), cart)
+        val json = testJson.encodeToString(Cart.serializer(), cart)
 
         val expected = """
             {
-              "cost": {
-                "subtotalAmount": { "currencyCode": "USD", "amount": "50.00" },
-                "totalAmount": { "currencyCode": "USD", "amount": "50.00" }
-              },
-              "buyerIdentity": {
-                "customer": null,
-                "countryCode": "US",
-                "email": "checkout-kit@shopify.com",
-                "phone": null
-              },
+              "id": "hWN6LirFdNUjAcpXvpm52A1T",
               "lines": [
                 {
                   "id": "ed22744d9f67fb682fa63510629c1f44",
                   "quantity": 1,
                   "merchandise": {
                     "id": "gid://shopify/ProductVariantMerchandise/63449294405654",
+                    "title": "Gustave table lamp",
                     "product": {
                       "id": "gid://shopify/Product/14919569440790",
                       "title": "Gustave table lamp"
                     },
-                    "title": "Gustave table lamp",
                     "image": {
-                      "altText": null,
                       "url": "https://cdn.shopify.com/s/files/1/0987/0986/4470/files/gustave_table_lamp.png?v=1761595805"
                     },
                     "selectedOptions": [{ "name": "Lens color", "value": "Black" }]
                   },
                   "cost": {
-                    "totalAmount": { "amount": "50.00", "currencyCode": "USD" },
+                    "amountPerQuantity": { "amount": "50.00", "currencyCode": "USD" },
                     "subtotalAmount": { "amount": "50.00", "currencyCode": "USD" },
-                    "amountPerQuantity": { "amount": "50.00", "currencyCode": "USD" }
+                    "totalAmount": { "amount": "50.00", "currencyCode": "USD" }
                   },
                   "discountAllocations": []
                 }
               ],
+              "cost": {
+                "subtotalAmount": { "amount": "50.00", "currencyCode": "USD" },
+                "totalAmount": { "amount": "50.00", "currencyCode": "USD" }
+              },
+              "buyerIdentity": {
+                "email": "checkout-kit@shopify.com",
+                "countryCode": "US"
+              },
               "deliveryGroups": [
                 {
-                  "selectedDeliveryOption": {
-                    "title": "Economy",
-                    "handle": "05ac113615eb8c229a25856a76f7dd90-8388085074acab7e91de633521be86f0",
-                    "estimatedCost": { "currencyCode": "USD", "amount": "0.00" },
-                    "deliveryMethodType": "SHIPPING",
-                    "description": "",
-                    "code": "Economy"
-                  },
-                  "groupType": "ONE_TIME_PURCHASE",
                   "deliveryAddress": {
                     "address1": "224 Triplett St",
+                    "city": "Jonesville",
                     "province": "NC",
                     "country": "US",
+                    "countryCodeV2": "US",
                     "zip": "28642",
                     "firstName": "Kieran",
                     "lastName": "Osgood",
-                    "phone": "1-888-746-7439",
-                    "city": "Jonesville",
-                    "company": null,
-                    "address2": null,
-                    "countryCodeV2": "US"
+                    "phone": "1-888-746-7439"
                   },
                   "deliveryOptions": [
                     {
-                      "description": "",
-                      "deliveryMethodType": "SHIPPING",
-                      "title": "Economy",
-                      "handle": "05ac113615eb8c229a25856a76f7dd90-8388085074acab7e91de633521be86f0",
                       "code": "Economy",
-                      "estimatedCost": { "currencyCode": "USD", "amount": "0.00" }
+                      "title": "Economy",
+                      "description": "",
+                      "handle": "05ac113615eb8c229a25856a76f7dd90-8388085074acab7e91de633521be86f0",
+                      "estimatedCost": { "amount": "0.00", "currencyCode": "USD" },
+                      "deliveryMethodType": "SHIPPING"
                     },
                     {
-                      "deliveryMethodType": "SHIPPING",
                       "code": "Standard",
-                      "description": "",
                       "title": "Standard",
+                      "description": "",
                       "handle": "05ac113615eb8c229a25856a76f7dd90-6d5a64f58240381019fc074473bab3ab",
-                      "estimatedCost": { "amount": "6.90", "currencyCode": "USD" }
+                      "estimatedCost": { "amount": "6.90", "currencyCode": "USD" },
+                      "deliveryMethodType": "SHIPPING"
                     }
-                  ]
+                  ],
+                  "selectedDeliveryOption": {
+                    "code": "Economy",
+                    "title": "Economy",
+                    "description": "",
+                    "handle": "05ac113615eb8c229a25856a76f7dd90-8388085074acab7e91de633521be86f0",
+                    "estimatedCost": { "amount": "0.00", "currencyCode": "USD" },
+                    "deliveryMethodType": "SHIPPING"
+                  },
+                  "groupType": "ONE_TIME_PURCHASE"
                 }
               ],
               "discountCodes": [],
-              "id": "hWN6LirFdNUjAcpXvpm52A1T",
+              "appliedGiftCards": [],
               "discountAllocations": [],
               "delivery": {
                 "addresses": [
                   {
-                    "selected": true,
-                    "oneTimeUse": false,
                     "address": {
-                      "city": "San Francisco",
                       "address1": "89 Haight Street",
-                      "provinceCode": "CA",
-                      "firstName": "Evelyn",
                       "address2": "Haight-Ashbury",
-                      "company": null,
-                      "phone": "+441792547555",
+                      "city": "San Francisco",
+                      "countryCode": "US",
+                      "firstName": "Evelyn",
                       "lastName": "Hartley",
-                      "zip": "94117",
-                      "countryCode": "US"
-                    }
+                      "phone": "+441792547555",
+                      "provinceCode": "CA",
+                      "zip": "94117"
+                    },
+                    "selected": true,
+                    "oneTimeUse": false
                   }
                 ]
               },
-              "payment": { "methods": [] },
-              "appliedGiftCards": []
+              "payment": { "methods": [] }
             }
         """.trimIndent()
 

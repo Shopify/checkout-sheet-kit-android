@@ -22,6 +22,7 @@
  */
 package com.shopify.checkoutsheetkit.lifecycleevents
 
+import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -248,6 +249,8 @@ public data class CartPayment(
 
 @Serializable
 public data class CartPaymentMethod(
+    @SerialName("__typename")
+    public val typename: String = "CreditCardPaymentMethod",
     public val instruments: List<CartPaymentInstrument> = emptyList()
 )
 
@@ -291,7 +294,9 @@ private object CartAddressSerializer : KSerializer<CartAddress> {
 
 @Serializable
 public data class CartSelectableAddress(
-    public val address: CartAddress
+    public val address: CartAddress,
+    @EncodeDefault public val selected: Boolean = true,
+    @EncodeDefault public val oneTimeUse: Boolean = false
 )
 
 /**
@@ -556,7 +561,13 @@ public enum class CardBrand {
 @Serializable
 public data class CartPaymentInstrument(
     public val externalReferenceId: String,
-    public val credentials: List<CartCredential>? = null
+    public val credentials: List<CartCredential>? = null,
+    public val cardHolderName: String? = null,
+    public val lastDigits: String? = null,
+    public val month: Int? = null,
+    public val year: Int? = null,
+    public val brand: CardBrand? = null,
+    public val billingAddress: MailingAddress? = null
 )
 
 @Serializable
