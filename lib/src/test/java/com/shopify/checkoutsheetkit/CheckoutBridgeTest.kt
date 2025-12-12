@@ -23,16 +23,19 @@
 package com.shopify.checkoutsheetkit
 
 import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartResponsePayload
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartResponsePayload
-import com.shopify.checkoutsheetkit.lifecycleevents.CartInput
-import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryInput
-import com.shopify.checkoutsheetkit.lifecycleevents.CartSelectableAddressInput
-import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryAddressInput
-import com.shopify.checkoutsheetkit.lifecycleevents.PaymentTokenInput
+import com.shopify.checkoutsheetkit.lifecycleevents.CartAddress
+import com.shopify.checkoutsheetkit.lifecycleevents.CartCredential
+import com.shopify.checkoutsheetkit.lifecycleevents.CartDelivery
+import com.shopify.checkoutsheetkit.lifecycleevents.CartPayment
+import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentInstrument
+import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentMethod
+import com.shopify.checkoutsheetkit.lifecycleevents.CartSelectableAddress
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartResponsePayload
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutPaymentMethodChangeStartEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartResponsePayload
+import com.shopify.checkoutsheetkit.lifecycleevents.RemoteTokenPaymentCredential
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.After
@@ -134,13 +137,29 @@ class CheckoutBridgeTest {
         verify(mockEventProcessor).onCheckoutViewSubmitStart(eventCaptor.capture())
         val event = eventCaptor.firstValue
 
-        val payload = CheckoutSubmitStartResponsePayload(
-            payment = PaymentTokenInput(
-                token = "tok_test_123",
-                tokenType = "card",
-                tokenProvider = "delegated"
-            )
+        val updatedCart = event.cart.copy(
+            payment = CartPayment(
+                methods = listOf(
+                    CartPaymentMethod(
+                        instruments = listOf(
+                            CartPaymentInstrument(
+                                externalReferenceId = "payment-123",
+                                credentials = listOf(
+                                    CartCredential(
+                                        remoteTokenPaymentCredential = RemoteTokenPaymentCredential(
+                                            token = "tok_test_123",
+                                            tokenType = "card",
+                                            tokenHandler = "delegated"
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            ),
         )
+        val payload = CheckoutSubmitStartResponsePayload(cart = updatedCart)
 
         event.respondWith(payload)
         ShadowLooper.runUiThreadTasks()
@@ -152,8 +171,6 @@ class CheckoutBridgeTest {
             .contains("\"id\":\"request-id-submit-response\"")
             .contains("\"result\":")
             .contains("\"token\":\"tok_test_123\"")
-            .contains("\"tokenType\":\"card\"")
-            .contains("\"tokenProvider\":\"delegated\"")
     }
 
     @Test
@@ -252,21 +269,19 @@ class CheckoutBridgeTest {
         verify(mockEventProcessor).onCheckoutViewAddressChangeStart(eventCaptor.capture())
         val event = eventCaptor.firstValue
 
-        val payload = CheckoutAddressChangeStartResponsePayload(
-            cart = CartInput(
-                delivery = CartDeliveryInput(
-                    addresses = listOf(
-                        CartSelectableAddressInput(
-                            address = CartDeliveryAddressInput(
-                                firstName = "Ada",
-                                countryCode = "US"
-                            ),
-                            selected = true
+        val updatedCart = event.cart.copy(
+            delivery = CartDelivery(
+                addresses = listOf(
+                    CartSelectableAddress(
+                        address = CartAddress.DeliveryAddress(
+                            firstName = "Ada",
+                            countryCode = "US"
                         )
                     )
                 )
             )
         )
+        val payload = CheckoutAddressChangeStartResponsePayload(cart = updatedCart)
 
         event.respondWith(payload)
         ShadowLooper.runUiThreadTasks()
@@ -309,21 +324,19 @@ class CheckoutBridgeTest {
         verify(mockEventProcessor).onCheckoutViewAddressChangeStart(eventCaptor.capture())
         val event = eventCaptor.firstValue
 
-        val payload = CheckoutAddressChangeStartResponsePayload(
-            cart = CartInput(
-                delivery = CartDeliveryInput(
-                    addresses = listOf(
-                        CartSelectableAddressInput(
-                            address = CartDeliveryAddressInput(
-                                firstName = "Ada",
-                                countryCode = "US"
-                            ),
-                            selected = true
+        val updatedCart = event.cart.copy(
+            delivery = CartDelivery(
+                addresses = listOf(
+                    CartSelectableAddress(
+                        address = CartAddress.DeliveryAddress(
+                            firstName = "Ada",
+                            countryCode = "US"
                         )
                     )
                 )
             )
         )
+        val payload = CheckoutAddressChangeStartResponsePayload(cart = updatedCart)
 
         event.respondWith(payload)
         ShadowLooper.runUiThreadTasks()

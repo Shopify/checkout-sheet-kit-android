@@ -22,16 +22,33 @@
  */
 package com.shopify.checkoutsheetkit
 
+import com.shopify.checkoutsheetkit.lifecycleevents.Cart
+import com.shopify.checkoutsheetkit.lifecycleevents.CartAddress
+import com.shopify.checkoutsheetkit.lifecycleevents.CartBuyerIdentity
+import com.shopify.checkoutsheetkit.lifecycleevents.CartCost
+import com.shopify.checkoutsheetkit.lifecycleevents.CartDelivery
+import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryGroup
+import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryGroupType
+import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryMethodType
+import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryOption
+import com.shopify.checkoutsheetkit.lifecycleevents.CartLine
+import com.shopify.checkoutsheetkit.lifecycleevents.CartLineCost
+import com.shopify.checkoutsheetkit.lifecycleevents.CartLineMerchandise
+import com.shopify.checkoutsheetkit.lifecycleevents.CartPayment
+import com.shopify.checkoutsheetkit.lifecycleevents.CartSelectableAddress
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartResponsePayload
-import com.shopify.checkoutsheetkit.lifecycleevents.CartInput
-import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryInput
-import com.shopify.checkoutsheetkit.lifecycleevents.CartSelectableAddressInput
-import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryAddressInput
+import com.shopify.checkoutsheetkit.lifecycleevents.MailingAddress
+import com.shopify.checkoutsheetkit.lifecycleevents.MerchandiseImage
+import com.shopify.checkoutsheetkit.lifecycleevents.Money
+import com.shopify.checkoutsheetkit.lifecycleevents.SelectedOption
 import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutEventResponseException
 import com.shopify.checkoutsheetkit.rpc.RPCRequestRegistry
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartParams
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
 import org.assertj.core.api.Assertions.assertThatCode
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.Test
@@ -181,21 +198,21 @@ class CheckoutAddressChangeStartTest {
             responseSerializer = CheckoutAddressChangeStartResponsePayload.serializer()
         )
 
-        val payload = CheckoutAddressChangeStartResponsePayload(
-            cart = CartInput(
-                delivery = CartDeliveryInput(
-                    addresses = listOf(
-                        CartSelectableAddressInput(
-                            address = CartDeliveryAddressInput(
-                                firstName = "Ada",
-                                lastName = "Lovelace",
-                                countryCode = "US"
-                            ),
-                            selected = true
+        val updatedCart = cart.copy(
+            delivery = CartDelivery(
+                addresses = listOf(
+                    CartSelectableAddress(
+                        address = CartAddress.DeliveryAddress(
+                            firstName = "Ada",
+                            lastName = "Lovelace",
+                            countryCode = "US"
                         )
                     )
                 )
             )
+        )
+        val payload = CheckoutAddressChangeStartResponsePayload(
+            cart = updatedCart
         )
 
         // This will fail to send since no WebView is attached, but we're testing the flow
@@ -210,6 +227,17 @@ class CheckoutAddressChangeStartTest {
         val json = """
             {
                 "cart": {
+                    "id": "gid://shopify/Cart/test",
+                    "lines": [],
+                    "cost": {
+                        "subtotalAmount": {"amount": "100.00", "currencyCode": "USD"},
+                        "totalAmount": {"amount": "100.00", "currencyCode": "USD"}
+                    },
+                    "buyerIdentity": {},
+                    "deliveryGroups": [],
+                    "discountCodes": [],
+                    "appliedGiftCards": [],
+                    "discountAllocations": [],
                     "delivery": {
                         "addresses": [
                             {
@@ -217,8 +245,7 @@ class CheckoutAddressChangeStartTest {
                                     "firstName": "Ada",
                                     "lastName": "Lovelace",
                                     "countryCode": "US"
-                                },
-                                "selected": true
+                                }
                             }
                         ]
                     }
@@ -257,16 +284,15 @@ class CheckoutAddressChangeStartTest {
         )
 
         val payload1 = CheckoutAddressChangeStartResponsePayload(
-            cart = CartInput(
-                delivery = CartDeliveryInput(
+            cart = cart.copy(
+                delivery = CartDelivery(
                     addresses = listOf(
-                        CartSelectableAddressInput(
-                            address = CartDeliveryAddressInput(
+                        CartSelectableAddress(
+                            address = CartAddress.DeliveryAddress(
                                 firstName = "First",
                                 lastName = "Response",
                                 countryCode = "US"
-                            ),
-                            selected = true
+                            )
                         )
                     )
                 )
@@ -274,16 +300,15 @@ class CheckoutAddressChangeStartTest {
         )
 
         val payload2 = CheckoutAddressChangeStartResponsePayload(
-            cart = CartInput(
-                delivery = CartDeliveryInput(
+            cart = cart.copy(
+                delivery = CartDelivery(
                     addresses = listOf(
-                        CartSelectableAddressInput(
-                            address = CartDeliveryAddressInput(
+                        CartSelectableAddress(
+                            address = CartAddress.DeliveryAddress(
                                 firstName = "Second",
                                 lastName = "Response",
                                 countryCode = "CA"
-                            ),
-                            selected = true
+                            )
                         )
                     )
                 )
@@ -407,5 +432,275 @@ class CheckoutAddressChangeStartTest {
         ),
         responseSerializer = CheckoutAddressChangeStartResponsePayload.serializer()
     )
+
+    @Test
+    fun `test serializing CartSelectableAddress includes selected and oneTimeUse fields`() {
+        val selectableAddress = CartSelectableAddress(
+            address = CartAddress.DeliveryAddress(
+                city = "San Francisco",
+                address1 = "89 Haight Street",
+                provinceCode = "CA",
+                firstName = "Evelyn",
+                address2 = "Haight-Ashbury",
+                company = null,
+                phone = "+441792547555",
+                lastName = "Hartley",
+                zip = "94117",
+                countryCode = "US"
+            ),
+            selected = true,
+            oneTimeUse = false
+        )
+
+        val json = Json.encodeToString(CartSelectableAddress.serializer(), selectableAddress)
+
+        val expected = """
+            {
+              "selected": true,
+              "oneTimeUse": false,
+              "address": {
+                "city": "San Francisco",
+                "address1": "89 Haight Street",
+                "provinceCode": "CA",
+                "firstName": "Evelyn",
+                "address2": "Haight-Ashbury",
+                "company": null,
+                "phone": "+441792547555",
+                "lastName": "Hartley",
+                "zip": "94117",
+                "countryCode": "US"
+              }
+            }
+        """.trimIndent()
+
+        assertThat(Json.parseToJsonElement(json))
+            .isEqualTo(Json.parseToJsonElement(expected))
+    }
+
+    @Test
+    fun `test serializing full Cart for addressChangeStart matches expected JSON format`() {
+        val cart = Cart(
+            id = "hWN6LirFdNUjAcpXvpm52A1T",
+            lines = listOf(
+                CartLine(
+                    id = "ed22744d9f67fb682fa63510629c1f44",
+                    quantity = 1,
+                    merchandise = CartLineMerchandise(
+                        id = "gid://shopify/ProductVariantMerchandise/63449294405654",
+                        title = "Gustave table lamp",
+                        product = CartLineMerchandise.Product(
+                            id = "gid://shopify/Product/14919569440790",
+                            title = "Gustave table lamp"
+                        ),
+                        image = MerchandiseImage(
+                            url = "https://cdn.shopify.com/s/files/1/0987/0986/4470/files/gustave_table_lamp.png?v=1761595805",
+                            altText = null
+                        ),
+                        selectedOptions = listOf(
+                            SelectedOption(name = "Lens color", value = "Black")
+                        )
+                    ),
+                    cost = CartLineCost(
+                        totalAmount = Money(amount = "50.00", currencyCode = "USD"),
+                        subtotalAmount = Money(amount = "50.00", currencyCode = "USD"),
+                        amountPerQuantity = Money(amount = "50.00", currencyCode = "USD")
+                    ),
+                    discountAllocations = emptyList()
+                )
+            ),
+            cost = CartCost(
+                subtotalAmount = Money(amount = "50.00", currencyCode = "USD"),
+                totalAmount = Money(amount = "50.00", currencyCode = "USD")
+            ),
+            buyerIdentity = CartBuyerIdentity(
+                customer = null,
+                countryCode = "US",
+                email = "checkout-kit@shopify.com",
+                phone = null
+            ),
+            deliveryGroups = listOf(
+                CartDeliveryGroup(
+                    selectedDeliveryOption = CartDeliveryOption(
+                        title = "Economy",
+                        handle = "05ac113615eb8c229a25856a76f7dd90-8388085074acab7e91de633521be86f0",
+                        estimatedCost = Money(amount = "0.00", currencyCode = "USD"),
+                        deliveryMethodType = CartDeliveryMethodType.SHIPPING,
+                        description = "",
+                        code = "Economy"
+                    ),
+                    groupType = CartDeliveryGroupType.ONE_TIME_PURCHASE,
+                    deliveryAddress = MailingAddress(
+                        address1 = "224 Triplett St",
+                        province = "NC",
+                        country = "US",
+                        zip = "28642",
+                        firstName = "Kieran",
+                        lastName = "Osgood",
+                        phone = "1-888-746-7439",
+                        city = "Jonesville",
+                        company = null,
+                        address2 = null,
+                        countryCodeV2 = "US"
+                    ),
+                    deliveryOptions = listOf(
+                        CartDeliveryOption(
+                            description = "",
+                            deliveryMethodType = CartDeliveryMethodType.SHIPPING,
+                            title = "Economy",
+                            handle = "05ac113615eb8c229a25856a76f7dd90-8388085074acab7e91de633521be86f0",
+                            code = "Economy",
+                            estimatedCost = Money(amount = "0.00", currencyCode = "USD")
+                        ),
+                        CartDeliveryOption(
+                            deliveryMethodType = CartDeliveryMethodType.SHIPPING,
+                            code = "Standard",
+                            description = "",
+                            title = "Standard",
+                            handle = "05ac113615eb8c229a25856a76f7dd90-6d5a64f58240381019fc074473bab3ab",
+                            estimatedCost = Money(amount = "6.90", currencyCode = "USD")
+                        )
+                    )
+                )
+            ),
+            discountCodes = emptyList(),
+            appliedGiftCards = emptyList(),
+            discountAllocations = emptyList(),
+            delivery = CartDelivery(
+                addresses = listOf(
+                    CartSelectableAddress(
+                        address = CartAddress.DeliveryAddress(
+                            city = "San Francisco",
+                            address1 = "89 Haight Street",
+                            provinceCode = "CA",
+                            firstName = "Evelyn",
+                            address2 = "Haight-Ashbury",
+                            company = null,
+                            phone = "+441792547555",
+                            lastName = "Hartley",
+                            zip = "94117",
+                            countryCode = "US"
+                        ),
+                        selected = true,
+                        oneTimeUse = false
+                    )
+                )
+            ),
+            payment = CartPayment(methods = emptyList())
+        )
+
+        val json = Json.encodeToString(Cart.serializer(), cart)
+
+        val expected = """
+            {
+              "cost": {
+                "subtotalAmount": { "currencyCode": "USD", "amount": "50.00" },
+                "totalAmount": { "currencyCode": "USD", "amount": "50.00" }
+              },
+              "buyerIdentity": {
+                "customer": null,
+                "countryCode": "US",
+                "email": "checkout-kit@shopify.com",
+                "phone": null
+              },
+              "lines": [
+                {
+                  "id": "ed22744d9f67fb682fa63510629c1f44",
+                  "quantity": 1,
+                  "merchandise": {
+                    "id": "gid://shopify/ProductVariantMerchandise/63449294405654",
+                    "product": {
+                      "id": "gid://shopify/Product/14919569440790",
+                      "title": "Gustave table lamp"
+                    },
+                    "title": "Gustave table lamp",
+                    "image": {
+                      "altText": null,
+                      "url": "https://cdn.shopify.com/s/files/1/0987/0986/4470/files/gustave_table_lamp.png?v=1761595805"
+                    },
+                    "selectedOptions": [{ "name": "Lens color", "value": "Black" }]
+                  },
+                  "cost": {
+                    "totalAmount": { "amount": "50.00", "currencyCode": "USD" },
+                    "subtotalAmount": { "amount": "50.00", "currencyCode": "USD" },
+                    "amountPerQuantity": { "amount": "50.00", "currencyCode": "USD" }
+                  },
+                  "discountAllocations": []
+                }
+              ],
+              "deliveryGroups": [
+                {
+                  "selectedDeliveryOption": {
+                    "title": "Economy",
+                    "handle": "05ac113615eb8c229a25856a76f7dd90-8388085074acab7e91de633521be86f0",
+                    "estimatedCost": { "currencyCode": "USD", "amount": "0.00" },
+                    "deliveryMethodType": "SHIPPING",
+                    "description": "",
+                    "code": "Economy"
+                  },
+                  "groupType": "ONE_TIME_PURCHASE",
+                  "deliveryAddress": {
+                    "address1": "224 Triplett St",
+                    "province": "NC",
+                    "country": "US",
+                    "zip": "28642",
+                    "firstName": "Kieran",
+                    "lastName": "Osgood",
+                    "phone": "1-888-746-7439",
+                    "city": "Jonesville",
+                    "company": null,
+                    "address2": null,
+                    "countryCodeV2": "US"
+                  },
+                  "deliveryOptions": [
+                    {
+                      "description": "",
+                      "deliveryMethodType": "SHIPPING",
+                      "title": "Economy",
+                      "handle": "05ac113615eb8c229a25856a76f7dd90-8388085074acab7e91de633521be86f0",
+                      "code": "Economy",
+                      "estimatedCost": { "currencyCode": "USD", "amount": "0.00" }
+                    },
+                    {
+                      "deliveryMethodType": "SHIPPING",
+                      "code": "Standard",
+                      "description": "",
+                      "title": "Standard",
+                      "handle": "05ac113615eb8c229a25856a76f7dd90-6d5a64f58240381019fc074473bab3ab",
+                      "estimatedCost": { "amount": "6.90", "currencyCode": "USD" }
+                    }
+                  ]
+                }
+              ],
+              "discountCodes": [],
+              "id": "hWN6LirFdNUjAcpXvpm52A1T",
+              "discountAllocations": [],
+              "delivery": {
+                "addresses": [
+                  {
+                    "selected": true,
+                    "oneTimeUse": false,
+                    "address": {
+                      "city": "San Francisco",
+                      "address1": "89 Haight Street",
+                      "provinceCode": "CA",
+                      "firstName": "Evelyn",
+                      "address2": "Haight-Ashbury",
+                      "company": null,
+                      "phone": "+441792547555",
+                      "lastName": "Hartley",
+                      "zip": "94117",
+                      "countryCode": "US"
+                    }
+                  }
+                ]
+              },
+              "payment": { "methods": [] },
+              "appliedGiftCards": []
+            }
+        """.trimIndent()
+
+        assertThat(Json.parseToJsonElement(json))
+            .isEqualTo(Json.parseToJsonElement(expected))
+    }
 
 }

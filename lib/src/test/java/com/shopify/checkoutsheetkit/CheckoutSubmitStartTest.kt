@@ -104,7 +104,7 @@ class CheckoutSubmitStartTest {
         val request = createTestRequest()
         val typeMismatchJson = """
             {
-                "payment": "this should be an object, not a string"
+                "cart": "this should be an object, not a string"
             }
         """.trimIndent()
 

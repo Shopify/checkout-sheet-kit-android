@@ -62,7 +62,7 @@ public data class Cart(
     public val appliedGiftCards: List<AppliedGiftCard> = emptyList(),
     public val discountAllocations: List<CartDiscountAllocation> = emptyList(),
     public val delivery: CartDelivery,
-    public val payment: CartPayment
+    public val payment: CartPayment? = null
 )
 
 @Serializable
@@ -243,6 +243,11 @@ public data class CartDelivery(
 
 @Serializable
 public data class CartPayment(
+    public val methods: List<CartPaymentMethod> = emptyList()
+)
+
+@Serializable
+public data class CartPaymentMethod(
     public val instruments: List<CartPaymentInstrument> = emptyList()
 )
 
@@ -388,18 +393,17 @@ private object DiscountValueSerializer : KSerializer<DiscountValue> {
  */
 @Serializable
 public data class CheckoutAddressChangeStartResponsePayload(
-    val cart: CartInput? = null,
+    val cart: Cart? = null,
     val errors: List<ResponseError>? = null,
 )
 
 /**
  * Response payload for submit start events.
- * Contains optional payment token, cart updates, or error information.
+ * Contains cart updates or error information.
  */
 @Serializable
 public data class CheckoutSubmitStartResponsePayload(
-    val payment: PaymentTokenInput? = null,
-    val cart: CartInput? = null,
+    val cart: Cart? = null,
     val errors: List<ResponseError>? = null,
 )
 
@@ -417,7 +421,10 @@ public data class ResponseError(
  * Cart input types for updating cart state from embedder responses.
  *
  * Mirrors the [Storefront API CartInput](https://shopify.dev/docs/api/storefront/latest/input-objects/CartInput).
+ *
+ * @deprecated Use Cart instead for response payloads.
  */
+@Deprecated("Use Cart instead for response payloads")
 @Serializable
 public data class CartInput(
     /** The delivery-related fields for the cart. */
@@ -548,22 +555,22 @@ public enum class CardBrand {
 
 @Serializable
 public data class CartPaymentInstrument(
-    public val externalReference: String
+    public val externalReferenceId: String,
+    public val credentials: List<CartCredential>? = null
 )
 
 @Serializable
-public data class ExpiryInput(
-    public val month: Int,
-    public val year: Int,
+public data class CartCredential(
+    val remoteTokenPaymentCredential: RemoteTokenPaymentCredential? = null
 )
 
 @Serializable
-public data class CartPaymentInstrumentDisplayInput(
-    public val last4: String,
-    public val brand: CardBrand,
-    public val cardHolderName: String,
-    public val expiry: ExpiryInput,
+public data class RemoteTokenPaymentCredential(
+    val token: String,
+    val tokenType: String,
+    val tokenHandler: String
 )
+
 
 /**
  * Type alias for CartDeliveryAddressInput used in payment instrument billing addresses.
@@ -573,7 +580,11 @@ public typealias CartMailingAddressInput = CartDeliveryAddressInput
 
 @Serializable
 public data class CartPaymentInstrumentInput(
-    public val externalReference: String,
-    public val display: CartPaymentInstrumentDisplayInput,
-    public val billingAddress: CartMailingAddressInput,
+    public val externalReferenceId: String,
+    public val lastDigits: String? = null,
+    public val brand: CardBrand? = null,
+    public val cardHolderName: String? = null,
+    public val month: Int? = null,
+    public val year: Int? = null,
+    public val billingAddress: CartMailingAddressInput? = null,
 )

@@ -24,14 +24,34 @@ package com.shopify.checkoutsheetkit
 
 import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
 import com.shopify.checkoutsheetkit.lifecycleevents.CardBrand
-import com.shopify.checkoutsheetkit.lifecycleevents.CartInput
-import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentInstrumentDisplayInput
-import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentInstrumentInput
-import com.shopify.checkoutsheetkit.lifecycleevents.ExpiryInput
+import com.shopify.checkoutsheetkit.lifecycleevents.Cart
+import com.shopify.checkoutsheetkit.lifecycleevents.CartAddress
+import com.shopify.checkoutsheetkit.lifecycleevents.CartBuyerIdentity
+import com.shopify.checkoutsheetkit.lifecycleevents.CartCost
+import com.shopify.checkoutsheetkit.lifecycleevents.CartCredential
+import com.shopify.checkoutsheetkit.lifecycleevents.CartDelivery
+import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryGroup
+import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryGroupType
+import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryMethodType
+import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryOption
+import com.shopify.checkoutsheetkit.lifecycleevents.CartLine
+import com.shopify.checkoutsheetkit.lifecycleevents.CartLineCost
+import com.shopify.checkoutsheetkit.lifecycleevents.CartLineMerchandise
 import com.shopify.checkoutsheetkit.lifecycleevents.CartMailingAddressInput
-import com.shopify.checkoutsheetkit.lifecycleevents.ResponseError
-import com.shopify.checkoutsheetkit.rpc.RPCRequestRegistry
+import com.shopify.checkoutsheetkit.lifecycleevents.CartPayment
+import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentInstrument
+import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentInstrumentInput
+import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentMethod
+import com.shopify.checkoutsheetkit.lifecycleevents.CartSelectableAddress
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutPaymentMethodChangeStartEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.MailingAddress
+import com.shopify.checkoutsheetkit.lifecycleevents.MerchandiseImage
+import com.shopify.checkoutsheetkit.lifecycleevents.Money
+import com.shopify.checkoutsheetkit.lifecycleevents.RemoteTokenPaymentCredential
+import com.shopify.checkoutsheetkit.lifecycleevents.ResponseError
+import com.shopify.checkoutsheetkit.lifecycleevents.SelectedOption
+import com.shopify.checkoutsheetkit.rpc.RPCRequestRegistry
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -62,10 +82,12 @@ class CheckoutPaymentMethodChangeStartTest {
                         "discountAllocations": [],
                         "delivery": {"addresses": []},
                         "payment": {
-                            "instruments": [
-                                {"externalReference": "instrument-1"},
-                                {"externalReference": "instrument-2"}
-                            ]
+                            "methods": [{
+                                "instruments": [
+                                    {"externalReferenceId": "instrument-1"},
+                                    {"externalReferenceId": "instrument-2"}
+                                ]
+                            }]
                         }
                     }
                 }
@@ -79,13 +101,14 @@ class CheckoutPaymentMethodChangeStartTest {
         val request = decoded as CheckoutPaymentMethodChangeStartEvent
         assertThat(request.id).isEqualTo("test-123")
         assertThat(request.cart.id).isEqualTo("cart-123")
-        assertThat(request.cart.payment.instruments).hasSize(2)
-        assertThat(request.cart.payment.instruments[0].externalReference).isEqualTo("instrument-1")
-        assertThat(request.cart.payment.instruments[1].externalReference).isEqualTo("instrument-2")
+        assertThat(request.cart.payment?.methods).hasSize(1)
+        assertThat(request.cart.payment?.methods?.get(0)?.instruments).hasSize(2)
+        assertThat(request.cart.payment?.methods?.get(0)?.instruments?.get(0)?.externalReferenceId).isEqualTo("instrument-1")
+        assertThat(request.cart.payment?.methods?.get(0)?.instruments?.get(1)?.externalReferenceId).isEqualTo("instrument-2")
     }
 
     @Test
-    fun `test decode CheckoutPaymentMethodChangeStart with empty paymentInstruments`() {
+    fun `test decode CheckoutPaymentMethodChangeStart with empty payment methods`() {
         val json = """
             {
                 "jsonrpc": "2.0",
@@ -105,7 +128,7 @@ class CheckoutPaymentMethodChangeStartTest {
                         "appliedGiftCards": [],
                         "discountAllocations": [],
                         "delivery": {"addresses": []},
-                        "payment": {"instruments": []}
+                        "payment": {"methods": []}
                     }
                 }
             }
@@ -118,7 +141,7 @@ class CheckoutPaymentMethodChangeStartTest {
         val request = decoded as CheckoutPaymentMethodChangeStartEvent
         assertThat(request.id).isEqualTo("test-456")
         assertThat(request.cart.id).isEqualTo("cart-456")
-        assertThat(request.cart.payment.instruments).isEmpty()
+        assertThat(request.cart.payment?.methods).isEmpty()
     }
 
     @Test
@@ -142,7 +165,7 @@ class CheckoutPaymentMethodChangeStartTest {
                         "appliedGiftCards": [],
                         "discountAllocations": [],
                         "delivery": {"addresses": []},
-                        "payment": {"instruments": [{"externalReference": "pi-abc"}]}
+                        "payment": {"methods": [{"instruments": [{"externalReferenceId": "pi-abc"}]}]}
                     }
                 }
             }
@@ -155,8 +178,8 @@ class CheckoutPaymentMethodChangeStartTest {
         val request = decoded as CheckoutPaymentMethodChangeStartEvent
         assertThat(request.id).isEqualTo("test-789")
         assertThat(request.cart.id).isEqualTo("cart-789")
-        assertThat(request.cart.payment.instruments).hasSize(1)
-        assertThat(request.cart.payment.instruments[0].externalReference).isEqualTo("pi-abc")
+        assertThat(request.cart.payment?.methods).hasSize(1)
+        assertThat(request.cart.payment?.methods?.get(0)?.instruments?.get(0)?.externalReferenceId).isEqualTo("pi-abc")
     }
 
     @Test
@@ -202,7 +225,7 @@ class CheckoutPaymentMethodChangeStartTest {
         val request2 = CheckoutPaymentMethodChangeStartEvent(
             id = "same-id",
             params = CheckoutPaymentMethodChangeStartParams(
-                cart = createTestCart(id = "different-cart") // Different cart
+                cart = createTestCart(id = "different-cart")
             ),
             responseSerializer = CheckoutPaymentMethodChangeStartResponsePayload.serializer()
         )
@@ -228,7 +251,7 @@ class CheckoutPaymentMethodChangeStartTest {
     }
 
     @Test
-    fun `test respondWith payload with cart and payment instruments`() {
+    fun `test respondWith payload with cart and payment`() {
         val cart = createTestCart()
         val eventData = CheckoutPaymentMethodChangeStartParams(cart = cart)
         val request = CheckoutPaymentMethodChangeStartEvent(
@@ -237,32 +260,20 @@ class CheckoutPaymentMethodChangeStartTest {
             responseSerializer = CheckoutPaymentMethodChangeStartResponsePayload.serializer()
         )
 
-        val payload = CheckoutPaymentMethodChangeStartResponsePayload(
-            cart = CartInput(
-                paymentInstruments = listOf(
-                    CartPaymentInstrumentInput(
-                        externalReference = "new-instrument-123",
-                        display = CartPaymentInstrumentDisplayInput(
-                            last4 = "4242",
-                            cardHolderName = "John Doe",
-                            brand = CardBrand.VISA,
-                            expiry = ExpiryInput(
-                                month = 12,
-                                year = 2025
-                            )
-                        ),
-                        billingAddress = CartMailingAddressInput(
-                            firstName = "John",
-                            lastName = "Doe",
-                            address1 = "123 Main St",
-                            city = "Toronto",
-                            countryCode = "CA",
-                            provinceCode = "ON",
-                            zip = "M5V 1A1"
+        val updatedCart = cart.copy(
+            payment = CartPayment(
+                methods = listOf(
+                    CartPaymentMethod(
+                        instruments = listOf(
+                            CartPaymentInstrument(externalReferenceId = "new-instrument-123")
                         )
                     )
                 )
-            ),
+            )
+        )
+
+        val payload = CheckoutPaymentMethodChangeStartResponsePayload(
+            cart = updatedCart,
             errors = null
         )
 
@@ -287,7 +298,7 @@ class CheckoutPaymentMethodChangeStartTest {
                 ResponseError(
                     code = "INVALID_PAYMENT_METHOD",
                     message = "The selected payment method is not available",
-                    fieldTarget = "paymentInstruments"
+                    fieldTarget = "payment"
                 )
             )
         )
@@ -315,51 +326,6 @@ class CheckoutPaymentMethodChangeStartTest {
         request.respondWith(payload)
 
         assertThat(request.cart).isNotNull()
-    }
-
-    @Test
-    fun `test respondWith JSON string`() {
-        val json = """
-            {
-                "cart": {
-                    "paymentInstruments": [
-                        {
-                            "externalReference": "pi-json-123",
-                            "display": {
-                                "last4": "1234",
-                                "cardHolderName": "Jane Smith",
-                                "brand": "MASTERCARD",
-                                "expiry": {
-                                    "month": 6,
-                                    "year": 2026
-                                }
-                            },
-                            "billingAddress": {
-                                "firstName": "Jane",
-                                "lastName": "Smith",
-                                "address1": "456 Oak Ave",
-                                "city": "Vancouver",
-                                "countryCode": "CA",
-                                "provinceCode": "BC",
-                                "zip": "V6B 2N2"
-                            }
-                        }
-                    ]
-                }
-            }
-        """.trimIndent()
-
-        val cart = createTestCart()
-        val eventData = CheckoutPaymentMethodChangeStartParams(cart = cart)
-        val request = CheckoutPaymentMethodChangeStartEvent(
-            id = "test-id",
-            params = eventData,
-            responseSerializer = CheckoutPaymentMethodChangeStartResponsePayload.serializer()
-        )
-
-        request.respondWith(json)
-
-        assertThat(request.cart.id).isEqualTo("cart-id-123")
     }
 
     @Test
@@ -398,42 +364,6 @@ class CheckoutPaymentMethodChangeStartTest {
     }
 
     @Test
-    fun `test ExpiryInput deserialization`() {
-        val json = """{"month":6,"year":2026}"""
-        val expiry = Json.decodeFromString<ExpiryInput>(json)
-
-        assertThat(expiry).isEqualTo(
-            ExpiryInput(
-                month = 6,
-                year = 2026
-            )
-        )
-    }
-
-    @Test
-    fun `test CartPaymentInstrumentDisplayInput deserialization`() {
-        val json = """
-            {
-                "last4": "5555",
-                "brand": "MASTERCARD",
-                "cardHolderName": "Jane Smith",
-                "expiry": {"month": 3, "year": 2027}
-            }
-        """.trimIndent()
-
-        val display = Json.decodeFromString<CartPaymentInstrumentDisplayInput>(json)
-
-        assertThat(display).isEqualTo(
-            CartPaymentInstrumentDisplayInput(
-                last4 = "5555",
-                brand = CardBrand.MASTERCARD,
-                cardHolderName = "Jane Smith",
-                expiry = ExpiryInput(month = 3, year = 2027)
-            )
-        )
-    }
-
-    @Test
     fun `test CartMailingAddressInput deserialization with optional fields`() {
         val json = """
             {
@@ -463,16 +393,15 @@ class CheckoutPaymentMethodChangeStartTest {
     }
 
     @Test
-    fun `test CartPaymentInstrumentInput deserialization`() {
+    fun `test CartPaymentInstrumentInput deserialization with flattened fields`() {
         val json = """
             {
-                "externalReference": "payment-456",
-                "display": {
-                    "last4": "0005",
-                    "brand": "AMERICAN_EXPRESS",
-                    "cardHolderName": "Alex Johnson",
-                    "expiry": {"month": 9, "year": 2028}
-                },
+                "externalReferenceId": "payment-456",
+                "lastDigits": "0005",
+                "brand": "AMERICAN_EXPRESS",
+                "cardHolderName": "Alex Johnson",
+                "month": 9,
+                "year": 2028,
                 "billingAddress": {
                     "firstName": "Alex",
                     "lastName": "Johnson",
@@ -487,26 +416,55 @@ class CheckoutPaymentMethodChangeStartTest {
 
         val paymentInstrument = Json.decodeFromString<CartPaymentInstrumentInput>(json)
 
-        assertThat(paymentInstrument).isEqualTo(
-            CartPaymentInstrumentInput(
-                externalReference = "payment-456",
-                display = CartPaymentInstrumentDisplayInput(
-                    last4 = "0005",
-                    brand = CardBrand.AMERICAN_EXPRESS,
-                    cardHolderName = "Alex Johnson",
-                    expiry = ExpiryInput(month = 9, year = 2028)
-                ),
-                billingAddress = CartMailingAddressInput(
-                    firstName = "Alex",
-                    lastName = "Johnson",
-                    address1 = "789 Pine St",
-                    city = "Chicago",
-                    countryCode = "US",
-                    provinceCode = "IL",
-                    zip = "60601"
-                )
-            )
-        )
+        assertThat(paymentInstrument.externalReferenceId).isEqualTo("payment-456")
+        assertThat(paymentInstrument.lastDigits).isEqualTo("0005")
+        assertThat(paymentInstrument.brand).isEqualTo(CardBrand.AMERICAN_EXPRESS)
+        assertThat(paymentInstrument.cardHolderName).isEqualTo("Alex Johnson")
+        assertThat(paymentInstrument.month).isEqualTo(9)
+        assertThat(paymentInstrument.year).isEqualTo(2028)
+        assertThat(paymentInstrument.billingAddress?.firstName).isEqualTo("Alex")
+    }
+
+    @Test
+    fun `test CartCredential deserialization with remoteTokenPaymentCredential`() {
+        val json = """
+            {
+                "remoteTokenPaymentCredential": {
+                    "token": "tok_abc123",
+                    "tokenType": "merchant.token",
+                    "tokenHandler": "merchant_psp"
+                }
+            }
+        """.trimIndent()
+
+        val credential = Json.decodeFromString<CartCredential>(json)
+
+        assertThat(credential.remoteTokenPaymentCredential).isNotNull()
+        assertThat(credential.remoteTokenPaymentCredential?.token).isEqualTo("tok_abc123")
+        assertThat(credential.remoteTokenPaymentCredential?.tokenType).isEqualTo("merchant.token")
+        assertThat(credential.remoteTokenPaymentCredential?.tokenHandler).isEqualTo("merchant_psp")
+    }
+
+    @Test
+    fun `test CartPaymentInstrument deserialization with credentials`() {
+        val json = """
+            {
+                "externalReferenceId": "instrument-123",
+                "credentials": [{
+                    "remoteTokenPaymentCredential": {
+                        "token": "tok_abc123",
+                        "tokenType": "merchant.token",
+                        "tokenHandler": "merchant_psp"
+                    }
+                }]
+            }
+        """.trimIndent()
+
+        val instrument = Json.decodeFromString<CartPaymentInstrument>(json)
+
+        assertThat(instrument.externalReferenceId).isEqualTo("instrument-123")
+        assertThat(instrument.credentials).hasSize(1)
+        assertThat(instrument.credentials?.get(0)?.remoteTokenPaymentCredential?.token).isEqualTo("tok_abc123")
     }
 
     @Test
@@ -527,6 +485,346 @@ class CheckoutPaymentMethodChangeStartTest {
                 .describedAs("CardBrand deserialization for $jsonValue")
                 .isEqualTo(expectedBrand)
         }
+    }
+
+    @Test
+    fun `test serializing CartPaymentInstrument includes all credit card display fields`() {
+        val instrument = CartPaymentInstrument(
+            externalReferenceId = "card-mc-5555",
+            cardHolderName = "John Smith",
+            lastDigits = "5555",
+            month = 6,
+            year = 2027,
+            brand = CardBrand.MASTERCARD,
+            billingAddress = MailingAddress(
+                address1 = "123 Main St",
+                address2 = "New York",
+                city = "John",
+                province = "Smith",
+                country = "US",
+                countryCodeV2 = null,
+                zip = "NY",
+                firstName = "10001",
+                lastName = null,
+                phone = null,
+                company = null
+            ),
+            credentials = null
+        )
+
+        val json = Json.encodeToString(CartPaymentInstrument.serializer(), instrument)
+
+        val expected = """
+            {
+              "year": 2027,
+              "externalReferenceId": "card-mc-5555",
+              "month": 6,
+              "brand": "MASTERCARD",
+              "billingAddress": {
+                "country": "US",
+                "countryCodeV2": null,
+                "address2": "New York",
+                "province": "Smith",
+                "address1": "123 Main St",
+                "city": "John",
+                "firstName": "10001",
+                "phone": null,
+                "lastName": null,
+                "company": null,
+                "zip": "NY"
+              },
+              "lastDigits": "5555",
+              "cardHolderName": "John Smith",
+              "credentials": null
+            }
+        """.trimIndent()
+
+        assertThat(Json.parseToJsonElement(json))
+            .isEqualTo(Json.parseToJsonElement(expected))
+    }
+
+    @Test
+    fun `test serializing full Cart for paymentMethodChangeStart matches expected JSON format`() {
+        val cart = Cart(
+            id = "hWN6LirFdNUjAcpXvpm52A1T",
+            lines = listOf(
+                CartLine(
+                    id = "ed22744d9f67fb682fa63510629c1f44",
+                    quantity = 1,
+                    merchandise = CartLineMerchandise(
+                        id = "gid://shopify/ProductVariantMerchandise/63449294405654",
+                        title = "Gustave table lamp",
+                        product = CartLineMerchandise.Product(
+                            id = "gid://shopify/Product/14919569440790",
+                            title = "Gustave table lamp"
+                        ),
+                        image = MerchandiseImage(
+                            url = "https://cdn.shopify.com/s/files/1/0987/0986/4470/files/gustave_table_lamp.png?v=1761595805",
+                            altText = null
+                        ),
+                        selectedOptions = listOf(
+                            SelectedOption(name = "Lens color", value = "Black")
+                        )
+                    ),
+                    cost = CartLineCost(
+                        totalAmount = Money(amount = "50.00", currencyCode = "USD"),
+                        subtotalAmount = Money(amount = "50.00", currencyCode = "USD"),
+                        amountPerQuantity = Money(amount = "50.00", currencyCode = "USD")
+                    ),
+                    discountAllocations = emptyList()
+                )
+            ),
+            cost = CartCost(
+                subtotalAmount = Money(amount = "50.00", currencyCode = "USD"),
+                totalAmount = Money(amount = "50.00", currencyCode = "USD")
+            ),
+            buyerIdentity = CartBuyerIdentity(
+                countryCode = "US",
+                customer = null,
+                phone = null,
+                email = "checkout-kit@shopify.com"
+            ),
+            deliveryGroups = listOf(
+                CartDeliveryGroup(
+                    selectedDeliveryOption = CartDeliveryOption(
+                        title = "Economy",
+                        code = "Economy",
+                        description = "",
+                        estimatedCost = Money(amount = "0.00", currencyCode = "USD"),
+                        handle = "05ac113615eb8c229a25856a76f7dd90-8388085074acab7e91de633521be86f0",
+                        deliveryMethodType = CartDeliveryMethodType.SHIPPING
+                    ),
+                    groupType = CartDeliveryGroupType.ONE_TIME_PURCHASE,
+                    deliveryOptions = listOf(
+                        CartDeliveryOption(
+                            title = "Economy",
+                            code = "Economy",
+                            description = "",
+                            estimatedCost = Money(amount = "0.00", currencyCode = "USD"),
+                            handle = "05ac113615eb8c229a25856a76f7dd90-8388085074acab7e91de633521be86f0",
+                            deliveryMethodType = CartDeliveryMethodType.SHIPPING
+                        ),
+                        CartDeliveryOption(
+                            title = "Standard",
+                            code = "Standard",
+                            description = "",
+                            estimatedCost = Money(amount = "6.90", currencyCode = "USD"),
+                            handle = "05ac113615eb8c229a25856a76f7dd90-6d5a64f58240381019fc074473bab3ab",
+                            deliveryMethodType = CartDeliveryMethodType.SHIPPING
+                        )
+                    ),
+                    deliveryAddress = MailingAddress(
+                        phone = "+441792547555",
+                        province = "CA",
+                        address2 = "Haight-Ashbury",
+                        country = "US",
+                        company = null,
+                        address1 = "89 Haight Street",
+                        firstName = "Evelyn",
+                        lastName = "Hartley",
+                        countryCodeV2 = "US",
+                        city = "San Francisco",
+                        zip = "94117"
+                    )
+                )
+            ),
+            discountCodes = emptyList(),
+            appliedGiftCards = emptyList(),
+            discountAllocations = emptyList(),
+            delivery = CartDelivery(
+                addresses = listOf(
+                    CartSelectableAddress(
+                        address = CartAddress.DeliveryAddress(
+                            phone = "+441792547555",
+                            zip = "94117",
+                            city = "San Francisco",
+                            company = null,
+                            firstName = "Evelyn",
+                            provinceCode = "CA",
+                            address2 = "Haight-Ashbury",
+                            lastName = "Hartley",
+                            address1 = "89 Haight Street",
+                            countryCode = "US"
+                        ),
+                        oneTimeUse = false,
+                        selected = true
+                    )
+                )
+            ),
+            payment = CartPayment(
+                methods = listOf(
+                    CartPaymentMethod(
+                        instruments = listOf(
+                            CartPaymentInstrument(
+                                year = 2027,
+                                externalReferenceId = "card-mc-5555",
+                                month = 6,
+                                brand = CardBrand.MASTERCARD,
+                                billingAddress = MailingAddress(
+                                    country = "US",
+                                    countryCodeV2 = null,
+                                    address2 = "New York",
+                                    province = "Smith",
+                                    address1 = "123 Main St",
+                                    city = "John",
+                                    firstName = "10001",
+                                    phone = null,
+                                    lastName = null,
+                                    company = null,
+                                    zip = "NY"
+                                ),
+                                lastDigits = "5555",
+                                cardHolderName = "John Smith",
+                                credentials = null
+                            )
+                        )
+                    )
+                )
+            )
+        )
+
+        val json = Json.encodeToString(Cart.serializer(), cart)
+
+        val expected = """
+            {
+              "delivery": {
+                "addresses": [
+                  {
+                    "address": {
+                      "phone": "+441792547555",
+                      "zip": "94117",
+                      "city": "San Francisco",
+                      "company": null,
+                      "firstName": "Evelyn",
+                      "provinceCode": "CA",
+                      "address2": "Haight-Ashbury",
+                      "lastName": "Hartley",
+                      "address1": "89 Haight Street",
+                      "countryCode": "US"
+                    },
+                    "oneTimeUse": false,
+                    "selected": true
+                  }
+                ]
+              },
+              "lines": [
+                {
+                  "quantity": 1,
+                  "merchandise": {
+                    "image": {
+                      "altText": null,
+                      "url": "https://cdn.shopify.com/s/files/1/0987/0986/4470/files/gustave_table_lamp.png?v=1761595805"
+                    },
+                    "id": "gid://shopify/ProductVariantMerchandise/63449294405654",
+                    "product": {
+                      "id": "gid://shopify/Product/14919569440790",
+                      "title": "Gustave table lamp"
+                    },
+                    "title": "Gustave table lamp",
+                    "selectedOptions": [{ "value": "Black", "name": "Lens color" }]
+                  },
+                  "discountAllocations": [],
+                  "cost": {
+                    "amountPerQuantity": { "currencyCode": "USD", "amount": "50.00" },
+                    "subtotalAmount": { "currencyCode": "USD", "amount": "50.00" },
+                    "totalAmount": { "currencyCode": "USD", "amount": "50.00" }
+                  },
+                  "id": "ed22744d9f67fb682fa63510629c1f44"
+                }
+              ],
+              "id": "hWN6LirFdNUjAcpXvpm52A1T",
+              "cost": {
+                "subtotalAmount": { "amount": "50.00", "currencyCode": "USD" },
+                "totalAmount": { "amount": "50.00", "currencyCode": "USD" }
+              },
+              "payment": {
+                "methods": [
+                  {
+                    "instruments": [
+                      {
+                        "year": 2027,
+                        "externalReferenceId": "card-mc-5555",
+                        "month": 6,
+                        "brand": "MASTERCARD",
+                        "billingAddress": {
+                          "country": "US",
+                          "countryCodeV2": null,
+                          "address2": "New York",
+                          "province": "Smith",
+                          "address1": "123 Main St",
+                          "city": "John",
+                          "firstName": "10001",
+                          "phone": null,
+                          "lastName": null,
+                          "company": null,
+                          "zip": "NY"
+                        },
+                        "lastDigits": "5555",
+                        "cardHolderName": "John Smith",
+                        "credentials": null
+                      }
+                    ]
+                  }
+                ]
+              },
+              "deliveryGroups": [
+                {
+                  "selectedDeliveryOption": {
+                    "title": "Economy",
+                    "code": "Economy",
+                    "description": "",
+                    "estimatedCost": { "amount": "0.00", "currencyCode": "USD" },
+                    "handle": "05ac113615eb8c229a25856a76f7dd90-8388085074acab7e91de633521be86f0",
+                    "deliveryMethodType": "SHIPPING"
+                  },
+                  "groupType": "ONE_TIME_PURCHASE",
+                  "deliveryOptions": [
+                    {
+                      "title": "Economy",
+                      "code": "Economy",
+                      "description": "",
+                      "estimatedCost": { "currencyCode": "USD", "amount": "0.00" },
+                      "handle": "05ac113615eb8c229a25856a76f7dd90-8388085074acab7e91de633521be86f0",
+                      "deliveryMethodType": "SHIPPING"
+                    },
+                    {
+                      "title": "Standard",
+                      "code": "Standard",
+                      "description": "",
+                      "estimatedCost": { "amount": "6.90", "currencyCode": "USD" },
+                      "handle": "05ac113615eb8c229a25856a76f7dd90-6d5a64f58240381019fc074473bab3ab",
+                      "deliveryMethodType": "SHIPPING"
+                    }
+                  ],
+                  "deliveryAddress": {
+                    "phone": "+441792547555",
+                    "province": "CA",
+                    "address2": "Haight-Ashbury",
+                    "country": "US",
+                    "company": null,
+                    "address1": "89 Haight Street",
+                    "firstName": "Evelyn",
+                    "lastName": "Hartley",
+                    "countryCodeV2": "US",
+                    "city": "San Francisco",
+                    "zip": "94117"
+                  }
+                }
+              ],
+              "discountCodes": [],
+              "appliedGiftCards": [],
+              "buyerIdentity": {
+                "countryCode": "US",
+                "customer": null,
+                "phone": null,
+                "email": "checkout-kit@shopify.com"
+              },
+              "discountAllocations": []
+            }
+        """.trimIndent()
+
+        assertThat(Json.parseToJsonElement(json))
+            .isEqualTo(Json.parseToJsonElement(expected))
     }
 
 }

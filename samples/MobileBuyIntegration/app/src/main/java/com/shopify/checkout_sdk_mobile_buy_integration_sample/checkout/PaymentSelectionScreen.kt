@@ -52,18 +52,23 @@ import androidx.compose.ui.unit.dp
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
 import com.shopify.checkoutsheetkit.CheckoutPaymentMethodChangeStartResponsePayload
 import com.shopify.checkoutsheetkit.lifecycleevents.CardBrand
-import com.shopify.checkoutsheetkit.lifecycleevents.CartInput
-import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentInstrumentDisplayInput
-import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentInstrumentInput
-import com.shopify.checkoutsheetkit.lifecycleevents.ExpiryInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CartMailingAddressInput
+import com.shopify.checkoutsheetkit.lifecycleevents.CartPayment
+import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentInstrument
+import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentMethod
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutEventResponseException
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutPaymentMethodChangeStartEvent
 import kotlinx.coroutines.launch
 
 data class PaymentOption(
     val label: String,
-    val paymentInstrument: CartPaymentInstrumentInput,
+    val externalReferenceId: String,
+    val lastDigits: String,
+    val brand: CardBrand,
+    val cardHolderName: String,
+    val month: Int,
+    val year: Int,
+    val billingAddress: CartMailingAddressInput,
 )
 
 @Composable
@@ -87,66 +92,57 @@ fun PaymentSelectionScreen(
         listOf(
             PaymentOption(
                 label = "Visa ending in 4242",
-                paymentInstrument = CartPaymentInstrumentInput(
-                    externalReference = "visa-4242",
-                    display = CartPaymentInstrumentDisplayInput(
-                        last4 = "4242",
-                        brand = CardBrand.VISA,
-                        cardHolderName = "John Doe",
-                        expiry = ExpiryInput(month = 12, year = 2025)
-                    ),
-                    billingAddress = CartMailingAddressInput(
-                        firstName = "John",
-                        lastName = "Doe",
-                        address1 = "150 5th Avenue",
-                        city = "New York",
-                        countryCode = "US",
-                        provinceCode = "NY",
-                        zip = "10011"
-                    )
+                externalReferenceId = "visa-4242",
+                lastDigits = "4242",
+                brand = CardBrand.VISA,
+                cardHolderName = "John Doe",
+                month = 12,
+                year = 2025,
+                billingAddress = CartMailingAddressInput(
+                    firstName = "John",
+                    lastName = "Doe",
+                    address1 = "150 5th Avenue",
+                    city = "New York",
+                    countryCode = "US",
+                    provinceCode = "NY",
+                    zip = "10011"
                 )
             ),
             PaymentOption(
                 label = "Mastercard ending in 5555",
-                paymentInstrument = CartPaymentInstrumentInput(
-                    externalReference = "mc-5555",
-                    display = CartPaymentInstrumentDisplayInput(
-                        last4 = "5555",
-                        brand = CardBrand.MASTERCARD,
-                        cardHolderName = "Jane Smith",
-                        expiry = ExpiryInput(month = 6, year = 2026)
-                    ),
-                    billingAddress = CartMailingAddressInput(
-                        firstName = "Jane",
-                        lastName = "Smith",
-                        address1 = "89 Haight Street",
-                        address2 = "Apt 2B",
-                        city = "San Francisco",
-                        countryCode = "US",
-                        provinceCode = "CA",
-                        zip = "94117"
-                    )
+                externalReferenceId = "mc-5555",
+                lastDigits = "5555",
+                brand = CardBrand.MASTERCARD,
+                cardHolderName = "Jane Smith",
+                month = 6,
+                year = 2026,
+                billingAddress = CartMailingAddressInput(
+                    firstName = "Jane",
+                    lastName = "Smith",
+                    address1 = "89 Haight Street",
+                    address2 = "Apt 2B",
+                    city = "San Francisco",
+                    countryCode = "US",
+                    provinceCode = "CA",
+                    zip = "94117"
                 )
             ),
             PaymentOption(
                 label = "American Express ending in 0005",
-                paymentInstrument = CartPaymentInstrumentInput(
-                    externalReference = "amex-0005",
-                    display = CartPaymentInstrumentDisplayInput(
-                        last4 = "0005",
-                        brand = CardBrand.AMERICAN_EXPRESS,
-                        cardHolderName = "Alex Johnson",
-                        expiry = ExpiryInput(month = 3, year = 2027)
-                    ),
-                    billingAddress = CartMailingAddressInput(
-                        firstName = "Alex",
-                        lastName = "Johnson",
-                        address1 = "456 Oak Ave",
-                        city = "Chicago",
-                        countryCode = "US",
-                        provinceCode = "IL",
-                        zip = "60601"
-                    )
+                externalReferenceId = "amex-0005",
+                lastDigits = "0005",
+                brand = CardBrand.AMERICAN_EXPRESS,
+                cardHolderName = "Alex Johnson",
+                month = 3,
+                year = 2027,
+                billingAddress = CartMailingAddressInput(
+                    firstName = "Alex",
+                    lastName = "Johnson",
+                    address1 = "456 Oak Ave",
+                    city = "Chicago",
+                    countryCode = "US",
+                    provinceCode = "IL",
+                    zip = "60601"
                 )
             ),
         )
@@ -187,13 +183,23 @@ fun PaymentSelectionScreen(
                 errorMessage = null
 
                 coroutineScope.launch {
-                    val paymentInstrument = paymentOptions[selectedIndex].paymentInstrument
+                    val paymentOption = paymentOptions[selectedIndex]
 
-                    val cartInput = CartInput(
-                        paymentInstruments = listOf(paymentInstrument)
+                    val updatedCart = event?.cart?.copy(
+                        payment = CartPayment(
+                            methods = listOf(
+                                CartPaymentMethod(
+                                    instruments = listOf(
+                                        CartPaymentInstrument(
+                                            externalReferenceId = paymentOption.externalReferenceId
+                                        )
+                                    )
+                                )
+                            )
+                        )
                     )
 
-                    val response = CheckoutPaymentMethodChangeStartResponsePayload(cart = cartInput)
+                    val response = CheckoutPaymentMethodChangeStartResponsePayload(cart = updatedCart)
 
                     try {
                         event?.respondWith(response)
@@ -253,7 +259,7 @@ private fun PaymentOptionItem(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "${option.paymentInstrument.display.cardHolderName} - Expires ${option.paymentInstrument.display.expiry.month}/${option.paymentInstrument.display.expiry.year}",
+                text = "${option.cardHolderName} - Expires ${option.month}/${option.year}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

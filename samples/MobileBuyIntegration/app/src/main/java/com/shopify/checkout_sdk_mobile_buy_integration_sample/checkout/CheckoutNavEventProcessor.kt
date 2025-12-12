@@ -28,15 +28,19 @@ import androidx.navigation.NavController
 import timber.log.Timber
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartEvent
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
-import com.shopify.checkoutsheetkit.lifecycleevents.PaymentTokenInput
+import com.shopify.checkoutsheetkit.lifecycleevents.CartCredential
+import com.shopify.checkoutsheetkit.lifecycleevents.CartPayment
+import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentInstrument
+import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentMethod
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartResponsePayload
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutPaymentMethodChangeStartEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartResponsePayload
+import com.shopify.checkoutsheetkit.lifecycleevents.RemoteTokenPaymentCredential
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -99,14 +103,30 @@ class CheckoutNavEventProcessor(
 
     override fun onSubmitStart(event: CheckoutSubmitStartEvent) {
         Timber.d("Submit start $event")
-        event.respondWith(
-            payload = CheckoutSubmitStartResponsePayload(
-                payment = PaymentTokenInput(
-                    token = "my-token",
-                    tokenProvider = "test-provider",
-                    tokenType = "test"
+        val updatedCart = event.cart.copy(
+            payment = CartPayment(
+                methods = listOf(
+                    CartPaymentMethod(
+                        instruments = listOf(
+                            CartPaymentInstrument(
+                                externalReferenceId = "submit-payment-123",
+                                credentials = listOf(
+                                    CartCredential(
+                                        remoteTokenPaymentCredential = RemoteTokenPaymentCredential(
+                                            token = "my-token",
+                                            tokenType = "test",
+                                            tokenHandler = "test-provider"
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
                 )
             )
+        )
+        event.respondWith(
+            payload = CheckoutSubmitStartResponsePayload(cart = updatedCart)
         )
     }
 
