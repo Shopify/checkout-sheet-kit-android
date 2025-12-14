@@ -484,112 +484,120 @@ class CheckoutAddressChangeStartTest {
 
     @Test
     fun `test serializing full Cart for addressChangeStart matches expected JSON format`() {
-        val cart = Cart(
-            id = "hWN6LirFdNUjAcpXvpm52A1T",
-            lines = listOf(
-                CartLine(
-                    id = "ed22744d9f67fb682fa63510629c1f44",
-                    quantity = 1,
-                    merchandise = CartLineMerchandise(
-                        id = "gid://shopify/ProductVariantMerchandise/63449294405654",
-                        title = "Gustave table lamp",
-                        product = CartLineMerchandise.Product(
-                            id = "gid://shopify/Product/14919569440790",
-                            title = "Gustave table lamp"
-                        ),
-                        image = MerchandiseImage(
-                            url = "https://cdn.shopify.com/s/files/1/0987/0986/4470/files/gustave_table_lamp.png?v=1761595805"
-                        ),
-                        selectedOptions = listOf(
-                            SelectedOption(name = "Lens color", value = "Black")
-                        )
+        val cart = createFullTestCartForAddressChange()
+        val json = testJson.encodeToString(Cart.serializer(), cart)
+        val expected = getExpectedAddressChangeCartJson()
+
+        assertThat(Json.parseToJsonElement(json))
+            .isEqualTo(Json.parseToJsonElement(expected))
+    }
+
+    @Suppress("LongMethod")
+    private fun createFullTestCartForAddressChange() = Cart(
+        id = "hWN6LirFdNUjAcpXvpm52A1T",
+        lines = listOf(
+            CartLine(
+                id = "ed22744d9f67fb682fa63510629c1f44",
+                quantity = 1,
+                merchandise = CartLineMerchandise(
+                    id = "gid://shopify/ProductVariantMerchandise/63449294405654",
+                    title = "Gustave table lamp",
+                    product = CartLineMerchandise.Product(
+                        id = "gid://shopify/Product/14919569440790",
+                        title = "Gustave table lamp"
                     ),
-                    cost = CartLineCost(
-                        totalAmount = Money(amount = "50.00", currencyCode = "USD"),
-                        subtotalAmount = Money(amount = "50.00", currencyCode = "USD"),
-                        amountPerQuantity = Money(amount = "50.00", currencyCode = "USD")
+                    image = MerchandiseImage(
+                        url = "https://cdn.shopify.com/s/files/1/0987/0986/4470/files/gustave_table_lamp.png?v=1761595805"
                     ),
-                    discountAllocations = emptyList()
-                )
-            ),
-            cost = CartCost(
-                subtotalAmount = Money(amount = "50.00", currencyCode = "USD"),
-                totalAmount = Money(amount = "50.00", currencyCode = "USD")
-            ),
-            buyerIdentity = CartBuyerIdentity(
-                countryCode = "US",
-                email = "checkout-kit@shopify.com"
-            ),
-            deliveryGroups = listOf(
-                CartDeliveryGroup(
-                    selectedDeliveryOption = CartDeliveryOption(
+                    selectedOptions = listOf(
+                        SelectedOption(name = "Lens color", value = "Black")
+                    )
+                ),
+                cost = CartLineCost(
+                    totalAmount = Money(amount = "50.00", currencyCode = "USD"),
+                    subtotalAmount = Money(amount = "50.00", currencyCode = "USD"),
+                    amountPerQuantity = Money(amount = "50.00", currencyCode = "USD")
+                ),
+                discountAllocations = emptyList()
+            )
+        ),
+        cost = CartCost(
+            subtotalAmount = Money(amount = "50.00", currencyCode = "USD"),
+            totalAmount = Money(amount = "50.00", currencyCode = "USD")
+        ),
+        buyerIdentity = CartBuyerIdentity(
+            countryCode = "US",
+            email = "checkout-kit@shopify.com"
+        ),
+        deliveryGroups = listOf(
+            CartDeliveryGroup(
+                selectedDeliveryOption = CartDeliveryOption(
+                    title = "Economy",
+                    handle = "05ac113615eb8c229a25856a76f7dd90-8388085074acab7e91de633521be86f0",
+                    estimatedCost = Money(amount = "0.00", currencyCode = "USD"),
+                    deliveryMethodType = CartDeliveryMethodType.SHIPPING,
+                    description = "",
+                    code = "Economy"
+                ),
+                groupType = CartDeliveryGroupType.ONE_TIME_PURCHASE,
+                deliveryAddress = MailingAddress(
+                    address1 = "224 Triplett St",
+                    province = "NC",
+                    country = "US",
+                    zip = "28642",
+                    firstName = "Kieran",
+                    lastName = "Osgood",
+                    phone = "1-888-746-7439",
+                    city = "Jonesville",
+                    countryCodeV2 = "US"
+                ),
+                deliveryOptions = listOf(
+                    CartDeliveryOption(
+                        description = "",
+                        deliveryMethodType = CartDeliveryMethodType.SHIPPING,
                         title = "Economy",
                         handle = "05ac113615eb8c229a25856a76f7dd90-8388085074acab7e91de633521be86f0",
-                        estimatedCost = Money(amount = "0.00", currencyCode = "USD"),
+                        code = "Economy",
+                        estimatedCost = Money(amount = "0.00", currencyCode = "USD")
+                    ),
+                    CartDeliveryOption(
                         deliveryMethodType = CartDeliveryMethodType.SHIPPING,
+                        code = "Standard",
                         description = "",
-                        code = "Economy"
-                    ),
-                    groupType = CartDeliveryGroupType.ONE_TIME_PURCHASE,
-                    deliveryAddress = MailingAddress(
-                        address1 = "224 Triplett St",
-                        province = "NC",
-                        country = "US",
-                        zip = "28642",
-                        firstName = "Kieran",
-                        lastName = "Osgood",
-                        phone = "1-888-746-7439",
-                        city = "Jonesville",
-                        countryCodeV2 = "US"
-                    ),
-                    deliveryOptions = listOf(
-                        CartDeliveryOption(
-                            description = "",
-                            deliveryMethodType = CartDeliveryMethodType.SHIPPING,
-                            title = "Economy",
-                            handle = "05ac113615eb8c229a25856a76f7dd90-8388085074acab7e91de633521be86f0",
-                            code = "Economy",
-                            estimatedCost = Money(amount = "0.00", currencyCode = "USD")
-                        ),
-                        CartDeliveryOption(
-                            deliveryMethodType = CartDeliveryMethodType.SHIPPING,
-                            code = "Standard",
-                            description = "",
-                            title = "Standard",
-                            handle = "05ac113615eb8c229a25856a76f7dd90-6d5a64f58240381019fc074473bab3ab",
-                            estimatedCost = Money(amount = "6.90", currencyCode = "USD")
-                        )
+                        title = "Standard",
+                        handle = "05ac113615eb8c229a25856a76f7dd90-6d5a64f58240381019fc074473bab3ab",
+                        estimatedCost = Money(amount = "6.90", currencyCode = "USD")
                     )
                 )
-            ),
-            discountCodes = emptyList(),
-            appliedGiftCards = emptyList(),
-            discountAllocations = emptyList(),
-            delivery = CartDelivery(
-                addresses = listOf(
-                    CartSelectableAddress(
-                        address = CartAddress.DeliveryAddress(
-                            city = "San Francisco",
-                            address1 = "89 Haight Street",
-                            provinceCode = "CA",
-                            firstName = "Evelyn",
-                            address2 = "Haight-Ashbury",
-                            phone = "+441792547555",
-                            lastName = "Hartley",
-                            zip = "94117",
-                            countryCode = "US"
-                        ),
-                        selected = true,
-                        oneTimeUse = false
-                    )
+            )
+        ),
+        discountCodes = emptyList(),
+        appliedGiftCards = emptyList(),
+        discountAllocations = emptyList(),
+        delivery = CartDelivery(
+            addresses = listOf(
+                CartSelectableAddress(
+                    address = CartAddress.DeliveryAddress(
+                        city = "San Francisco",
+                        address1 = "89 Haight Street",
+                        provinceCode = "CA",
+                        firstName = "Evelyn",
+                        address2 = "Haight-Ashbury",
+                        phone = "+441792547555",
+                        lastName = "Hartley",
+                        zip = "94117",
+                        countryCode = "US"
+                    ),
+                    selected = true,
+                    oneTimeUse = false
                 )
-            ),
-            payment = CartPayment(methods = emptyList())
-        )
+            )
+        ),
+        payment = CartPayment(methods = emptyList())
+    )
 
-        val json = testJson.encodeToString(Cart.serializer(), cart)
-
-        val expected = """
+    @Suppress("LongMethod")
+    private fun getExpectedAddressChangeCartJson() = """
             {
               "id": "hWN6LirFdNUjAcpXvpm52A1T",
               "lines": [
@@ -691,9 +699,5 @@ class CheckoutAddressChangeStartTest {
               "payment": { "methods": [] }
             }
         """.trimIndent()
-
-        assertThat(Json.parseToJsonElement(json))
-            .isEqualTo(Json.parseToJsonElement(expected))
-    }
 
 }

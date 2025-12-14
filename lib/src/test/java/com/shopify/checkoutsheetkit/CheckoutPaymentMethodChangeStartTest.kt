@@ -58,6 +58,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
+@Suppress("LargeClass")
 class CheckoutPaymentMethodChangeStartTest {
 
     @Test
@@ -542,45 +543,64 @@ class CheckoutPaymentMethodChangeStartTest {
 
     @Test
     fun `test serializing full Cart for paymentMethodChangeStart matches expected JSON format`() {
-        val cart = Cart(
-            id = "hWN6LirFdNUjAcpXvpm52A1T",
-            lines = listOf(
-                CartLine(
-                    id = "ed22744d9f67fb682fa63510629c1f44",
-                    quantity = 1,
-                    merchandise = CartLineMerchandise(
-                        id = "gid://shopify/ProductVariantMerchandise/63449294405654",
-                        title = "Gustave table lamp",
-                        product = CartLineMerchandise.Product(
-                            id = "gid://shopify/Product/14919569440790",
-                            title = "Gustave table lamp"
-                        ),
-                        image = MerchandiseImage(
-                            url = "https://cdn.shopify.com/s/files/1/0987/0986/4470/files/gustave_table_lamp.png?v=1761595805"
-                        ),
-                        selectedOptions = listOf(
-                            SelectedOption(name = "Lens color", value = "Black")
-                        )
+        val cart = createFullTestCartForPaymentMethodChange()
+        val json = testJson.encodeToString(Cart.serializer(), cart)
+        val expected = getExpectedPaymentMethodChangeCartJson()
+
+        assertThat(Json.parseToJsonElement(json))
+            .isEqualTo(Json.parseToJsonElement(expected))
+    }
+
+    @Suppress("LongMethod")
+    private fun createFullTestCartForPaymentMethodChange() = Cart(
+        id = "hWN6LirFdNUjAcpXvpm52A1T",
+        lines = listOf(
+            CartLine(
+                id = "ed22744d9f67fb682fa63510629c1f44",
+                quantity = 1,
+                merchandise = CartLineMerchandise(
+                    id = "gid://shopify/ProductVariantMerchandise/63449294405654",
+                    title = "Gustave table lamp",
+                    product = CartLineMerchandise.Product(
+                        id = "gid://shopify/Product/14919569440790",
+                        title = "Gustave table lamp"
                     ),
-                    cost = CartLineCost(
-                        totalAmount = Money(amount = "50.00", currencyCode = "USD"),
-                        subtotalAmount = Money(amount = "50.00", currencyCode = "USD"),
-                        amountPerQuantity = Money(amount = "50.00", currencyCode = "USD")
+                    image = MerchandiseImage(
+                        url = "https://cdn.shopify.com/s/files/1/0987/0986/4470/files/gustave_table_lamp.png?v=1761595805"
                     ),
-                    discountAllocations = emptyList()
-                )
-            ),
-            cost = CartCost(
-                subtotalAmount = Money(amount = "50.00", currencyCode = "USD"),
-                totalAmount = Money(amount = "50.00", currencyCode = "USD")
-            ),
-            buyerIdentity = CartBuyerIdentity(
-                countryCode = "US",
-                email = "checkout-kit@shopify.com"
-            ),
-            deliveryGroups = listOf(
-                CartDeliveryGroup(
-                    selectedDeliveryOption = CartDeliveryOption(
+                    selectedOptions = listOf(
+                        SelectedOption(name = "Lens color", value = "Black")
+                    )
+                ),
+                cost = CartLineCost(
+                    totalAmount = Money(amount = "50.00", currencyCode = "USD"),
+                    subtotalAmount = Money(amount = "50.00", currencyCode = "USD"),
+                    amountPerQuantity = Money(amount = "50.00", currencyCode = "USD")
+                ),
+                discountAllocations = emptyList()
+            )
+        ),
+        cost = CartCost(
+            subtotalAmount = Money(amount = "50.00", currencyCode = "USD"),
+            totalAmount = Money(amount = "50.00", currencyCode = "USD")
+        ),
+        buyerIdentity = CartBuyerIdentity(
+            countryCode = "US",
+            email = "checkout-kit@shopify.com"
+        ),
+        deliveryGroups = listOf(
+            CartDeliveryGroup(
+                selectedDeliveryOption = CartDeliveryOption(
+                    title = "Economy",
+                    code = "Economy",
+                    description = "",
+                    estimatedCost = Money(amount = "0.00", currencyCode = "USD"),
+                    handle = "05ac113615eb8c229a25856a76f7dd90-8388085074acab7e91de633521be86f0",
+                    deliveryMethodType = CartDeliveryMethodType.SHIPPING
+                ),
+                groupType = CartDeliveryGroupType.ONE_TIME_PURCHASE,
+                deliveryOptions = listOf(
+                    CartDeliveryOption(
                         title = "Economy",
                         code = "Economy",
                         description = "",
@@ -588,91 +608,80 @@ class CheckoutPaymentMethodChangeStartTest {
                         handle = "05ac113615eb8c229a25856a76f7dd90-8388085074acab7e91de633521be86f0",
                         deliveryMethodType = CartDeliveryMethodType.SHIPPING
                     ),
-                    groupType = CartDeliveryGroupType.ONE_TIME_PURCHASE,
-                    deliveryOptions = listOf(
-                        CartDeliveryOption(
-                            title = "Economy",
-                            code = "Economy",
-                            description = "",
-                            estimatedCost = Money(amount = "0.00", currencyCode = "USD"),
-                            handle = "05ac113615eb8c229a25856a76f7dd90-8388085074acab7e91de633521be86f0",
-                            deliveryMethodType = CartDeliveryMethodType.SHIPPING
-                        ),
-                        CartDeliveryOption(
-                            title = "Standard",
-                            code = "Standard",
-                            description = "",
-                            estimatedCost = Money(amount = "6.90", currencyCode = "USD"),
-                            handle = "05ac113615eb8c229a25856a76f7dd90-6d5a64f58240381019fc074473bab3ab",
-                            deliveryMethodType = CartDeliveryMethodType.SHIPPING
-                        )
-                    ),
-                    deliveryAddress = MailingAddress(
+                    CartDeliveryOption(
+                        title = "Standard",
+                        code = "Standard",
+                        description = "",
+                        estimatedCost = Money(amount = "6.90", currencyCode = "USD"),
+                        handle = "05ac113615eb8c229a25856a76f7dd90-6d5a64f58240381019fc074473bab3ab",
+                        deliveryMethodType = CartDeliveryMethodType.SHIPPING
+                    )
+                ),
+                deliveryAddress = MailingAddress(
+                    phone = "+441792547555",
+                    province = "CA",
+                    address2 = "Haight-Ashbury",
+                    country = "US",
+                    address1 = "89 Haight Street",
+                    firstName = "Evelyn",
+                    lastName = "Hartley",
+                    countryCodeV2 = "US",
+                    city = "San Francisco",
+                    zip = "94117"
+                )
+            )
+        ),
+        discountCodes = emptyList(),
+        appliedGiftCards = emptyList(),
+        discountAllocations = emptyList(),
+        delivery = CartDelivery(
+            addresses = listOf(
+                CartSelectableAddress(
+                    address = CartAddress.DeliveryAddress(
                         phone = "+441792547555",
-                        province = "CA",
-                        address2 = "Haight-Ashbury",
-                        country = "US",
-                        address1 = "89 Haight Street",
-                        firstName = "Evelyn",
-                        lastName = "Hartley",
-                        countryCodeV2 = "US",
+                        zip = "94117",
                         city = "San Francisco",
-                        zip = "94117"
-                    )
+                        firstName = "Evelyn",
+                        provinceCode = "CA",
+                        address2 = "Haight-Ashbury",
+                        lastName = "Hartley",
+                        address1 = "89 Haight Street",
+                        countryCode = "US"
+                    ),
+                    oneTimeUse = false,
+                    selected = true
                 )
-            ),
-            discountCodes = emptyList(),
-            appliedGiftCards = emptyList(),
-            discountAllocations = emptyList(),
-            delivery = CartDelivery(
-                addresses = listOf(
-                    CartSelectableAddress(
-                        address = CartAddress.DeliveryAddress(
-                            phone = "+441792547555",
-                            zip = "94117",
-                            city = "San Francisco",
-                            firstName = "Evelyn",
-                            provinceCode = "CA",
-                            address2 = "Haight-Ashbury",
-                            lastName = "Hartley",
-                            address1 = "89 Haight Street",
-                            countryCode = "US"
-                        ),
-                        oneTimeUse = false,
-                        selected = true
-                    )
-                )
-            ),
-            payment = CartPayment(
-                methods = listOf(
-                    CartPaymentMethod(
-                        instruments = listOf(
-                            CartPaymentInstrument(
-                                year = 2027,
-                                externalReferenceId = "card-mc-5555",
-                                month = 6,
-                                brand = CardBrand.MASTERCARD,
-                                billingAddress = MailingAddress(
-                                    country = "US",
-                                    address2 = "New York",
-                                    province = "Smith",
-                                    address1 = "123 Main St",
-                                    city = "John",
-                                    firstName = "10001",
-                                    zip = "NY"
-                                ),
-                                lastDigits = "5555",
-                                cardHolderName = "John Smith"
-                            )
+            )
+        ),
+        payment = CartPayment(
+            methods = listOf(
+                CartPaymentMethod(
+                    instruments = listOf(
+                        CartPaymentInstrument(
+                            year = 2027,
+                            externalReferenceId = "card-mc-5555",
+                            month = 6,
+                            brand = CardBrand.MASTERCARD,
+                            billingAddress = MailingAddress(
+                                country = "US",
+                                address2 = "New York",
+                                province = "Smith",
+                                address1 = "123 Main St",
+                                city = "John",
+                                firstName = "10001",
+                                zip = "NY"
+                            ),
+                            lastDigits = "5555",
+                            cardHolderName = "John Smith"
                         )
                     )
                 )
             )
         )
+    )
 
-        val json = testJson.encodeToString(Cart.serializer(), cart)
-
-        val expected = """
+    @Suppress("LongMethod")
+    private fun getExpectedPaymentMethodChangeCartJson() = """
             {
               "id": "hWN6LirFdNUjAcpXvpm52A1T",
               "lines": [
@@ -800,9 +809,5 @@ class CheckoutPaymentMethodChangeStartTest {
               }
             }
         """.trimIndent()
-
-        assertThat(Json.parseToJsonElement(json))
-            .isEqualTo(Json.parseToJsonElement(expected))
-    }
 
 }
