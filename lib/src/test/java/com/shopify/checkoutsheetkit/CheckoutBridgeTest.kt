@@ -26,6 +26,7 @@ import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
 import com.shopify.checkoutsheetkit.lifecycleevents.CartAddress
 import com.shopify.checkoutsheetkit.lifecycleevents.CartCredential
 import com.shopify.checkoutsheetkit.lifecycleevents.CartDelivery
+import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryAddress
 import com.shopify.checkoutsheetkit.lifecycleevents.CartPayment
 import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentInstrument
 import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentMethod
@@ -273,7 +274,7 @@ class CheckoutBridgeTest {
             delivery = CartDelivery(
                 addresses = listOf(
                     CartSelectableAddress(
-                        address = CartAddress.DeliveryAddress(
+                        address = CartDeliveryAddress(
                             firstName = "Ada",
                             countryCode = "US"
                         )
@@ -328,7 +329,7 @@ class CheckoutBridgeTest {
             delivery = CartDelivery(
                 addresses = listOf(
                     CartSelectableAddress(
-                        address = CartAddress.DeliveryAddress(
+                        address = CartDeliveryAddress(
                             firstName = "Ada",
                             countryCode = "US"
                         )

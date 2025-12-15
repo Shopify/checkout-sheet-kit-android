@@ -294,7 +294,7 @@ private object CartAddressSerializer : KSerializer<CartAddress> {
 
 @Serializable
 public data class CartSelectableAddress(
-    public val address: CartAddress,
+    public val address: CartDeliveryAddress,
     @EncodeDefault public val selected: Boolean = true,
     @EncodeDefault public val oneTimeUse: Boolean = false
 )
