@@ -62,13 +62,7 @@ import kotlinx.coroutines.launch
 
 data class PaymentOption(
     val label: String,
-    val externalReferenceId: String,
-    val lastDigits: String,
-    val brand: CardBrand,
-    val cardHolderName: String,
-    val month: Int,
-    val year: Int,
-    val billingAddress: MailingAddress,
+    val instrument: CartPaymentInstrument
 )
 
 @Composable
@@ -92,57 +86,69 @@ fun PaymentSelectionScreen(
         listOf(
             PaymentOption(
                 label = "Visa ending in 4242",
-                externalReferenceId = "visa-4242",
-                lastDigits = "4242",
-                brand = CardBrand.VISA,
-                cardHolderName = "John Doe",
-                month = 12,
-                year = 2025,
-                billingAddress = MailingAddress(
-                    firstName = "John",
-                    lastName = "Doe",
-                    address1 = "150 5th Avenue",
-                    city = "New York",
-                    country = "US",
-                    province = "NY",
-                    zip = "10011"
+                instrument = CartPaymentInstrument(
+                    externalReferenceId = "visa-4242",
+                    lastDigits = "4242",
+                    brand = CardBrand.VISA,
+                    cardHolderName = "John Doe",
+                    month = 12,
+                    year = 2025,
+                    billingAddress = MailingAddress(
+                        firstName = "John",
+                        lastName = "Doe",
+                        address1 = "150 5th Avenue",
+                        city = "New York",
+                        country = "US",
+                        province = "NY",
+                        zip = "10011"
+                    )
                 )
             ),
             PaymentOption(
                 label = "Mastercard ending in 5555",
-                externalReferenceId = "mc-5555",
-                lastDigits = "5555",
-                brand = CardBrand.MASTERCARD,
-                cardHolderName = "Jane Smith",
-                month = 6,
-                year = 2026,
-                billingAddress = MailingAddress(
-                    firstName = "Jane",
-                    lastName = "Smith",
-                    address1 = "89 Haight Street",
-                    address2 = "Apt 2B",
-                    city = "San Francisco",
-                    country = "US",
-                    province = "CA",
-                    zip = "94117"
+                instrument = CartPaymentInstrument(
+                    externalReferenceId = "mc-5555",
+                    lastDigits = "5555",
+                    brand = CardBrand.MASTERCARD,
+                    cardHolderName = "Jane Smith",
+                    month = 6,
+                    year = 2026,
+                    billingAddress = MailingAddress(
+                        firstName = "Jane",
+                        lastName = "Smith",
+                        address1 = "89 Haight Street",
+                        address2 = "Apt 2B",
+                        city = "San Francisco",
+                        country = "US",
+                        province = "CA",
+                        zip = "94117"
+                    )
                 )
             ),
             PaymentOption(
                 label = "American Express ending in 0005",
-                externalReferenceId = "amex-0005",
-                lastDigits = "0005",
-                brand = CardBrand.AMERICAN_EXPRESS,
-                cardHolderName = "Alex Johnson",
-                month = 3,
-                year = 2027,
-                billingAddress = MailingAddress(
-                    firstName = "Alex",
-                    lastName = "Johnson",
-                    address1 = "456 Oak Ave",
-                    city = "Chicago",
-                    country = "US",
-                    province = "IL",
-                    zip = "60601"
+                instrument = CartPaymentInstrument(
+                    externalReferenceId = "amex-0005",
+                    lastDigits = "0005",
+                    brand = CardBrand.AMERICAN_EXPRESS,
+                    cardHolderName = "Alex Johnson",
+                    month = 3,
+                    year = 2027,
+                    billingAddress = MailingAddress(
+                        firstName = "Alex",
+                        lastName = "Johnson",
+                        address1 = "456 Oak Ave",
+                        city = "Chicago",
+                        country = "US",
+                        province = "IL",
+                        zip = "60601"
+                    )
+                )
+            ),
+            PaymentOption(
+                label = "Minimal payment option",
+                instrument = CartPaymentInstrument(
+                    externalReferenceId = "minimal-0001"
                 )
             ),
         )
@@ -189,17 +195,7 @@ fun PaymentSelectionScreen(
                         payment = CartPayment(
                             methods = listOf(
                                 CartPaymentMethod(
-                                    instruments = listOf(
-                                        CartPaymentInstrument(
-                                            externalReferenceId = paymentOption.externalReferenceId,
-                                            lastDigits = paymentOption.lastDigits,
-                                            brand = paymentOption.brand,
-                                            cardHolderName = paymentOption.cardHolderName,
-                                            month = paymentOption.month,
-                                            year = paymentOption.year,
-                                            billingAddress = paymentOption.billingAddress,
-                                        )
-                                    )
+                                    instruments = listOf(paymentOption.instrument)
                                 )
                             )
                         )
@@ -265,7 +261,7 @@ private fun PaymentOptionItem(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "${option.cardHolderName} - Expires ${option.month}/${option.year}",
+                text = "${option.instrument.cardHolderName ?: "Unknown"} - Expires ${option.instrument.month ?: "?"}/${option.instrument.year ?: "?"}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
