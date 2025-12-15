@@ -302,7 +302,6 @@ public data class CartSelectableAddress(
 /**
  * Type alias for CartAddress.DeliveryAddress for convenience.
  * Use this when you need to construct or work with delivery addresses directly.
- * Can be removed when we introduce CartInput
  */
 public typealias CartDeliveryAddress = CartAddress.DeliveryAddress
 
@@ -422,115 +421,6 @@ public data class ResponseError(
     val fieldTarget: String? = null,
 )
 
-/**
- * Cart input types for updating cart state from embedder responses.
- *
- * Mirrors the [Storefront API CartInput](https://shopify.dev/docs/api/storefront/latest/input-objects/CartInput).
- *
- * @deprecated Use Cart instead for response payloads.
- */
-@Deprecated("Use Cart instead for response payloads")
-@Serializable
-public data class CartInput(
-    /** The delivery-related fields for the cart. */
-    val delivery: CartDeliveryInput? = null,
-
-    /** The customer associated with the cart. */
-    val buyerIdentity: CartBuyerIdentityInput? = null,
-
-    /** The case-insensitive discount codes that the customer added at checkout. */
-    val discountCodes: List<String>? = null,
-
-    /** Payment instruments for the cart. */
-    val paymentInstruments: List<CartPaymentInstrumentInput>? = null,
-)
-
-/**
- * Delivery-related fields for the cart.
- */
-@Serializable
-public data class CartDeliveryInput(
-    /** Selectable addresses presented to the buyer. */
-    val addresses: List<CartSelectableAddressInput>? = null,
-)
-
-/**
- * A selectable delivery address with optional selection and reuse settings.
- */
-@Serializable
-public data class CartSelectableAddressInput(
-    /** Exactly one kind of delivery address. */
-    val address: CartDeliveryAddressInput,
-
-    /** Whether this address is selected as the active delivery address. */
-    val selected: Boolean? = null,
-)
-
-/**
- * A delivery address for a cart.
- *
- * Based on [Storefront API MailingAddressInput](https://shopify.dev/docs/api/storefront/latest/input-objects/MailingAddressInput).
- */
-@Serializable
-public data class CartDeliveryAddressInput(
-    /** The first line of the address. Typically the street address or PO Box number. */
-    val address1: String? = null,
-
-    /** The second line of the address. Typically the number of the apartment, suite, or unit. */
-    val address2: String? = null,
-
-    /** The name of the city, district, village, or town. */
-    val city: String? = null,
-
-    /** The name of the customer's company or organization. */
-    val company: String? = null,
-
-    /** The two-letter country code (ISO 3166-1 alpha-2 format, e.g., "US", "CA"). */
-    val countryCode: String? = null,
-
-    /** The first name of the customer. */
-    val firstName: String? = null,
-
-    /** The last name of the customer. */
-    val lastName: String? = null,
-
-    /** The phone number for the address. Formatted using E.164 standard (e.g., +16135551111). */
-    val phone: String? = null,
-
-    /** The code for the region of the address, such as the province or state (e.g., "ON" for Ontario, or "CA" for California). */
-    val provinceCode: String? = null,
-
-    /** The zip or postal code of the address. */
-    val zip: String? = null,
-)
-
-/**
- * The customer associated with the cart.
- *
- * Based on [Storefront API CartBuyerIdentityInput](https://shopify.dev/docs/api/storefront/latest/input-objects/CartBuyerIdentityInput).
- */
-@Serializable
-public data class CartBuyerIdentityInput(
-    /** The email address of the buyer that is interacting with the cart / checkout. */
-    val email: String? = null,
-
-    /** The phone number of the buyer that is interacting with the cart / checkout. */
-    val phone: String? = null,
-
-    /** The country where the buyer is located. Two-letter country code (ISO 3166-1 alpha-2, e.g. US, GB, CA). */
-    val countryCode: String? = null,
-)
-
-/**
- * Payment token input structure for checkout submission.
- */
-@Serializable
-public data class PaymentTokenInput(
-    val token: String,
-    val tokenType: String,
-    val tokenProvider: String,
-)
-
 @Serializable
 public enum class CardBrand {
     @SerialName("VISA")
@@ -582,22 +472,4 @@ public data class RemoteTokenPaymentCredential(
     val token: String,
     val tokenType: String,
     val tokenHandler: String
-)
-
-
-/**
- * Type alias for CartDeliveryAddressInput used in payment instrument billing addresses.
- * This doesn't follow the Storefront API design so we are aliasing to an existing conforming shape.
- */
-public typealias CartMailingAddressInput = CartDeliveryAddressInput
-
-@Serializable
-public data class CartPaymentInstrumentInput(
-    public val externalReferenceId: String,
-    public val lastDigits: String? = null,
-    public val brand: CardBrand? = null,
-    public val cardHolderName: String? = null,
-    public val month: Int? = null,
-    public val year: Int? = null,
-    public val billingAddress: CartMailingAddressInput? = null,
 )

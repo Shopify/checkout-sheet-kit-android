@@ -37,10 +37,8 @@ import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryOption
 import com.shopify.checkoutsheetkit.lifecycleevents.CartLine
 import com.shopify.checkoutsheetkit.lifecycleevents.CartLineCost
 import com.shopify.checkoutsheetkit.lifecycleevents.CartLineMerchandise
-import com.shopify.checkoutsheetkit.lifecycleevents.CartMailingAddressInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CartPayment
 import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentInstrument
-import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentInstrumentInput
 import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentMethod
 import com.shopify.checkoutsheetkit.lifecycleevents.CartSelectableAddress
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutPaymentMethodChangeStartEvent
@@ -362,68 +360,6 @@ class CheckoutPaymentMethodChangeStartTest {
         expectedValues.forEach { (brand, expectedName) ->
             assertThat(brand.name).isEqualTo(expectedName)
         }
-    }
-
-    @Test
-    fun `test CartMailingAddressInput deserialization with optional fields`() {
-        val json = """
-            {
-                "firstName": "Jane",
-                "lastName": "Smith",
-                "address1": "456 Oak Ave",
-                "city": "San Francisco",
-                "countryCode": "US",
-                "provinceCode": "CA",
-                "zip": "94102"
-            }
-        """.trimIndent()
-
-        val address = Json.decodeFromString<CartMailingAddressInput>(json)
-
-        assertThat(address).isEqualTo(
-            CartMailingAddressInput(
-                firstName = "Jane",
-                lastName = "Smith",
-                address1 = "456 Oak Ave",
-                city = "San Francisco",
-                countryCode = "US",
-                provinceCode = "CA",
-                zip = "94102"
-            )
-        )
-    }
-
-    @Test
-    fun `test CartPaymentInstrumentInput deserialization with flattened fields`() {
-        val json = """
-            {
-                "externalReferenceId": "payment-456",
-                "lastDigits": "0005",
-                "brand": "AMERICAN_EXPRESS",
-                "cardHolderName": "Alex Johnson",
-                "month": 9,
-                "year": 2028,
-                "billingAddress": {
-                    "firstName": "Alex",
-                    "lastName": "Johnson",
-                    "address1": "789 Pine St",
-                    "city": "Chicago",
-                    "countryCode": "US",
-                    "provinceCode": "IL",
-                    "zip": "60601"
-                }
-            }
-        """.trimIndent()
-
-        val paymentInstrument = Json.decodeFromString<CartPaymentInstrumentInput>(json)
-
-        assertThat(paymentInstrument.externalReferenceId).isEqualTo("payment-456")
-        assertThat(paymentInstrument.lastDigits).isEqualTo("0005")
-        assertThat(paymentInstrument.brand).isEqualTo(CardBrand.AMERICAN_EXPRESS)
-        assertThat(paymentInstrument.cardHolderName).isEqualTo("Alex Johnson")
-        assertThat(paymentInstrument.month).isEqualTo(9)
-        assertThat(paymentInstrument.year).isEqualTo(2028)
-        assertThat(paymentInstrument.billingAddress?.firstName).isEqualTo("Alex")
     }
 
     @Test
