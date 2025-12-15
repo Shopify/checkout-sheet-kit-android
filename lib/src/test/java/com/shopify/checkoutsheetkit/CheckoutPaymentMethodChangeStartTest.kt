@@ -519,6 +519,7 @@ class CheckoutPaymentMethodChangeStartTest {
 
         val expected = """
             {
+              "__typename": "CreditCardPaymentInstrument",
               "externalReferenceId": "card-mc-5555",
               "cardHolderName": "John Smith",
               "lastDigits": "5555",
@@ -787,6 +788,7 @@ class CheckoutPaymentMethodChangeStartTest {
                     "__typename": "CreditCardPaymentMethod",
                     "instruments": [
                       {
+                        "__typename": "CreditCardPaymentInstrument",
                         "externalReferenceId": "card-mc-5555",
                         "cardHolderName": "John Smith",
                         "lastDigits": "5555",

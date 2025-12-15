@@ -560,6 +560,8 @@ public enum class CardBrand {
 
 @Serializable
 public data class CartPaymentInstrument(
+    @SerialName("__typename")
+    public val typename: String = "CreditCardPaymentInstrument",
     public val externalReferenceId: String,
     public val credentials: List<CartCredential>? = null,
     public val cardHolderName: String? = null,
