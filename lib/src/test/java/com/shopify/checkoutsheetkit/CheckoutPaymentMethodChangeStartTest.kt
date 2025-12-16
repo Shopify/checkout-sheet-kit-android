@@ -363,23 +363,22 @@ class CheckoutPaymentMethodChangeStartTest {
     }
 
     @Test
-    fun `test CartCredential deserialization with remoteTokenPaymentCredential`() {
+    fun `test CartCredential deserialization with remoteToken type`() {
         val json = """
             {
-                "remoteTokenPaymentCredential": {
-                    "token": "tok_abc123",
-                    "tokenType": "merchant.token",
-                    "tokenHandler": "merchant_psp"
-                }
+                "type": "remoteToken",
+                "token": "tok_abc123",
+                "tokenType": "merchant.token",
+                "tokenHandler": "merchant_psp"
             }
         """.trimIndent()
 
         val credential = Json.decodeFromString<CartCredential>(json)
 
-        assertThat(credential.remoteTokenPaymentCredential).isNotNull()
-        assertThat(credential.remoteTokenPaymentCredential?.token).isEqualTo("tok_abc123")
-        assertThat(credential.remoteTokenPaymentCredential?.tokenType).isEqualTo("merchant.token")
-        assertThat(credential.remoteTokenPaymentCredential?.tokenHandler).isEqualTo("merchant_psp")
+        assertThat(credential.type).isEqualTo("remoteToken")
+        assertThat(credential.token).isEqualTo("tok_abc123")
+        assertThat(credential.tokenType).isEqualTo("merchant.token")
+        assertThat(credential.tokenHandler).isEqualTo("merchant_psp")
     }
 
     @Test
@@ -388,11 +387,10 @@ class CheckoutPaymentMethodChangeStartTest {
             {
                 "externalReferenceId": "instrument-123",
                 "credentials": [{
-                    "remoteTokenPaymentCredential": {
-                        "token": "tok_abc123",
-                        "tokenType": "merchant.token",
-                        "tokenHandler": "merchant_psp"
-                    }
+                    "type": "remoteToken",
+                    "token": "tok_abc123",
+                    "tokenType": "merchant.token",
+                    "tokenHandler": "merchant_psp"
                 }]
             }
         """.trimIndent()
@@ -401,7 +399,7 @@ class CheckoutPaymentMethodChangeStartTest {
 
         assertThat(instrument.externalReferenceId).isEqualTo("instrument-123")
         assertThat(instrument.credentials).hasSize(1)
-        assertThat(instrument.credentials?.get(0)?.remoteTokenPaymentCredential?.token).isEqualTo("tok_abc123")
+        assertThat(instrument.credentials?.get(0)?.token).isEqualTo("tok_abc123")
     }
 
     @Test
@@ -455,7 +453,6 @@ class CheckoutPaymentMethodChangeStartTest {
 
         val expected = """
             {
-              "__typename": "CreditCardPaymentInstrument",
               "externalReferenceId": "card-mc-5555",
               "cardHolderName": "John Smith",
               "lastDigits": "5555",
@@ -721,10 +718,9 @@ class CheckoutPaymentMethodChangeStartTest {
               "payment": {
                 "methods": [
                   {
-                    "__typename": "CreditCardPaymentMethod",
+                    "type": "creditCard",
                     "instruments": [
                       {
-                        "__typename": "CreditCardPaymentInstrument",
                         "externalReferenceId": "card-mc-5555",
                         "cardHolderName": "John Smith",
                         "lastDigits": "5555",
