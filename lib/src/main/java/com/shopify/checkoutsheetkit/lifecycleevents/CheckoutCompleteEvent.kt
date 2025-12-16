@@ -74,7 +74,7 @@ internal fun emptyCompleteEvent(id: String? = null): CheckoutCompleteEvent {
             appliedGiftCards = emptyList(),
             discountAllocations = emptyList(),
             delivery = CartDelivery(addresses = emptyList()),
-            payment = CartPayment(instruments = emptyList())
+            payment = CartPayment(methods = emptyList())
         )
     )
 }

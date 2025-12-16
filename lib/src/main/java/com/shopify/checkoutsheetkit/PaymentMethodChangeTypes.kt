@@ -23,7 +23,6 @@
 package com.shopify.checkoutsheetkit
 
 import com.shopify.checkoutsheetkit.lifecycleevents.Cart
-import com.shopify.checkoutsheetkit.lifecycleevents.CartInput
 import com.shopify.checkoutsheetkit.lifecycleevents.ResponseError
 import kotlinx.serialization.Serializable
 
@@ -34,6 +33,6 @@ public data class CheckoutPaymentMethodChangeStartParams(
 
 @Serializable
 public data class CheckoutPaymentMethodChangeStartResponsePayload(
-    val cart: CartInput? = null,
+    val cart: Cart? = null,
     val errors: List<ResponseError>? = null,
 )

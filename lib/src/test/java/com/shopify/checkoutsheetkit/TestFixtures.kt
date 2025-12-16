@@ -66,7 +66,7 @@ internal fun createTestCart(
     appliedGiftCards = emptyList(),
     discountAllocations = emptyList(),
     delivery = CartDelivery(addresses = emptyList()),
-    payment = CartPayment(instruments = emptyList())
+    payment = CartPayment(methods = emptyList())
 )
 
 /**
