@@ -50,13 +50,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.Header2
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartResponsePayload
-import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryAddressInput
-import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryInput
-import com.shopify.checkoutsheetkit.lifecycleevents.CartInput
-import com.shopify.checkoutsheetkit.lifecycleevents.CartSelectableAddressInput
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutEventResponseException
+import com.shopify.checkoutsheetkit.lifecycleevents.CartAddress
+import com.shopify.checkoutsheetkit.lifecycleevents.CartDelivery
+import com.shopify.checkoutsheetkit.lifecycleevents.CartSelectableAddress
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartResponsePayload
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutEventResponseException
 import kotlinx.coroutines.launch
 
 /**
@@ -64,7 +63,7 @@ import kotlinx.coroutines.launch
  */
 data class AddressOption(
     val label: String,
-    val address: CartDeliveryAddressInput,
+    val address: CartAddress.DeliveryAddress,
 )
 
 /**
@@ -92,7 +91,7 @@ fun AddressSelectionScreen(
         listOf(
             AddressOption(
                 label = "Default",
-                address = CartDeliveryAddressInput(
+                address = CartAddress.DeliveryAddress(
                     firstName = "John",
                     lastName = "Smith",
                     address1 = "150 5th Avenue",
@@ -106,7 +105,7 @@ fun AddressSelectionScreen(
             ),
             AddressOption(
                 label = "West Coast Address",
-                address = CartDeliveryAddressInput(
+                address = CartAddress.DeliveryAddress(
                     firstName = "Evelyn",
                     lastName = "Hartley",
                     address1 = "89 Haight Street",
@@ -120,13 +119,13 @@ fun AddressSelectionScreen(
             ),
             AddressOption(
                 label = "❌ Invalid - SDK validation (3-letter country code)",
-                address = CartDeliveryAddressInput(
+                address = CartAddress.DeliveryAddress(
                     firstName = "Test",
                     lastName = "Invalid",
                     address1 = "123 Error Street",
                     address2 = null,
                     city = "Austin",
-                    countryCode = "USA", // Invalid: SDK validates country code must be exactly 2 characters
+                    countryCode = "USA",
                     phone = "+15125551234",
                     provinceCode = "TX",
                     zip = "78701",
@@ -134,7 +133,7 @@ fun AddressSelectionScreen(
             ),
             AddressOption(
                 label = "❌ Invalid - Backend validation (postcode invalid for country)",
-                address = CartDeliveryAddressInput(
+                address = CartAddress.DeliveryAddress(
                     firstName = "Test",
                     lastName = "User",
                     address1 = "456 Nowhere Lane",
@@ -188,18 +187,19 @@ fun AddressSelectionScreen(
                 coroutineScope.launch {
                     val address = addressOptions[selectedIndex].address
 
-                    val cartInput = CartInput(
-                        delivery = CartDeliveryInput(
+                    val updatedCart = event?.cart?.copy(
+                        delivery = CartDelivery(
                             addresses = listOf(
-                                CartSelectableAddressInput(
+                                CartSelectableAddress(
                                     address = address,
-                                    selected = true
+                                    selected = true,
+                                    oneTimeUse = false
                                 )
                             )
                         )
                     )
 
-                    val response = CheckoutAddressChangeStartResponsePayload(cart = cartInput)
+                    val response = CheckoutAddressChangeStartResponsePayload(cart = updatedCart)
 
                     try {
                         // Respond to the event - validation happens here
