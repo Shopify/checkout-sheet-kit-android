@@ -98,7 +98,7 @@ public class CheckoutWebViewEventProcessor(
                 log.e(LOG_TAG, "Checkout unavailable: ${checkoutErrorEvent.message}, code: ${checkoutErrorEvent.code}")
                 ClientException(
                     errorDescription = checkoutErrorEvent.message,
-                    isRecoverable = true
+                    isRecoverable = false
                 )
             }
         }

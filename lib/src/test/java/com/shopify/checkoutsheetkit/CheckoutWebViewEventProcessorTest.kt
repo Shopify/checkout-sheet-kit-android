@@ -173,7 +173,7 @@ class CheckoutWebViewEventProcessorTest {
     }
 
     @Test
-    fun `onCheckoutViewError maps KILLSWITCH_ENABLED to ClientException with recoverable true`() {
+    fun `onCheckoutViewError maps KILLSWITCH_ENABLED to ClientException with recoverable false`() {
         val event = CheckoutErrorEvent(
             code = CheckoutErrorCode.KILLSWITCH_ENABLED,
             message = "Checkout is temporarily disabled"
@@ -184,11 +184,11 @@ class CheckoutWebViewEventProcessorTest {
 
         assertThat(capturedError).isInstanceOf(ClientException::class.java)
         assertThat(capturedError?.errorDescription).isEqualTo("Checkout is temporarily disabled")
-        assertThat(capturedError?.isRecoverable).isTrue()
+        assertThat(capturedError?.isRecoverable).isFalse()
     }
 
     @Test
-    fun `onCheckoutViewError maps UNRECOVERABLE_FAILURE to ClientException with recoverable true`() {
+    fun `onCheckoutViewError maps UNRECOVERABLE_FAILURE to ClientException with recoverable false`() {
         val event = CheckoutErrorEvent(
             code = CheckoutErrorCode.UNRECOVERABLE_FAILURE,
             message = "An unrecoverable error occurred"
@@ -199,11 +199,11 @@ class CheckoutWebViewEventProcessorTest {
 
         assertThat(capturedError).isInstanceOf(ClientException::class.java)
         assertThat(capturedError?.errorDescription).isEqualTo("An unrecoverable error occurred")
-        assertThat(capturedError?.isRecoverable).isTrue()
+        assertThat(capturedError?.isRecoverable).isFalse()
     }
 
     @Test
-    fun `onCheckoutViewError maps POLICY_VIOLATION to ClientException with recoverable true`() {
+    fun `onCheckoutViewError maps POLICY_VIOLATION to ClientException with recoverable false`() {
         val event = CheckoutErrorEvent(
             code = CheckoutErrorCode.POLICY_VIOLATION,
             message = "Policy violation detected"
@@ -214,11 +214,11 @@ class CheckoutWebViewEventProcessorTest {
 
         assertThat(capturedError).isInstanceOf(ClientException::class.java)
         assertThat(capturedError?.errorDescription).isEqualTo("Policy violation detected")
-        assertThat(capturedError?.isRecoverable).isTrue()
+        assertThat(capturedError?.isRecoverable).isFalse()
     }
 
     @Test
-    fun `onCheckoutViewError maps VAULTED_PAYMENT_ERROR to ClientException with recoverable true`() {
+    fun `onCheckoutViewError maps VAULTED_PAYMENT_ERROR to ClientException with recoverable false`() {
         val event = CheckoutErrorEvent(
             code = CheckoutErrorCode.VAULTED_PAYMENT_ERROR,
             message = "Payment method could not be processed"
@@ -229,6 +229,6 @@ class CheckoutWebViewEventProcessorTest {
 
         assertThat(capturedError).isInstanceOf(ClientException::class.java)
         assertThat(capturedError?.errorDescription).isEqualTo("Payment method could not be processed")
-        assertThat(capturedError?.isRecoverable).isTrue()
+        assertThat(capturedError?.isRecoverable).isFalse()
     }
 }
