@@ -25,6 +25,7 @@ package com.shopify.checkoutsheetkit.rpc
 import com.shopify.checkoutsheetkit.CheckoutNotification
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutErrorEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartEvent
@@ -53,6 +54,7 @@ internal object RPCRequestRegistry {
         CheckoutSubmitStartEvent.Companion,
         CheckoutStartEvent.decoder,
         CheckoutCompleteEvent.decoder,
+        CheckoutErrorEvent.decoder,
         CheckoutPaymentMethodChangeStartEvent.Companion
     )
 

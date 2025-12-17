@@ -32,6 +32,8 @@ import android.webkit.WebChromeClient.FileChooserParams
 import android.webkit.WebView
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutErrorCode
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutErrorEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartEvent
@@ -59,6 +61,49 @@ public class CheckoutWebViewEventProcessor(
 
         log.d(LOG_TAG, "Calling onCheckoutCompleted $checkoutCompleteEvent.")
         eventProcessor.onComplete(checkoutCompleteEvent)
+    }
+
+    internal fun onCheckoutViewError(checkoutErrorEvent: CheckoutErrorEvent) {
+        log.d(LOG_TAG, "Received checkout.error: ${checkoutErrorEvent.code} - ${checkoutErrorEvent.message}")
+
+        val exception: CheckoutException = when (checkoutErrorEvent.code) {
+            CheckoutErrorCode.STOREFRONT_PASSWORD_REQUIRED,
+            CheckoutErrorCode.CUSTOMER_ACCOUNT_REQUIRED,
+            CheckoutErrorCode.INVALID_PAYLOAD,
+            CheckoutErrorCode.INVALID_SIGNATURE,
+            CheckoutErrorCode.NOT_AUTHORIZED,
+            CheckoutErrorCode.PAYLOAD_EXPIRED -> {
+                log.e(LOG_TAG, "Configuration error: ${checkoutErrorEvent.message}, code: ${checkoutErrorEvent.code}")
+                ConfigurationException(
+                    errorDescription = checkoutErrorEvent.message,
+                    errorCode = checkoutErrorEvent.code.name,
+                    isRecoverable = false
+                )
+            }
+
+            CheckoutErrorCode.CART_COMPLETED,
+            CheckoutErrorCode.INVALID_CART -> {
+                log.d(LOG_TAG, "Checkout expired: ${checkoutErrorEvent.message}, code: ${checkoutErrorEvent.code}")
+                CheckoutExpiredException(
+                    errorDescription = checkoutErrorEvent.message,
+                    errorCode = checkoutErrorEvent.code.name,
+                    isRecoverable = false
+                )
+            }
+
+            CheckoutErrorCode.KILLSWITCH_ENABLED,
+            CheckoutErrorCode.UNRECOVERABLE_FAILURE,
+            CheckoutErrorCode.POLICY_VIOLATION,
+            CheckoutErrorCode.VAULTED_PAYMENT_ERROR -> {
+                log.e(LOG_TAG, "Checkout unavailable: ${checkoutErrorEvent.message}, code: ${checkoutErrorEvent.code}")
+                ClientException(
+                    errorDescription = checkoutErrorEvent.message,
+                    isRecoverable = true
+                )
+            }
+        }
+
+        onCheckoutViewFailedWithError(exception)
     }
 
     internal fun onCheckoutViewModalToggled(modalVisible: Boolean) {

@@ -29,6 +29,7 @@ import android.webkit.WebView
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutErrorEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutPaymentMethodChangeStartEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartEvent
@@ -125,6 +126,11 @@ internal class CheckoutBridge(
                 is CheckoutCompleteEvent -> handleNotification(
                     logMessage = "checkout.complete",
                     dispatch = { eventProcessor.onCheckoutViewComplete(event) }
+                )
+
+                is CheckoutErrorEvent -> handleNotification(
+                    logMessage = "checkout.error",
+                    dispatch = { eventProcessor.onCheckoutViewError(event) }
                 )
 
                 null -> log.d(LOG_TAG, "Unsupported message received. Ignoring.")
