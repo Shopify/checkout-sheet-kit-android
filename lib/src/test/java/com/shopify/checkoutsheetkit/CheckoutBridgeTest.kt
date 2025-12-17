@@ -24,7 +24,6 @@ package com.shopify.checkoutsheetkit
 
 import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
 import com.shopify.checkoutsheetkit.lifecycleevents.CartAddress
-import com.shopify.checkoutsheetkit.lifecycleevents.CartCredential
 import com.shopify.checkoutsheetkit.lifecycleevents.CartDelivery
 import com.shopify.checkoutsheetkit.lifecycleevents.CartDeliveryAddress
 import com.shopify.checkoutsheetkit.lifecycleevents.CartPayment
@@ -146,12 +145,10 @@ class CheckoutBridgeTest {
                             CartPaymentInstrument(
                                 externalReferenceId = "payment-123",
                                 credentials = listOf(
-                                    CartCredential(
-                                        remoteTokenPaymentCredential = RemoteTokenPaymentCredential(
-                                            token = "tok_test_123",
-                                            tokenType = "card",
-                                            tokenHandler = "delegated"
-                                        )
+                                    RemoteTokenPaymentCredential(
+                                        token = "tok_test_123",
+                                        tokenType = "card",
+                                        tokenHandler = "delegated"
                                     )
                                 )
                             )

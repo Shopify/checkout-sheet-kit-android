@@ -249,8 +249,7 @@ public data class CartPayment(
 
 @Serializable
 public data class CartPaymentMethod(
-    @SerialName("__typename")
-    public val typename: String = "CreditCardPaymentMethod",
+    public val type: String = "creditCard",
     public val instruments: List<CartPaymentInstrument> = emptyList()
 )
 
@@ -450,8 +449,6 @@ public enum class CardBrand {
 
 @Serializable
 public data class CartPaymentInstrument(
-    @SerialName("__typename")
-    public val typename: String = "CreditCardPaymentInstrument",
     public val externalReferenceId: String,
     public val credentials: List<CartCredential>? = null,
     public val cardHolderName: String? = null,
@@ -463,13 +460,11 @@ public data class CartPaymentInstrument(
 )
 
 @Serializable
-public data class CartCredential(
-    val remoteTokenPaymentCredential: RemoteTokenPaymentCredential? = null
-)
-
-@Serializable
 public data class RemoteTokenPaymentCredential(
+    val type: String = "remoteToken",
     val token: String,
     val tokenType: String,
     val tokenHandler: String
 )
+
+public typealias CartCredential = RemoteTokenPaymentCredential

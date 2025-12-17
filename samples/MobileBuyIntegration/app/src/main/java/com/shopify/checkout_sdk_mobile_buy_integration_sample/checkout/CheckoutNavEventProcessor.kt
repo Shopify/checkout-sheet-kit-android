@@ -30,7 +30,6 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
-import com.shopify.checkoutsheetkit.lifecycleevents.CartCredential
 import com.shopify.checkoutsheetkit.lifecycleevents.CartPayment
 import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentInstrument
 import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentMethod
@@ -111,12 +110,10 @@ class CheckoutNavEventProcessor(
                             CartPaymentInstrument(
                                 externalReferenceId = "submit-payment-123",
                                 credentials = listOf(
-                                    CartCredential(
-                                        remoteTokenPaymentCredential = RemoteTokenPaymentCredential(
-                                            token = "my-token",
-                                            tokenType = "test",
-                                            tokenHandler = "test-provider"
-                                        )
+                                    RemoteTokenPaymentCredential(
+                                        token = "my-token",
+                                        tokenType = "test",
+                                        tokenHandler = "test-provider"
                                     )
                                 )
                             )
