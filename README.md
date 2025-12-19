@@ -415,6 +415,29 @@ val processor = object : DefaultCheckoutEventProcessor(activity) {
 
     override fun onFail(error: CheckoutException) {
         // Called when the checkout encountered an error and has been aborted.
+        Log.e("Checkout", "Checkout failed: ${error.errorDescription}", error)
+
+        when (error) {
+            is CheckoutExpiredException -> {
+                // Cart expired or completed - create a new cart
+                cartViewModel.clearCart()
+                showError("Your cart has expired. Please try again.")
+            }
+            is ConfigurationException -> {
+                // Configuration issue - may need developer intervention
+                showError("Checkout is currently unavailable.")
+            }
+            is ClientException -> {
+                // Checkout unavailable - show error to buyer
+                showError("Unable to complete checkout. Please try again later.")
+            }
+            else -> {
+                // SDK internal errors - may be recoverable
+                if (!error.isRecoverable) {
+                    showError("An error occurred during checkout.")
+                }
+            }
+        }
     }
 
     override fun onCheckoutLinkClicked(uri: Uri) {
@@ -520,20 +543,52 @@ ShopifyCheckoutSheetKit.configure {
 
 #### `CheckoutException`
 
-| Exception Class                | Error Code                     | Description                                                                  | Recommendation                                                                              |
-| ------------------------------ | ------------------------------ | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `ConfigurationException`       | 'storefront_password_required' | Access to checkout is password protected.                                    | We are working on ways to enable the Checkout Kit for usage with password protected stores. |
-| `ConfigurationException`       | 'unknown'                      | Other configuration issue, see error details for more info.                  | Resolve the configuration issue in the error message.                                       |
-| `CheckoutExpiredException`     | 'cart_expired'                 | The cart or checkout is no longer available.                                 | Create a new cart and open a new checkout URL.                                              |
-| `CheckoutExpiredException`     | 'cart_completed'               | The cart associated with the checkout has completed checkout.                | Create new cart and open a new checkout URL.                                                |
-| `CheckoutExpiredException`     | 'invalid_cart'                 | The cart associated with the checkout is invalid (e.g. empty).               | Create a new cart and open a new checkout URL.                                              |
-| `CheckoutSheetKitException`    | 'error_receiving_message'      | Checkout Kit failed to receive a message from checkout.                      | Show checkout in a fallback WebView.                                                        |
-| `CheckoutSheetKitException`    | 'error_sending_message'        | Checkout Kit failed to send a message to checkout.                           | Show checkout in a fallback WebView.                                                        |
-| `CheckoutSheetKitException`    | 'render_process_gone'          | The render process for the checkout WebView is gone.                         | Show checkout in a fallback WebView.                                                        |
-| `CheckoutSheetKitException`    | 'unknown'                      | An error in Checkout Kit has occurred, see error details for more info.      | Show checkout in a fallback WebView.                                                        |
-| `HttpException`                | 'http_error'                   | An unexpected server error has been encountered.                             | Show checkout in a fallback WebView.                                                        |
-| `ClientException`              | 'client_error'                 | An unhandled client error was encountered.                                   | Show checkout in a fallback WebView.                                                        |
-| `CheckoutUnavailableException` | 'unknown'                      | Checkout is unavailable for another reason, see error details for more info. | Show checkout in a fallback WebView.                                                        |
+Checkout errors can originate from the checkout web experience itself (`checkout.error` events) or from the SDK. All errors include `errorDescription`, `errorCode`, and `isRecoverable` properties.
+
+**Configuration Errors** - `ConfigurationException` (non-recoverable)
+
+These indicate issues with storefront or checkout configuration. Checkout will be dismissed automatically.
+
+| Error Code                       | Description                                  | Recommendation                                                                              |
+| -------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `STOREFRONT_PASSWORD_REQUIRED`   | Access to checkout is password protected.    | Checkout unavailable. Consider opening checkout URL in external browser.                    |
+| `CUSTOMER_ACCOUNT_REQUIRED`      | Customer must be logged in.                  | Ensure buyer is authenticated before presenting checkout.                                   |
+| `INVALID_PAYLOAD`                | The checkout payload is invalid.             | Verify the cart and checkout configuration.                                                 |
+| `INVALID_SIGNATURE`              | The checkout signature is invalid.           | Check authentication token generation.                                                      |
+| `NOT_AUTHORIZED`                 | The request is not authorized.               | Verify app authentication credentials.                                                      |
+| `PAYLOAD_EXPIRED`                | The authentication token has expired.        | Fetch a new authentication token and create a new checkout session.                        |
+
+**Expired Checkout Errors** - `CheckoutExpiredException` (non-recoverable)
+
+These indicate the checkout session is no longer valid. Checkout will be dismissed automatically.
+
+| Error Code       | Description                                               | Recommendation                             |
+| ---------------- | --------------------------------------------------------- | ------------------------------------------ |
+| `CART_COMPLETED` | The cart associated with the checkout has been completed. | Create a new cart and open a new checkout. |
+| `INVALID_CART`   | The cart is invalid or empty.                             | Create a new cart and open a new checkout. |
+
+**Client Errors** - `ClientException` (non-recoverable)
+
+These indicate checkout is temporarily or permanently unavailable. Checkout will be dismissed automatically.
+
+| Error Code               | Description                                         | Recommendation                                                      |
+| ------------------------ | --------------------------------------------------- | ------------------------------------------------------------------- |
+| `KILLSWITCH_ENABLED`     | Checkout preloading is temporarily disabled.        | Retry checkout without preloading, or show error to buyer.          |
+| `UNRECOVERABLE_FAILURE`  | An unrecoverable error occurred in checkout.        | Show error to buyer. Consider opening checkout URL in external browser. |
+| `POLICY_VIOLATION`       | A policy violation was detected.                    | Show error to buyer.                                                |
+| `VAULTED_PAYMENT_ERROR`  | An error occurred with a vaulted payment method.    | Show error to buyer. Consider opening checkout URL in external browser. |
+
+**SDK Internal Errors** - `CheckoutSheetKitException` / `HttpException` / `CheckoutUnavailableException`
+
+These indicate issues within the SDK or network layer:
+
+| Exception Class                | Error Code                | Description                                                 | Recommendation                       |
+| ------------------------------ | ------------------------- | ----------------------------------------------------------- | ------------------------------------ |
+| `CheckoutSheetKitException`    | `error_receiving_message` | Failed to receive a message from checkout.                  | Show checkout in a fallback browser. |
+| `CheckoutSheetKitException`    | `error_sending_message`   | Failed to send a message to checkout.                       | Show checkout in a fallback browser. |
+| `CheckoutSheetKitException`    | `render_process_gone`     | The WebView render process is gone.                         | Show checkout in a fallback browser. |
+| `HttpException`                | `http_error`              | An unexpected HTTP error occurred (includes status code).   | Show checkout in a fallback browser. |
+| `CheckoutUnavailableException` | varies                    | Checkout is unavailable for another reason.                 | Show checkout in a fallback browser. |
 
 #### Exception Hierarchy
 

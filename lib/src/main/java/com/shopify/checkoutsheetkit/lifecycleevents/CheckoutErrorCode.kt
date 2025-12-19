@@ -22,44 +22,71 @@
  */
 package com.shopify.checkoutsheetkit.lifecycleevents
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * Error codes emitted by checkout.error events.
+ * These errors originate from the web checkout experience and indicate various failure scenarios.
+ */
 @Serializable
 public enum class CheckoutErrorCode {
-    @SerialName("INVALID_PAYLOAD")
+    /**
+     * The authentication payload passed could not be decoded.
+     */
     INVALID_PAYLOAD,
 
-    @SerialName("INVALID_SIGNATURE")
+    /**
+     * The JWT signature or encrypted token signature was invalid.
+     */
     INVALID_SIGNATURE,
 
-    @SerialName("NOT_AUTHORIZED")
+    /**
+     * The access token was not valid for the shop.
+     */
     NOT_AUTHORIZED,
 
-    @SerialName("PAYLOAD_EXPIRED")
+    /**
+     * The provided authentication payload has expired.
+     */
     PAYLOAD_EXPIRED,
 
-    @SerialName("CUSTOMER_ACCOUNT_REQUIRED")
+    /**
+     * The buyer must be logged in to a customer account to proceed with checkout.
+     */
     CUSTOMER_ACCOUNT_REQUIRED,
 
-    @SerialName("STOREFRONT_PASSWORD_REQUIRED")
+    /**
+     * The storefront requires a password to access checkout.
+     */
     STOREFRONT_PASSWORD_REQUIRED,
 
-    @SerialName("CART_COMPLETED")
+    /**
+     * The cart associated with the checkout has already been completed.
+     */
     CART_COMPLETED,
 
-    @SerialName("INVALID_CART")
+    /**
+     * The cart is invalid or no longer exists.
+     */
     INVALID_CART,
 
-    @SerialName("KILLSWITCH_ENABLED")
+    /**
+     * Checkout preloading has been temporarily disabled via killswitch.
+     */
     KILLSWITCH_ENABLED,
 
-    @SerialName("UNRECOVERABLE_FAILURE")
+    /**
+     * An unrecoverable error occurred during checkout.
+     */
     UNRECOVERABLE_FAILURE,
 
-    @SerialName("POLICY_VIOLATION")
+    /**
+     * A policy violation was detected during checkout.
+     */
     POLICY_VIOLATION,
 
-    @SerialName("VAULTED_PAYMENT_ERROR")
+    /**
+     * An error occurred processing a vaulted payment method.
+     */
     VAULTED_PAYMENT_ERROR
 }
