@@ -55,7 +55,7 @@ your project:
 ### Gradle
 
 ```groovy
-implementation "com.shopify:checkout-sheet-kit:3.5.3"
+implementation "com.shopify:checkout-sheet-kit:4.0.0-rc.1"
 ```
 
 ### Maven
@@ -65,7 +65,7 @@ implementation "com.shopify:checkout-sheet-kit:3.5.3"
 <dependency>
    <groupId>com.shopify</groupId>
    <artifactId>checkout-sheet-kit</artifactId>
-   <version>4.0.1-SNAPSHOT</version>
+   <version>4.0.0-rc.1</version> 
 </dependency>
 ```
 
