@@ -28,7 +28,9 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadows.ShadowLooper
 
@@ -44,7 +46,7 @@ class CheckoutWebViewEventProcessorTest {
         capturedError = null
         processor = CheckoutWebViewEventProcessor(
             eventProcessor = mockEventProcessor,
-            closeCheckoutDialogWithError = { error -> capturedError = error }
+            checkoutErrorInterceptor = { error -> capturedError = error }
         )
     }
 
@@ -234,5 +236,34 @@ class CheckoutWebViewEventProcessorTest {
         assertThat(capturedError?.errorDescription).isEqualTo("Payment method could not be processed")
         assertThat(capturedError?.errorCode).isEqualTo("VAULTED_PAYMENT_ERROR")
         assertThat(capturedError?.isRecoverable).isFalse()
+    }
+
+    @Test
+    fun `default checkoutErrorInterceptor calls eventProcessor onFail`() {
+        // Test the default behavior when checkoutErrorInterceptor is not provided
+        // This simulates inline checkout mode where no explicit error handler is passed
+        val testEventProcessor = mock<CheckoutEventProcessor>()
+
+        // Create processor without passing checkoutErrorInterceptor - uses default
+        val processorWithDefault = CheckoutWebViewEventProcessor(
+            eventProcessor = testEventProcessor
+        )
+
+        val event = CheckoutErrorEvent(
+            code = CheckoutErrorCode.CART_COMPLETED,
+            message = "Cart has been completed"
+        )
+
+        processorWithDefault.onCheckoutViewError(event)
+        ShadowLooper.runUiThreadTasks()
+
+        // Verify that onFail was called via the default checkoutErrorInterceptor lambda
+        val captor = argumentCaptor<CheckoutException>()
+        verify(testEventProcessor).onFail(captor.capture())
+
+        val capturedError = captor.firstValue
+        assertThat(capturedError).isInstanceOf(CheckoutExpiredException::class.java)
+        assertThat(capturedError.errorDescription).isEqualTo("Cart has been completed")
+        assertThat(capturedError.errorCode).isEqualTo("CART_COMPLETED")
     }
 }

@@ -42,14 +42,32 @@ import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutPaymentMethodChangeS
 /**
  * Event processor that can handle events internally, delegate to the CheckoutEventProcessor
  * passed into ShopifyCheckoutSheetKit.present(), or preprocess arguments and then delegate
+ *
+ * @constructor Internal constructor with UI callbacks for dialog mode.
+ * External users should use the public constructor which only requires an EventProcessor.
  */
-public class CheckoutWebViewEventProcessor(
+public class CheckoutWebViewEventProcessor internal constructor(
     private val eventProcessor: CheckoutEventProcessor,
     private val toggleHeader: (Boolean) -> Unit = {},
-    private val closeCheckoutDialogWithError: (CheckoutException) -> Unit = { CheckoutWebView.clearCacheInternal() },
+    private val checkoutErrorInterceptor: (CheckoutException) -> Unit = { CheckoutWebView.clearCacheInternal() },
     private val setProgressBarVisibility: (Int) -> Unit = {},
     private val updateProgressBarPercentage: (Int) -> Unit = {},
 ) {
+    /**
+     * Public constructor for external use (e.g., inline checkout mode).
+     * Internal UI callbacks will use sensible defaults.
+     */
+    public constructor(eventProcessor: CheckoutEventProcessor) : this(
+        eventProcessor = eventProcessor,
+        toggleHeader = {},
+        checkoutErrorInterceptor = {
+            CheckoutWebView.clearCacheInternal()
+            eventProcessor.onFail(it)
+        },
+        setProgressBarVisibility = {},
+        updateProgressBarPercentage = {}
+    )
+
     internal fun onCheckoutViewStart(checkoutStartEvent: CheckoutStartEvent) {
         log.d(LOG_TAG, "Calling onCheckoutStarted $checkoutStartEvent.")
         eventProcessor.onStart(checkoutStartEvent)
@@ -120,7 +138,7 @@ public class CheckoutWebViewEventProcessor(
 
     internal fun onCheckoutViewFailedWithError(error: CheckoutException) {
         onMainThread {
-            closeCheckoutDialogWithError(error)
+            checkoutErrorInterceptor(error)
         }
     }
 
