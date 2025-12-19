@@ -10,36 +10,35 @@
 
 **Note**: We're in the process of renaming "Checkout Sheet Kit" to "Checkout Kit." The dev docs and README already use the new name, while the package itself will be updated in an upcoming version.
 
-- [Shopify Checkout Kit - Android](#shopify-checkout-kit---android)
-  - [Requirements](#requirements)
-  - [Getting Started](#getting-started)
-    - [Gradle](#gradle)
-    - [Maven](#maven)
-  - [Basic Usage](#basic-usage)
-    - [Application Authentication](#application-authentication)
-      - [Fetching Authentication Tokens](#fetching-authentication-tokens)
-  - [Configuration](#configuration)
-    - [Color Scheme](#color-scheme)
-    - [Log Level](#log-level)
-    - [Checkout Dialog Title](#checkout-dialog-title)
-  - [Preloading](#preloading)
-    - [Important considerations](#important-considerations)
-    - [Flash Sales](#flash-sales)
-    - [When to preload](#when-to-preload)
-    - [Cache invalidation](#cache-invalidation)
-    - [Lifecycle management for preloaded checkout](#lifecycle-management-for-preloaded-checkout)
-      - [Additional considerations for preloaded checkout](#additional-considerations-for-preloaded-checkout)
-  - [Monitoring the lifecycle of a checkout session](#monitoring-the-lifecycle-of-a-checkout-session)
-    - [Error handling](#error-handling)
-      - [`CheckoutException`](#checkoutexception)
-      - [Exception Hierarchy](#exception-hierarchy)
-  - [Integrating identity \& customer accounts](#integrating-identity--customer-accounts)
-    - [Cart: buyer bag, identity, and preferences](#cart-buyer-bag-identity-and-preferences)
-    - [Multipass](#multipass)
-    - [Shop Pay](#shop-pay)
-    - [Customer Account API](#customer-account-api)
-  - [Contributing](#contributing)
-  - [License](#license)
+- [Requirements](#requirements)
+- [Getting Started](#getting-started)
+  - [Gradle](#gradle)
+  - [Maven](#maven)
+- [Basic Usage](#basic-usage)
+  - [Application Authentication](#application-authentication)
+    - [Fetching Authentication Tokens](#fetching-authentication-tokens)
+- [Configuration](#configuration)
+  - [Color Scheme](#color-scheme)
+  - [Log Level](#log-level)
+  - [Checkout Dialog Title](#checkout-dialog-title)
+- [Preloading](#preloading)
+  - [Important considerations](#important-considerations)
+  - [Flash Sales](#flash-sales)
+  - [When to preload](#when-to-preload)
+  - [Cache invalidation](#cache-invalidation)
+  - [Lifecycle management for preloaded checkout](#lifecycle-management-for-preloaded-checkout)
+    - [Additional considerations for preloaded checkout](#additional-considerations-for-preloaded-checkout)
+- [Monitoring the lifecycle of a checkout session](#monitoring-the-lifecycle-of-a-checkout-session)
+  - [Error handling](#error-handling)
+    - [`CheckoutException`](#checkoutexception)
+    - [Exception Hierarchy](#exception-hierarchy)
+- [Integrating identity \& customer accounts](#integrating-identity--customer-accounts)
+  - [Cart: buyer bag, identity, and preferences](#cart-buyer-bag-identity-and-preferences)
+  - [Multipass](#multipass)
+  - [Shop Pay](#shop-pay)
+  - [Customer Account API](#customer-account-api)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Requirements
 
@@ -55,7 +54,7 @@ your project:
 ### Gradle
 
 ```groovy
-implementation "com.shopify:checkout-sheet-kit:4.0.0-rc.1"
+implementation "com.shopify:checkout-sheet-kit:3.5.3"
 ```
 
 ### Maven
@@ -65,7 +64,7 @@ implementation "com.shopify:checkout-sheet-kit:4.0.0-rc.1"
 <dependency>
    <groupId>com.shopify</groupId>
    <artifactId>checkout-sheet-kit</artifactId>
-   <version>4.0.0-rc.1</version> 
+   <version>3.5.3</version>
 </dependency>
 ```
 
