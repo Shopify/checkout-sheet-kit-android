@@ -81,8 +81,9 @@ public class HttpException @JvmOverloads constructor(
  */
 public class ClientException @JvmOverloads constructor(
     errorDescription: String? = null,
+    errorCode: String = CLIENT_ERROR,
     isRecoverable: Boolean
-) : CheckoutUnavailableException(errorDescription, CLIENT_ERROR, isRecoverable)
+) : CheckoutUnavailableException(errorDescription, errorCode, isRecoverable)
 
 /**
  * Issued when checkout is no longer available and will no longer be available with the checkout URL supplied.

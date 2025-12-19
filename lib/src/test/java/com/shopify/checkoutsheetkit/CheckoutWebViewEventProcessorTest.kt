@@ -184,6 +184,7 @@ class CheckoutWebViewEventProcessorTest {
 
         assertThat(capturedError).isInstanceOf(ClientException::class.java)
         assertThat(capturedError?.errorDescription).isEqualTo("Checkout is temporarily disabled")
+        assertThat(capturedError?.errorCode).isEqualTo("KILLSWITCH_ENABLED")
         assertThat(capturedError?.isRecoverable).isFalse()
     }
 
@@ -199,6 +200,7 @@ class CheckoutWebViewEventProcessorTest {
 
         assertThat(capturedError).isInstanceOf(ClientException::class.java)
         assertThat(capturedError?.errorDescription).isEqualTo("An unrecoverable error occurred")
+        assertThat(capturedError?.errorCode).isEqualTo("UNRECOVERABLE_FAILURE")
         assertThat(capturedError?.isRecoverable).isFalse()
     }
 
@@ -214,6 +216,7 @@ class CheckoutWebViewEventProcessorTest {
 
         assertThat(capturedError).isInstanceOf(ClientException::class.java)
         assertThat(capturedError?.errorDescription).isEqualTo("Policy violation detected")
+        assertThat(capturedError?.errorCode).isEqualTo("POLICY_VIOLATION")
         assertThat(capturedError?.isRecoverable).isFalse()
     }
 
@@ -229,6 +232,7 @@ class CheckoutWebViewEventProcessorTest {
 
         assertThat(capturedError).isInstanceOf(ClientException::class.java)
         assertThat(capturedError?.errorDescription).isEqualTo("Payment method could not be processed")
+        assertThat(capturedError?.errorCode).isEqualTo("VAULTED_PAYMENT_ERROR")
         assertThat(capturedError?.isRecoverable).isFalse()
     }
 }
