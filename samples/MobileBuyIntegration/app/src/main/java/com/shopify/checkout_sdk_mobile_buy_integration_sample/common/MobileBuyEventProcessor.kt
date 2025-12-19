@@ -35,9 +35,9 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartEvent
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutPaymentMethodChangeStartEvent
 import kotlinx.coroutines.DelicateCoroutinesApi

@@ -25,7 +25,6 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.checkout
 import android.content.Context
 import android.widget.Toast
 import androidx.navigation.NavController
-import timber.log.Timber
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkoutsheetkit.CheckoutException
@@ -44,6 +43,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 /**
  * Event processor that uses Compose Navigation instead of Activity Result API.

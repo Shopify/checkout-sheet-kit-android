@@ -31,7 +31,6 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.d
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductVariant
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductVariantOptionDetails
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductVariantSelectedOption
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID as CommonID
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.CustomerRepository
 import com.shopify.graphql.support.ID
@@ -40,6 +39,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID as CommonID
 
 class ProductViewModel(
     private val cartViewModel: CartViewModel,
