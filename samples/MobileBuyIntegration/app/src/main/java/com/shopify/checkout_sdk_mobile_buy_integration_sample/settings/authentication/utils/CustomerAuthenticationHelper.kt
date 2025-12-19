@@ -22,12 +22,11 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.utils
 
-import android.net.Uri
 import android.util.Base64
 import androidx.compose.ui.text.intl.Locale
+import androidx.core.net.toUri
 import java.security.MessageDigest
 import java.security.SecureRandom
-import androidx.core.net.toUri
 
 /**
  * Utility functions for building customer authentication related URLs, generating

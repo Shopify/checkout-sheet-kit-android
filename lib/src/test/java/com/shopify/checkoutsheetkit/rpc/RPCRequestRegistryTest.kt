@@ -24,6 +24,8 @@ package com.shopify.checkoutsheetkit.rpc
 
 import com.shopify.checkoutsheetkit.CheckoutAssertions.assertThat
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutErrorCode
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutErrorEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartEvent
 import org.junit.Test
@@ -245,10 +247,36 @@ class RPCRequestRegistryTest {
     }
 
     @Test
+    fun `decode returns CheckoutErrorEvent for checkout error method`() {
+        val jsonString = """
+            {
+                "jsonrpc": "2.0",
+                "method": "checkout.error",
+                "params": {
+                    "code": "CART_COMPLETED",
+                    "message": "This checkout has already been completed"
+                }
+            }
+        """.trimIndent()
+
+        val result = RPCRequestRegistry.decode(jsonString)
+
+        assertThat(result)
+            .isNotNull()
+            .isInstanceOf(CheckoutErrorEvent::class.java)
+
+        val event = result as CheckoutErrorEvent
+        assertThat(event.code).isEqualTo(CheckoutErrorCode.CART_COMPLETED)
+        assertThat(event.message).isEqualTo("This checkout has already been completed")
+        assertThat(event.method).isEqualTo("checkout.error")
+    }
+
+    @Test
     fun `isRegistered returns true for registered methods`() {
         assertThat(RPCRequestRegistry.isRegistered("checkout.start")).isTrue()
         assertThat(RPCRequestRegistry.isRegistered("checkout.complete")).isTrue()
         assertThat(RPCRequestRegistry.isRegistered("checkout.addressChangeStart")).isTrue()
+        assertThat(RPCRequestRegistry.isRegistered("checkout.error")).isTrue()
     }
 
     @Test
@@ -263,6 +291,7 @@ class RPCRequestRegistryTest {
         assertThat(methods).containsExactlyInAnyOrder(
             "checkout.start",
             "checkout.complete",
+            "checkout.error",
             "checkout.addressChangeStart",
             "checkout.submitStart",
             "checkout.paymentMethodChangeStart",

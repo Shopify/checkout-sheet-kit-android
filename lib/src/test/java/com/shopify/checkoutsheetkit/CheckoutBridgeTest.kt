@@ -32,6 +32,7 @@ import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentMethod
 import com.shopify.checkoutsheetkit.lifecycleevents.CartSelectableAddress
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartResponsePayload
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutErrorEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutPaymentMethodChangeStartEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartResponsePayload
@@ -244,6 +245,22 @@ class CheckoutBridgeTest {
         checkoutBridge.postMessage(jsonRpcMessage)
 
         verify(mockEventProcessor).onCheckoutViewStart(any())
+    }
+
+    @Test
+    fun `postMessage dispatches checkout error to event processor`() {
+        val jsonRpcMessage = """{
+            "jsonrpc":"2.0",
+            "method":"checkout.error",
+            "params":{
+                "code":"CART_COMPLETED",
+                "message":"This checkout has already been completed"
+            }
+        }""".trimIndent()
+
+        checkoutBridge.postMessage(jsonRpcMessage)
+
+        verify(mockEventProcessor).onCheckoutViewError(any())
     }
 
     @Test

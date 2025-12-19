@@ -32,6 +32,8 @@ import android.webkit.WebChromeClient.FileChooserParams
 import android.webkit.WebView
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutErrorCode
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutErrorEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartEvent
@@ -40,14 +42,32 @@ import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutPaymentMethodChangeS
 /**
  * Event processor that can handle events internally, delegate to the CheckoutEventProcessor
  * passed into ShopifyCheckoutSheetKit.present(), or preprocess arguments and then delegate
+ *
+ * @constructor Internal constructor with UI callbacks for dialog mode.
+ * External users should use the public constructor which only requires an EventProcessor.
  */
-public class CheckoutWebViewEventProcessor(
+public class CheckoutWebViewEventProcessor internal constructor(
     private val eventProcessor: CheckoutEventProcessor,
     private val toggleHeader: (Boolean) -> Unit = {},
-    private val closeCheckoutDialogWithError: (CheckoutException) -> Unit = { CheckoutWebView.clearCacheInternal() },
+    private val checkoutErrorInterceptor: (CheckoutException) -> Unit = { CheckoutWebView.clearCacheInternal() },
     private val setProgressBarVisibility: (Int) -> Unit = {},
     private val updateProgressBarPercentage: (Int) -> Unit = {},
 ) {
+    /**
+     * Public constructor for external use (e.g., inline checkout mode).
+     * Internal UI callbacks will use sensible defaults.
+     */
+    public constructor(eventProcessor: CheckoutEventProcessor) : this(
+        eventProcessor = eventProcessor,
+        toggleHeader = {},
+        checkoutErrorInterceptor = {
+            CheckoutWebView.clearCacheInternal()
+            eventProcessor.onFail(it)
+        },
+        setProgressBarVisibility = {},
+        updateProgressBarPercentage = {}
+    )
+
     internal fun onCheckoutViewStart(checkoutStartEvent: CheckoutStartEvent) {
         log.d(LOG_TAG, "Calling onCheckoutStarted $checkoutStartEvent.")
         eventProcessor.onStart(checkoutStartEvent)
@@ -59,6 +79,50 @@ public class CheckoutWebViewEventProcessor(
 
         log.d(LOG_TAG, "Calling onCheckoutCompleted $checkoutCompleteEvent.")
         eventProcessor.onComplete(checkoutCompleteEvent)
+    }
+
+    internal fun onCheckoutViewError(checkoutErrorEvent: CheckoutErrorEvent) {
+        log.d(LOG_TAG, "Received checkout.error: ${checkoutErrorEvent.code} - ${checkoutErrorEvent.message}")
+
+        val exception: CheckoutException = when (checkoutErrorEvent.code) {
+            CheckoutErrorCode.STOREFRONT_PASSWORD_REQUIRED,
+            CheckoutErrorCode.CUSTOMER_ACCOUNT_REQUIRED,
+            CheckoutErrorCode.INVALID_PAYLOAD,
+            CheckoutErrorCode.INVALID_SIGNATURE,
+            CheckoutErrorCode.NOT_AUTHORIZED,
+            CheckoutErrorCode.PAYLOAD_EXPIRED -> {
+                log.e(LOG_TAG, "Configuration error: ${checkoutErrorEvent.message}, code: ${checkoutErrorEvent.code}")
+                ConfigurationException(
+                    errorDescription = checkoutErrorEvent.message,
+                    errorCode = checkoutErrorEvent.code.name,
+                    isRecoverable = false
+                )
+            }
+
+            CheckoutErrorCode.CART_COMPLETED,
+            CheckoutErrorCode.INVALID_CART -> {
+                log.d(LOG_TAG, "Checkout expired: ${checkoutErrorEvent.message}, code: ${checkoutErrorEvent.code}")
+                CheckoutExpiredException(
+                    errorDescription = checkoutErrorEvent.message,
+                    errorCode = checkoutErrorEvent.code.name,
+                    isRecoverable = false
+                )
+            }
+
+            CheckoutErrorCode.KILLSWITCH_ENABLED,
+            CheckoutErrorCode.UNRECOVERABLE_FAILURE,
+            CheckoutErrorCode.POLICY_VIOLATION,
+            CheckoutErrorCode.VAULTED_PAYMENT_ERROR -> {
+                log.e(LOG_TAG, "Checkout unavailable: ${checkoutErrorEvent.message}, code: ${checkoutErrorEvent.code}")
+                ClientException(
+                    errorDescription = checkoutErrorEvent.message,
+                    errorCode = checkoutErrorEvent.code.name,
+                    isRecoverable = false
+                )
+            }
+        }
+
+        onCheckoutViewFailedWithError(exception)
     }
 
     internal fun onCheckoutViewModalToggled(modalVisible: Boolean) {
@@ -74,7 +138,7 @@ public class CheckoutWebViewEventProcessor(
 
     internal fun onCheckoutViewFailedWithError(error: CheckoutException) {
         onMainThread {
-            closeCheckoutDialogWithError(error)
+            checkoutErrorInterceptor(error)
         }
     }
 
