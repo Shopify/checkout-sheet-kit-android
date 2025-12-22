@@ -224,11 +224,11 @@ public abstract class BaseWebView(context: Context, attributeSet: AttributeSet? 
                 val processor = getEventProcessor()
                 when {
                     errorCode == HTTP_GONE -> {
-                        log.d(LOG_TAG, "Failing with cart expired. Recoverable: false")
+                        log.d(LOG_TAG, "Failing with invalid cart. Recoverable: false")
                         processor.onCheckoutViewFailedWithError(
                             CheckoutExpiredException(
                                 isRecoverable = false,
-                                errorCode = CheckoutExpiredException.CART_EXPIRED
+                                errorCode = CheckoutExpiredException.INVALID_CART
                             ),
                         )
                     }

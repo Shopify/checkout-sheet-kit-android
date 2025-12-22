@@ -44,10 +44,10 @@ public class CheckoutSheetKitException(
     isRecoverable: Boolean,
 ) : CheckoutException(errorDescription, errorCode, isRecoverable) {
         public companion object {
-            public const val ERROR_SENDING_MESSAGE_TO_CHECKOUT: String = "error_sending_message"
-            public const val ERROR_RECEIVING_MESSAGE_FROM_CHECKOUT: String = "error_receiving_message"
-            public const val RENDER_PROCESS_GONE: String = "render_process_gone"
-            public const val UNKNOWN: String = "unknown"
+            public const val ERROR_SENDING_MESSAGE_TO_CHECKOUT: String = "ERROR_SENDING_MESSAGE"
+            public const val ERROR_RECEIVING_MESSAGE_FROM_CHECKOUT: String = "ERROR_RECEIVING_MESSAGE"
+            public const val RENDER_PROCESS_GONE: String = "RENDER_PROCESS_GONE"
+            public const val UNKNOWN: String = "UNKNOWN"
         }
 }
 
@@ -61,9 +61,9 @@ public open class CheckoutUnavailableException @JvmOverloads constructor(
     isRecoverable: Boolean,
 ) : CheckoutException(errorDescription ?: "Checkout is currently unavailable due to an internal error", errorCode, isRecoverable) {
         public companion object {
-            public const val CLIENT_ERROR: String = "client_error"
-            public const val HTTP_ERROR: String = "http_error"
-            public const val UNKNOWN: String = "unknown"
+            public const val CLIENT_ERROR: String = "CLIENT_ERROR"
+            public const val HTTP_ERROR: String = "HTTP_ERROR"
+            public const val UNKNOWN: String = "UNKNOWN"
         }
 }
 
@@ -101,10 +101,9 @@ public class CheckoutExpiredException @JvmOverloads constructor(
     isRecoverable,
 ) {
         public companion object {
-            public const val CART_EXPIRED: String = "cart_expired"
-            public const val CART_COMPLETED: String = "cart_completed"
-            public const val INVALID_CART: String = "invalid_cart"
-            public const val UNKNOWN: String = "unknown"
+            public const val CART_COMPLETED: String = "CART_COMPLETED"
+            public const val INVALID_CART: String = "INVALID_CART"
+            public const val UNKNOWN: String = "UNKNOWN"
         }
 }
 
@@ -118,7 +117,7 @@ public class ConfigurationException @JvmOverloads constructor(
     isRecoverable: Boolean,
 ) : CheckoutException(errorDescription ?: "Checkout is unavailable due to a configuration issue.", errorCode, isRecoverable) {
         public companion object {
-            public const val STOREFRONT_PASSWORD_REQUIRED: String = "storefront_password_required"
-            public const val UNKNOWN: String = "unknown"
+            public const val STOREFRONT_PASSWORD_REQUIRED: String = "STOREFRONT_PASSWORD_REQUIRED"
+            public const val UNKNOWN: String = "UNKNOWN"
         }
 }
