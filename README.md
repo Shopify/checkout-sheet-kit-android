@@ -582,13 +582,13 @@ These indicate checkout is temporarily or permanently unavailable. Checkout will
 
 These indicate issues within the SDK or network layer:
 
-| Exception Class                | Error Code                | Description                                                 | Recommendation                       |
-| ------------------------------ | ------------------------- | ----------------------------------------------------------- | ------------------------------------ |
-| `CheckoutSheetKitException`    | `error_receiving_message` | Failed to receive a message from checkout.                  | Show checkout in a fallback browser. |
-| `CheckoutSheetKitException`    | `error_sending_message`   | Failed to send a message to checkout.                       | Show checkout in a fallback browser. |
-| `CheckoutSheetKitException`    | `render_process_gone`     | The WebView render process is gone.                         | Show checkout in a fallback browser. |
-| `HttpException`                | `http_error`              | An unexpected HTTP error occurred (includes status code).   | Show checkout in a fallback browser. |
-| `CheckoutUnavailableException` | varies                    | Checkout is unavailable for another reason.                 | Show checkout in a fallback browser. |
+| Exception Class                | Error Code                  | Description                                                 | Recommendation                       |
+| ------------------------------ | --------------------------- | ----------------------------------------------------------- | ------------------------------------ |
+| `CheckoutSheetKitException`    | `ERROR_RECEIVING_MESSAGE`   | Failed to receive a message from checkout.                  | Show checkout in a fallback browser. |
+| `CheckoutSheetKitException`    | `ERROR_SENDING_MESSAGE`     | Failed to send a message to checkout.                       | Show checkout in a fallback browser. |
+| `CheckoutSheetKitException`    | `RENDER_PROCESS_GONE`       | The WebView render process is gone.                         | Show checkout in a fallback browser. |
+| `HttpException`                | `HTTP_ERROR`                | An unexpected HTTP error occurred (includes status code).   | Show checkout in a fallback browser. |
+| `CheckoutUnavailableException` | varies                      | Checkout is unavailable for another reason.                 | Show checkout in a fallback browser. |
 
 #### Exception Hierarchy
 
