@@ -100,7 +100,7 @@ public interface CheckoutEventProcessor {
     public fun onGeolocationPermissionsHidePrompt()
 
     /**
-     * Called when native address selection is configured for the authenticated app and a customer
+     * Called when native address selection is configured for the authenticated app and the buyer
      * indicates they want to start an address change.
      *
      * By default the request is cancelled. Override to present custom UI and provide a response
@@ -118,7 +118,8 @@ public interface CheckoutEventProcessor {
     public fun onSubmitStart(event: CheckoutSubmitStartEvent)
 
     /**
-     * Called when checkout requests that the buyer change their payment method.
+     * Called when native payment method selection is configured for the authenticated app and the buyer
+     * indicates they want to change their payment method.
      *
      * By default the request is cancelled. Override to present custom UI and provide a response
      * via [CheckoutPaymentMethodChangeStartEvent.respondWith] (or cancel explicitly).
