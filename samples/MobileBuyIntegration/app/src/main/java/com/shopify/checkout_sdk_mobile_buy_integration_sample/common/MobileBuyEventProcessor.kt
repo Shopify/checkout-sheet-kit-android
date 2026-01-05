@@ -35,11 +35,11 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
-import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
-import com.shopify.checkoutsheetkit.rpc.events.CheckoutPaymentMethodChangeStart
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutPaymentMethodChangeStartEvent
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -53,8 +53,8 @@ class MobileBuyEventProcessor(
     private val context: Context,
     private val eventStore: com.shopify.checkout_sdk_mobile_buy_integration_sample.checkout.CheckoutEventStore
 ) : DefaultCheckoutEventProcessor(context) {
-    override fun onComplete(checkoutCompleteEvent: CheckoutCompleteEvent) {
-        logger.log(checkoutCompleteEvent)
+    override fun onComplete(event: CheckoutCompleteEvent) {
+        logger.log(event)
 
         cartViewModel.clearCart()
         GlobalScope.launch(Dispatchers.Main) {
@@ -86,7 +86,7 @@ class MobileBuyEventProcessor(
         return (context as MainActivity).onGeolocationPermissionsShowPrompt(origin, callback)
     }
 
-    override fun onAddressChangeStart(event: CheckoutAddressChangeStart) {
+    override fun onAddressChangeStart(event: CheckoutAddressChangeStartEvent) {
         val eventId = eventStore.storeEvent(event)
 
         GlobalScope.launch(Dispatchers.Main) {
@@ -94,7 +94,7 @@ class MobileBuyEventProcessor(
         }
     }
 
-    override fun onPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStart) {
+    override fun onPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStartEvent) {
         super.onPaymentMethodChangeStart(event)
         val eventId = eventStore.storeEvent(event)
 

@@ -32,7 +32,6 @@ internal object EmbedFieldKey {
     internal const val PROTOCOL = "protocol"
     internal const val BRANDING = "branding"
     internal const val LIBRARY = "library"
-    internal const val SDK = "sdk"
     internal const val PLATFORM = "platform"
     internal const val ENTRY = "entry"
     internal const val COLOR_SCHEME = "colorscheme"
@@ -71,11 +70,11 @@ internal object EmbedParamBuilder {
             else -> configuredColorScheme.id
         }
 
+        val trimmedVersion = ShopifyCheckoutSheetKit.version.split("-").first()
         val fields = mutableMapOf(
             EmbedFieldKey.PROTOCOL to CheckoutBridge.SCHEMA_VERSION,
             EmbedFieldKey.BRANDING to brandingValue,
-            EmbedFieldKey.LIBRARY to "CheckoutKit/${BuildConfig.SDK_VERSION}",
-            EmbedFieldKey.SDK to ShopifyCheckoutSheetKit.version.split("-").first(),
+            EmbedFieldKey.LIBRARY to "CheckoutKit/$trimmedVersion",
             EmbedFieldKey.PLATFORM to ShopifyCheckoutSheetKit.configuration.platform.displayName,
             EmbedFieldKey.ENTRY to EmbedFieldValue.ENTRY_SHEET,
             EmbedFieldKey.COLOR_SCHEME to colorScheme,

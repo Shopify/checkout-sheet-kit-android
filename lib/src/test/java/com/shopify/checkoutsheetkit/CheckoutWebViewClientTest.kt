@@ -136,7 +136,7 @@ class CheckoutWebViewClientTest {
         assertThat(captor.firstValue)
             .isInstanceOf(CheckoutExpiredException::class.java)
             .isNotRecoverable()
-            .hasErrorCode(CheckoutExpiredException.CART_EXPIRED)
+            .hasErrorCode(CheckoutExpiredException.INVALID_CART)
     }
 
     @Test
@@ -153,7 +153,7 @@ class CheckoutWebViewClientTest {
         assertThat(captor.firstValue)
             .isInstanceOf(CheckoutExpiredException::class.java)
             .isNotRecoverable()
-            .hasErrorCode(CheckoutExpiredException.CART_EXPIRED)
+            .hasErrorCode(CheckoutExpiredException.INVALID_CART)
     }
 
     @Test

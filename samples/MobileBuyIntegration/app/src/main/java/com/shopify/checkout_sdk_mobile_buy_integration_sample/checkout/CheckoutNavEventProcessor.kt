@@ -25,22 +25,25 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.checkout
 import android.content.Context
 import android.widget.Toast
 import androidx.navigation.NavController
-import timber.log.Timber
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
-import com.shopify.checkoutsheetkit.rpc.events.CheckoutAddressChangeStart
 import com.shopify.checkoutsheetkit.CheckoutException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
-import com.shopify.checkoutsheetkit.lifecycleevents.PaymentTokenInput
+import com.shopify.checkoutsheetkit.lifecycleevents.CartPayment
+import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentInstrument
+import com.shopify.checkoutsheetkit.lifecycleevents.CartPaymentMethod
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutAddressChangeStartEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutPaymentMethodChangeStartEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
+import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutSubmitStartResponsePayload
-import com.shopify.checkoutsheetkit.rpc.events.CheckoutSubmitStart
-import com.shopify.checkoutsheetkit.rpc.events.CheckoutPaymentMethodChangeStart
+import com.shopify.checkoutsheetkit.lifecycleevents.RemoteTokenPaymentCredential
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 /**
  * Event processor that uses Compose Navigation instead of Activity Result API.
@@ -55,14 +58,14 @@ class CheckoutNavEventProcessor(
     private val logger: Logger,
 ) : DefaultCheckoutEventProcessor(context) {
 
-    override fun onStart(checkoutStartEvent: CheckoutStartEvent) {
-        Timber.d("Checkout start: $checkoutStartEvent")
-        logger.log(checkoutStartEvent)
+    override fun onStart(event: CheckoutStartEvent) {
+        Timber.d("Checkout start: $event")
+        logger.log(event)
     }
 
-    override fun onComplete(checkoutCompleteEvent: CheckoutCompleteEvent) {
-        Timber.d("Checkout complete: $checkoutCompleteEvent")
-        logger.log(checkoutCompleteEvent)
+    override fun onComplete(event: CheckoutCompleteEvent) {
+        Timber.d("Checkout complete: $event")
+        logger.log(event)
     }
 
     override fun onFail(error: CheckoutException) {
@@ -85,7 +88,7 @@ class CheckoutNavEventProcessor(
         Timber.d("Checkout canceled")
     }
 
-    override fun onAddressChangeStart(event: CheckoutAddressChangeStart) {
+    override fun onAddressChangeStart(event: CheckoutAddressChangeStartEvent) {
         Timber.d("Address change start: $event")
 
         // Store event and get ID
@@ -97,20 +100,34 @@ class CheckoutNavEventProcessor(
         }
     }
 
-    override fun onSubmitStart(event: CheckoutSubmitStart) {
-        Timber.d("Submit start ${event.params}")
-        event.respondWith(
-            payload = CheckoutSubmitStartResponsePayload(
-                payment = PaymentTokenInput(
-                    token = "my-token",
-                    tokenProvider = "test-provider",
-                    tokenType = "test"
+    override fun onSubmitStart(event: CheckoutSubmitStartEvent) {
+        Timber.d("Submit start $event")
+        val updatedCart = event.cart.copy(
+            payment = CartPayment(
+                methods = listOf(
+                    CartPaymentMethod(
+                        instruments = listOf(
+                            CartPaymentInstrument(
+                                externalReferenceId = "submit-payment-123",
+                                credentials = listOf(
+                                    RemoteTokenPaymentCredential(
+                                        token = "my-token",
+                                        tokenType = "test",
+                                        tokenHandler = "test-provider"
+                                    )
+                                )
+                            )
+                        )
+                    )
                 )
             )
         )
+        event.respondWith(
+            payload = CheckoutSubmitStartResponsePayload(cart = updatedCart)
+        )
     }
 
-    override fun onPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStart) {
+    override fun onPaymentMethodChangeStart(event: CheckoutPaymentMethodChangeStartEvent) {
         super.onPaymentMethodChangeStart(event)
         Timber.d("Payment method change start: $event")
 

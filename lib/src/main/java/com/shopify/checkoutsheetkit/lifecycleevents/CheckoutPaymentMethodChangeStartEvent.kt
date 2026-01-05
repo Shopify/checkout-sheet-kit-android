@@ -20,13 +20,15 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutsheetkit.rpc.events
+package com.shopify.checkoutsheetkit.lifecycleevents
 
 import com.shopify.checkoutsheetkit.CheckoutPaymentMethodChangeStartParams
 import com.shopify.checkoutsheetkit.CheckoutPaymentMethodChangeStartResponsePayload
-import com.shopify.checkoutsheetkit.rpc.RPCDecoder
+import com.shopify.checkoutsheetkit.CheckoutRequest
+import com.shopify.checkoutsheetkit.rpc.RPCRequestDecoder
 import com.shopify.checkoutsheetkit.rpc.RPCRequest
 import com.shopify.checkoutsheetkit.rpc.TypeErasedRPCDecodable
+import kotlinx.serialization.KSerializer
 
 private const val PAYMENT_METHOD_CHANGE_START_METHOD = "checkout.paymentMethodChangeStart"
 
@@ -34,16 +36,46 @@ private const val PAYMENT_METHOD_CHANGE_START_METHOD = "checkout.paymentMethodCh
  * RPC request for payment method change requests from checkout.
  * This replaces the deprecated CheckoutCardChangeRequested event.
  */
-public class CheckoutPaymentMethodChangeStart(
-    id: String?,
-    params: CheckoutPaymentMethodChangeStartParams,
-    responseSerializer: kotlinx.serialization.KSerializer<CheckoutPaymentMethodChangeStartResponsePayload>
-) : RPCRequest<CheckoutPaymentMethodChangeStartParams, CheckoutPaymentMethodChangeStartResponsePayload>(id, params, responseSerializer) {
+public class CheckoutPaymentMethodChangeStartEvent internal constructor(
+    private val request: RPCRequest<CheckoutPaymentMethodChangeStartParams, CheckoutPaymentMethodChangeStartResponsePayload>
+) : CheckoutRequest<CheckoutPaymentMethodChangeStartResponsePayload> by request {
 
-    override val method: String = PAYMENT_METHOD_CHANGE_START_METHOD
+    internal constructor(
+        id: String,
+        params: CheckoutPaymentMethodChangeStartParams,
+        responseSerializer: KSerializer<CheckoutPaymentMethodChangeStartResponsePayload>
+    ) : this(RPCRequest(id, params, responseSerializer, PAYMENT_METHOD_CHANGE_START_METHOD))
 
-    public companion object : TypeErasedRPCDecodable by RPCDecoder.create(
+    /**
+     * The current cart state at the time of payment method change.
+     */
+    public val cart: Cart
+        get() = request.params.cart
+
+    internal val rpcRequest: RPCRequest<*, *> get() = request
+
+    internal companion object : TypeErasedRPCDecodable by RPCRequestDecoder.create<
+        CheckoutPaymentMethodChangeStartParams,
+        CheckoutPaymentMethodChangeStartResponsePayload
+        >(
         method = PAYMENT_METHOD_CHANGE_START_METHOD,
-        factory = ::CheckoutPaymentMethodChangeStart
+        factory = ::CheckoutPaymentMethodChangeStartEvent
     )
+
+    override fun toString(): String {
+        return "CheckoutPaymentMethodChangeStartEvent(id='$id', method='$method', cart=$cart)"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as CheckoutPaymentMethodChangeStartEvent
+
+        return id == other.id
+    }
+
+    override fun hashCode(): Int {
+        return id.hashCode()
+    }
 }

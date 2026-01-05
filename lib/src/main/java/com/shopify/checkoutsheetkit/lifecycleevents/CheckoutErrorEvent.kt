@@ -20,23 +20,20 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package com.shopify.checkoutsheetkit.rpc
+package com.shopify.checkoutsheetkit.lifecycleevents
 
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
-import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.serializer
+import com.shopify.checkoutsheetkit.CheckoutNotification
+import com.shopify.checkoutsheetkit.rpc.RPCNotificationDecoder
+import kotlinx.serialization.Serializable
 
-internal class CheckoutStart(
-    params: CheckoutStartEvent
-) : RPCRequest<CheckoutStartEvent, Unit>(
-    id = null,
-    params = params,
-    responseSerializer = Unit.serializer()
-) {
-    override val method = "checkout.start"
+@Serializable
+public data class CheckoutErrorEvent(
+    public val code: CheckoutErrorCode,
+    public val message: String
+) : CheckoutNotification {
+    override val method: String = "checkout.error"
 
-    companion object : TypeErasedRPCDecodable by RPCDecoder.create(
-        method = "checkout.start",
-        factory = { _, params: CheckoutStartEvent, _ -> CheckoutStart(params) }
-    )
+    internal companion object {
+        internal val decoder = RPCNotificationDecoder.create<CheckoutErrorEvent>("checkout.error")
+    }
 }

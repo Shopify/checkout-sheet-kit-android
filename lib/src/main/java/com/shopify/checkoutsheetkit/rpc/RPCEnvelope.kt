@@ -22,21 +22,16 @@
  */
 package com.shopify.checkoutsheetkit.rpc
 
-import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
-import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.serializer
+import kotlinx.serialization.Serializable
 
-internal class CheckoutComplete(
-    params: CheckoutCompleteEvent
-) : RPCRequest<CheckoutCompleteEvent, Unit>(
-    id = null,
-    params = params,
-    responseSerializer = Unit.serializer()
-) {
-    override val method = "checkout.complete"
-
-    companion object : TypeErasedRPCDecodable by RPCDecoder.create(
-        method = "checkout.complete",
-        factory = { _, params: CheckoutCompleteEvent, _ -> CheckoutComplete(params) }
-    )
-}
+/**
+ * Generic RPC envelope for decoding JSON-RPC 2.0 messages.
+ * Used internally by both request and notification decoders.
+ */
+@Serializable
+internal data class RPCEnvelope<P>(
+    val jsonrpc: String,
+    val id: String? = null,
+    val method: String,
+    val params: P
+)

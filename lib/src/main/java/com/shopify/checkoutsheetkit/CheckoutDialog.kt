@@ -227,7 +227,7 @@ internal class CheckoutDialog(
         return CheckoutWebViewEventProcessor(
             eventProcessor = checkoutEventProcessor,
             toggleHeader = ::toggleHeader,
-            closeCheckoutDialogWithError = ::closeCheckoutDialogWithError,
+            checkoutErrorInterceptor = ::closeCheckoutDialogWithError,
             setProgressBarVisibility = ::setProgressBarVisibility,
             updateProgressBarPercentage = ::updateProgressBarPercentage,
         )

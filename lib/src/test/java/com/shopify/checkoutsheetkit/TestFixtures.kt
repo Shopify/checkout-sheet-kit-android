@@ -26,6 +26,7 @@ import com.shopify.checkoutsheetkit.lifecycleevents.Cart
 import com.shopify.checkoutsheetkit.lifecycleevents.CartBuyerIdentity
 import com.shopify.checkoutsheetkit.lifecycleevents.CartCost
 import com.shopify.checkoutsheetkit.lifecycleevents.CartDelivery
+import com.shopify.checkoutsheetkit.lifecycleevents.CartPayment
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutCompleteEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.CheckoutStartEvent
 import com.shopify.checkoutsheetkit.lifecycleevents.Money
@@ -64,7 +65,8 @@ internal fun createTestCart(
     discountCodes = emptyList(),
     appliedGiftCards = emptyList(),
     discountAllocations = emptyList(),
-    delivery = CartDelivery(addresses = emptyList())
+    delivery = CartDelivery(addresses = emptyList()),
+    payment = CartPayment(methods = emptyList())
 )
 
 /**
@@ -95,13 +97,15 @@ internal fun createTestOrderConfirmation(
  * Example:
  * ```
  * val event = createTestCheckoutStartEvent(
+ *     locale = "en-US",
  *     cart = createTestCart(totalAmount = "50.00")
  * )
  * ```
  */
 internal fun createTestCheckoutStartEvent(
+    locale: String = "en-US",
     cart: Cart = createTestCart()
-): CheckoutStartEvent = CheckoutStartEvent(cart = cart)
+): CheckoutStartEvent = CheckoutStartEvent(locale = locale, cart = cart)
 
 /**
  * Creates a test CheckoutCompleteEvent instance with sensible defaults.
