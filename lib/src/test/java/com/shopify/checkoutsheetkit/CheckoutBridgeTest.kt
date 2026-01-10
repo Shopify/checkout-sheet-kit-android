@@ -166,7 +166,7 @@ class CheckoutBridgeTest {
         val scriptCaptor = argumentCaptor<String>()
         verify(mockWebView).evaluateJavascript(scriptCaptor.capture(), anyOrNull())
         assertThat(scriptCaptor.firstValue)
-            .contains("window.postMessage")
+            .contains("window.EmbeddedCheckoutProtocol.postMessage")
             .contains("\"id\":\"request-id-submit-response\"")
             .contains("\"result\":")
             .contains("\"token\":\"tok_test_123\"")
@@ -304,7 +304,7 @@ class CheckoutBridgeTest {
         val scriptCaptor = argumentCaptor<String>()
         verify(mockWebView).evaluateJavascript(scriptCaptor.capture(), anyOrNull())
         assertThat(scriptCaptor.firstValue)
-            .contains("window.postMessage")
+            .contains("window.EmbeddedCheckoutProtocol.postMessage")
             .contains("\"id\":\"request-id-response\"")
             .contains("\"result\":")
             .contains("\"firstName\":\"Ada\"")
@@ -358,7 +358,7 @@ class CheckoutBridgeTest {
 
         val scriptCaptor = argumentCaptor<String>()
         verify(mockWebView).evaluateJavascript(scriptCaptor.capture(), anyOrNull())
-        assertThat(scriptCaptor.firstValue).contains("window.postMessage")
+        assertThat(scriptCaptor.firstValue).contains("window.EmbeddedCheckoutProtocol.postMessage")
 
         // Verify that evaluateJavascript failure doesn't trigger onCheckoutViewFailedWithError
         verify(mockEventProcessor, never()).onCheckoutViewFailedWithError(any())

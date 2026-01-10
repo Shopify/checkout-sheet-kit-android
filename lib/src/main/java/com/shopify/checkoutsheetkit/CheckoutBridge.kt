@@ -199,10 +199,10 @@ internal class CheckoutBridge(
                         """|
                         |(function() {
                         |    try {
-                        |        if (window && typeof window.postMessage === 'function') {
-                        |            window.postMessage($responseJson, '*');
+                        |        if (window && window.EmbeddedCheckoutProtocol && typeof window.EmbeddedCheckoutProtocol.postMessage === 'function') {
+                        |            window.EmbeddedCheckoutProtocol.postMessage($responseJson, '*');
                         |        } else if (window && window.console && window.console.error) {
-                        |            window.console.error('window.postMessage is not available.');
+                        |            window.console.error('window.EmbeddedCheckoutProtocol.postMessage is not available.');
                         |        }
                         |    } catch (error) {
                         |        if (window && window.console && window.console.error) {
