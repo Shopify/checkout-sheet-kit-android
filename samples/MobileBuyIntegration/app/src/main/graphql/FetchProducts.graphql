@@ -1,0 +1,47 @@
+query FetchProducts($numProducts: Int!, $numVariants: Int!, $cursor: String) {
+  products(first: $numProducts, after: $cursor) {
+    edges {
+      node {
+        id
+        title
+        description
+        vendor
+        featuredImage {
+          url
+          width
+          height
+          altText
+        }
+        priceRange {
+          minVariantPrice {
+            amount
+            currencyCode
+          }
+          maxVariantPrice {
+            amount
+            currencyCode
+          }
+        }
+        variants(first: $numVariants) {
+          nodes {
+            id
+            title
+            availableForSale
+            price {
+              amount
+              currencyCode
+            }
+            selectedOptions {
+              name
+              value
+            }
+          }
+        }
+      }
+    }
+    pageInfo {
+      startCursor
+      endCursor
+    }
+  }
+}

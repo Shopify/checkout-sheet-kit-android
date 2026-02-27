@@ -1,0 +1,216 @@
+type Query {
+  product(id: ID!): Product
+  products(first: Int, after: String): ProductConnection!
+  collection(handle: String, id: ID): Collection
+  collections(first: Int): CollectionConnection!
+}
+
+type Mutation {
+  cartCreate(input: CartInput!): CartCreatePayload
+  cartLinesAdd(cartId: ID!, lines: [CartLineInput!]!): CartLinesAddPayload
+  cartLinesUpdate(cartId: ID!, lines: [CartLineUpdateInput!]!): CartLinesUpdatePayload
+  cartLinesRemove(cartId: ID!, lineIds: [ID!]!): CartLinesRemovePayload
+}
+
+directive @inContext(country: CountryCode, language: LanguageCode) on QUERY | MUTATION
+
+enum CountryCode {
+  CA
+  US
+  GB
+  AU
+  DE
+  FR
+  JP
+}
+
+enum LanguageCode {
+  EN
+  FR
+  DE
+  JA
+  ES
+}
+
+enum CurrencyCode {
+  CAD
+  USD
+  GBP
+  AUD
+  EUR
+  JPY
+}
+
+type ProductConnection {
+  edges: [ProductEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ProductEdge {
+  node: Product!
+  cursor: String!
+}
+
+type Product {
+  id: ID!
+  title: String!
+  description: String!
+  vendor: String!
+  featuredImage: Image
+  priceRange: ProductPriceRange!
+  variants(first: Int): ProductVariantConnection!
+}
+
+type ProductVariantConnection {
+  nodes: [ProductVariant!]!
+}
+
+type ProductVariant implements Node {
+  id: ID!
+  title: String!
+  price: MoneyV2!
+  availableForSale: Boolean!
+  selectedOptions: [SelectedOption!]!
+  product: Product!
+}
+
+interface Node {
+  id: ID!
+}
+
+type SelectedOption {
+  name: String!
+  value: String!
+}
+
+type ProductPriceRange {
+  minVariantPrice: MoneyV2!
+  maxVariantPrice: MoneyV2!
+}
+
+type MoneyV2 {
+  amount: String!
+  currencyCode: CurrencyCode!
+}
+
+type Image {
+  url: String!
+  altText: String
+  width: Int
+  height: Int
+}
+
+type PageInfo {
+  startCursor: String
+  endCursor: String
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+}
+
+type CollectionConnection {
+  nodes: [Collection!]!
+}
+
+type Collection {
+  id: ID!
+  handle: String!
+  title: String!
+  description: String!
+  image: Image
+  products(first: Int): ProductConnection!
+}
+
+input CartInput {
+  lines: [CartLineInput!]
+  buyerIdentity: CartBuyerIdentityInput
+}
+
+input CartLineInput {
+  merchandiseId: ID!
+  quantity: Int
+}
+
+input CartLineUpdateInput {
+  id: ID!
+  quantity: Int
+}
+
+input CartBuyerIdentityInput {
+  email: String
+  phone: String
+  countryCode: CountryCode
+  deliveryAddressPreferences: [DeliveryAddressInput!]
+}
+
+input DeliveryAddressInput {
+  deliveryAddress: MailingAddressInput
+}
+
+input MailingAddressInput {
+  address1: String
+  address2: String
+  city: String
+  country: String
+  firstName: String
+  lastName: String
+  phone: String
+  province: String
+  zip: String
+}
+
+type Cart {
+  id: ID!
+  checkoutUrl: String!
+  totalQuantity: Int!
+  cost: CartCost!
+  lines(first: Int): CartLineConnection!
+}
+
+type CartCost {
+  totalAmount: MoneyV2!
+  totalAmountEstimated: Boolean!
+}
+
+type CartLineConnection {
+  nodes: [CartLine!]!
+}
+
+type CartLine implements Node {
+  id: ID!
+  quantity: Int!
+  cost: CartLineCost!
+  merchandise: Merchandise!
+}
+
+type CartLineCost {
+  totalAmount: MoneyV2!
+  amountPerQuantity: MoneyV2!
+}
+
+union Merchandise = ProductVariant
+
+type CartCreatePayload {
+  cart: Cart
+  userErrors: [CartUserError!]!
+}
+
+type CartLinesAddPayload {
+  cart: Cart
+  userErrors: [CartUserError!]!
+}
+
+type CartLinesUpdatePayload {
+  cart: Cart
+  userErrors: [CartUserError!]!
+}
+
+type CartLinesRemovePayload {
+  cart: Cart
+  userErrors: [CartUserError!]!
+}
+
+type CartUserError {
+  message: String!
+  code: String
+  field: [String!]
+}

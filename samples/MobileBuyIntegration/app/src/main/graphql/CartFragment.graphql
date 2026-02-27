@@ -1,0 +1,49 @@
+fragment CartFragment on Cart {
+  id
+  checkoutUrl
+  totalQuantity
+  cost {
+    totalAmount {
+      amount
+      currencyCode
+    }
+    totalAmountEstimated
+  }
+  lines(first: 250) {
+    nodes {
+      id
+      quantity
+      cost {
+        totalAmount {
+          amount
+          currencyCode
+        }
+        amountPerQuantity {
+          amount
+          currencyCode
+        }
+      }
+      merchandise {
+        ... on ProductVariant {
+          price {
+            amount
+            currencyCode
+          }
+          title
+          product {
+            title
+            vendor
+            featuredImage {
+              url
+              altText
+            }
+          }
+          selectedOptions {
+            name
+            value
+          }
+        }
+      }
+    }
+  }
+}
