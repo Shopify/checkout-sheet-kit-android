@@ -13,25 +13,7 @@ query FetchCollection($handle: String!, $numProducts: Int!) {
     products(first: $numProducts) {
       edges {
         node {
-          id
-          title
-          description
-          priceRange {
-            minVariantPrice {
-              amount
-              currencyCode
-            }
-            maxVariantPrice {
-              amount
-              currencyCode
-            }
-          }
-          featuredImage {
-            url
-            width
-            height
-            altText
-          }
+          ...ProductFragment
         }
       }
     }

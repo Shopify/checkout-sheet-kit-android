@@ -79,7 +79,7 @@ The schema defines what types and fields are available in the API. Run from the 
 dev apollo download_schema
 ```
 
-This introspects your store's Storefront API at the configured version and writes `schema.graphqls` into `app/src/main/graphql/`.
+This uses [`rover`](https://www.apollographql.com/docs/rover/) to introspect your store's Storefront API at the configured version and writes `schema.graphqls` into `app/src/main/graphql/`.
 
 ### 3. Update your GraphQL operations (if needed)
 

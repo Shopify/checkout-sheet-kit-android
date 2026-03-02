@@ -1,0 +1,17 @@
+#!/bin/bash
+set -euo pipefail
+
+cd samples/MobileBuyIntegration
+
+echo "🔄 Running codegen for MobileBuyIntegration..."
+./gradlew :app:generateApolloSources
+
+if [ $? -eq 0 ]; then
+  echo "✅ Codegen complete"
+else
+  echo "❌ Codegen failed"
+  exit 1
+fi
+
+cd ../..
+/opt/dev/bin/dev style

@@ -101,7 +101,7 @@ class CartRepository(
     private fun buyerIdentity(demoBuyerIdentityEnabled: Boolean, customerAccessToken: String?): CartBuyerIdentityInput {
         if (customerAccessToken != null) {
             Timber.i("Setting a customer access token in buyer identity")
-            return CartBuyerIdentityInput()
+            return CartBuyerIdentityInput(customerAccessToken = Optional.present(customerAccessToken))
         }
 
         return if (demoBuyerIdentityEnabled) {

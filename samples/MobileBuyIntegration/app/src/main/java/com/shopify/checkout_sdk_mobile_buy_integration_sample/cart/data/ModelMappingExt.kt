@@ -32,12 +32,12 @@ internal fun CartFragment.toLocal(): CartState.Cart {
         cartTotals = CartTotals(
             totalAmount = CartAmount(
                 currency = cost.totalAmount.currencyCode.rawValue,
-                price = cost.totalAmount.amount.toDouble(),
+                price = cost.totalAmount.amount.toString().toDouble(),
             ),
             totalAmountEstimated = cost.totalAmountEstimated,
             totalQuantity = totalQuantity,
         ),
-        checkoutUrl = checkoutUrl,
+        checkoutUrl = checkoutUrl.toString(),
     )
 }
 
@@ -47,16 +47,16 @@ internal fun CartFragment.Node.toLocal(): CartLine? {
             id = ID(id),
             image = variant.product.featuredImage?.let { image ->
                 CartLineImage(
-                    url = image.url,
+                    url = image.url.toString(),
                     altText = image.altText,
                 )
             },
             title = variant.product.title,
             vendor = variant.product.vendor,
             quantity = quantity,
-            pricePerQuantity = cost.amountPerQuantity.amount.toDouble(),
+            pricePerQuantity = cost.amountPerQuantity.amount.toString().toDouble(),
             currencyPerQuantity = cost.amountPerQuantity.currencyCode.rawValue,
-            totalPrice = cost.totalAmount.amount.toDouble(),
+            totalPrice = cost.totalAmount.amount.toString().toDouble(),
             totalCurrency = cost.totalAmount.currencyCode.rawValue,
             variantDescription = variant.selectedOptions.toDescription(),
         )

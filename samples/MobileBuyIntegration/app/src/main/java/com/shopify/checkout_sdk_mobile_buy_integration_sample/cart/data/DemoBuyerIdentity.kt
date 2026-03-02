@@ -25,47 +25,11 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data
 import com.apollographql.apollo.api.Optional
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.graphql.type.CartBuyerIdentityInput
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.graphql.type.CountryCode
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.graphql.type.DeliveryAddressInput
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.graphql.type.MailingAddressInput
 
 object DemoBuyerIdentity {
     internal val value = CartBuyerIdentityInput(
         email = Optional.present("example.customer@shopify.com"),
         countryCode = Optional.present(CountryCode.CA),
         phone = Optional.present("+441792123456"),
-        deliveryAddressPreferences = Optional.present(
-            listOf(
-                DeliveryAddressInput(
-                    deliveryAddress = Optional.present(
-                        MailingAddressInput(
-                            address1 = Optional.present("The Cloak & Dagger"),
-                            address2 = Optional.present("1st Street Southeast"),
-                            city = Optional.present("Calgary"),
-                            country = Optional.present("CA"),
-                            firstName = Optional.present("Ada"),
-                            lastName = Optional.present("Lovelace"),
-                            province = Optional.present("AB"),
-                            phone = Optional.present("+441792123456"),
-                            zip = Optional.present("T1X 0L3"),
-                        )
-                    )
-                ),
-                DeliveryAddressInput(
-                    deliveryAddress = Optional.present(
-                        MailingAddressInput(
-                            address1 = Optional.present("8 Lon Heddwch"),
-                            address2 = Optional.present("Llansamlet"),
-                            city = Optional.present("Swansea"),
-                            country = Optional.present("GB"),
-                            firstName = Optional.present("Ada"),
-                            lastName = Optional.present("Lovelace"),
-                            province = Optional.present(""),
-                            phone = Optional.present("+441792123456"),
-                            zip = Optional.present("SA7 9UY"),
-                        )
-                    )
-                ),
-            )
-        ),
     )
 }

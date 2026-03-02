@@ -23,10 +23,10 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data
 
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.graphql.FetchProductQuery
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.graphql.FetchProductsQuery
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.graphql.fragment.ProductFragment
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.graphql.fragment.ProductVariantFragment
 
-fun FetchProductsQuery.Node.toLocal(): Product {
+fun ProductFragment.toLocal(variants: List<ProductVariant> = emptyList()): Product {
     return Product(
         id = ID(id),
         title = title,
@@ -35,73 +35,35 @@ fun FetchProductsQuery.Node.toLocal(): Product {
             ProductImage(
                 width = image.width ?: 0,
                 height = image.height ?: 0,
-                url = image.url,
+                url = image.url.toString(),
                 altText = image.altText ?: "Product image",
             )
         },
         priceRange = ProductPriceRange(
             minVariantPrice = ProductPriceAmount(
                 currencyCode = priceRange.minVariantPrice.currencyCode.rawValue,
-                amount = priceRange.minVariantPrice.amount.toDouble(),
+                amount = priceRange.minVariantPrice.amount.toString().toDouble(),
             ),
             maxVariantPrice = ProductPriceAmount(
                 currencyCode = priceRange.maxVariantPrice.currencyCode.rawValue,
-                amount = priceRange.maxVariantPrice.amount.toDouble(),
+                amount = priceRange.maxVariantPrice.amount.toString().toDouble(),
             ),
         ),
-        variants = variants.nodes.map { variant ->
-            ProductVariant(
-                id = ID(variant.id),
-                price = ProductPriceAmount(
-                    amount = variant.price.amount.toDouble(),
-                    currencyCode = variant.price.currencyCode.rawValue,
-                ),
-                title = variant.title,
-                availableForSale = variant.availableForSale,
-                selectedOptions = variant.selectedOptions.map { option ->
-                    ProductVariantSelectedOption(option.name, option.value)
-                },
-            )
-        },
+        variants = variants,
     )
 }
 
-fun FetchProductQuery.Product.toLocal(): Product {
-    return Product(
+fun ProductVariantFragment.toLocal(): ProductVariant {
+    return ProductVariant(
         id = ID(id),
-        title = title,
-        description = description,
-        image = featuredImage?.let { image ->
-            ProductImage(
-                width = image.width ?: 0,
-                height = image.height ?: 0,
-                url = image.url,
-                altText = image.altText ?: "Product image",
-            )
-        },
-        priceRange = ProductPriceRange(
-            minVariantPrice = ProductPriceAmount(
-                currencyCode = priceRange.minVariantPrice.currencyCode.rawValue,
-                amount = priceRange.minVariantPrice.amount.toDouble(),
-            ),
-            maxVariantPrice = ProductPriceAmount(
-                currencyCode = priceRange.maxVariantPrice.currencyCode.rawValue,
-                amount = priceRange.maxVariantPrice.amount.toDouble(),
-            ),
+        price = ProductPriceAmount(
+            amount = price.amount.toString().toDouble(),
+            currencyCode = price.currencyCode.rawValue,
         ),
-        variants = variants.nodes.map { variant ->
-            ProductVariant(
-                id = ID(variant.id),
-                price = ProductPriceAmount(
-                    amount = variant.price.amount.toDouble(),
-                    currencyCode = variant.price.currencyCode.rawValue,
-                ),
-                title = variant.title,
-                availableForSale = variant.availableForSale,
-                selectedOptions = variant.selectedOptions.map { option ->
-                    ProductVariantSelectedOption(option.name, option.value)
-                },
-            )
+        title = title,
+        availableForSale = availableForSale,
+        selectedOptions = selectedOptions.map { option ->
+            ProductVariantSelectedOption(option.name, option.value)
         },
     )
 }
