@@ -22,20 +22,88 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data
 
-import com.shopify.buy3.Storefront
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.toLocal
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.toLocal
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.graphql.FetchCollectionQuery
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.graphql.FetchCollectionsQuery
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.Product
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductImage
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductPriceAmount
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductPriceRange
 
-internal fun Storefront.Collection.toLocal(): ProductCollection {
+internal fun FetchCollectionsQuery.Node.toLocal(): ProductCollection {
     return ProductCollection(
-        id = id.toLocal(),
+        id = ID(id),
         handle = handle,
         title = title,
         description = description,
-        image = if (image?.url != null) ProductCollectionImage(
-            image.url,
-            image.altText
-        ) else null,
-        products = products.edges.map { it.node.toLocal() }
+        image = image?.let { img ->
+            ProductCollectionImage(img.url, img.altText)
+        },
+        products = products.edges.map { it.node.toLocal() },
+    )
+}
+
+internal fun FetchCollectionsQuery.Node1.toLocal(): Product {
+    return Product(
+        id = ID(id),
+        title = title,
+        description = description,
+        image = featuredImage?.let { image ->
+            ProductImage(
+                width = image.width ?: 0,
+                height = image.height ?: 0,
+                url = image.url,
+                altText = image.altText ?: "Product image",
+            )
+        },
+        priceRange = ProductPriceRange(
+            minVariantPrice = ProductPriceAmount(
+                currencyCode = priceRange.minVariantPrice.currencyCode.rawValue,
+                amount = priceRange.minVariantPrice.amount.toDouble(),
+            ),
+            maxVariantPrice = ProductPriceAmount(
+                currencyCode = priceRange.maxVariantPrice.currencyCode.rawValue,
+                amount = priceRange.maxVariantPrice.amount.toDouble(),
+            ),
+        ),
+    )
+}
+
+internal fun FetchCollectionQuery.Collection.toLocal(): ProductCollection {
+    return ProductCollection(
+        id = ID(id),
+        handle = handle,
+        title = title,
+        description = description,
+        image = image?.let { img ->
+            ProductCollectionImage(img.url, img.altText)
+        },
+        products = products.edges.map { it.node.toLocal() },
+    )
+}
+
+internal fun FetchCollectionQuery.Node.toLocal(): Product {
+    return Product(
+        id = ID(id),
+        title = title,
+        description = description,
+        image = featuredImage?.let { image ->
+            ProductImage(
+                width = image.width ?: 0,
+                height = image.height ?: 0,
+                url = image.url,
+                altText = image.altText ?: "Product image",
+            )
+        },
+        priceRange = ProductPriceRange(
+            minVariantPrice = ProductPriceAmount(
+                currencyCode = priceRange.minVariantPrice.currencyCode.rawValue,
+                amount = priceRange.minVariantPrice.amount.toDouble(),
+            ),
+            maxVariantPrice = ProductPriceAmount(
+                currencyCode = priceRange.maxVariantPrice.currencyCode.rawValue,
+                amount = priceRange.maxVariantPrice.amount.toDouble(),
+            ),
+        ),
     )
 }

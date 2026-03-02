@@ -23,16 +23,11 @@
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.common.di
 
 import android.app.Application
-import android.util.LruCache
 import androidx.room.Room
-import com.shopify.buy3.GraphCallResult
-import com.shopify.buy3.GraphClient
-import com.shopify.buy3.Storefront
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.BuildConfig
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartRepository
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.source.network.CartStorefrontApiClient
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontApiRequestExecutor
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontApiClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.LogDatabase
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.Logger
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.logs.MIGRATION_1_2
@@ -41,10 +36,8 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.logs.LogsViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.ProductsViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.ProductCollectionViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.ProductCollectionRepository
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.source.network.ProductCollectionsStorefrontApiClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.ProductViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductRepository
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.source.network.ProductsStorefrontApiClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.SettingsViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.account.AccountViewModel
@@ -98,9 +91,7 @@ val appModules = module {
     }
 
     // API Clients
-    singleOf(::CartStorefrontApiClient)
-    singleOf(::ProductsStorefrontApiClient)
-    singleOf(::ProductCollectionsStorefrontApiClient)
+    singleOf(::StorefrontApiClient)
     single {
         CustomerAccountsApiRestClient(
             client = OkHttpClient(),
@@ -115,18 +106,6 @@ val appModules = module {
             client = OkHttpClient(),
             json = get(),
             baseUrl = BuildConfig.customerAccountApiGraphQLBaseUrl,
-        )
-    }
-    single {
-        val maxCacheEntries = 100
-
-        StorefrontApiRequestExecutor(
-            lruCache = LruCache<String, GraphCallResult.Success<Storefront.QueryRoot>>(maxCacheEntries),
-            client = GraphClient.build(
-                context = get(),
-                accessToken = BuildConfig.storefrontAccessToken,
-                shopDomain = BuildConfig.storefrontDomain
-            )
         )
     }
 

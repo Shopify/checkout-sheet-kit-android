@@ -22,39 +22,23 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data
 
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data.source.network.ProductCollectionsStorefrontApiClient
-import kotlin.coroutines.suspendCoroutine
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontApiClient
 
 class ProductCollectionRepository(
-    private val client: ProductCollectionsStorefrontApiClient,
+    private val client: StorefrontApiClient,
 ) {
     suspend fun getProductCollections(numberOfCollections: Int, numberOfProductsPerCollection: Int): List<ProductCollection> {
-        return suspendCoroutine { continuation ->
-            client.fetchProductCollections(numberOfCollections, numberOfProductsPerCollection, { response ->
-                val productCollections = response.data?.collections
-                if (productCollections == null) {
-                    continuation.resumeWith(Result.failure(RuntimeException("Failed to fetch collections")))
-                } else {
-                    continuation.resumeWith(Result.success(productCollections.nodes.map { collection -> collection.toLocal() }))
-                }
-            }, { exception ->
-                continuation.resumeWith(Result.failure(exception))
-            })
-        }
+        val data = client.fetchCollections(
+            numCollections = numberOfCollections,
+            numProducts = numberOfProductsPerCollection,
+        )
+        return data.collections.nodes.map { collection -> collection.toLocal() }
     }
 
     suspend fun getProductCollection(collectionHandle: String, numberOfProducts: Int): ProductCollection {
-        return suspendCoroutine { continuation ->
-            client.fetchProductCollection(collectionHandle, numberOfProducts, { response ->
-                val collection = response.data?.collection
-                if (collection == null) {
-                    continuation.resumeWith(Result.failure(RuntimeException("Failed to fetch collection")))
-                } else {
-                    continuation.resumeWith(Result.success(collection.toLocal()))
-                }
-            }, { error ->
-                continuation.resumeWith(Result.failure(error))
-            })
-        }
+        val data = client.fetchCollection(handle = collectionHandle, numProducts = numberOfProducts)
+        val collection = data.collection
+            ?: throw RuntimeException("Failed to fetch collection")
+        return collection.toLocal()
     }
 }

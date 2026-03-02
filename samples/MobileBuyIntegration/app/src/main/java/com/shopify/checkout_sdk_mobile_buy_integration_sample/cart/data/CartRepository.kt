@@ -22,16 +22,18 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data
 
-import com.shopify.buy3.Storefront
-import com.shopify.buy3.Storefront.CartLineInput
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.source.network.CartStorefrontApiClient
+import com.apollographql.apollo.api.Optional
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.toGraphQLId
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontApiClient
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.graphql.type.CartBuyerIdentityInput
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.graphql.type.CartInput
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.graphql.type.CartLineInput
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.graphql.type.CartLineUpdateInput
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.graphql.type.CountryCode
 import timber.log.Timber
-import kotlin.coroutines.suspendCoroutine
 
 class CartRepository(
-    private val cartStorefrontApiClient: CartStorefrontApiClient,
+    private val storefrontApiClient: StorefrontApiClient,
 ) {
 
     suspend fun createCart(
@@ -40,90 +42,73 @@ class CartRepository(
         demoBuyerIdentityEnabled: Boolean,
         customerAccessToken: String?,
     ): CartState.Cart {
-        return suspendCoroutine { continuation ->
-            cartStorefrontApiClient.createCart(
-                variant = Storefront.ProductVariant(variantId.toGraphQLId()),
-                buyerIdentity = buyerIdentity(demoBuyerIdentityEnabled, customerAccessToken),
-                quantity = quantity,
-                successCallback = { response ->
-                    val cartCreateResponse = response.data?.cartCreate
-                    if (cartCreateResponse?.cart == null) {
-                        val errors = cartCreateResponse?.userErrors?.joinToString { "${it.field} - ${it.message}" }
-                        continuation.resumeWith(Result.failure(RuntimeException("Failed to create cart, $errors")))
-                    } else {
-                        Timber.i("cart ${cartCreateResponse.cart.checkoutUrl}")
-                        continuation.resumeWith(Result.success(cartCreateResponse.cart.toLocal()))
-                    }
-                },
-                failureCallback = { exception ->
-                    continuation.resumeWith(Result.failure(RuntimeException("Failed to create cart", exception)))
-                }
-            )
+        val input = CartInput(
+            lines = Optional.present(
+                listOf(
+                    CartLineInput(
+                        merchandiseId = variantId.id,
+                        quantity = Optional.present(quantity),
+                    )
+                )
+            ),
+            buyerIdentity = Optional.present(buyerIdentity(demoBuyerIdentityEnabled, customerAccessToken)),
+        )
+
+        val data = storefrontApiClient.createCart(input)
+        val cartCreate = data.cartCreate
+        val cart = cartCreate?.cart
+
+        if (cart == null) {
+            val errors = cartCreate?.userErrors?.joinToString { "${it.field} - ${it.message}" }
+            throw RuntimeException("Failed to create cart, $errors")
         }
+
+        Timber.i("cart ${cart.cartFragment.checkoutUrl}")
+        return cart.cartFragment.toLocal()
     }
 
     suspend fun addCartLine(cartId: ID, variantId: ID, quantity: Int): CartState.Cart {
-        val line = CartLineInput(variantId.toGraphQLId()).setQuantity(quantity)
-        return suspendCoroutine { continuation ->
-            cartStorefrontApiClient.cartLinesAdd(
-                lines = listOf(line),
-                cartId = cartId.toGraphQLId(),
-                successCallback = { response ->
-                    val cartLinesAddResponse = response.data?.cartLinesAdd
-                    if (cartLinesAddResponse == null) {
-                        continuation.resumeWith(Result.failure(RuntimeException("Failed to add cart line")))
-                    } else {
-                        continuation.resumeWith(Result.success(cartLinesAddResponse.cart.toLocal()))
-                    }
-                },
-                failureCallback = { exception ->
-                    continuation.resumeWith(Result.failure(RuntimeException("Failed to add cart line", exception)))
-                })
-        }
+        val line = CartLineInput(
+            merchandiseId = variantId.id,
+            quantity = Optional.present(quantity),
+        )
+
+        val data = storefrontApiClient.cartLinesAdd(cartId = cartId.id, lines = listOf(line))
+        val cart = data.cartLinesAdd?.cart
+            ?: throw RuntimeException("Failed to add cart line")
+
+        return cart.cartFragment.toLocal()
     }
 
     suspend fun modifyCartLine(cartId: ID, lineItemId: ID, quantity: Int?): CartState.Cart {
-        return suspendCoroutine { continuation ->
-            cartStorefrontApiClient.cartLinesModify(
-                cartId = cartId.toGraphQLId(),
-                lineItemId = lineItemId.toGraphQLId(),
-                quantity = quantity,
-                successCallback = { response ->
-                    val cartResult =
-                        if (quantity != null) response.data?.cartLinesUpdate?.cart
-                        else response.data?.cartLinesRemove?.cart
-
-                    if (cartResult == null) {
-                        continuation.resumeWith(Result.failure(RuntimeException("Failed to modify cart")))
-                    } else {
-                        continuation.resumeWith(Result.success(cartResult.toLocal()))
-                    }
-                },
-                failureCallback = { exception ->
-                    continuation.resumeWith(Result.failure(RuntimeException("Failed to modify cart", exception)))
-                })
+        if (quantity != null) {
+            val line = CartLineUpdateInput(
+                id = lineItemId.id,
+                quantity = Optional.present(quantity),
+            )
+            val data = storefrontApiClient.cartLinesUpdate(cartId = cartId.id, lines = listOf(line))
+            val cart = data.cartLinesUpdate?.cart
+                ?: throw RuntimeException("Failed to modify cart")
+            return cart.cartFragment.toLocal()
+        } else {
+            val data = storefrontApiClient.cartLinesRemove(cartId = cartId.id, lineIds = listOf(lineItemId.id))
+            val cart = data.cartLinesRemove?.cart
+                ?: throw RuntimeException("Failed to modify cart")
+            return cart.cartFragment.toLocal()
         }
     }
 
-    /**
-     * Build up CartBuyerIdentityInput to pass into cart mutations, with value depending on
-     * whether a customer access token is available, and the demo buyer identity setting is enabled
-     */
-    private fun buyerIdentity(demoBuyerIdentityEnabled: Boolean, customerAccessToken: String?): Storefront.CartBuyerIdentityInput {
-        // Give precedence to customer access token
+    private fun buyerIdentity(demoBuyerIdentityEnabled: Boolean, customerAccessToken: String?): CartBuyerIdentityInput {
         if (customerAccessToken != null) {
-            // Attach token to authenticate
             Timber.i("Setting a customer access token in buyer identity")
-            return Storefront.CartBuyerIdentityInput().setCustomerAccessToken(customerAccessToken)
+            return CartBuyerIdentityInput()
         }
 
         return if (demoBuyerIdentityEnabled) {
-            // No token available, instead of authenticating, prefill checkout with known customer data
             Timber.i("Using demo buyer identity data to prefill checkout")
             DemoBuyerIdentity.value
         } else {
-            // We could e.g. set a country code in the absence of other customer information
-            Storefront.CartBuyerIdentityInput().setCountryCode(Storefront.CountryCode.CA)
+            CartBuyerIdentityInput(countryCode = Optional.present(CountryCode.CA))
         }
     }
 }

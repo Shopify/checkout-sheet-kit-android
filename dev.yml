@@ -33,6 +33,77 @@ commands:
     aliases: [lint]
     run: ./gradlew detekt lintRelease
 
+  apollo:
+    subcommands:
+      download_schema:
+        desc: |
+          Download the Storefront API GraphQL schema via introspection.
+          Usage: `dev apollo download_schema`
+        run: |
+          cd samples/MobileBuyIntegration
+
+          if [ ! -f ".env" ]; then
+            echo "❌ .env file not found in samples/MobileBuyIntegration/"
+            echo "   Run 'cp .env.example .env' and fill in your credentials."
+            exit 1
+          fi
+
+          npx -y dotenv-cli -e .env -- sh -c '
+            DOMAIN="$STOREFRONT_DOMAIN"
+            TOKEN="$STOREFRONT_ACCESS_TOKEN"
+            VERSION="$API_VERSION"
+
+            if [ -z "$DOMAIN" ]; then
+              echo "❌ STOREFRONT_DOMAIN is not set. Check your .env file."
+              exit 1
+            fi
+            if [ -z "$TOKEN" ]; then
+              echo "❌ STOREFRONT_ACCESS_TOKEN is not set. Check your .env file."
+              exit 1
+            fi
+            if [ -z "$VERSION" ]; then
+              echo "❌ API_VERSION is not set. Check your .env file."
+              echo "   Add API_VERSION=2025-07 to your .env"
+              exit 1
+            fi
+
+            echo "📡 Downloading schema for MobileBuyIntegration..."
+            echo "   Domain: $DOMAIN"
+            echo "   API Version: $VERSION"
+
+            ./gradlew :app:downloadApolloSchema \
+              --endpoint="https://$DOMAIN/api/$VERSION/graphql.json" \
+              --schema="app/src/main/graphql/schema.graphqls" \
+              --header="X-Shopify-Storefront-Access-Token: $TOKEN"
+
+            if [ $? -eq 0 ]; then
+              echo "✅ Schema downloaded to app/src/main/graphql/schema.graphqls"
+            else
+              echo "❌ Schema download failed. Check your network connection and credentials."
+              exit 1
+            fi
+          '
+
+      codegen:
+        desc: |
+          Generate Apollo Kotlin models from .graphql files.
+          Usage: `dev apollo codegen`
+        run: |
+          cd samples/MobileBuyIntegration
+
+          echo "🔄 Running codegen for MobileBuyIntegration..."
+          ./gradlew :app:generateApolloSources
+
+          if [ $? -eq 0 ]; then
+            echo "✅ Codegen complete"
+          else
+            echo "❌ Codegen failed"
+            exit 1
+          fi
+
+          cd ../..
+          /opt/dev/bin/dev style
+
 check:
   license-headers: ./scripts/check_license_headers.rb
   detekt: ./gradlew detekt

@@ -23,6 +23,7 @@ def properties = loadProperties()
 // Storefront API
 def storefrontDomain = properties.getProperty("STOREFRONT_DOMAIN")
 def accessToken = properties.getProperty("STOREFRONT_ACCESS_TOKEN")
+def apiVersion = properties.getProperty("API_VERSION", "2025-07")
 
 // Customer Account API
 def customerAccountApiClientId = properties.getProperty("CUSTOMER_ACCOUNT_API_CLIENT_ID")
@@ -52,6 +53,7 @@ android {
         }
         buildConfigField "String", "storefrontDomain", "\"$storefrontDomain\""
         buildConfigField "String", "storefrontAccessToken", "\"$accessToken\""
+        buildConfigField "String", "storefrontApiVersion", "\"$apiVersion\""
         buildConfigField "String", "customerAccountApiClientId", "\"$customerAccountApiClientId\""
         buildConfigField "String", "customerAccountApiRedirectUri", "\"$customerAccountApiRedirectUri\""
         buildConfigField "String", "customerAccountApiAuthBaseUrl", "\"$customerAccountApiAuthBaseUrl\""
