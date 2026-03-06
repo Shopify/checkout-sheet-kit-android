@@ -50,7 +50,6 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.components.
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.horizontalPadding
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.largeScreenBreakpoint
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ui.theme.verticalPadding
-import com.shopify.graphql.support.ID
 import org.koin.androidx.compose.koinViewModel
 import timber.log.Timber
 
@@ -61,7 +60,7 @@ fun ProductView(
 ) {
 
     LaunchedEffect(key1 = true) {
-        productViewModel.fetchProduct(ID(productId))
+        productViewModel.fetchProduct(productId)
     }
 
     when (val productUIState = productViewModel.uiState.collectAsState().value) {

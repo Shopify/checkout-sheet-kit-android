@@ -22,20 +22,33 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.products.collection.data
 
-import com.shopify.buy3.Storefront
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.toLocal
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.graphql.FetchCollectionQuery
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.graphql.FetchCollectionsQuery
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.toLocal
 
-internal fun Storefront.Collection.toLocal(): ProductCollection {
+internal fun FetchCollectionsQuery.Node.toLocal(): ProductCollection {
     return ProductCollection(
-        id = id.toLocal(),
+        id = ID(id),
         handle = handle,
         title = title,
         description = description,
-        image = if (image?.url != null) ProductCollectionImage(
-            image.url,
-            image.altText
-        ) else null,
-        products = products.edges.map { it.node.toLocal() }
+        image = image?.let { img ->
+            ProductCollectionImage(img.url.toString(), img.altText)
+        },
+        products = products.edges.map { it.node.productFragment.toLocal() },
+    )
+}
+
+internal fun FetchCollectionQuery.Collection.toLocal(): ProductCollection {
+    return ProductCollection(
+        id = ID(id),
+        handle = handle,
+        title = title,
+        description = description,
+        image = image?.let { img ->
+            ProductCollectionImage(img.url.toString(), img.altText)
+        },
+        products = products.edges.map { it.node.productFragment.toLocal() },
     )
 }

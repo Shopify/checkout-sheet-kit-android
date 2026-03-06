@@ -4,6 +4,8 @@ type: android
 
 up:
   - ruby
+  - packages:
+    - rover
   - custom:
       name: Ensure sample app .env files exists
       met?: |
@@ -32,6 +34,15 @@ commands:
     desc: Run code formatting and linting
     aliases: [lint]
     run: ./gradlew detekt lintRelease
+
+  apollo:
+    subcommands:
+      download_schema:
+        desc: "Download GraphQL Schema. Usage: dev apollo download_schema"
+        run: ./scripts/apollo_download_schema
+      codegen:
+        desc: "Generate Apollo Kotlin models. Usage: dev apollo codegen"
+        run: ./scripts/apollo_codegen
 
 check:
   license-headers: ./scripts/check_license_headers.rb
