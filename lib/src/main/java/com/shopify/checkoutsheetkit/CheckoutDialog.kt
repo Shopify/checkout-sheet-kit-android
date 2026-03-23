@@ -56,6 +56,8 @@ internal class CheckoutDialog(
     context: Context,
 ) : Dialog(context) {
 
+    internal var recoveryAttemptCount = 0
+
     fun start(context: ComponentActivity) {
         log.d(LOG_TAG, "Dialog start called.")
         setContentView(R.layout.dialog_checkout)
@@ -188,14 +190,16 @@ internal class CheckoutDialog(
 
     internal fun closeCheckoutDialogWithError(exception: CheckoutException) {
         log.d(LOG_TAG, "Closing dialog with error, marking cache entry stale, calling onCheckoutFailed.")
+        recoveryAttemptCount++
         CheckoutWebView.markCacheEntryStale()
         checkoutEventProcessor.onCheckoutFailed(exception)
 
         val isOneTimeUseUrl = this.checkoutUrl.isOneTimeUse()
         val shouldRecover = ShopifyCheckoutSheetKit.configuration.errorRecovery.shouldRecoverFromError(exception)
+        val isWithinRetryLimit = recoveryAttemptCount < MAX_RECOVERY_ATTEMPTS
 
-        log.d(LOG_TAG, "One time use checkout URL?: $isOneTimeUseUrl, should recover?: $shouldRecover.")
-        if (!isOneTimeUseUrl && shouldRecover) {
+        log.d(LOG_TAG, "One time use checkout URL?: $isOneTimeUseUrl, should recover?: $shouldRecover, within retry limit?: $isWithinRetryLimit (attempt $recoveryAttemptCount of $MAX_RECOVERY_ATTEMPTS).")
+        if (!isOneTimeUseUrl && shouldRecover && isWithinRetryLimit) {
             log.d(LOG_TAG, "Attempting to recover from error.")
             attemptToRecoverFromError(exception)
         } else {
@@ -252,5 +256,6 @@ internal class CheckoutDialog(
 
     companion object {
         private const val LOG_TAG = "CheckoutDialog"
+        internal const val MAX_RECOVERY_ATTEMPTS = 1
     }
 }
