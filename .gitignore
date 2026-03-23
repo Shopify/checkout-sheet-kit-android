@@ -10,4 +10,3 @@
 local.properties
 .env
 upload-keystore.jks
-*.graphqls
