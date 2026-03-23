@@ -284,7 +284,7 @@ class CheckoutBridgeTest {
         val error = captor.firstValue
         assertThat(error).isInstanceOf(CheckoutUnavailableException::class.java)
         assertThat(error.message).isEqualTo("Checkout crashed")
-        assertThat(error.isRecoverable).isTrue()
+        assertThat(error.isRecoverable).isFalse()
         assertThat(error.errorCode).isEqualTo(CheckoutUnavailableException.CLIENT_ERROR)
     }
     @Test

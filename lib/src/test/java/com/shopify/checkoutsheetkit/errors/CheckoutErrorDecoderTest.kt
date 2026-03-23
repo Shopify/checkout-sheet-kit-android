@@ -22,6 +22,7 @@
  */
 package com.shopify.checkoutsheetkit.errors
 
+import com.shopify.checkoutsheetkit.ClientException
 import com.shopify.checkoutsheetkit.LogWrapper
 import com.shopify.checkoutsheetkit.WebToSdkEvent
 import com.shopify.checkoutsheetkit.errorevents.CheckoutErrorDecoder
@@ -108,6 +109,28 @@ class CheckoutErrorDecoderTest {
         )
 
         assertThrows(RuntimeException::class.java) { decoder.decodeMessage(event) }
+    }
+
+    @Test
+    fun `should decode unrecoverable error as not recoverable`() {
+        val event = WebToSdkEvent(
+            name = "error",
+            body = """[
+                |{
+                |   "group": "unrecoverable",
+                |   "flowType": "regular",
+                |   "type": "sdk_not_enabled",
+                |   "code": "sdk_not_enabled",
+                |   "reason": "SDK not enabled"
+                |}
+            ]""".trimMargin()
+        )
+
+        val decoded = decoder.decode(event)
+
+        assertThat(decoded).isInstanceOf(ClientException::class.java)
+        assertThat(decoded!!.isRecoverable).isFalse()
+        assertThat(decoded.errorDescription).isEqualTo("SDK not enabled")
     }
 
     @Test
