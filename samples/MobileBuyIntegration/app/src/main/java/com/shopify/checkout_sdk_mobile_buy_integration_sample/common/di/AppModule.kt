@@ -24,6 +24,9 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.common.di
 
 import android.app.Application
 import androidx.room.Room
+import com.apollographql.apollo.ApolloClient
+import com.apollographql.apollo.cache.normalized.api.MemoryCacheFactory
+import com.apollographql.apollo.cache.normalized.normalizedCache
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.BuildConfig
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data.CartRepository
@@ -91,6 +94,13 @@ val appModules = module {
     }
 
     // API Clients
+    single {
+        ApolloClient.Builder()
+            .serverUrl("https://${BuildConfig.storefrontDomain}/api/${BuildConfig.storefrontApiVersion}/graphql.json")
+            .normalizedCache(MemoryCacheFactory(maxSizeBytes = 10 * 1024 * 1024))
+            .addHttpHeader("X-Shopify-Storefront-Access-Token", BuildConfig.storefrontAccessToken)
+            .build()
+    }
     singleOf(::StorefrontApiClient)
     single {
         CustomerAccountsApiRestClient(

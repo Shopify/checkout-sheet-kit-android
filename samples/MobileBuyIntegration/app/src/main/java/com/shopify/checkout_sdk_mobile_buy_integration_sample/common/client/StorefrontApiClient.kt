@@ -24,9 +24,6 @@ package com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client
 
 import com.apollographql.apollo.ApolloClient
 import com.apollographql.apollo.api.Optional
-import com.apollographql.apollo.cache.normalized.api.MemoryCacheFactory
-import com.apollographql.apollo.cache.normalized.normalizedCache
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.BuildConfig
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.graphql.CartCreateMutation
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.graphql.CartLinesAddMutation
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.graphql.CartLinesRemoveMutation
@@ -40,11 +37,7 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.graphql.type.CartL
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.graphql.type.CartLineUpdateInput
 
 class StorefrontApiClient(
-    private val apollo: ApolloClient = ApolloClient.Builder()
-        .serverUrl("https://${BuildConfig.storefrontDomain}/api/${BuildConfig.storefrontApiVersion}/graphql.json")
-        .normalizedCache(MemoryCacheFactory(maxSizeBytes = 10 * 1024 * 1024))
-        .addHttpHeader("X-Shopify-Storefront-Access-Token", BuildConfig.storefrontAccessToken)
-        .build()
+    private val apollo: ApolloClient,
 ) {
     suspend fun fetchProducts(numProducts: Int, numVariants: Int, cursor: String? = null): FetchProductsQuery.Data {
         val response = apollo.query(
