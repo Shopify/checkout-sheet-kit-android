@@ -198,7 +198,11 @@ internal class CheckoutDialog(
         val shouldRecover = ShopifyCheckoutSheetKit.configuration.errorRecovery.shouldRecoverFromError(exception)
         val isWithinRetryLimit = recoveryAttemptCount < MAX_RECOVERY_ATTEMPTS
 
-        log.d(LOG_TAG, "One time use checkout URL?: $isOneTimeUseUrl, should recover?: $shouldRecover, within retry limit?: $isWithinRetryLimit (attempt $recoveryAttemptCount of $MAX_RECOVERY_ATTEMPTS).")
+        log.d(
+            LOG_TAG,
+            "One time use checkout URL?: $isOneTimeUseUrl, should recover?: $shouldRecover, " +
+                "within retry limit?: $isWithinRetryLimit (attempt $recoveryAttemptCount of $MAX_RECOVERY_ATTEMPTS).",
+        )
         if (!isOneTimeUseUrl && shouldRecover && isWithinRetryLimit) {
             log.d(LOG_TAG, "Attempting to recover from error.")
             attemptToRecoverFromError(exception)
@@ -256,6 +260,6 @@ internal class CheckoutDialog(
 
     companion object {
         private const val LOG_TAG = "CheckoutDialog"
-        internal const val MAX_RECOVERY_ATTEMPTS = 1
+        internal const val MAX_RECOVERY_ATTEMPTS = 2
     }
 }
