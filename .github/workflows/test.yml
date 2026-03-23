@@ -1,4 +1,4 @@
-name: Lint & Run Tests
+name: Lint, Build & Run Tests
 
 on:
   push:
@@ -26,6 +26,30 @@ jobs:
 
       - name: Run Tests
         run: ./gradlew clean test --console=plain
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          submodules: true
+
+      - name: Install JDK 1.17
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+        with:
+          distribution: zulu
+          java-version: 17
+          cache: 'gradle'
+
+      - name: Setup sample app environment
+        run: cp .env.example .env
+        working-directory: samples/MobileBuyIntegration
+
+      - name: Build Sample App
+        run: ./gradlew assembleDebug
+        working-directory: samples/MobileBuyIntegration
 
   lint:
     runs-on: ubuntu-latest
