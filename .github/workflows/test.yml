@@ -43,6 +43,10 @@ jobs:
           java-version: 17
           cache: 'gradle'
 
+      - name: Setup sample app environment
+        run: cp .env.example .env
+        working-directory: samples/MobileBuyIntegration
+
       - name: Build Sample App
         run: ./gradlew assembleDebug
         working-directory: samples/MobileBuyIntegration
