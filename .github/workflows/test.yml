@@ -43,8 +43,9 @@ jobs:
           java-version: 17
           cache: 'gradle'
 
-      - name: Build
+      - name: Build Sample App
         run: ./gradlew assembleDebug
+        working-directory: samples/MobileBuyIntegration
 
   lint:
     runs-on: ubuntu-latest
