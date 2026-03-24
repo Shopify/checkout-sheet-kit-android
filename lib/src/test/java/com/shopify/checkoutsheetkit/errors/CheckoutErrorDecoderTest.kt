@@ -51,7 +51,8 @@ class CheckoutErrorDecoderTest {
                 |   "code": "sdk_not_enabled",
                 |   "reason": ""
                 |}
-            ]""".trimMargin()
+            ]
+            """.trimMargin()
         )
 
         val decoded = decoder.decodeMessage(event)
@@ -79,7 +80,8 @@ class CheckoutErrorDecoderTest {
                 |   "code": "invalid_signature",
                 |   "reason": ""
                 |}
-            ]""".trimMargin()
+            ]
+            """.trimMargin()
         )
 
         val decoded = decoder.decodeMessage(event)
@@ -105,7 +107,8 @@ class CheckoutErrorDecoderTest {
                 |   "flowType": "regular",
                 |   "type": "invalid_
                 |}
-            ]""".trimMargin()
+            ]
+            """.trimMargin()
         )
 
         assertThrows(RuntimeException::class.java) { decoder.decodeMessage(event) }
@@ -123,7 +126,8 @@ class CheckoutErrorDecoderTest {
                 |   "code": "sdk_not_enabled",
                 |   "reason": "SDK not enabled"
                 |}
-            ]""".trimMargin()
+            ]
+            """.trimMargin()
         )
 
         val decoded = decoder.decode(event)
@@ -152,7 +156,8 @@ class CheckoutErrorDecoderTest {
                 |   "code": "invalid_checkout_url",
                 |   "reason": ""
                 |}
-            ]""".trimMargin()
+            ]
+            """.trimMargin()
         )
 
         val decoded = decoder.decodeMessage(event)

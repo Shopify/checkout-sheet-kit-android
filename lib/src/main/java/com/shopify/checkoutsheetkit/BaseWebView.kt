@@ -47,7 +47,6 @@ import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
 import java.net.HttpURLConnection.HTTP_GONE
-import java.net.HttpURLConnection.HTTP_NOT_FOUND
 
 @SuppressLint("SetJavaScriptEnabled")
 internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet? = null) :
@@ -71,7 +70,9 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
         }
 
         if (WebViewFeature.isFeatureSupported(
-                WebViewFeature.PAYMENT_REQUEST)) {
+                WebViewFeature.PAYMENT_REQUEST
+            )
+        ) {
             WebSettingsCompat.setPaymentRequestEnabled(settings, true)
         }
 
@@ -127,7 +128,7 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
         val version = ShopifyCheckoutSheetKit.version.split("-").first()
         val platform = ShopifyCheckoutSheetKit.configuration.platform
         val platformSuffix = if (platform != null) " ${platform.displayName}" else ""
-        val suffix = "ShopifyCheckoutSDK/${version} ($cspSchema;$theme;$variant)$platformSuffix"
+        val suffix = "ShopifyCheckoutSDK/$version ($cspSchema;$theme;$variant)$platformSuffix"
         log.d(LOG_TAG, "Setting User-Agent suffix $suffix")
         return suffix
     }

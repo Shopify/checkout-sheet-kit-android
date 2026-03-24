@@ -125,7 +125,8 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             loadComplete = true
             val timeToLoad = System.currentTimeMillis() - initLoadTime
             checkoutBridge.sendMessage(
-                view, CheckoutBridge.SDKOperation.Instrumentation(
+                view,
+                CheckoutBridge.SDKOperation.Instrumentation(
                     InstrumentationPayload(
                         name = "checkout_finished_loading",
                         value = timeToLoad,
@@ -226,7 +227,10 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
             isPreload: Boolean,
         ): CheckoutWebView {
             val preloadingEnabled = ShopifyCheckoutSheetKit.configuration.preloading.enabled
-            log.d(LOG_TAG, "Fetch view called for url $url. Is preload: $isPreload. Preloading enabled: $preloadingEnabled.")
+            log.d(
+                LOG_TAG,
+                "Fetch view called for url $url. Is preload: $isPreload. Preloading enabled: $preloadingEnabled."
+            )
             if (!preloadingEnabled || cacheEntry?.isValid(url) != true) {
                 log.d(LOG_TAG, "Constructing new CheckoutWebView and calling loadCheckout.")
                 val view = CheckoutWebView(activity as Context).apply {
