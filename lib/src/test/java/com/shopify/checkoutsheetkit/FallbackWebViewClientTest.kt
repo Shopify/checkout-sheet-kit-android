@@ -105,5 +105,4 @@ class FallbackWebViewClientTest {
             verify(mockProcessor, never()).onCheckoutViewComplete(any())
         }
     }
-
 }

@@ -444,7 +444,7 @@ class CheckoutDialogTest {
 
         assertThat(closeMenuItem).isNotNull
         assertThat(closeMenuItem.icon).isNotNull
-        
+
         // Verify the custom icon was actually applied
         val shadowDrawable = shadowOf(closeMenuItem.icon)
         assertThat(shadowDrawable.createdFromResId).isEqualTo(android.R.drawable.ic_delete)
@@ -468,7 +468,7 @@ class CheckoutDialogTest {
 
         assertThat(closeMenuItem).isNotNull
         assertThat(closeMenuItem.icon).isNotNull
-        
+
         // Verify this is not our custom icon (the main behavior we're testing)
         // Note: In Robolectric tests, tint application to menu items can be inconsistent,
         // but the key thing is that the icon logic branch was taken correctly
@@ -491,7 +491,7 @@ class CheckoutDialogTest {
 
         assertThat(closeMenuItem).isNotNull
         assertThat(closeMenuItem.icon).isNotNull
-        
+
         // Verify no custom modifications were applied
         val shadowDrawable = shadowOf(closeMenuItem.icon)
         assertThat(shadowDrawable.createdFromResId).isNotEqualTo(android.R.drawable.ic_delete) // Not our custom icon
@@ -532,11 +532,11 @@ class CheckoutDialogTest {
 
         assertThat(closeMenuItem).isNotNull
         assertThat(closeMenuItem.icon).isNotNull
-        
+
         // Verify the custom icon was applied (not the default)
         val shadowDrawable = shadowOf(closeMenuItem.icon)
         assertThat(shadowDrawable.createdFromResId).isEqualTo(android.R.drawable.ic_delete)
-        
+
         // Custom icon should be applied, tint should be ignored
     }
 

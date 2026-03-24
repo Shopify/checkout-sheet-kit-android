@@ -61,9 +61,9 @@ class PixelEventDecoderTest {
             |        }
             |    }
             |}
-        |""".trimMargin()
+        |
+        """.trimMargin()
             .toWebToSdkEvent()
-
 
         val result = decoder.decode(event)
 
@@ -106,9 +106,9 @@ class PixelEventDecoderTest {
             |        }
             |    }
             |}
-        |""".trimMargin()
+        |
+        """.trimMargin()
             .toWebToSdkEvent()
-
 
         val result = decoder.decode(event)
 
@@ -145,7 +145,8 @@ class PixelEventDecoderTest {
             |        }
             |    }
             |}
-        |""".trimMargin()
+        |
+        """.trimMargin()
             .toWebToSdkEvent()
 
         val result = decoder.decode(event)
@@ -232,7 +233,8 @@ class PixelEventDecoderTest {
             |        }
             |    }
             |}
-        |""".trimMargin()
+        |
+        """.trimMargin()
             .toWebToSdkEvent()
 
         val result = decoder.decode(event)
@@ -245,7 +247,9 @@ class PixelEventDecoderTest {
         assertThat(pageViewedEvent.id).isEqualTo("sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B")
         assertThat(pageViewedEvent.data).isNull()
         assertThat(pageViewedEvent.context?.document?.location?.href)
-            .isEqualTo("https://test-store.myshopify.com/checkouts/cn/Z2NwLXVzLWNlbnRyYWwxOjAxSEs0U1BUSlozNDhFME5KTlM2MVhaOVE3?ew_m=f")
+            .isEqualTo(
+                "https://test-store.myshopify.com/checkouts/cn/Z2NwLXVzLWNlbnRyYWwxOjAxSEs0U1BUSlozNDhFME5KTlM2MVhaOVE3?ew_m=f"
+            )
 
         verifyNoInteractions(logWrapper)
     }
@@ -259,7 +263,8 @@ class PixelEventDecoderTest {
             |        "type": "standard",
             |        "id": "sh-88153c5a-8F2D-4CCA-3231-EF5C032A4C3B",
             |}
-        |""".trimMargin()
+        |
+        """.trimMargin()
             .toWebToSdkEvent()
 
         val result = decoder.decode(event)
