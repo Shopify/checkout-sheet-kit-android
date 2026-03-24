@@ -37,10 +37,25 @@ project before it is implemented.
 1. Fork the repo and branch off of main
 2. Create a feature branch in your fork
 3. Make changes and add any relevant tests
-4. Verify the changes locally (e.g. via the sample app)
-5. Commit your changes and push
-6. Ensure all checks (e.g. tests) are passing in GitHub
-7. Create a new pull request with a detailed description of what is changing and why
+4. Run formatting and lint checks (see below)
+5. Verify the changes locally (e.g. via the sample app)
+6. Commit your changes and push
+7. Ensure all checks (e.g. tests) are passing in GitHub
+8. Create a new pull request with a detailed description of what is changing and why
+
+## Formatting
+
+This project uses [detekt](https://detekt.dev/) for Kotlin linting and formatting. Before submitting a PR, please run the following to auto-fix formatting issues:
+
+```bash
+./gradlew detekt --auto-correct
+```
+
+To check for lint issues without auto-correcting:
+
+```bash
+./gradlew detekt
+```
 
 ## Releasing a new version
 
