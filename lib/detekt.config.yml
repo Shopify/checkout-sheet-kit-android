@@ -19,3 +19,13 @@ exceptions:
 complexity:
   TooManyFunctions:
     thresholdInClasses: 16
+formatting:
+  active: true
+  autoCorrect: true
+  MaximumLineLength:
+    active: true
+    maxLineLength: 140
+  NoUnusedImports:
+    active: true
+  NoWildcardImports:
+    active: true

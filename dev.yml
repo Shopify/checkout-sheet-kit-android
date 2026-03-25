@@ -35,6 +35,10 @@ commands:
     aliases: [lint]
     run: ./gradlew detekt lintRelease
 
+  fix:
+    desc: Automatically fix format and lint issues where possible
+    run: ./gradlew detekt --auto-correct
+
   apollo:
     subcommands:
       download_schema:
