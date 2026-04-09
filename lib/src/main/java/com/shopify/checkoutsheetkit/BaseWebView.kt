@@ -123,12 +123,17 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
         return super.onKeyDown(keyCode, event)
     }
 
+    @OptIn(InternalCheckoutApi::class)
     internal fun userAgentSuffix(): String {
         val theme = ShopifyCheckoutSheetKit.configuration.colorScheme.id
         val version = ShopifyCheckoutSheetKit.version.split("-").first()
         val platform = ShopifyCheckoutSheetKit.configuration.platform
-        val platformSuffix = if (platform != null) " ${platform.displayName}" else ""
-        val suffix = "ShopifyCheckoutSDK/$version ($cspSchema;$theme;$variant)$platformSuffix"
+        val platformVersion = ShopifyCheckoutSheetKit.configuration.platformVersion
+        val platformSuffix = if (platform != null) {
+            if (platformVersion != null) " ${platform.displayName}/$platformVersion" else " ${platform.displayName}"
+        } else ""
+        val kotlinVersion = " Kotlin/${KotlinVersion.CURRENT}"
+        val suffix = "ShopifyCheckoutSDK/$version ($cspSchema;$theme;$variant)$platformSuffix$kotlinVersion"
         log.d(LOG_TAG, "Setting User-Agent suffix $suffix")
         return suffix
     }

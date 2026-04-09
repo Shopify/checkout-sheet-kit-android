@@ -23,45 +23,14 @@
 package com.shopify.checkoutsheetkit
 
 /**
- * Configuration for Shopify Checkout Sheet Kit.
+ * Marks APIs that are internal to Checkout Sheet Kit integration libraries.
+ * These APIs are not intended for direct use by app developers.
  *
- * Allows:
- * - Enabling/disabling preloading,
- * - Specifying the colorScheme that should be used for checkout.
+ * Using these APIs requires explicit opt-in with @OptIn(InternalCheckoutApi::class).
  */
-public data class Configuration internal constructor(
-    var colorScheme: ColorScheme = ColorScheme.Automatic(),
-    var preloading: Preloading = Preloading(),
-    var errorRecovery: ErrorRecovery = object : ErrorRecovery {},
-    var platform: Platform? = null,
-    @InternalCheckoutApi
-    var platformVersion: String? = null,
-    var logLevel: LogLevel = LogLevel.WARN,
+@RequiresOptIn(
+    message = "This API is internal to Checkout Sheet Kit integrations (e.g. React Native). Do not use directly.",
+    level = RequiresOptIn.Level.ERROR
 )
-
-/**
- * Configuration related to preloading.
- *
- * Initially allows toggling the preloading feature.
- */
-public data class Preloading(
-    val enabled: Boolean = true
-)
-
-public enum class LogLevel {
-    DEBUG, WARN, ERROR
-}
-
-public interface ErrorRecovery {
-    public fun preRecoveryActions(exception: CheckoutException, checkoutUrl: String) {
-        // logging or pre-recovery cleanup can be added here
-    }
-
-    public fun shouldRecoverFromError(checkoutException: CheckoutException): Boolean {
-        return checkoutException.isRecoverable
-    }
-}
-
-public enum class Platform(public val displayName: String) {
-    REACT_NATIVE("ReactNative")
-}
+@Retention(AnnotationRetention.BINARY)
+public annotation class InternalCheckoutApi

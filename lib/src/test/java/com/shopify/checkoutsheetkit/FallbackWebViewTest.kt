@@ -36,12 +36,14 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 
+@OptIn(InternalCheckoutApi::class)
 @RunWith(RobolectricTestRunner::class)
 class FallbackWebViewTest {
 
     @After
     fun tearDown() {
         ShopifyCheckoutSheetKit.configuration.platform = null
+        ShopifyCheckoutSheetKit.configuration.platformVersion = null
     }
 
     @Test
@@ -77,7 +79,8 @@ class FallbackWebViewTest {
         ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Dark()
         Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
             val view = FallbackWebView(activityController.get())
-            assertThat(view.settings.userAgentString).endsWith("(noconnect;dark;standard_recovery)")
+            assertThat(view.settings.userAgentString).contains("(noconnect;dark;standard_recovery)")
+            assertThat(view.settings.userAgentString).endsWith("Kotlin/${KotlinVersion.CURRENT}")
         }
     }
 
@@ -86,7 +89,8 @@ class FallbackWebViewTest {
         ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Light()
         Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
             val view = FallbackWebView(activityController.get())
-            assertThat(view.settings.userAgentString).endsWith("(noconnect;light;standard_recovery)")
+            assertThat(view.settings.userAgentString).contains("(noconnect;light;standard_recovery)")
+            assertThat(view.settings.userAgentString).endsWith("Kotlin/${KotlinVersion.CURRENT}")
         }
     }
 
@@ -95,7 +99,8 @@ class FallbackWebViewTest {
         ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Web()
         Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
             val view = FallbackWebView(activityController.get())
-            assertThat(view.settings.userAgentString).endsWith("(noconnect;web_default;standard_recovery)")
+            assertThat(view.settings.userAgentString).contains("(noconnect;web_default;standard_recovery)")
+            assertThat(view.settings.userAgentString).endsWith("Kotlin/${KotlinVersion.CURRENT}")
         }
     }
 
@@ -104,7 +109,8 @@ class FallbackWebViewTest {
         ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Automatic()
         Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
             val view = FallbackWebView(activityController.get())
-            assertThat(view.settings.userAgentString).endsWith("(noconnect;automatic;standard_recovery)")
+            assertThat(view.settings.userAgentString).contains("(noconnect;automatic;standard_recovery)")
+            assertThat(view.settings.userAgentString).endsWith("Kotlin/${KotlinVersion.CURRENT}")
         }
     }
 
@@ -114,7 +120,40 @@ class FallbackWebViewTest {
         ShopifyCheckoutSheetKit.configuration.platform = Platform.REACT_NATIVE
         Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
             val view = FallbackWebView(activityController.get())
-            assertThat(view.settings.userAgentString).endsWith("(noconnect;automatic;standard_recovery) ReactNative")
+            assertThat(view.settings.userAgentString).contains("(noconnect;automatic;standard_recovery) ReactNative")
+            assertThat(view.settings.userAgentString).endsWith("Kotlin/${KotlinVersion.CURRENT}")
+        }
+    }
+
+    @Test
+    fun `user agent suffix includes platform with version if specified`() {
+        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Automatic()
+        ShopifyCheckoutSheetKit.configuration.platform = Platform.REACT_NATIVE
+        ShopifyCheckoutSheetKit.configuration.platformVersion = "0.76.3"
+        Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
+            val view = FallbackWebView(activityController.get())
+            assertThat(view.settings.userAgentString).contains("ReactNative/0.76.3")
+            assertThat(view.settings.userAgentString).endsWith("Kotlin/${KotlinVersion.CURRENT}")
+        }
+    }
+
+    @Test
+    fun `user agent suffix includes platform without version for backward compatibility`() {
+        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Automatic()
+        ShopifyCheckoutSheetKit.configuration.platform = Platform.REACT_NATIVE
+        ShopifyCheckoutSheetKit.configuration.platformVersion = null
+        Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
+            val view = FallbackWebView(activityController.get())
+            assertThat(view.settings.userAgentString).contains("ReactNative Kotlin/")
+        }
+    }
+
+    @Test
+    fun `user agent suffix includes kotlin version by default`() {
+        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Dark()
+        Robolectric.buildActivity(ComponentActivity::class.java).use { activityController ->
+            val view = FallbackWebView(activityController.get())
+            assertThat(view.settings.userAgentString).endsWith("Kotlin/${KotlinVersion.CURRENT}")
         }
     }
 

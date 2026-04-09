@@ -49,6 +49,7 @@ import org.robolectric.Shadows.shadowOf
 import org.robolectric.shadows.ShadowLooper
 import java.util.regex.Pattern
 
+@OptIn(InternalCheckoutApi::class)
 @RunWith(RobolectricTestRunner::class)
 class CheckoutWebViewTest {
 
@@ -65,6 +66,7 @@ class CheckoutWebViewTest {
     @After
     fun tearDown() {
         ShopifyCheckoutSheetKit.configuration.platform = null
+        ShopifyCheckoutSheetKit.configuration.platformVersion = null
     }
 
     @Test
@@ -96,7 +98,8 @@ class CheckoutWebViewTest {
         ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Dark()
         val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
 
-        assertThat(view.settings.userAgentString).endsWith("(8.1;dark;standard)")
+        assertThat(view.settings.userAgentString).contains("(8.1;dark;standard)")
+        assertThat(view.settings.userAgentString).endsWith("Kotlin/${KotlinVersion.CURRENT}")
     }
 
     @Test
@@ -104,7 +107,8 @@ class CheckoutWebViewTest {
         ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Light()
         val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
 
-        assertThat(view.settings.userAgentString).endsWith("(8.1;light;standard)")
+        assertThat(view.settings.userAgentString).contains("(8.1;light;standard)")
+        assertThat(view.settings.userAgentString).endsWith("Kotlin/${KotlinVersion.CURRENT}")
     }
 
     @Test
@@ -112,7 +116,8 @@ class CheckoutWebViewTest {
         ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Web()
         val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
 
-        assertThat(view.settings.userAgentString).endsWith("(8.1;web_default;standard)")
+        assertThat(view.settings.userAgentString).contains("(8.1;web_default;standard)")
+        assertThat(view.settings.userAgentString).endsWith("Kotlin/${KotlinVersion.CURRENT}")
     }
 
     @Test
@@ -120,7 +125,8 @@ class CheckoutWebViewTest {
         ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Automatic()
         val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
 
-        assertThat(view.settings.userAgentString).endsWith("(8.1;automatic;standard)")
+        assertThat(view.settings.userAgentString).contains("(8.1;automatic;standard)")
+        assertThat(view.settings.userAgentString).endsWith("Kotlin/${KotlinVersion.CURRENT}")
     }
 
     @Test
@@ -129,7 +135,37 @@ class CheckoutWebViewTest {
         ShopifyCheckoutSheetKit.configuration.platform = Platform.REACT_NATIVE
         val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
 
-        assertThat(view.settings.userAgentString).endsWith("(8.1;automatic;standard) ReactNative")
+        assertThat(view.settings.userAgentString).contains("(8.1;automatic;standard) ReactNative")
+        assertThat(view.settings.userAgentString).endsWith("Kotlin/${KotlinVersion.CURRENT}")
+    }
+
+    @Test
+    fun `user agent suffix includes platform with version if specified`() {
+        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Automatic()
+        ShopifyCheckoutSheetKit.configuration.platform = Platform.REACT_NATIVE
+        ShopifyCheckoutSheetKit.configuration.platformVersion = "0.76.3"
+        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
+
+        assertThat(view.settings.userAgentString).contains("ReactNative/0.76.3")
+        assertThat(view.settings.userAgentString).endsWith("Kotlin/${KotlinVersion.CURRENT}")
+    }
+
+    @Test
+    fun `user agent suffix includes platform without version for backward compatibility`() {
+        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Automatic()
+        ShopifyCheckoutSheetKit.configuration.platform = Platform.REACT_NATIVE
+        ShopifyCheckoutSheetKit.configuration.platformVersion = null
+        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
+
+        assertThat(view.settings.userAgentString).contains("ReactNative Kotlin/")
+    }
+
+    @Test
+    fun `user agent suffix includes kotlin version by default`() {
+        ShopifyCheckoutSheetKit.configuration.colorScheme = ColorScheme.Dark()
+        val view = CheckoutWebView.cacheableCheckoutView(URL, activity)
+
+        assertThat(view.settings.userAgentString).endsWith("Kotlin/${KotlinVersion.CURRENT}")
     }
 
     @Test
