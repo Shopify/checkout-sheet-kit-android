@@ -205,13 +205,20 @@ internal class CheckoutDialog(
                 "within retry limit?: $isWithinRetryLimit (attempt $recoveryAttemptCount of $MAX_RECOVERY_ATTEMPTS), " +
                 "checkout completed?: $checkoutCompleted.",
         )
-        if (!isOneTimeUseUrl && shouldRecover && isWithinRetryLimit && !checkoutCompleted) {
-            log.d(LOG_TAG, "Attempting to recover from error.")
-            attemptToRecoverFromError(exception)
-        } else {
+        if (isOneTimeUseUrl || checkoutCompleted) {
             log.d(LOG_TAG, "Not attempting to recover, dismissing sheet.")
             dismiss()
+            return
         }
+
+        if (!shouldRecover || !isWithinRetryLimit) {
+            log.d(LOG_TAG, "Not attempting to recover, dismissing sheet.")
+            dismiss()
+            return
+        }
+
+        log.d(LOG_TAG, "Attempting to recover from error.")
+        attemptToRecoverFromError(exception)
     }
 
     internal fun attemptToRecoverFromError(exception: CheckoutException): Boolean {
