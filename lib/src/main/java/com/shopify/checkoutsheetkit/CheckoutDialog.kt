@@ -57,6 +57,7 @@ internal class CheckoutDialog(
 ) : Dialog(context) {
 
     internal var recoveryAttemptCount = 0
+    internal var checkoutCompleted = false
 
     fun start(context: ComponentActivity) {
         log.d(LOG_TAG, "Dialog start called.")
@@ -201,9 +202,10 @@ internal class CheckoutDialog(
         log.d(
             LOG_TAG,
             "One time use checkout URL?: $isOneTimeUseUrl, should recover?: $shouldRecover, " +
-                "within retry limit?: $isWithinRetryLimit (attempt $recoveryAttemptCount of $MAX_RECOVERY_ATTEMPTS).",
+                "within retry limit?: $isWithinRetryLimit (attempt $recoveryAttemptCount of $MAX_RECOVERY_ATTEMPTS), " +
+                "checkout completed?: $checkoutCompleted.",
         )
-        if (!isOneTimeUseUrl && shouldRecover && isWithinRetryLimit) {
+        if (!isOneTimeUseUrl && shouldRecover && isWithinRetryLimit && !checkoutCompleted) {
             log.d(LOG_TAG, "Attempting to recover from error.")
             attemptToRecoverFromError(exception)
         } else {
@@ -236,6 +238,7 @@ internal class CheckoutDialog(
             closeCheckoutDialogWithError = ::closeCheckoutDialogWithError,
             setProgressBarVisibility = ::setProgressBarVisibility,
             updateProgressBarPercentage = ::updateProgressBarPercentage,
+            onCheckoutCompleteInternal = { checkoutCompleted = true },
         )
     }
 
