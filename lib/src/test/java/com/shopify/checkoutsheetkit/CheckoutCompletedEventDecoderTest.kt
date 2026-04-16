@@ -45,7 +45,7 @@ class CheckoutCompletedEventDecoderTest {
     private val mockLogWrapper = mock<LogWrapper>()
 
     private val decoder = CheckoutCompletedEventDecoder(
-        decoder = Json { ignoreUnknownKeys = true},
+        decoder = Json { ignoreUnknownKeys = true },
         log = mockLogWrapper
     )
 

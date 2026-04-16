@@ -42,3 +42,7 @@ updates:
     schedule:
       interval: daily
     open-pull-requests-limit: 5
+    groups:
+      apollo:
+        patterns:
+          - "com.apollographql.apollo*"

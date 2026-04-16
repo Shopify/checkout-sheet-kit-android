@@ -315,6 +315,44 @@ class CheckoutDialogTest {
     }
 
     @Test
+    fun `closeCheckoutDialogWithError does not recover on second recoverable error - prevents infinite loop`() {
+        val mockEventProcessor = mock<DefaultCheckoutEventProcessor>()
+        ShopifyCheckoutSheetKit.present("https://shopify.com", activity, mockEventProcessor)
+
+        val checkoutDialog = ShadowDialog.getLatestDialog() as CheckoutDialog
+        assertThat(checkoutDialog.containsChildOfType(CheckoutWebView::class.java)).isTrue()
+
+        // First recoverable error triggers recovery
+        checkoutDialog.closeCheckoutDialogWithError(checkoutException(isRecoverable = true))
+        shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+
+        assertThat(checkoutDialog.containsChildOfType(FallbackWebView::class.java)).isTrue()
+        assertThat(checkoutDialog.containsChildOfType(CheckoutWebView::class.java)).isFalse()
+        assertThat(checkoutDialog.recoveryAttemptCount).isEqualTo(1)
+
+        // Second recoverable error should NOT trigger recovery - dismisses instead
+        checkoutDialog.closeCheckoutDialogWithError(checkoutException(isRecoverable = true))
+        shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+
+        assertThat(checkoutDialog.recoveryAttemptCount).isEqualTo(2)
+        assertThat(checkoutDialog.isShowing).isFalse()
+    }
+
+    @Test
+    fun `closeCheckoutDialogWithError increments recovery attempt count`() {
+        val mockEventProcessor = mock<DefaultCheckoutEventProcessor>()
+        ShopifyCheckoutSheetKit.present("https://shopify.com", activity, mockEventProcessor)
+
+        val checkoutDialog = ShadowDialog.getLatestDialog() as CheckoutDialog
+        assertThat(checkoutDialog.recoveryAttemptCount).isEqualTo(0)
+
+        checkoutDialog.closeCheckoutDialogWithError(checkoutException(isRecoverable = false))
+        shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+
+        assertThat(checkoutDialog.recoveryAttemptCount).isEqualTo(1)
+    }
+
+    @Test
     fun `attemptToRecoverFromError replaces CheckoutWebView with FallbackWebView`() {
         ShopifyCheckoutSheetKit.present("https://shopify.com", activity, processor)
 
@@ -406,7 +444,7 @@ class CheckoutDialogTest {
 
         assertThat(closeMenuItem).isNotNull
         assertThat(closeMenuItem.icon).isNotNull
-        
+
         // Verify the custom icon was actually applied
         val shadowDrawable = shadowOf(closeMenuItem.icon)
         assertThat(shadowDrawable.createdFromResId).isEqualTo(android.R.drawable.ic_delete)
@@ -430,7 +468,7 @@ class CheckoutDialogTest {
 
         assertThat(closeMenuItem).isNotNull
         assertThat(closeMenuItem.icon).isNotNull
-        
+
         // Verify this is not our custom icon (the main behavior we're testing)
         // Note: In Robolectric tests, tint application to menu items can be inconsistent,
         // but the key thing is that the icon logic branch was taken correctly
@@ -453,7 +491,7 @@ class CheckoutDialogTest {
 
         assertThat(closeMenuItem).isNotNull
         assertThat(closeMenuItem.icon).isNotNull
-        
+
         // Verify no custom modifications were applied
         val shadowDrawable = shadowOf(closeMenuItem.icon)
         assertThat(shadowDrawable.createdFromResId).isNotEqualTo(android.R.drawable.ic_delete) // Not our custom icon
@@ -494,11 +532,11 @@ class CheckoutDialogTest {
 
         assertThat(closeMenuItem).isNotNull
         assertThat(closeMenuItem.icon).isNotNull
-        
+
         // Verify the custom icon was applied (not the default)
         val shadowDrawable = shadowOf(closeMenuItem.icon)
         assertThat(shadowDrawable.createdFromResId).isEqualTo(android.R.drawable.ic_delete)
-        
+
         // Custom icon should be applied, tint should be ignored
     }
 
