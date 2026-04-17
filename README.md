@@ -42,7 +42,8 @@
 ## Requirements
 
 - JDK 17+
-- Android SDK 23+
+- Android minSdk 23+
+- Android compileSdk 35+
 - Chrome >= 80
 
 ## Getting Started
