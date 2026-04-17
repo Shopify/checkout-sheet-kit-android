@@ -26,6 +26,7 @@ import com.apollographql.apollo.api.Optional
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.client.StorefrontApiClient
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.graphql.type.CartBuyerIdentityInput
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.graphql.type.CartDeliveryInput
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.graphql.type.CartInput
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.graphql.type.CartLineInput
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.graphql.type.CartLineUpdateInput
@@ -52,6 +53,11 @@ class CartRepository(
                 )
             ),
             buyerIdentity = Optional.present(buyerIdentity(demoBuyerIdentityEnabled, customerAccessToken)),
+            delivery = if (demoBuyerIdentityEnabled && customerAccessToken == null) {
+                Optional.present(CartDeliveryInput(addresses = Optional.present(DemoBuyerIdentity.deliveryAddresses)))
+            } else {
+                Optional.Absent
+            },
         )
 
         val data = storefrontApiClient.createCart(input)
