@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
@@ -15,7 +16,7 @@ def resolveEnvVarValue(name, defaultValue) {
     return rawValue ? rawValue : defaultValue
 }
 
-def versionName = resolveEnvVarValue("CHECKOUT_SHEET_KIT_VERSION", "3.5.4")
+def versionName = resolveEnvVarValue("CHECKOUT_SHEET_KIT_VERSION", "3.6.0")
 
 ext {
     app_compat_version = '1.7.1'
@@ -40,15 +41,18 @@ android {
 
     defaultConfig {
         minSdk = 23
-        targetSdk = 35
         versionCode = 1
         versionName
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField "String", "SDK_VERSION", "\"$versionName\""
+
+        aarMetadata {
+            minCompileSdk = 35
+        }
     }
 
-    lintOptions {
+    lint {
         checkDependencies = true
         warningsAsErrors = true
         warning 'LintBaseline'
@@ -89,6 +93,10 @@ android {
 tasks.withType(KotlinJvmCompile).configureEach {
     compilerOptions {
         jvmTarget.set(JvmTarget.JVM_1_8)
+        // Pin language/API version so bytecode stays consumable by Kotlin 1.9.20+ consumers
+        // even when the compiler later moves to 2.x.
+        apiVersion.set(KotlinVersion.KOTLIN_1_9)
+        languageVersion.set(KotlinVersion.KOTLIN_1_9)
         if (!name.contains("Test")) {
             freeCompilerArgs.add("-Xexplicit-api=strict")
         }
