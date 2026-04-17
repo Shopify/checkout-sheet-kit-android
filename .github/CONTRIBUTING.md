@@ -57,6 +57,18 @@ To check for lint issues without auto-correcting:
 ./gradlew detekt
 ```
 
+## Public API surface
+
+The library's public API is tracked via a committed baseline at `lib/api/lib.api`, managed by the [binary-compatibility-validator](https://github.com/Kotlin/binary-compatibility-validator) Gradle plugin. CI runs `./gradlew :lib:apiCheck` on every PR and fails if the compiled public API diverges from the baseline.
+
+If your change intentionally modifies public API (adds, removes, or changes any public class, method, or field):
+
+1. Run `dev api dump` (or `./gradlew :lib:apiDump`) to regenerate the baseline.
+2. Review the diff in `lib/api/lib.api` alongside your code changes.
+3. Commit the updated `.api` file in the same PR.
+
+If you did *not* intend to change public API and `apiCheck` is failing, the diff shows what your change inadvertently affected — treat it as a signal that something in your PR has consumer-visible impact.
+
 ## Releasing a new version
 
 Open a pull request with the following changes:
