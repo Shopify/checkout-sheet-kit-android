@@ -115,13 +115,15 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_BACK && canGoBack()) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && canGoBack() && !isOnConfirmationPage()) {
             log.d(LOG_TAG, "Back key event detected, navigating back.")
             goBack()
             return true
         }
         return super.onKeyDown(keyCode, event)
     }
+
+    private fun isOnConfirmationPage(): Boolean = url?.let(Uri::parse).isConfirmationPage()
 
     internal fun userAgentSuffix(): String {
         val theme = ShopifyCheckoutSheetKit.configuration.colorScheme.id
