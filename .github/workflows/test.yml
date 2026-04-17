@@ -27,6 +27,9 @@ jobs:
       - name: Run Tests
         run: ./gradlew clean test --console=plain
 
+      - name: Check API Surface
+        run: ./gradlew :lib:apiCheck --console=plain
+
   build:
     runs-on: ubuntu-latest
 

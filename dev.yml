@@ -39,6 +39,16 @@ commands:
     desc: Automatically fix format and lint issues where possible
     run: ./gradlew detekt --auto-correct
 
+  api:
+    desc: Validate or update the public API baseline (lib/api/lib.api)
+    subcommands:
+      check:
+        desc: Verify public API matches the committed baseline
+        run: ./gradlew :lib:apiCheck
+      dump:
+        desc: Regenerate the baseline after intentional public API changes
+        run: ./gradlew :lib:apiDump
+
   apollo:
     subcommands:
       download_schema:
