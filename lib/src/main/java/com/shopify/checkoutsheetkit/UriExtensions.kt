@@ -1,4 +1,4 @@
- /*
+/*
  * MIT License
  *
  * Copyright 2023-present, Shopify Inc.
