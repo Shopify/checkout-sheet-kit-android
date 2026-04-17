@@ -4,10 +4,12 @@ type: android
 
 up:
   - ruby
+  - packages:
+    - rover
   - custom:
       name: Ensure sample app .env files exists
       met?: |
-        ([ -f "./samples/MobileBuyIntegration/.env" ] && [ -f "./samples/SimpleCheckout/.env" ] || exit 1)
+        ([ -f "./samples/MobileBuyIntegration/.env" ] || exit 1)
       meet: ./scripts/setup_env.sh
 
 commands:
@@ -17,7 +19,7 @@ commands:
     subcommands:
       samples:
         desc: Build all sample applications
-        run: cd samples/MobileBuyIntegration && ./gradlew build && cd ../SimpleCheckout && ./gradlew build
+        run: cd samples/MobileBuyIntegration && ./gradlew build
 
   test:
     subcommands:
@@ -32,6 +34,19 @@ commands:
     desc: Run code formatting and linting
     aliases: [lint]
     run: ./gradlew detekt lintRelease
+
+  fix:
+    desc: Automatically fix format and lint issues where possible
+    run: ./gradlew detekt --auto-correct
+
+  apollo:
+    subcommands:
+      download_schema:
+        desc: "Download GraphQL Schema. Usage: dev apollo download_schema"
+        run: ./scripts/apollo_download_schema
+      codegen:
+        desc: "Generate Apollo Kotlin models. Usage: dev apollo codegen"
+        run: ./scripts/apollo_codegen
 
 check:
   license-headers: ./scripts/check_license_headers.rb

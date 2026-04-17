@@ -133,7 +133,11 @@ class ShopifyCheckoutSheetKitTest {
                 assertThat(originalEntry.isStale).isFalse()
 
                 // present loads the cached view
-                ShopifyCheckoutSheetKit.present("https://one.com", activity, noopDefaultCheckoutEventProcessor(activity))
+                ShopifyCheckoutSheetKit.present(
+                    "https://one.com",
+                    activity,
+                    noopDefaultCheckoutEventProcessor(activity)
+                )
                 ShadowLooper.shadowMainLooper().runToEndOfTasks()
 
                 val secondEntry = CheckoutWebView.cacheEntry
@@ -168,7 +172,11 @@ class ShopifyCheckoutSheetKitTest {
                 assertThat(originalEntry?.isStale).isFalse()
 
                 // present loads the cached view
-                ShopifyCheckoutSheetKit.present("https://one.com", activity, noopDefaultCheckoutEventProcessor(activity))
+                ShopifyCheckoutSheetKit.present(
+                    "https://one.com",
+                    activity,
+                    noopDefaultCheckoutEventProcessor(activity)
+                )
                 ShadowLooper.shadowMainLooper().runToEndOfTasks()
 
                 val secondEntry = CheckoutWebView.cacheEntry

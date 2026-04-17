@@ -63,7 +63,7 @@ internal class CheckoutErrorDecoder @JvmOverloads constructor(
             CheckoutErrorGroup.UNRECOVERABLE ->
                 ClientException(
                     errorDescription = this.reason,
-                    isRecoverable = true,
+                    isRecoverable = false,
                 )
 
             CheckoutErrorGroup.EXPIRED ->

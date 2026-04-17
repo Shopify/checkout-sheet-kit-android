@@ -4,6 +4,7 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.serialization'
     id 'com.google.devtools.ksp'
     id 'org.jetbrains.kotlin.plugin.compose'
+    id 'com.apollographql.apollo'
 }
 
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -22,6 +23,7 @@ def properties = loadProperties()
 // Storefront API
 def storefrontDomain = properties.getProperty("STOREFRONT_DOMAIN")
 def accessToken = properties.getProperty("STOREFRONT_ACCESS_TOKEN")
+def apiVersion = properties.getProperty("API_VERSION", "2025-07")
 
 // Customer Account API
 def customerAccountApiClientId = properties.getProperty("CUSTOMER_ACCOUNT_API_CLIENT_ID")
@@ -51,6 +53,7 @@ android {
         }
         buildConfigField "String", "storefrontDomain", "\"$storefrontDomain\""
         buildConfigField "String", "storefrontAccessToken", "\"$accessToken\""
+        buildConfigField "String", "storefrontApiVersion", "\"$apiVersion\""
         buildConfigField "String", "customerAccountApiClientId", "\"$customerAccountApiClientId\""
         buildConfigField "String", "customerAccountApiRedirectUri", "\"$customerAccountApiRedirectUri\""
         buildConfigField "String", "customerAccountApiAuthBaseUrl", "\"$customerAccountApiAuthBaseUrl\""
@@ -112,8 +115,9 @@ dependencies {
     annotationProcessor "androidx.room:room-compiler:$room_version"
     ksp "androidx.room:room-compiler:$room_version"
 
-    // SDK facilitating calling the Shopify Storefront API
-    implementation "com.shopify.mobilebuysdk:buy3:$mobile_buy_version"
+    // Apollo GraphQL client for the Shopify Storefront API
+    implementation "com.apollographql.apollo:apollo-runtime:$apollo_version"
+    implementation "com.apollographql.apollo:apollo-normalized-cache:$apollo_version"
 
     // Image loading library
     implementation "io.coil-kt:coil-compose:$coil_version"
@@ -126,4 +130,11 @@ dependencies {
 
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_ui_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_ui_version"
+}
+
+apollo {
+    service("storefront") {
+        packageName.set("com.shopify.checkout_sdk_mobile_buy_integration_sample.graphql")
+        srcDir("src/main/graphql")
+    }
 }

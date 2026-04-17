@@ -30,7 +30,6 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.d
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductVariant
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductVariantOptionDetails
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.products.product.data.ProductVariantSelectedOption
-import com.shopify.graphql.support.ID
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -63,7 +62,7 @@ class ProductViewModel(
         }
     }
 
-    fun fetchProduct(productId: ID) = viewModelScope.launch {
+    fun fetchProduct(productId: String) = viewModelScope.launch {
         Timber.i("Fetching product with id $productId")
         try {
             val product = productRepository.getProduct(productId)

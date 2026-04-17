@@ -1,0 +1,10 @@
+query FetchProduct($productId: ID!, $numVariants: Int!) {
+  product(id: $productId) {
+    ...ProductFragment
+    variants(first: $numVariants) {
+      nodes {
+        ...ProductVariantFragment
+      }
+    }
+  }
+}

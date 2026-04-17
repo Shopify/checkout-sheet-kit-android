@@ -57,9 +57,11 @@ class LogWrapperTest {
         }
 
         log.d("TAG", "Debug message")
-        assertThat(ShadowLog.getLogs().any {
-            it.type == Log.DEBUG && it.tag == "TAG" && it.msg == "Debug message"
-        }).isTrue()
+        assertThat(
+            ShadowLog.getLogs().any {
+                it.type == Log.DEBUG && it.tag == "TAG" && it.msg == "Debug message"
+            }
+        ).isTrue()
     }
 
     @Test
@@ -69,9 +71,11 @@ class LogWrapperTest {
         }
 
         log.d("TAG", "Debug message")
-        assertThat(ShadowLog.getLogs().any {
-            it.type == Log.DEBUG && it.tag == "TAG" && it.msg == "Debug message"
-        }).isFalse()
+        assertThat(
+            ShadowLog.getLogs().any {
+                it.type == Log.DEBUG && it.tag == "TAG" && it.msg == "Debug message"
+            }
+        ).isFalse()
     }
 
     @Test
@@ -81,9 +85,11 @@ class LogWrapperTest {
         }
 
         log.d("TAG", "Debug message")
-        assertThat(ShadowLog.getLogs().any {
-            it.type == Log.DEBUG && it.tag == "TAG" && it.msg == "Debug message"
-        }).isFalse()
+        assertThat(
+            ShadowLog.getLogs().any {
+                it.type == Log.DEBUG && it.tag == "TAG" && it.msg == "Debug message"
+            }
+        ).isFalse()
     }
 
     @Test
@@ -93,9 +99,11 @@ class LogWrapperTest {
         }
 
         log.w("TAG", "Warn message")
-        assertThat(ShadowLog.getLogs().any {
-            it.type == Log.WARN && it.tag == "TAG" && it.msg == "Warn message"
-        }).isTrue()
+        assertThat(
+            ShadowLog.getLogs().any {
+                it.type == Log.WARN && it.tag == "TAG" && it.msg == "Warn message"
+            }
+        ).isTrue()
     }
 
     @Test
@@ -105,9 +113,11 @@ class LogWrapperTest {
         }
 
         log.w("TAG", "Warn message")
-        assertThat(ShadowLog.getLogs().any {
-            it.type == Log.WARN && it.tag == "TAG" && it.msg == "Warn message"
-        }).isTrue()
+        assertThat(
+            ShadowLog.getLogs().any {
+                it.type == Log.WARN && it.tag == "TAG" && it.msg == "Warn message"
+            }
+        ).isTrue()
     }
 
     @Test
@@ -117,9 +127,11 @@ class LogWrapperTest {
         }
 
         log.w("TAG", "Warn message")
-        assertThat(ShadowLog.getLogs().any {
-            it.type == Log.WARN && it.tag == "TAG" && it.msg == "Warn message"
-        }).isFalse()
+        assertThat(
+            ShadowLog.getLogs().any {
+                it.type == Log.WARN && it.tag == "TAG" && it.msg == "Warn message"
+            }
+        ).isFalse()
     }
 
     @Test
@@ -129,9 +141,11 @@ class LogWrapperTest {
         }
 
         log.e("TAG", "Error message")
-        assertThat(ShadowLog.getLogs().any {
-            it.type == Log.ERROR && it.tag == "TAG" && it.msg == "Error message"
-        }).isTrue()
+        assertThat(
+            ShadowLog.getLogs().any {
+                it.type == Log.ERROR && it.tag == "TAG" && it.msg == "Error message"
+            }
+        ).isTrue()
     }
 
     @Test
@@ -141,9 +155,11 @@ class LogWrapperTest {
         }
 
         log.e("TAG", "Error message")
-        assertThat(ShadowLog.getLogs().any {
-            it.type == Log.ERROR && it.tag == "TAG" && it.msg == "Error message"
-        }).isTrue()
+        assertThat(
+            ShadowLog.getLogs().any {
+                it.type == Log.ERROR && it.tag == "TAG" && it.msg == "Error message"
+            }
+        ).isTrue()
     }
 
     @Test
@@ -153,8 +169,10 @@ class LogWrapperTest {
         }
 
         log.e("TAG", "Error message")
-        assertThat(ShadowLog.getLogs().any {
-            it.type == Log.ERROR && it.tag == "TAG" && it.msg == "Error message"
-        }).isTrue()
+        assertThat(
+            ShadowLog.getLogs().any {
+                it.type == Log.ERROR && it.tag == "TAG" && it.msg == "Error message"
+            }
+        ).isTrue()
     }
 }

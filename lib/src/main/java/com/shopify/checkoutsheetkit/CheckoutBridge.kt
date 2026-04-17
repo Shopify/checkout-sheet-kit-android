@@ -40,7 +40,10 @@ internal class CheckoutBridge(
     private var eventProcessor: CheckoutWebViewEventProcessor,
     private val decoder: Json = Json { ignoreUnknownKeys = true },
     private val pixelEventDecoder: PixelEventDecoder = PixelEventDecoder(decoder, log),
-    private val checkoutCompletedEventDecoder: CheckoutCompletedEventDecoder = CheckoutCompletedEventDecoder(decoder, log),
+    private val checkoutCompletedEventDecoder: CheckoutCompletedEventDecoder = CheckoutCompletedEventDecoder(
+        decoder,
+        log
+    ),
     private val checkoutErrorDecoder: CheckoutErrorDecoder = CheckoutErrorDecoder(decoder, log),
 ) {
 
@@ -177,7 +180,8 @@ internal class CheckoutBridge(
         |        window.MobileCheckoutSdk.dispatchMessage($body);
         |    }, {passive: true, once: true});
         |}
-        |""".trimMargin()
+        |
+        """.trimMargin()
     }
 }
 
@@ -194,7 +198,7 @@ internal data class InstrumentationPayload(
     val tags: Map<String, String>
 )
 
-@Suppress("EnumEntryName", "EnumNaming")
+@Suppress("EnumNaming", "EnumEntryNameCase")
 @Serializable
 internal enum class InstrumentationType {
     histogram

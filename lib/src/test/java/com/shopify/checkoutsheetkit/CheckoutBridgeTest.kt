@@ -1,18 +1,18 @@
 /*
  * MIT License
- * 
+ *
  * Copyright 2023-present, Shopify Inc.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -98,7 +98,8 @@ class CheckoutBridgeTest {
         val webView = mock<WebView>()
         checkoutBridge.sendMessage(webView, CheckoutBridge.SDKOperation.Presented)
 
-        verify(webView).evaluateJavascript("""|
+        verify(webView).evaluateJavascript(
+            """|
         |if (window.MobileCheckoutSdk && window.MobileCheckoutSdk.dispatchMessage) {
         |    window.MobileCheckoutSdk.dispatchMessage('presented');
         |} else {
@@ -106,7 +107,10 @@ class CheckoutBridgeTest {
         |        window.MobileCheckoutSdk.dispatchMessage('presented');
         |    }, {passive: true, once: true});
         |}
-        |""".trimMargin(), null)
+        |
+            """.trimMargin(),
+            null
+        )
     }
 
     @Test
@@ -145,7 +149,8 @@ class CheckoutBridgeTest {
         |        window.MobileCheckoutSdk.dispatchMessage('instrumentation', $expectedPayload);
         |    }, {passive: true, once: true});
         |}
-        |""".trimMargin()
+        |
+        """.trimMargin()
 
         checkoutBridge.sendMessage(webView, CheckoutBridge.SDKOperation.Instrumentation(payload))
 
@@ -174,10 +179,10 @@ class CheckoutBridgeTest {
             |       }
             |   }"
             |}
-        |""".trimMargin()
+        |
+        """.trimMargin()
 
-
-       checkoutBridge.postMessage(eventString)
+        checkoutBridge.postMessage(eventString)
 
         val captor = argumentCaptor<PixelEvent>()
         verify(mockEventProcessor, timeout(2000).times(1)).onWebPixelEvent(captor.capture())
@@ -197,7 +202,8 @@ class CheckoutBridgeTest {
             |       \"code\": \"invalid_cart\"
             |   }]"
             |}
-        |""".trimMargin()
+        |
+        """.trimMargin()
 
         checkoutBridge.postMessage(eventString)
 
@@ -223,7 +229,8 @@ class CheckoutBridgeTest {
             |       \"code\": \"cart_completed\"
             |   }]"
             |}
-        |""".trimMargin()
+        |
+        """.trimMargin()
 
         checkoutBridge.postMessage(eventString)
 
@@ -237,17 +244,17 @@ class CheckoutBridgeTest {
         assertThat(error.errorCode).isEqualTo(CheckoutExpiredException.CART_COMPLETED)
     }
 
-
     @Test
     fun `should decode a barebones expired error payload and call processor#onCheckoutViewFailedWithError`() {
-        val eventString =  """|
+        val eventString = """|
             |{
             |   "name": "error",
             |   "body": "[{
             |       \"group\": \"expired\"
             |   }]"
             |}
-        |""".trimMargin()
+        |
+        """.trimMargin()
 
         checkoutBridge.postMessage(eventString)
 
@@ -274,7 +281,8 @@ class CheckoutBridgeTest {
             |       \"code\": \"sdk_not_enabled\"
             |   }]"
             |}
-        |""".trimMargin()
+        |
+        """.trimMargin()
 
         checkoutBridge.postMessage(eventString)
 
@@ -284,9 +292,10 @@ class CheckoutBridgeTest {
         val error = captor.firstValue
         assertThat(error).isInstanceOf(CheckoutUnavailableException::class.java)
         assertThat(error.message).isEqualTo("Checkout crashed")
-        assertThat(error.isRecoverable).isTrue()
+        assertThat(error.isRecoverable).isFalse()
         assertThat(error.errorCode).isEqualTo(CheckoutUnavailableException.CLIENT_ERROR)
     }
+
     @Test
     fun `should decode a configuration error payload and call processor#onCheckoutViewFailedWithError - storefront pw required`() {
         val eventString = """|
@@ -298,7 +307,8 @@ class CheckoutBridgeTest {
             |       \"code\": \"storefront_password_required\"
             |   }]"
             |}
-        |""".trimMargin()
+        |
+        """.trimMargin()
 
         checkoutBridge.postMessage(eventString)
 
@@ -323,7 +333,8 @@ class CheckoutBridgeTest {
             |       \"code\": \"invalid_signature\"
             |   }]"
             |}
-        |""".trimMargin()
+        |
+        """.trimMargin()
 
         checkoutBridge.postMessage(eventString)
 
@@ -336,7 +347,8 @@ class CheckoutBridgeTest {
             |{
             |   "name":"error
             |}
-        |""".trimMargin()
+        |
+        """.trimMargin()
 
         checkoutBridge.postMessage(eventString)
 

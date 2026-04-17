@@ -1,0 +1,23 @@
+query FetchCollections($numCollections: Int!, $numProducts: Int!) {
+  collections(first: $numCollections) {
+    nodes {
+      id
+      handle
+      title
+      description
+      image {
+        url
+        altText
+        width
+        height
+      }
+      products(first: $numProducts) {
+        edges {
+          node {
+            ...ProductFragment
+          }
+        }
+      }
+    }
+  }
+}

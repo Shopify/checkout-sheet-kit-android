@@ -1,0 +1,22 @@
+fragment ProductFragment on Product {
+  id
+  title
+  description
+  vendor
+  featuredImage {
+    url
+    width
+    height
+    altText
+  }
+  priceRange {
+    minVariantPrice {
+      amount
+      currencyCode
+    }
+    maxVariantPrice {
+      amount
+      currencyCode
+    }
+  }
+}

@@ -1,0 +1,18 @@
+query FetchProducts($numProducts: Int!, $numVariants: Int!, $cursor: String) {
+  products(first: $numProducts, after: $cursor) {
+    edges {
+      node {
+        ...ProductFragment
+        variants(first: $numVariants) {
+          nodes {
+            ...ProductVariantFragment
+          }
+        }
+      }
+    }
+    pageInfo {
+      startCursor
+      endCursor
+    }
+  }
+}

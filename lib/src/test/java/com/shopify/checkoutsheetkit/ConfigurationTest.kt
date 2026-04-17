@@ -1,18 +1,18 @@
 /*
  * MIT License
- * 
+ *
  * Copyright 2023-present, Shopify Inc.
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -105,7 +105,9 @@ class ConfigurationTest {
     fun `by default attempt to recover from recoverable errors`() {
         val recoverableException = recoverableException()
 
-        val shouldRecover = ShopifyCheckoutSheetKit.configuration.errorRecovery.shouldRecoverFromError(recoverableException)
+        val shouldRecover = ShopifyCheckoutSheetKit.configuration.errorRecovery.shouldRecoverFromError(
+            recoverableException
+        )
 
         assertThat(shouldRecover).isEqualTo(true)
     }
@@ -114,12 +116,14 @@ class ConfigurationTest {
     fun `can disable error recovery`() {
         val recoverableException = recoverableException()
         ShopifyCheckoutSheetKit.configure {
-            it.errorRecovery = object: ErrorRecovery {
+            it.errorRecovery = object : ErrorRecovery {
                 override fun shouldRecoverFromError(checkoutException: CheckoutException) = false
             }
         }
 
-        val shouldRecover = ShopifyCheckoutSheetKit.configuration.errorRecovery.shouldRecoverFromError(recoverableException)
+        val shouldRecover = ShopifyCheckoutSheetKit.configuration.errorRecovery.shouldRecoverFromError(
+            recoverableException
+        )
 
         assertThat(shouldRecover).isEqualTo(false)
     }
@@ -130,7 +134,7 @@ class ConfigurationTest {
 
         val recoverableException = recoverableException()
         ShopifyCheckoutSheetKit.configure {
-            it.errorRecovery = object: ErrorRecovery {
+            it.errorRecovery = object : ErrorRecovery {
                 override fun preRecoveryActions(exception: CheckoutException, checkoutUrl: String) {
                     mockFn.invoke()
                 }

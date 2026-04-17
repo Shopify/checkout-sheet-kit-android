@@ -22,46 +22,48 @@
  */
 package com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.data
 
-import com.shopify.buy3.Storefront
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.toLocal
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.ID
+import com.shopify.checkout_sdk_mobile_buy_integration_sample.graphql.fragment.CartFragment
 
-internal fun Storefront.Cart.toLocal(): CartState.Cart {
+internal fun CartFragment.toLocal(): CartState.Cart {
     return CartState.Cart(
-        cartID = id.toLocal(),
-        cartLines = this.lines.nodes.mapNotNull { cartLine -> cartLine.toLocal() },
+        cartID = ID(id),
+        cartLines = lines.nodes.mapNotNull { node -> node.toLocal() },
         cartTotals = CartTotals(
             totalAmount = CartAmount(
-                currency = cost.totalAmount.currencyCode.name,
-                price = cost.totalAmount.amount.toDouble(),
+                currency = cost.totalAmount.currencyCode.rawValue,
+                price = cost.totalAmount.amount.toString().toDouble(),
             ),
             totalAmountEstimated = cost.totalAmountEstimated,
-            totalQuantity = totalQuantity
+            totalQuantity = totalQuantity,
         ),
-        checkoutUrl = checkoutUrl,
+        checkoutUrl = checkoutUrl.toString(),
     )
 }
 
-internal fun Storefront.BaseCartLine.toLocal(): CartLine? {
-    return (this.merchandise as? Storefront.ProductVariant)?.let {
+internal fun CartFragment.Node.toLocal(): CartLine? {
+    return merchandise.onProductVariant?.let { variant ->
         CartLine(
-            id = this.id.toLocal(),
-            image = if (it.product.featuredImage?.url != null) CartLineImage(
-                url = it.product.featuredImage.url,
-                altText = it.product.featuredImage.altText,
-            ) else null,
-            title = it.product.title,
-            vendor = it.product.vendor,
-            quantity = this.quantity,
-            pricePerQuantity = this.cost.amountPerQuantity.amount.toDouble(),
-            currencyPerQuantity = this.cost.amountPerQuantity.currencyCode.name,
-            totalPrice = this.cost.totalAmount.amount.toDouble(),
-            totalCurrency = this.cost.totalAmount.currencyCode.name,
-            variantDescription = it.selectedOptions.toDescription()
+            id = ID(id),
+            image = variant.product.featuredImage?.let { image ->
+                CartLineImage(
+                    url = image.url.toString(),
+                    altText = image.altText,
+                )
+            },
+            title = variant.product.title,
+            vendor = variant.product.vendor,
+            quantity = quantity,
+            pricePerQuantity = cost.amountPerQuantity.amount.toString().toDouble(),
+            currencyPerQuantity = cost.amountPerQuantity.currencyCode.rawValue,
+            totalPrice = cost.totalAmount.amount.toString().toDouble(),
+            totalCurrency = cost.totalAmount.currencyCode.rawValue,
+            variantDescription = variant.selectedOptions.toDescription(),
         )
     }
 }
 
-fun List<Storefront.SelectedOption>.toDescription(): String {
+fun List<CartFragment.SelectedOption>.toDescription(): String {
     val optionsWithoutTitle = this.filter { option -> option.name != "Title" }
     return optionsWithoutTitle.joinToString(separator = " / ") { option -> option.value }
 }
