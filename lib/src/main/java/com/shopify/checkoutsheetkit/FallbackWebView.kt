@@ -56,8 +56,6 @@ internal class FallbackWebView(context: Context, attributeSet: AttributeSet? = n
 
     inner class FallbackWebViewClient : BaseWebView.BaseWebViewClient() {
 
-        private val typRegex = Regex(pattern = "^(thank[-_]+you)$", option = RegexOption.IGNORE_CASE)
-
         init {
             if (BuildConfig.DEBUG) {
                 log.d(LOG_TAG, "Setting web contents debugging enabled.")
@@ -71,7 +69,7 @@ internal class FallbackWebView(context: Context, attributeSet: AttributeSet? = n
             getEventProcessor().onCheckoutViewLoadComplete()
 
             val uri = url.toUri()
-            if (isConfirmation(uri)) {
+            if (uri.isConfirmationPage()) {
                 log.d(LOG_TAG, "Finished page has confirmationUrl. Emitting minimal checkout completed event.")
                 getEventProcessor().onCheckoutViewComplete(
                     emptyCompletedEvent(id = getOrderIdFromQueryString(uri))
@@ -80,7 +78,6 @@ internal class FallbackWebView(context: Context, attributeSet: AttributeSet? = n
         }
 
         private fun getOrderIdFromQueryString(uri: Uri): String? = uri.getQueryParameter("order_id")
-        private fun isConfirmation(uri: Uri) = uri.pathSegments.any { pathSegment -> typRegex.matches(pathSegment) }
     }
 
     companion object {
