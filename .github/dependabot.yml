@@ -25,17 +25,6 @@ updates:
       - dependency-name: "junit:junit"
         versions: [">=5.0.0"]
   
-  # SimpleCheckout sample
-  - package-ecosystem: gradle
-    directory: "/samples/SimpleCheckout"
-    schedule:
-      interval: daily
-    open-pull-requests-limit: 5
-    groups:
-      apollo:
-        patterns:
-          - "com.apollographql.apollo*"
-  
   # MobileBuyIntegration sample
   - package-ecosystem: gradle
     directory: "/samples/MobileBuyIntegration"
