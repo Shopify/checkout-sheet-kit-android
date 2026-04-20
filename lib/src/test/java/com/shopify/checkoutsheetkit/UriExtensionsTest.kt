@@ -54,8 +54,8 @@ class UriExtensionsTest {
     }
 
     @Test
-    fun `isConfirmationPage matches regardless of segment position`() {
-        assertThat("https://shop.com/checkouts/c/abc/thank_you".toUri().isConfirmationPage()).isTrue()
+    fun `isConfirmationPage returns true for thank-you non-last segment`() {
+        assertThat("https://shop.com/cn-12345/foo/thank-you/bar".toUri().isConfirmationPage()).isTrue()
     }
 
     @Test
