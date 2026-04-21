@@ -28,7 +28,6 @@ import android.graphics.Color.TRANSPARENT
 import android.net.Uri
 import android.os.Build
 import android.util.AttributeSet
-import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
@@ -114,14 +113,16 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
         id = View.generateViewId()
     }
 
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_BACK && canGoBack()) {
-            log.d(LOG_TAG, "Back key event detected, navigating back.")
+    internal fun handleBackPressed(): Boolean {
+        if (canGoBack() && !isOnConfirmationPage()) {
+            log.d(LOG_TAG, "Back navigation handled by WebView history.")
             goBack()
             return true
         }
-        return super.onKeyDown(keyCode, event)
+        return false
     }
+
+    private fun isOnConfirmationPage(): Boolean = url?.let(Uri::parse).isConfirmationPage()
 
     internal fun userAgentSuffix(): String {
         val theme = ShopifyCheckoutSheetKit.configuration.colorScheme.id

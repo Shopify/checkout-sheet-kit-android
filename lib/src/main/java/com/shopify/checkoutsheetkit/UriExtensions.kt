@@ -30,7 +30,11 @@ internal fun Uri?.isTelLink(): Boolean = this?.scheme == Scheme.TEL
 internal fun Uri?.isAboutScheme(): Boolean = this?.scheme == Scheme.ABOUT
 internal fun Uri?.isContactLink(): Boolean = this.isMailtoLink() || this.isTelLink()
 internal fun Uri?.isDeepLink(): Boolean = this != null && !this.isWebLink() && !this.isContactLink() && !this.isAboutScheme()
+internal fun Uri?.isConfirmationPage(): Boolean =
+    this?.pathSegments?.any { CONFIRMATION_PATH_REGEX.matches(it) } == true
 internal fun String.isOneTimeUse(): Boolean = this.contains("multipass")
+
+private val CONFIRMATION_PATH_REGEX = Regex(pattern = "^(thank[-_]+you)$", option = RegexOption.IGNORE_CASE)
 
 internal object Scheme {
     const val HTTP = "http"

@@ -540,6 +540,64 @@ class CheckoutDialogTest {
         // Custom icon should be applied, tint should be ignored
     }
 
+    @Test
+    fun `back press cancels dialog when WebView has no history to navigate`() {
+        val mockEventProcessor = mock<DefaultCheckoutEventProcessor>()
+        ShopifyCheckoutSheetKit.present("https://shopify.com", activity, mockEventProcessor)
+        shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+
+        val dialog = ShadowDialog.getLatestDialog() as CheckoutDialog
+        dialog.onBackPressedDispatcher.onBackPressed()
+        shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+
+        verify(mockEventProcessor).onCheckoutCanceled()
+        assertThat(dialog.isShowing).isFalse()
+    }
+
+    @Test
+    fun `back press navigates WebView history when history exists and not on confirmation page`() {
+        val mockEventProcessor = mock<DefaultCheckoutEventProcessor>()
+        ShopifyCheckoutSheetKit.present("https://shopify.com/checkouts/c/abc", activity, mockEventProcessor)
+        shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+
+        val dialog = ShadowDialog.getLatestDialog() as CheckoutDialog
+        val webView = dialog.currentWebView()
+        webView.loadUrl("https://shopify.com/checkouts/c/abc/step2")
+        shadowOf(webView).setCanGoBack(true)
+        shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+
+        dialog.onBackPressedDispatcher.onBackPressed()
+        shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+
+        verify(mockEventProcessor, never()).onCheckoutCanceled()
+        assertThat(dialog.isShowing).isTrue()
+        assertThat(shadowOf(webView).goBackInvocations).isGreaterThan(0)
+    }
+
+    @Test
+    fun `back press cancels dialog when on confirmation page even with history`() {
+        val mockEventProcessor = mock<DefaultCheckoutEventProcessor>()
+        ShopifyCheckoutSheetKit.present("https://shopify.com/checkouts/c/abc", activity, mockEventProcessor)
+        shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+
+        val dialog = ShadowDialog.getLatestDialog() as CheckoutDialog
+        val webView = dialog.currentWebView()
+        webView.loadUrl("https://shopify.com/cn-12345/thank-you")
+        shadowOf(webView).setCanGoBack(true)
+        shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+
+        dialog.onBackPressedDispatcher.onBackPressed()
+        shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+
+        verify(mockEventProcessor).onCheckoutCanceled()
+        assertThat(dialog.isShowing).isFalse()
+        assertThat(shadowOf(webView).goBackInvocations).isEqualTo(0)
+    }
+
+    private fun CheckoutDialog.currentWebView(): BaseWebView =
+        findViewById<RelativeLayout>(R.id.checkoutSdkContainer)
+            .children.first { it is BaseWebView } as BaseWebView
+
     private fun backgroundColor(view: View): Int {
         return (view.background as ColorDrawable).color
     }

@@ -22,7 +22,6 @@
  */
 package com.shopify.checkoutsheetkit
 
-import android.app.Dialog
 import android.content.Context
 import android.content.res.ColorStateList
 import android.content.res.Configuration.UI_MODE_NIGHT_MASK
@@ -42,6 +41,8 @@ import android.webkit.WebView
 import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import androidx.activity.ComponentActivity
+import androidx.activity.ComponentDialog
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.ColorInt
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.Toolbar
@@ -54,9 +55,20 @@ internal class CheckoutDialog(
     private val checkoutUrl: String,
     private val checkoutEventProcessor: CheckoutEventProcessor,
     context: Context,
-) : Dialog(context) {
+) : ComponentDialog(context) {
 
     internal var recoveryAttemptCount = 0
+
+    private val backNavigationCallback = object : OnBackPressedCallback(enabled = true) {
+        override fun handleOnBackPressed() {
+            val webView = findViewById<RelativeLayout>(R.id.checkoutSdkContainer)
+                ?.children?.firstOrNull { it is BaseWebView } as? BaseWebView
+            if (webView?.handleBackPressed() != true) {
+                log.d(LOG_TAG, "Back press not handled by WebView, cancelling dialog.")
+                cancel()
+            }
+        }
+    }
 
     fun start(context: ComponentActivity) {
         log.d(LOG_TAG, "Dialog start called.")
@@ -100,6 +112,7 @@ internal class CheckoutDialog(
         }
 
         addWebViewToContainer(colorScheme, checkoutWebView)
+        onBackPressedDispatcher.addCallback(backNavigationCallback)
         setOnCancelListener {
             log.d(LOG_TAG, "Cancel listener invoked, invoking onCheckoutCanceled.")
             CheckoutWebViewContainer.retainCacheEntry = RetainCacheEntry.IF_NOT_STALE
