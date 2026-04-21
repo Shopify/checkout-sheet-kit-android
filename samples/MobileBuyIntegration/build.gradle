@@ -8,7 +8,7 @@ buildscript {
         core_version = '1.18.0'
         datastore_version = '1.2.1'
         koin_android_compose_version = '4.2.1'
-        kotlin_serialization_version = '1.8.1'
+        kotlin_serialization_version = '1.11.0'
         lifecycle_version = '2.10.0'
         material3_version = '1.4.0'
         nav_version = '2.9.7'
