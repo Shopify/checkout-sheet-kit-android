@@ -44,10 +44,13 @@ internal class CheckoutWebViewEventProcessor(
     private val closeCheckoutDialogWithError: (CheckoutException) -> Unit = { CheckoutWebView.clearCache() },
     private val setProgressBarVisibility: (Int) -> Unit = {},
     private val updateProgressBarPercentage: (Int) -> Unit = {},
+    private val onCheckoutCompleteInternal: () -> Unit = {},
 ) {
     fun onCheckoutViewComplete(checkoutCompletedEvent: CheckoutCompletedEvent) {
         log.d(LOG_TAG, "Clearing WebView cache after checkout completion.")
         CheckoutWebView.markCacheEntryStale()
+
+        onCheckoutCompleteInternal()
 
         log.d(LOG_TAG, "Calling onCheckoutCompleted $checkoutCompletedEvent.")
         eventProcessor.onCheckoutCompleted(checkoutCompletedEvent)
