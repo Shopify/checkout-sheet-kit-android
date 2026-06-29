@@ -99,18 +99,37 @@ class CheckoutBridgeTest {
         checkoutBridge.sendMessage(webView, CheckoutBridge.SDKOperation.Presented)
 
         verify(webView).evaluateJavascript(
-            """|
-        |if (window.MobileCheckoutSdk && window.MobileCheckoutSdk.dispatchMessage) {
-        |    window.MobileCheckoutSdk.dispatchMessage('presented');
-        |} else {
-        |    window.addEventListener('mobileCheckoutBridgeReady', function () {
-        |        window.MobileCheckoutSdk.dispatchMessage('presented');
-        |    }, {passive: true, once: true});
-        |}
-        |
-            """.trimMargin(),
+            expectedDispatchJavascript("'presented'"),
             null
         )
+    }
+
+    @Test
+    fun `sendMessage waits for delayed bridge availability`() {
+        val script = scriptFor(CheckoutBridge.SDKOperation.Presented)
+        val listenerRegistration = "window.addEventListener('mobileCheckoutBridgeReady', onBridgeReady, {passive: true});"
+
+        assertThat(script).contains(listenerRegistration)
+        assertThat(script).contains("intervalId = window.setInterval(function () {")
+        assertThat(script).contains("typeof window.MobileCheckoutSdk.dispatchMessage === 'function';")
+    }
+
+    @Test
+    fun `sendMessage prevents duplicate dispatches`() {
+        val script = scriptFor(CheckoutBridge.SDKOperation.Presented)
+
+        assertThat(script).contains("if (didDispatch || !bridgeReady()) {")
+        assertThat(script).contains("didDispatch = true;")
+        assertThat(script).contains("window.removeEventListener('mobileCheckoutBridgeReady', onBridgeReady);")
+    }
+
+    @Test
+    fun `sendMessage stops polling after timeout`() {
+        val script = scriptFor(CheckoutBridge.SDKOperation.Presented)
+
+        assertThat(script).contains("var maxAttempts = 50;")
+        assertThat(script).contains("attempts >= maxAttempts")
+        assertThat(script).contains("window.clearInterval(intervalId);")
     }
 
     @Test
@@ -141,16 +160,7 @@ class CheckoutBridgeTest {
             tags = mapOf("tag1" to "value1", "tag2" to "value2")
         )
         val expectedPayload = """{"detail":{"name":"Test","value":123,"type":"histogram","tags":{"tag1":"value1","tag2":"value2"}}}"""
-        val expectedJavascript = """|
-        |if (window.MobileCheckoutSdk && window.MobileCheckoutSdk.dispatchMessage) {
-        |    window.MobileCheckoutSdk.dispatchMessage('instrumentation', $expectedPayload);
-        |} else {
-        |    window.addEventListener('mobileCheckoutBridgeReady', function () {
-        |        window.MobileCheckoutSdk.dispatchMessage('instrumentation', $expectedPayload);
-        |    }, {passive: true, once: true});
-        |}
-        |
-        """.trimMargin()
+        val expectedJavascript = expectedDispatchJavascript("'instrumentation', $expectedPayload")
 
         checkoutBridge.sendMessage(webView, CheckoutBridge.SDKOperation.Instrumentation(payload))
 
@@ -361,4 +371,64 @@ class CheckoutBridgeTest {
         assertThat(error.isRecoverable).isTrue()
         assertThat(error.errorCode).isEqualTo(CheckoutSheetKitException.ERROR_RECEIVING_MESSAGE_FROM_CHECKOUT)
     }
+
+    private fun scriptFor(operation: CheckoutBridge.SDKOperation): String {
+        val webView = mock<WebView>()
+
+        checkoutBridge.sendMessage(webView, operation)
+
+        val scriptCaptor = argumentCaptor<String>()
+        verify(webView).evaluateJavascript(scriptCaptor.capture(), eq(null))
+
+        return scriptCaptor.firstValue
+    }
+
+    private fun expectedDispatchJavascript(body: String) = """|
+        |(function () {
+        |    var maxAttempts = 50;
+        |    var intervalMs = 100;
+        |    var attempts = 0;
+        |    var intervalId;
+        |    var didDispatch = false;
+        |
+        |    function bridgeReady() {
+        |        return window.MobileCheckoutSdk && typeof window.MobileCheckoutSdk.dispatchMessage === 'function';
+        |    }
+        |
+        |    function cleanup() {
+        |        window.removeEventListener('mobileCheckoutBridgeReady', onBridgeReady);
+        |        if (intervalId) {
+        |            window.clearInterval(intervalId);
+        |        }
+        |    }
+        |
+        |    function dispatchMessage() {
+        |        if (didDispatch || !bridgeReady()) {
+        |            return false;
+        |        }
+        |
+        |        didDispatch = true;
+        |        cleanup();
+        |        window.MobileCheckoutSdk.dispatchMessage($body);
+        |        return true;
+        |    }
+        |
+        |    function onBridgeReady() {
+        |        dispatchMessage();
+        |    }
+        |
+        |    if (dispatchMessage()) {
+        |        return;
+        |    }
+        |
+        |    window.addEventListener('mobileCheckoutBridgeReady', onBridgeReady, {passive: true});
+        |    intervalId = window.setInterval(function () {
+        |        attempts += 1;
+        |        if (dispatchMessage() || attempts >= maxAttempts) {
+        |            cleanup();
+        |        }
+        |    }, intervalMs);
+        |})();
+        |
+    """.trimMargin()
 }
