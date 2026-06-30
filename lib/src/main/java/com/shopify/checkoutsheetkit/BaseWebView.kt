@@ -42,6 +42,7 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.core.net.toUri
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit.log
@@ -51,6 +52,8 @@ import java.net.HttpURLConnection.HTTP_GONE
 internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet? = null) :
     WebView(context, attributeSet) {
 
+    private val checkoutOrigins = mutableSetOf<UriOrigin>()
+
     init {
         configureWebView()
     }
@@ -59,6 +62,29 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
     abstract val recoverErrors: Boolean
     abstract val variant: String
     abstract val cspSchema: String
+
+    internal fun setCheckoutOrigin(url: String) {
+        checkoutOrigins.clear()
+        url.toUri().toOrigin()?.let(checkoutOrigins::add)
+    }
+
+    internal fun shouldHandleMainFrameError(request: WebResourceRequest?): Boolean {
+        val isMainFrame = request?.isForMainFrame == true
+        val requestUrl = request?.url
+        val requestOrigin = requestUrl?.toOrigin()
+
+        return isMainFrame && (
+            checkoutOrigins.isEmpty() ||
+                requestOrigin == null ||
+                checkoutOrigins.contains(requestOrigin) ||
+                shouldAllowCheckoutOriginTransition(requestOrigin, requestUrl)
+            )
+    }
+
+    private fun shouldAllowCheckoutOriginTransition(requestOrigin: UriOrigin, requestUrl: Uri?): Boolean {
+        val hasShopAppOrigin = requestOrigin.host == SHOP_APP_HOST || checkoutOrigins.any { it.host == SHOP_APP_HOST }
+        return hasShopAppOrigin && requestUrl?.hasCheckoutPath() == true
+    }
 
     private fun configureWebView() {
         visibility = VISIBLE
@@ -204,34 +230,34 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
             errorCode: Int,
             errorDescription: String,
         ) {
-            if (request?.isForMainFrame == true) {
-                log.d(
-                    LOG_TAG,
-                    "Handling error for main frame. URL: ${request.url}, errorCode: $errorCode, errorDescription: $errorDescription"
-                )
-                val processor = getEventProcessor()
-                when {
-                    errorCode == HTTP_GONE -> {
-                        log.d(LOG_TAG, "Failing with cart expired. Recoverable: false")
-                        processor.onCheckoutViewFailedWithError(
-                            CheckoutExpiredException(
-                                isRecoverable = false,
-                                errorCode = CheckoutExpiredException.CART_EXPIRED
-                            ),
-                        )
-                    }
+            if (!shouldHandleMainFrameError(request)) return
 
-                    else -> {
-                        val recoverable = isRecoverable(errorCode)
-                        log.d(LOG_TAG, "Failing with other error. Code: $errorCode. Recoverable $recoverable")
-                        processor.onCheckoutViewFailedWithError(
-                            HttpException(
-                                errorDescription = errorDescription,
-                                statusCode = errorCode,
-                                isRecoverable = recoverable
-                            )
+            log.d(
+                LOG_TAG,
+                "Handling error for main frame. URL: ${request?.url}, errorCode: $errorCode, errorDescription: $errorDescription"
+            )
+            val processor = getEventProcessor()
+            when {
+                errorCode == HTTP_GONE -> {
+                    log.d(LOG_TAG, "Failing with cart expired. Recoverable: false")
+                    processor.onCheckoutViewFailedWithError(
+                        CheckoutExpiredException(
+                            isRecoverable = false,
+                            errorCode = CheckoutExpiredException.CART_EXPIRED
                         )
-                    }
+                    )
+                }
+
+                else -> {
+                    val recoverable = isRecoverable(errorCode)
+                    log.d(LOG_TAG, "Failing with other error. Code: $errorCode. Recoverable $recoverable")
+                    processor.onCheckoutViewFailedWithError(
+                        HttpException(
+                            errorDescription = errorDescription,
+                            statusCode = errorCode,
+                            isRecoverable = recoverable
+                        )
+                    )
                 }
             }
         }
@@ -243,6 +269,52 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
         private val CLIENT_ERROR = 400..499
     }
 }
+
+private data class UriOrigin(
+    val scheme: String,
+    val host: String,
+    val port: Int?,
+)
+
+private fun Uri.toOrigin(): UriOrigin? {
+    val scheme = scheme?.lowercase()
+    val host = host?.lowercase()
+
+    return if (scheme == null || host == null) {
+        null
+    } else {
+        val port = if (port == -1) defaultPortForScheme(scheme) else port
+        UriOrigin(scheme, host, port)
+    }
+}
+
+private fun defaultPortForScheme(scheme: String): Int? {
+    return when (scheme) {
+        "http" -> HTTP_DEFAULT_PORT
+        "https" -> HTTPS_DEFAULT_PORT
+        else -> null
+    }
+}
+
+private fun Uri.hasCheckoutPath(): Boolean {
+    val segments = pathSegments
+    return (
+        segments.size >= MIN_CHECKOUTS_PATH_SEGMENTS &&
+            segments[0] == CHECKOUTS_PATH_SEGMENT
+        ) || (
+        segments.size >= MIN_CHECKOUT_PATH_SEGMENTS &&
+            segments[0] == CHECKOUT_PATH_SEGMENT &&
+            segments[1].all(Char::isDigit)
+        )
+}
+
+private const val HTTP_DEFAULT_PORT = 80
+private const val HTTPS_DEFAULT_PORT = 443
+private const val SHOP_APP_HOST = "shop.app"
+private const val CHECKOUTS_PATH_SEGMENT = "checkouts"
+private const val CHECKOUT_PATH_SEGMENT = "checkout"
+private const val MIN_CHECKOUTS_PATH_SEGMENTS = 3
+private const val MIN_CHECKOUT_PATH_SEGMENTS = 4
 
 /**
  * Removes the WebView from its parent if a parent exists

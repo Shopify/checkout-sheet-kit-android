@@ -105,6 +105,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
         log.d(LOG_TAG, "Loading checkout with url $url. IsPreload: $isPreload.")
         initLoadTime = System.currentTimeMillis()
         this.isPreload = isPreload
+        setCheckoutOrigin(url)
         Handler(Looper.getMainLooper()).post {
             val headers = if (isPreload) mutableMapOf("Shopify-Purpose" to "prefetch") else mutableMapOf()
             loadUrl(url, headers)
