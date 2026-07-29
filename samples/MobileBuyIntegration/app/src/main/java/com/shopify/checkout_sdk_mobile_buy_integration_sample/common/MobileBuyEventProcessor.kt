@@ -28,10 +28,8 @@ import android.webkit.GeolocationPermissions
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebView
-import android.widget.Toast
 import androidx.navigation.NavController
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.MainActivity
-import com.shopify.checkout_sdk_mobile_buy_integration_sample.R
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.cart.CartViewModel
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.analytics.Analytics
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.analytics.toAnalyticsEvent
@@ -66,17 +64,7 @@ class MobileBuyEventProcessor(
 
     override fun onCheckoutFailed(error: CheckoutException) {
         logger.log("Checkout failed", error)
-
-        if (!error.isRecoverable) {
-            cartViewModel.clearCart()
-            GlobalScope.launch(Dispatchers.Main) {
-                Toast.makeText(
-                    context,
-                    context.getText(R.string.checkout_error),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
+        cartViewModel.handleCheckoutFailed(error)
     }
 
     override fun onCheckoutCanceled() {

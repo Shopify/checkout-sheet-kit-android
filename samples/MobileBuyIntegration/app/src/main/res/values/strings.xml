@@ -38,6 +38,9 @@
 
     <!-- Errors -->
     <string name="checkout_error" translatable="false">Checkout failed, please try again</string>
+    <string name="checkout_error_cart_unavailable" translatable="false">This cart is no longer available. Please start a new checkout.</string>
+    <string name="checkout_error_storefront_password_required" translatable="false">This storefront requires a password before checkout can continue.</string>
+    <string name="checkout_error_retry" translatable="false">Checkout was interrupted. Please try again.</string>
     <string name="collection_failed_to_load" translatable="false">Failed to load collection</string>
     <string name="collections_failed_to_load" translatable="false">Failed to load collections</string>
     <string name="products_failed_to_load" translatable="false">Failed to load products</string>

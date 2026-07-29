@@ -35,7 +35,12 @@ import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.SnackbarEve
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.common.navigation.Screen
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.PreferencesManager
 import com.shopify.checkout_sdk_mobile_buy_integration_sample.settings.authentication.data.CustomerRepository
+import com.shopify.checkoutsheetkit.CheckoutException
+import com.shopify.checkoutsheetkit.CheckoutExpiredException
+import com.shopify.checkoutsheetkit.CheckoutSheetKitException
+import com.shopify.checkoutsheetkit.ConfigurationException
 import com.shopify.checkoutsheetkit.DefaultCheckoutEventProcessor
+import com.shopify.checkoutsheetkit.HttpException
 import com.shopify.checkoutsheetkit.ShopifyCheckoutSheetKit
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -106,6 +111,43 @@ class CartViewModel(
         _cartState.value = CartState.Empty
     }
 
+    internal fun handleCheckoutFailed(error: CheckoutException) {
+        // The Sheet Kit hierarchy carries recovery semantics in its concrete exception type.
+        // Only an expired checkout URL makes this app-owned cart unusable; all other failures
+        // leave it intact for host-owned retry or fallback behavior.
+        if (error is CheckoutExpiredException) {
+            clearCart()
+        }
+
+        viewModelScope.launch {
+            SnackbarController.sendEvent(SnackbarEvent(error.userMessageResourceId()))
+        }
+    }
+
+    private fun CheckoutException.userMessageResourceId(): Int = when (this) {
+        is CheckoutExpiredException -> R.string.checkout_error_cart_unavailable
+        is ConfigurationException -> when (errorCode) {
+            ConfigurationException.STOREFRONT_PASSWORD_REQUIRED ->
+                R.string.checkout_error_storefront_password_required
+            else -> R.string.checkout_error
+        }
+        is HttpException -> if (statusCode.isRetryableCheckoutHttpStatus()) {
+            R.string.checkout_error_retry
+        } else {
+            R.string.checkout_error
+        }
+        is CheckoutSheetKitException -> when (errorCode) {
+            CheckoutSheetKitException.RENDER_PROCESS_GONE -> R.string.checkout_error_retry
+            else -> R.string.checkout_error
+        }
+        else -> R.string.checkout_error
+    }
+
+    private fun Int.isRetryableCheckoutHttpStatus(): Boolean =
+        this == HTTP_STATUS_REQUEST_TIMEOUT ||
+            this == HTTP_STATUS_TOO_MANY_REQUESTS ||
+            this in HTTP_STATUS_SERVER_ERROR_RANGE
+
     fun <T : DefaultCheckoutEventProcessor> presentCheckout(
         url: String,
         activity: ComponentActivity,
@@ -164,5 +206,11 @@ class CartViewModel(
             SnackbarController.sendEvent(SnackbarEvent(R.string.cart_error_creating))
             onComplete(Result.failure(e))
         }
+    }
+
+    private companion object {
+        const val HTTP_STATUS_REQUEST_TIMEOUT = 408
+        const val HTTP_STATUS_TOO_MANY_REQUESTS = 429
+        val HTTP_STATUS_SERVER_ERROR_RANGE = 500..599
     }
 }
