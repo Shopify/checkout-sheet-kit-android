@@ -339,6 +339,25 @@ class CheckoutDialogTest {
     }
 
     @Test
+    fun `closeCheckoutDialogWithError does not recover after checkout completed`() {
+        val mockEventProcessor = mock<DefaultCheckoutEventProcessor>()
+        ShopifyCheckoutSheetKit.present("https://shopify.com", activity, mockEventProcessor)
+
+        val checkoutDialog = ShadowDialog.getLatestDialog() as CheckoutDialog
+        assertThat(checkoutDialog.containsChildOfType(CheckoutWebView::class.java)).isTrue()
+
+        // Simulate checkout completing before an error arrives
+        checkoutDialog.checkoutCompleted = true
+
+        // Recoverable error should NOT trigger recovery since checkout already completed
+        checkoutDialog.closeCheckoutDialogWithError(checkoutException(isRecoverable = true))
+        shadowOf(Looper.getMainLooper()).runToEndOfTasks()
+
+        assertThat(checkoutDialog.containsChildOfType(FallbackWebView::class.java)).isFalse()
+        assertThat(checkoutDialog.isShowing).isFalse()
+    }
+
+    @Test
     fun `closeCheckoutDialogWithError increments recovery attempt count`() {
         val mockEventProcessor = mock<DefaultCheckoutEventProcessor>()
         ShopifyCheckoutSheetKit.present("https://shopify.com", activity, mockEventProcessor)
