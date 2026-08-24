@@ -178,6 +178,23 @@ class CheckoutWebViewClientTest {
     }
 
     @Test
+    fun `should allow a Cloudflare managed challenge response to render`() {
+        val mockRequest = mockWebRequest(
+            Uri.parse("https://checkout-sdk.myshopify.com"),
+            forMainFrame = true,
+        )
+        val mockResponse = mockWebResourceResponse(
+            status = HttpURLConnection.HTTP_FORBIDDEN,
+            description = "Forbidden",
+            headers = mutableMapOf("Cf-Mitigated" to " Challenge "),
+        )
+
+        triggerOnReceivedHttpError(mockRequest, mockResponse)
+
+        verify(checkoutWebViewEventProcessor, never()).onCheckoutViewFailedWithError(any())
+    }
+
+    @Test
     fun `should call event processor calls onCheckoutViewFailedWithError on http error for main frame - 500`() {
         val mockRequest = mockWebRequest(Uri.parse("https://checkout-sdk.myshopify.com"), true)
         val mockResponse = mockWebResourceResponse(
