@@ -182,7 +182,7 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
         ) {
             super.onReceivedHttpError(view, request, errorResponse)
             if (errorResponse?.isCloudflareManagedChallenge() == true) {
-                log.d(LOG_TAG, "Allowing Cloudflare managed challenge response to render.")
+                handleCloudflareManagedChallenge(request)
             } else if (errorResponse != null) {
                 handleError(
                     request,
@@ -190,6 +190,10 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
                     errorResponse.reasonPhrase.ifBlank { "HTTP ${errorResponse.statusCode} Error" },
                 )
             }
+        }
+
+        internal open fun handleCloudflareManagedChallenge(request: WebResourceRequest?) {
+            log.d(LOG_TAG, "Allowing Cloudflare managed challenge response to render.")
         }
 
         internal open fun isRecoverable(statusCode: Int): Boolean {

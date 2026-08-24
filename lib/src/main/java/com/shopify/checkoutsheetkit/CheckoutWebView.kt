@@ -113,6 +113,18 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
 
     inner class CheckoutWebViewClient : BaseWebView.BaseWebViewClient() {
 
+        override fun handleCloudflareManagedChallenge(request: WebResourceRequest?) {
+            if (request?.isForMainFrame == true && isPreload && !presented) {
+                log.d(LOG_TAG, "Discarding preloaded Cloudflare managed challenge response.")
+                stopLoading()
+                markCacheEntryStale()
+                clearCache()
+                return
+            }
+
+            super.handleCloudflareManagedChallenge(request)
+        }
+
         override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
             super.onPageStarted(view, url, favicon)
             log.d(LOG_TAG, "onPageStarted called $url.")

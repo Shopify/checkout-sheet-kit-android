@@ -178,7 +178,7 @@ class CheckoutWebViewClientTest {
     }
 
     @Test
-    fun `should allow a Cloudflare managed challenge response to render`() {
+    fun `should allow a presented Cloudflare managed challenge response to render`() {
         val mockRequest = mockWebRequest(
             Uri.parse("https://checkout-sdk.myshopify.com"),
             forMainFrame = true,
@@ -189,9 +189,39 @@ class CheckoutWebViewClientTest {
             headers = mutableMapOf("Cf-Mitigated" to " Challenge "),
         )
 
-        triggerOnReceivedHttpError(mockRequest, mockResponse)
+        val view = viewWithProcessor(activity)
+        view.isPreload = true
+        view.notifyPresented()
+        CheckoutWebView.cacheEntry = view.toCacheEntry(mockRequest.url.toString())
+
+        view.CheckoutWebViewClient().onReceivedHttpError(view, mockRequest, mockResponse)
+        ShadowLooper.shadowMainLooper().runToEndOfTasks()
 
         verify(checkoutWebViewEventProcessor, never()).onCheckoutViewFailedWithError(any())
+        assertThat(CheckoutWebView.cacheEntry).isNotNull()
+    }
+
+    @Test
+    fun `should discard a preloaded Cloudflare managed challenge response`() {
+        val mockRequest = mockWebRequest(
+            Uri.parse("https://checkout-sdk.myshopify.com"),
+            forMainFrame = true,
+        )
+        val mockResponse = mockWebResourceResponse(
+            status = HttpURLConnection.HTTP_FORBIDDEN,
+            description = "Forbidden",
+            headers = mutableMapOf("Cf-Mitigated" to " Challenge "),
+        )
+
+        val view = viewWithProcessor(activity)
+        view.isPreload = true
+        CheckoutWebView.cacheEntry = view.toCacheEntry(mockRequest.url.toString())
+
+        view.CheckoutWebViewClient().onReceivedHttpError(view, mockRequest, mockResponse)
+        ShadowLooper.shadowMainLooper().runToEndOfTasks()
+
+        verify(checkoutWebViewEventProcessor, never()).onCheckoutViewFailedWithError(any())
+        assertThat(CheckoutWebView.cacheEntry).isNull()
     }
 
     @Test
