@@ -43,6 +43,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
 import java.net.HttpURLConnection
@@ -192,6 +193,7 @@ class CheckoutWebViewClientTest {
         val view = viewWithProcessor(activity)
         view.isPreload = true
         view.notifyPresented()
+        shadowOf(view).callOnAttachedToWindow()
         CheckoutWebView.cacheEntry = view.toCacheEntry(mockRequest.url.toString())
 
         view.CheckoutWebViewClient().onReceivedHttpError(view, mockRequest, mockResponse)
@@ -215,6 +217,32 @@ class CheckoutWebViewClientTest {
 
         val view = viewWithProcessor(activity)
         view.isPreload = true
+        CheckoutWebView.cacheEntry = view.toCacheEntry(mockRequest.url.toString())
+
+        view.CheckoutWebViewClient().onReceivedHttpError(view, mockRequest, mockResponse)
+        ShadowLooper.shadowMainLooper().runToEndOfTasks()
+
+        verify(checkoutWebViewEventProcessor, never()).onCheckoutViewFailedWithError(any())
+        assertThat(CheckoutWebView.cacheEntry).isNull()
+    }
+
+    @Test
+    fun `should discard a previously presented preload after detachment`() {
+        val mockRequest = mockWebRequest(
+            Uri.parse("https://checkout-sdk.myshopify.com"),
+            forMainFrame = true,
+        )
+        val mockResponse = mockWebResourceResponse(
+            status = HttpURLConnection.HTTP_FORBIDDEN,
+            description = "Forbidden",
+            headers = mutableMapOf("Cf-Mitigated" to " Challenge "),
+        )
+
+        val view = viewWithProcessor(activity)
+        view.isPreload = true
+        view.notifyPresented()
+        shadowOf(view).callOnAttachedToWindow()
+        shadowOf(view).callOnDetachedFromWindow()
         CheckoutWebView.cacheEntry = view.toCacheEntry(mockRequest.url.toString())
 
         view.CheckoutWebViewClient().onReceivedHttpError(view, mockRequest, mockResponse)

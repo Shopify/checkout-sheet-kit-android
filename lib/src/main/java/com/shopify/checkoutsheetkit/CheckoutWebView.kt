@@ -44,6 +44,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
     override val variant = "standard"
     override val cspSchema = CheckoutBridge.SCHEMA_VERSION_NUMBER
     var isPreload = false
+    private var isCheckoutVisible = false
 
     private val checkoutBridge = CheckoutBridge(CheckoutWebViewEventProcessor(NoopEventProcessor()))
     private var loadComplete = false
@@ -91,11 +92,13 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+        isCheckoutVisible = true
         log.d(LOG_TAG, "Attached to window. Adding JavaScript interface with name $JAVASCRIPT_INTERFACE_NAME.")
         addJavascriptInterface(checkoutBridge, JAVASCRIPT_INTERFACE_NAME)
     }
 
     override fun onDetachedFromWindow() {
+        isCheckoutVisible = false
         super.onDetachedFromWindow()
         log.d(LOG_TAG, "Detached from window. Removing JavaScript interface with name $JAVASCRIPT_INTERFACE_NAME.")
         removeJavascriptInterface(JAVASCRIPT_INTERFACE_NAME)
@@ -114,7 +117,7 @@ internal class CheckoutWebView(context: Context, attributeSet: AttributeSet? = n
     inner class CheckoutWebViewClient : BaseWebView.BaseWebViewClient() {
 
         override fun handleCloudflareManagedChallenge(request: WebResourceRequest?) {
-            if (request?.isForMainFrame == true && isPreload && !presented) {
+            if (request?.isForMainFrame == true && isPreload && !isCheckoutVisible) {
                 log.d(LOG_TAG, "Discarding preloaded Cloudflare managed challenge response.")
                 stopLoading()
                 markCacheEntryStale()
