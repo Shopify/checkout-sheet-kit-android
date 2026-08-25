@@ -198,7 +198,6 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
 
         internal open fun isRecoverable(statusCode: Int): Boolean {
             return when (statusCode) {
-                TOO_MANY_REQUESTS -> recoverErrors
                 ERROR_BAD_URL -> false
                 in CLIENT_ERROR -> false
                 else -> recoverErrors
@@ -247,7 +246,6 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
         private const val LOG_TAG = "BaseWebView"
         private const val CLOUDFLARE_MITIGATED_HEADER = "cf-mitigated"
         private const val CLOUDFLARE_CHALLENGE_VALUE = "challenge"
-        private const val TOO_MANY_REQUESTS = 429
         private val CLIENT_ERROR = 400..499
 
         private fun WebResourceResponse.isCloudflareManagedChallenge(): Boolean =
