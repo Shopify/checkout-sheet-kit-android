@@ -253,6 +253,26 @@ class CheckoutWebViewClientTest {
     }
 
     @Test
+    fun `should call event processor with non-recoverable error for main frame - 429`() {
+        val mockRequest = mockWebRequest(Uri.parse("https://checkout-sdk.myshopify.com"), true)
+        val mockResponse = mockWebResourceResponse(
+            status = 429,
+            description = "Too Many Requests",
+        )
+
+        triggerOnReceivedHttpError(mockRequest, mockResponse)
+
+        val captor = argumentCaptor<CheckoutException>()
+        verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
+        assertThat(captor.firstValue)
+            .isInstanceOf(HttpException::class.java)
+            .hasErrorCode(CheckoutUnavailableException.HTTP_ERROR)
+            .isNotRecoverable()
+            .hasDescription("Too Many Requests")
+            .hasStatusCode(429)
+    }
+
+    @Test
     fun `should call event processor calls onCheckoutViewFailedWithError on http error for main frame - 500`() {
         val mockRequest = mockWebRequest(Uri.parse("https://checkout-sdk.myshopify.com"), true)
         val mockResponse = mockWebResourceResponse(
