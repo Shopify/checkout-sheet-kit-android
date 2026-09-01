@@ -43,6 +43,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowLooper
 import java.net.HttpURLConnection
@@ -175,6 +176,100 @@ class CheckoutWebViewClientTest {
             .isNotRecoverable()
             .hasDescription("Not Found")
             .hasStatusCode(404)
+    }
+
+    @Test
+    fun `should allow a presented Cloudflare managed challenge response to render`() {
+        val mockRequest = mockWebRequest(
+            Uri.parse("https://checkout-sdk.myshopify.com"),
+            forMainFrame = true,
+        )
+        val mockResponse = mockWebResourceResponse(
+            status = HttpURLConnection.HTTP_FORBIDDEN,
+            description = "Forbidden",
+            headers = mutableMapOf("Cf-Mitigated" to " Challenge "),
+        )
+
+        val view = viewWithProcessor(activity)
+        view.isPreload = true
+        view.notifyPresented()
+        shadowOf(view).callOnAttachedToWindow()
+        CheckoutWebView.cacheEntry = view.toCacheEntry(mockRequest.url.toString())
+
+        view.CheckoutWebViewClient().onReceivedHttpError(view, mockRequest, mockResponse)
+        ShadowLooper.shadowMainLooper().runToEndOfTasks()
+
+        verify(checkoutWebViewEventProcessor, never()).onCheckoutViewFailedWithError(any())
+        assertThat(CheckoutWebView.cacheEntry).isNotNull()
+    }
+
+    @Test
+    fun `should discard a preloaded Cloudflare managed challenge response`() {
+        val mockRequest = mockWebRequest(
+            Uri.parse("https://checkout-sdk.myshopify.com"),
+            forMainFrame = true,
+        )
+        val mockResponse = mockWebResourceResponse(
+            status = HttpURLConnection.HTTP_FORBIDDEN,
+            description = "Forbidden",
+            headers = mutableMapOf("Cf-Mitigated" to " Challenge "),
+        )
+
+        val view = viewWithProcessor(activity)
+        view.isPreload = true
+        CheckoutWebView.cacheEntry = view.toCacheEntry(mockRequest.url.toString())
+
+        view.CheckoutWebViewClient().onReceivedHttpError(view, mockRequest, mockResponse)
+        ShadowLooper.shadowMainLooper().runToEndOfTasks()
+
+        verify(checkoutWebViewEventProcessor, never()).onCheckoutViewFailedWithError(any())
+        assertThat(CheckoutWebView.cacheEntry).isNull()
+    }
+
+    @Test
+    fun `should discard a previously presented preload after detachment`() {
+        val mockRequest = mockWebRequest(
+            Uri.parse("https://checkout-sdk.myshopify.com"),
+            forMainFrame = true,
+        )
+        val mockResponse = mockWebResourceResponse(
+            status = HttpURLConnection.HTTP_FORBIDDEN,
+            description = "Forbidden",
+            headers = mutableMapOf("Cf-Mitigated" to " Challenge "),
+        )
+
+        val view = viewWithProcessor(activity)
+        view.isPreload = true
+        view.notifyPresented()
+        shadowOf(view).callOnAttachedToWindow()
+        shadowOf(view).callOnDetachedFromWindow()
+        CheckoutWebView.cacheEntry = view.toCacheEntry(mockRequest.url.toString())
+
+        view.CheckoutWebViewClient().onReceivedHttpError(view, mockRequest, mockResponse)
+        ShadowLooper.shadowMainLooper().runToEndOfTasks()
+
+        verify(checkoutWebViewEventProcessor, never()).onCheckoutViewFailedWithError(any())
+        assertThat(CheckoutWebView.cacheEntry).isNull()
+    }
+
+    @Test
+    fun `should call event processor with non-recoverable error for main frame - 429`() {
+        val mockRequest = mockWebRequest(Uri.parse("https://checkout-sdk.myshopify.com"), true)
+        val mockResponse = mockWebResourceResponse(
+            status = 429,
+            description = "Too Many Requests",
+        )
+
+        triggerOnReceivedHttpError(mockRequest, mockResponse)
+
+        val captor = argumentCaptor<CheckoutException>()
+        verify(checkoutWebViewEventProcessor).onCheckoutViewFailedWithError(captor.capture())
+        assertThat(captor.firstValue)
+            .isInstanceOf(HttpException::class.java)
+            .hasErrorCode(CheckoutUnavailableException.HTTP_ERROR)
+            .isNotRecoverable()
+            .hasDescription("Too Many Requests")
+            .hasStatusCode(429)
     }
 
     @Test

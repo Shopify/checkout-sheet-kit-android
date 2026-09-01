@@ -16,7 +16,7 @@ def resolveEnvVarValue(name, defaultValue) {
     return rawValue ? rawValue : defaultValue
 }
 
-def versionName = resolveEnvVarValue("CHECKOUT_SHEET_KIT_VERSION", "3.6.0")
+def versionName = resolveEnvVarValue("CHECKOUT_SHEET_KIT_VERSION", "3.6.3")
 
 ext {
     app_compat_version = '1.7.1'
@@ -120,6 +120,11 @@ dependencies {
 
     androidTestImplementation "androidx.test:core-ktx:$androidx_test_version"
     androidTestImplementation "androidx.test.ext:junit-ktx:$androidx_junit_ext_version"
+
+    // Declare the consumer stdlib floor explicitly. Otherwise AGP 9's built-in
+    // Kotlin support publishes its bundled 2.2.10 stdlib as an API dependency,
+    // despite this library being compiled with KGP 1.9.23 and a 1.9 API floor.
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.23"
 
     //Implementation
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlin_serialization_version"
