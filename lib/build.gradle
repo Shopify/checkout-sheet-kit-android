@@ -124,7 +124,7 @@ dependencies {
     // Declare the consumer stdlib floor explicitly. Otherwise AGP 9's built-in
     // Kotlin support publishes its bundled 2.2.10 stdlib as an API dependency,
     // despite this library being compiled with KGP 1.9.23 and a 1.9 API floor.
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.9.23"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:2.4.10"
 
     //Implementation
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlin_serialization_version"
