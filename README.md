@@ -36,6 +36,10 @@
   - [Multipass](#multipass)
   - [Shop Pay](#shop-pay)
   - [Customer Account API](#customer-account-api)
+- [Offsite Payments](#offsite-payments)
+  - [Deep links to payment apps](#deep-links-to-payment-apps)
+  - [Handling deep links in code](#handling-deep-links-in-code)
+  - [Troubleshooting deep links](#troubleshooting-deep-links)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -359,13 +363,9 @@ val processor = object : DefaultCheckoutEventProcessor(activity) {
         // - deep link (e.g. myapp://checkout)
         // and is being directed outside the application.
 
-        // Note: to support deep links on Android 11+ using the `DefaultCheckoutEventProcessor`,
-        // the client app should add a queries element in its manifest declaring which apps it should interact with.
-        // See the MobileBuyIntegration sample's manifest for an example.
-        // Queries reference - https://developer.android.com/guide/topics/manifest/queries-element
-
-        // If no app can be queried to deal with the link, the processor will log a warning:
-        // `Unrecognized scheme for link clicked in checkout` along with the uri.
+        // On Android 11+, custom-scheme deep links (e.g. `bankid://`, `upi://`) only open
+        // for schemes your app declares in a `<queries>` element.
+        // See [Offsite Payments](#offsite-payments).
     }
 
     override fun onWebPixelEvent(event: PixelEvent) {
@@ -596,6 +596,98 @@ checkout sessions.
 
 The Customer Account API allows you to authenticate buyers and provide a personalized checkout experience.
 For detailed implementation instructions, see our [Customer Account API Authentication Guide](https://shopify.dev/docs/storefronts/headless/mobile-apps/checkout-sheet-kit/authenticate-checkouts).
+
+## Offsite Payments
+
+Some payment providers, such as BankID for Klarna in Sweden or UPI apps in India, finish payment by
+opening an installed banking or wallet app through a custom-scheme deep link (for example
+`bankid:///?autostarttoken=...` or `upi://pay?...`).
+
+Checkout Kit leaves the decision to open another app with your app. `DefaultCheckoutEventProcessor`
+only opens a deep link when Android reports an installed app that can handle it. Since Android 11
+(API 30), [package visibility](https://developer.android.com/training/package-visibility) hides
+other apps unless your app declares them, so deep links for schemes you have not declared
+**do nothing**. The buyer taps the payment button, no app opens, and the payment eventually times
+out.
+
+### Deep links to payment apps
+
+Declare each scheme that checkout may open in a `<queries>` element in your `AndroidManifest.xml`.
+`<queries>` must be a direct child of `<manifest>`, not `<application>`:
+
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <queries>
+        <!-- BankID, used by Klarna and other Swedish payment methods -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="bankid" />
+        </intent>
+
+        <!-- UPI apps, such as Google Pay, PhonePe, and Paytm -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="upi" />
+        </intent>
+    </queries>
+
+    <application>
+        ...
+    </application>
+</manifest>
+```
+
+`<queries>` has no wildcard, so add one `<intent>` per scheme. Check each payment provider's
+documentation for the schemes it uses. The
+[MobileBuyIntegration sample manifest](samples/MobileBuyIntegration/app/src/main/AndroidManifest.xml)
+shows more examples.
+
+> [!Note]
+> On Android 10 (API 29) and below, package visibility does not apply, and deep links open without
+> a `<queries>` declaration.
+
+Configure [Android App Links](https://developer.android.com/training/app-links) for your storefront
+so buyers return to your app after they finish paying in the other app.
+
+### Handling deep links in code
+
+To decide which deep links open without depending on `<queries>`, override `onCheckoutLinkClicked`.
+Call `super` for the links you do not handle so `mailto:`, `tel:`, and web links keep their default
+behavior:
+
+```kotlin
+val processor = object : DefaultCheckoutEventProcessor(activity) {
+    override fun onCheckoutLinkClicked(uri: Uri) {
+        if (uri.scheme !in setOf("bankid", "upi")) {
+            super.onCheckoutLinkClicked(uri)
+            return
+        }
+        try {
+            activity.startActivity(Intent(Intent.ACTION_VIEW, uri))
+        } catch (e: ActivityNotFoundException) {
+            // No installed app handles this scheme. Let the buyer choose another payment method.
+        }
+    }
+
+    // ...
+}
+```
+
+`startActivity` does not require package visibility, so this works without a `<queries>` entry.
+
+### Troubleshooting deep links
+
+If a payment app does not open from checkout, look for this warning in Logcat under the
+`DefaultCheckoutEventProcessor` tag. It is logged at the default `LogLevel.WARN` (see
+[Log Level](#log-level)):
+
+```
+Unrecognized scheme for link clicked in checkout '<uri>'
+```
+
+The warning means Android did not report an app for the link's scheme. Add that scheme to
+`<queries>`, or handle it in `onCheckoutLinkClicked`.
 
 ---
 
