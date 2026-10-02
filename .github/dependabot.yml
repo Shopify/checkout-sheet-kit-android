@@ -38,6 +38,12 @@ updates:
     cooldown:
       default-days: 7
     groups:
+      # These compiler plugins must stay on the same Kotlin release.
+      kotlin-compiler-plugins:
+        patterns:
+          - "org.jetbrains.kotlin.android"
+          - "org.jetbrains.kotlin.plugin.compose"
+          - "org.jetbrains.kotlin.plugin.serialization"
       apollo:
         patterns:
           - "com.apollographql.apollo*"
