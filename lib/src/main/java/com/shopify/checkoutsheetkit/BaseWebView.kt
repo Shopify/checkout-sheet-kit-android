@@ -181,7 +181,9 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
             errorResponse: WebResourceResponse?
         ) {
             super.onReceivedHttpError(view, request, errorResponse)
-            if (errorResponse != null) {
+            if (errorResponse?.isCloudflareManagedChallenge() == true) {
+                handleCloudflareManagedChallenge(request)
+            } else if (errorResponse != null) {
                 handleError(
                     request,
                     errorResponse.statusCode,
@@ -190,9 +192,12 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
             }
         }
 
+        internal open fun handleCloudflareManagedChallenge(request: WebResourceRequest?) {
+            log.d(LOG_TAG, "Allowing Cloudflare managed challenge response to render.")
+        }
+
         internal open fun isRecoverable(statusCode: Int): Boolean {
             return when (statusCode) {
-                TOO_MANY_REQUESTS -> recoverErrors
                 ERROR_BAD_URL -> false
                 in CLIENT_ERROR -> false
                 else -> recoverErrors
@@ -239,8 +244,15 @@ internal abstract class BaseWebView(context: Context, attributeSet: AttributeSet
 
     companion object {
         private const val LOG_TAG = "BaseWebView"
-        private const val TOO_MANY_REQUESTS = 429
+        private const val CLOUDFLARE_MITIGATED_HEADER = "cf-mitigated"
+        private const val CLOUDFLARE_CHALLENGE_VALUE = "challenge"
         private val CLIENT_ERROR = 400..499
+
+        private fun WebResourceResponse.isCloudflareManagedChallenge(): Boolean =
+            responseHeaders?.entries?.any { (name, value) ->
+                name.equals(CLOUDFLARE_MITIGATED_HEADER, ignoreCase = true) &&
+                    value.trim().equals(CLOUDFLARE_CHALLENGE_VALUE, ignoreCase = true)
+            } == true
     }
 }
 
