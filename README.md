@@ -603,7 +603,9 @@ Some payment providers, such as BankID for Klarna in Sweden or UPI apps in India
 opening an installed banking or wallet app through a custom-scheme deep link (for example
 `bankid:///?autostarttoken=...` or `upi://pay?...`).
 
-Checkout Kit leaves the decision to the developer whether to launch the deep link from webviews, if you wish to support an app then add the queries entry below, if not then omit it from your manifest. `DefaultCheckoutEventProcessor`
+Checkout Kit leaves it to you to decide which payment apps checkout can open. To support an app,
+declare its scheme as shown below. If you don't want checkout to open it, leave the scheme out of
+your manifest. `DefaultCheckoutEventProcessor`
 only opens a deep link when Android reports an installed app that can handle it. Since Android 11
 (API 30), [package visibility](https://developer.android.com/training/package-visibility) hides
 other apps unless your app declares them, so deep links for schemes you have not declared
