@@ -27,7 +27,8 @@ package com.shopify.checkoutsheetkit
  *
  * Allows:
  * - Enabling/disabling preloading,
- * - Specifying the colorScheme that should be used for checkout.
+ * - Specifying the colorScheme that should be used for checkout,
+ * - Drawing the sheet edge-to-edge, behind the system bars.
  */
 public data class Configuration internal constructor(
     var colorScheme: ColorScheme = ColorScheme.Automatic(),
@@ -35,6 +36,7 @@ public data class Configuration internal constructor(
     var errorRecovery: ErrorRecovery = object : ErrorRecovery {},
     var platform: Platform? = null,
     var logLevel: LogLevel = LogLevel.WARN,
+    var edgeToEdge: EdgeToEdge = EdgeToEdge(),
 )
 
 /**
@@ -44,6 +46,21 @@ public data class Configuration internal constructor(
  */
 public data class Preloading(
     val enabled: Boolean = true
+)
+
+/**
+ * Configuration related to drawing the sheet edge-to-edge.
+ *
+ * When enabled, the sheet fills the screen and draws behind the status bar, navigation bar and
+ * display cutout. The header is padded by the top insets and takes the header background behind
+ * the status bar; the checkout is padded by the bottom insets (or the keyboard, whichever is
+ * taller) and takes the WebView background behind the navigation bar. System bar icons are made
+ * light or dark to stay legible on those backgrounds.
+ *
+ * Disabled by default, which keeps the sheet sized and placed by the dialog's window theme.
+ */
+public data class EdgeToEdge(
+    val enabled: Boolean = false
 )
 
 public enum class LogLevel {

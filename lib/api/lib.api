@@ -352,16 +352,19 @@ public final class com/shopify/checkoutsheetkit/Configuration {
 	public final fun component3 ()Lcom/shopify/checkoutsheetkit/ErrorRecovery;
 	public final fun component4 ()Lcom/shopify/checkoutsheetkit/Platform;
 	public final fun component5 ()Lcom/shopify/checkoutsheetkit/LogLevel;
-	public final fun copy (Lcom/shopify/checkoutsheetkit/ColorScheme;Lcom/shopify/checkoutsheetkit/Preloading;Lcom/shopify/checkoutsheetkit/ErrorRecovery;Lcom/shopify/checkoutsheetkit/Platform;Lcom/shopify/checkoutsheetkit/LogLevel;)Lcom/shopify/checkoutsheetkit/Configuration;
-	public static synthetic fun copy$default (Lcom/shopify/checkoutsheetkit/Configuration;Lcom/shopify/checkoutsheetkit/ColorScheme;Lcom/shopify/checkoutsheetkit/Preloading;Lcom/shopify/checkoutsheetkit/ErrorRecovery;Lcom/shopify/checkoutsheetkit/Platform;Lcom/shopify/checkoutsheetkit/LogLevel;ILjava/lang/Object;)Lcom/shopify/checkoutsheetkit/Configuration;
+	public final fun component6 ()Lcom/shopify/checkoutsheetkit/EdgeToEdge;
+	public final fun copy (Lcom/shopify/checkoutsheetkit/ColorScheme;Lcom/shopify/checkoutsheetkit/Preloading;Lcom/shopify/checkoutsheetkit/ErrorRecovery;Lcom/shopify/checkoutsheetkit/Platform;Lcom/shopify/checkoutsheetkit/LogLevel;Lcom/shopify/checkoutsheetkit/EdgeToEdge;)Lcom/shopify/checkoutsheetkit/Configuration;
+	public static synthetic fun copy$default (Lcom/shopify/checkoutsheetkit/Configuration;Lcom/shopify/checkoutsheetkit/ColorScheme;Lcom/shopify/checkoutsheetkit/Preloading;Lcom/shopify/checkoutsheetkit/ErrorRecovery;Lcom/shopify/checkoutsheetkit/Platform;Lcom/shopify/checkoutsheetkit/LogLevel;Lcom/shopify/checkoutsheetkit/EdgeToEdge;ILjava/lang/Object;)Lcom/shopify/checkoutsheetkit/Configuration;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getColorScheme ()Lcom/shopify/checkoutsheetkit/ColorScheme;
+	public final fun getEdgeToEdge ()Lcom/shopify/checkoutsheetkit/EdgeToEdge;
 	public final fun getErrorRecovery ()Lcom/shopify/checkoutsheetkit/ErrorRecovery;
 	public final fun getLogLevel ()Lcom/shopify/checkoutsheetkit/LogLevel;
 	public final fun getPlatform ()Lcom/shopify/checkoutsheetkit/Platform;
 	public final fun getPreloading ()Lcom/shopify/checkoutsheetkit/Preloading;
 	public fun hashCode ()I
 	public final fun setColorScheme (Lcom/shopify/checkoutsheetkit/ColorScheme;)V
+	public final fun setEdgeToEdge (Lcom/shopify/checkoutsheetkit/EdgeToEdge;)V
 	public final fun setErrorRecovery (Lcom/shopify/checkoutsheetkit/ErrorRecovery;)V
 	public final fun setLogLevel (Lcom/shopify/checkoutsheetkit/LogLevel;)V
 	public final fun setPlatform (Lcom/shopify/checkoutsheetkit/Platform;)V
@@ -423,6 +426,19 @@ public final class com/shopify/checkoutsheetkit/DrawableResource$$serializer : k
 
 public final class com/shopify/checkoutsheetkit/DrawableResource$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/shopify/checkoutsheetkit/EdgeToEdge {
+	public fun <init> ()V
+	public fun <init> (Z)V
+	public synthetic fun <init> (ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Z
+	public final fun copy (Z)Lcom/shopify/checkoutsheetkit/EdgeToEdge;
+	public static synthetic fun copy$default (Lcom/shopify/checkoutsheetkit/EdgeToEdge;ZILjava/lang/Object;)Lcom/shopify/checkoutsheetkit/EdgeToEdge;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getEnabled ()Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
 }
 
 public abstract interface class com/shopify/checkoutsheetkit/ErrorRecovery {

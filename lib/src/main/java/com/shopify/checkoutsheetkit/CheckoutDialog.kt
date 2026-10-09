@@ -112,6 +112,15 @@ internal class CheckoutDialog(
         }
 
         addWebViewToContainer(colorScheme, checkoutWebView)
+        if (ShopifyCheckoutSheetKit.configuration.edgeToEdge.enabled) {
+            log.d(LOG_TAG, "Drawing sheet edge-to-edge.")
+            window?.drawEdgeToEdge(
+                header = findViewById(R.id.checkoutSdkHeader),
+                container = findViewById(R.id.checkoutSdkContainer),
+                headerBackground = colorScheme.headerBackgroundColor(),
+                webViewBackground = colorScheme.webViewBackgroundColor(),
+            )
+        }
         onBackPressedDispatcher.addCallback(backNavigationCallback)
         setOnCancelListener {
             log.d(LOG_TAG, "Cancel listener invoked, invoking onCheckoutCanceled.")
