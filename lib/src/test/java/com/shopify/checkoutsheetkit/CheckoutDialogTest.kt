@@ -26,10 +26,15 @@ import android.app.Dialog
 import android.graphics.drawable.ColorDrawable
 import android.os.Looper
 import android.view.View
+import android.view.WindowManager
 import android.webkit.WebView
 import android.widget.RelativeLayout
 import androidx.activity.ComponentActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.graphics.Insets
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.children
 import com.shopify.checkoutsheetkit.lifecycleevents.emptyCompletedEvent
 import org.assertj.core.api.Assertions.assertThat
@@ -47,6 +52,7 @@ import org.mockito.kotlin.verify
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
+import org.robolectric.annotation.Config
 import org.robolectric.shadows.ShadowDialog
 import org.robolectric.shadows.ShadowLooper
 import java.util.concurrent.TimeUnit
@@ -74,7 +80,107 @@ class CheckoutDialogTest {
             it.preloading = configuration.preloading
             it.colorScheme = configuration.colorScheme
             it.errorRecovery = configuration.errorRecovery
+            it.edgeToEdge = configuration.edgeToEdge
         }
+    }
+
+    @Test
+    fun `window wraps its content height when edge-to-edge is disabled`() {
+        ShopifyCheckoutSheetKit.present("https://shopify.com", activity, processor)
+
+        val window = ShadowDialog.getLatestDialog().window!!
+
+        assertThat(window.attributes.height).isEqualTo(WindowManager.LayoutParams.WRAP_CONTENT)
+    }
+
+    @Test
+    @Config(sdk = [34])
+    fun `window fills the screen behind the system bars when edge-to-edge is enabled`() {
+        ShopifyCheckoutSheetKit.configure { it.edgeToEdge = EdgeToEdge(enabled = true) }
+        ShopifyCheckoutSheetKit.present("https://shopify.com", activity, processor)
+
+        val window = ShadowDialog.getLatestDialog().window!!
+
+        assertThat(window.attributes.width).isEqualTo(WindowManager.LayoutParams.MATCH_PARENT)
+        assertThat(window.attributes.height).isEqualTo(WindowManager.LayoutParams.MATCH_PARENT)
+        assertThat(window.attributes.fitInsetsTypes).isZero()
+        assertThat(window.attributes.layoutInDisplayCutoutMode)
+            .isEqualTo(WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES)
+        assertThat(window.statusBarColor).isEqualTo(android.graphics.Color.TRANSPARENT)
+        assertThat(window.navigationBarColor).isEqualTo(android.graphics.Color.TRANSPARENT)
+    }
+
+    @Test
+    @Config(sdk = [34])
+    fun `system bar icons follow the header and checkout backgrounds when edge-to-edge is enabled`() {
+        ShopifyCheckoutSheetKit.configure {
+            it.edgeToEdge = EdgeToEdge(enabled = true)
+            it.colorScheme = ColorScheme.Light(
+                Colors(
+                    headerFont = Color.SRGB(android.graphics.Color.WHITE),
+                    headerBackground = Color.SRGB(android.graphics.Color.BLACK),
+                    webViewBackground = Color.SRGB(android.graphics.Color.WHITE),
+                    progressIndicator = Color.SRGB(android.graphics.Color.BLUE),
+                )
+            )
+        }
+        ShopifyCheckoutSheetKit.present("https://shopify.com", activity, processor)
+
+        val window = ShadowDialog.getLatestDialog().window!!
+        val controller = WindowCompat.getInsetsController(window, window.decorView)
+
+        assertThat(controller.isAppearanceLightStatusBars).isFalse()
+        assertThat(controller.isAppearanceLightNavigationBars).isTrue()
+    }
+
+    @Test
+    @Config(sdk = [34])
+    fun `header is padded by the top insets and checkout by the bottom insets when edge-to-edge is enabled`() {
+        ShopifyCheckoutSheetKit.configure { it.edgeToEdge = EdgeToEdge(enabled = true) }
+        ShopifyCheckoutSheetKit.present("https://shopify.com", activity, processor)
+        val dialog = ShadowDialog.getLatestDialog()
+        val header = dialog.findViewById<Toolbar>(R.id.checkoutSdkHeader)
+        val container = dialog.findViewById<RelativeLayout>(R.id.checkoutSdkContainer)
+        val headerStart = header.paddingLeft
+        val headerTop = header.paddingTop
+        val headerEnd = header.paddingRight
+
+        dispatchInsets(dialog, bars = Insets.of(8, 60, 12, 40), ime = Insets.NONE)
+
+        assertThat(header.paddingTop).isEqualTo(headerTop + 60)
+        assertThat(header.paddingLeft).isEqualTo(headerStart + 8)
+        assertThat(header.paddingRight).isEqualTo(headerEnd + 12)
+        assertThat(container.paddingTop).isZero()
+        assertThat(container.paddingBottom).isEqualTo(40)
+        assertThat(container.paddingLeft).isEqualTo(8)
+        assertThat(container.paddingRight).isEqualTo(12)
+    }
+
+    @Test
+    @Config(sdk = [34])
+    fun `checkout is padded by the keyboard when it is taller than the navigation bar`() {
+        ShopifyCheckoutSheetKit.configure { it.edgeToEdge = EdgeToEdge(enabled = true) }
+        ShopifyCheckoutSheetKit.present("https://shopify.com", activity, processor)
+        val dialog = ShadowDialog.getLatestDialog()
+        val container = dialog.findViewById<RelativeLayout>(R.id.checkoutSdkContainer)
+
+        dispatchInsets(dialog, bars = Insets.of(0, 60, 0, 40), ime = Insets.of(0, 0, 0, 900))
+        assertThat(container.paddingBottom).isEqualTo(900)
+
+        dispatchInsets(dialog, bars = Insets.of(0, 60, 0, 40), ime = Insets.NONE)
+        assertThat(container.paddingBottom).isEqualTo(40)
+    }
+
+    @Test
+    fun `insets are not applied when edge-to-edge is disabled`() {
+        ShopifyCheckoutSheetKit.present("https://shopify.com", activity, processor)
+        val dialog = ShadowDialog.getLatestDialog()
+        val header = dialog.findViewById<Toolbar>(R.id.checkoutSdkHeader)
+        val headerTop = header.paddingTop
+
+        dispatchInsets(dialog, bars = Insets.of(0, 60, 0, 40), ime = Insets.NONE)
+
+        assertThat(header.paddingTop).isEqualTo(headerTop)
     }
 
     @Test
@@ -609,6 +715,14 @@ class CheckoutDialogTest {
             webViewBackground = Color.ResourceId(androidx.appcompat.R.color.material_deep_teal_200),
             progressIndicator = Color.ResourceId(androidx.appcompat.R.color.background_material_dark),
         )
+    }
+
+    private fun dispatchInsets(dialog: Dialog, bars: Insets, ime: Insets) {
+        val insets = WindowInsetsCompat.Builder()
+            .setInsets(WindowInsetsCompat.Type.systemBars(), bars)
+            .setInsets(WindowInsetsCompat.Type.ime(), ime)
+            .build()
+        ViewCompat.dispatchApplyWindowInsets(dialog.findViewById(android.R.id.content), insets)
     }
 
     private fun <T : WebView> Dialog.containsChildOfType(clazz: Class<T>): Boolean {
