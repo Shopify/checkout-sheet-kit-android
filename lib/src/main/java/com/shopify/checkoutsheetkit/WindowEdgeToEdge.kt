@@ -37,6 +37,10 @@ import androidx.core.view.WindowInsetsCompat
 
 private const val LIGHT_LUMINANCE_THRESHOLD = 0.5
 
+// The dark scrim androidx.activity's enableEdgeToEdge draws behind the navigation bar below API 26.
+@ColorInt
+internal const val LEGACY_NAVIGATION_BAR_SCRIM = 0x801B1B1B.toInt()
+
 /**
  * Makes the sheet's window fill the screen and draw behind the system bars and display cutout.
  *
@@ -58,7 +62,12 @@ internal fun Window.drawEdgeToEdge(
     WindowCompat.setDecorFitsSystemWindows(this, false)
     addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
     statusBarColor = Color.TRANSPARENT
-    navigationBarColor = Color.TRANSPARENT
+    // Navigation bar icons can only be made dark from API 26, so keep them legible on a light checkout with a scrim.
+    navigationBarColor = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O && webViewBackground.isLight()) {
+        LEGACY_NAVIGATION_BAR_SCRIM
+    } else {
+        Color.TRANSPARENT
+    }
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
         attributes = attributes.apply {
             layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES

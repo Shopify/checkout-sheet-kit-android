@@ -36,8 +36,9 @@ public data class Configuration internal constructor(
     var errorRecovery: ErrorRecovery = object : ErrorRecovery {},
     var platform: Platform? = null,
     var logLevel: LogLevel = LogLevel.WARN,
-    var edgeToEdge: EdgeToEdge = EdgeToEdge(),
-)
+) {
+    public var edgeToEdge: EdgeToEdge = EdgeToEdge()
+}
 
 /**
  * Configuration related to preloading.

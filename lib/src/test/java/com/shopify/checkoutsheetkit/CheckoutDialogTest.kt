@@ -134,6 +134,34 @@ class CheckoutDialogTest {
     }
 
     @Test
+    @Config(sdk = [25])
+    fun `navigation bar keeps a dark scrim below API 26 when the checkout background is light`() {
+        ShopifyCheckoutSheetKit.configure {
+            it.edgeToEdge = EdgeToEdge(enabled = true)
+            it.colorScheme = colorSchemeWithWebViewBackground(android.graphics.Color.WHITE)
+        }
+        ShopifyCheckoutSheetKit.present("https://shopify.com", activity, processor)
+
+        val window = ShadowDialog.getLatestDialog().window!!
+
+        assertThat(window.navigationBarColor).isEqualTo(LEGACY_NAVIGATION_BAR_SCRIM)
+    }
+
+    @Test
+    @Config(sdk = [25])
+    fun `navigation bar is transparent below API 26 when the checkout background is dark`() {
+        ShopifyCheckoutSheetKit.configure {
+            it.edgeToEdge = EdgeToEdge(enabled = true)
+            it.colorScheme = colorSchemeWithWebViewBackground(android.graphics.Color.BLACK)
+        }
+        ShopifyCheckoutSheetKit.present("https://shopify.com", activity, processor)
+
+        val window = ShadowDialog.getLatestDialog().window!!
+
+        assertThat(window.navigationBarColor).isEqualTo(android.graphics.Color.TRANSPARENT)
+    }
+
+    @Test
     @Config(sdk = [34])
     fun `header is padded by the top insets and checkout by the bottom insets when edge-to-edge is enabled`() {
         ShopifyCheckoutSheetKit.configure { it.edgeToEdge = EdgeToEdge(enabled = true) }
@@ -716,6 +744,15 @@ class CheckoutDialogTest {
             progressIndicator = Color.ResourceId(androidx.appcompat.R.color.background_material_dark),
         )
     }
+
+    private fun colorSchemeWithWebViewBackground(webViewBackground: Int) = ColorScheme.Light(
+        Colors(
+            headerFont = Color.SRGB(android.graphics.Color.WHITE),
+            headerBackground = Color.SRGB(android.graphics.Color.BLACK),
+            webViewBackground = Color.SRGB(webViewBackground),
+            progressIndicator = Color.SRGB(android.graphics.Color.BLUE),
+        )
+    )
 
     private fun dispatchInsets(dialog: Dialog, bars: Insets, ime: Insets) {
         val insets = WindowInsetsCompat.Builder()
