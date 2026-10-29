@@ -31,14 +31,12 @@ assert_route() {
   [[ "$actual" == "$expected" ]] || { echo "Incorrect routing for $tag" >&2; exit 1; }
 }
 
-assert_route 4.0.0 4.0.0 Relocation
-assert_route v4.0.0 4.0.0 Relocation
 assert_route 3.6.4 3.6.4 Release
 assert_route v3.6.4 3.6.4 Release
 assert_route 3.6.10 3.6.10 Release
 assert_route 3.10.0 3.10.0 Release
 
-for tag in '' main 4.0.1 5.0.0 2.0.0 3.6 3.06.4 3.6.04 3.6.4-rc.1 3.6.4-SNAPSHOT vv3.6.4 '3.6.4; echo unsafe' $'3.6.4\ntask=unsafe'; do
+for tag in '' main 4.0.0 v4.0.0 4.0.1 5.0.0 2.0.0 3.6 3.06.4 3.6.04 3.6.4-rc.1 3.6.4-SNAPSHOT vv3.6.4 '3.6.4; echo unsafe' $'3.6.4\ntask=unsafe'; do
   if output=$(bash "$script" "$tag" 2>/dev/null); then
     echo "Unexpectedly accepted tag: $tag" >&2
     exit 1

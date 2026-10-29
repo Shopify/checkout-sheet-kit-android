@@ -69,30 +69,15 @@ If your change intentionally modifies public API (adds, removes, or changes any 
 
 If you did *not* intend to change public API and `apiCheck` is failing, the diff shows what your change inadvertently affected — treat it as a signal that something in your PR has consumer-visible impact.
 
-## Final relocation release
+## Published relocation
 
-For the `4.0.0` (or `v4.0.0`) tag, the release workflow publishes a **POM-only** relocation from
-`com.shopify:checkout-sheet-kit:4.0.0` to `com.shopify:checkout-kit:4.0.0`.
-The additional `relocation` publication in `lib/build.gradle` has no Android component,
-so it publishes no AAR, Gradle Module Metadata, sources, or javadoc. Its coordinates
-are intentionally fixed; there is no need to bump the library's `versionName`.
+The one-time `com.shopify:checkout-sheet-kit:4.0.0` relocation points consumers to
+`com.shopify:checkout-kit:4.0.0`. Its publishing configuration and temporary validation
+have been removed after publication and verification; the published POM remains on Maven Central.
 
-This follows [Gradle's relocation guidance](https://docs.gradle.org/current/userguide/publishing_maven.html#publishing_maven:relocation)
-and the [Maven relocation guide](https://maven.apache.org/guides/mini/guide-relocation.html):
-publish a one-time relocation POM at the next old-coordinate version, matching the new
-artifact's version when version numbering continues across the rename.
-
-Before creating the `4.0.0` GitHub release, run:
-
-```bash
-./gradlew :lib:verifyRelocation --console=plain
-```
-
-This checks the generated POM and ensures no component artifacts are attached.
-Publishing the GitHub release selects only the relocation publication and uses the
-existing deployment environment and signing secrets.
-Review the staged relocation POM before approving its release to Maven Central.
-Do not use the legacy library publication task for this release.
+This follows [Gradle's relocation guidance](https://docs.gradle.org/current/userguide/publishing_maven.html#publishing_maven:relocation),
+which recommends removing the configuration after publishing the relocation once.
+See also the [Maven relocation guide](https://maven.apache.org/guides/mini/guide-relocation.html).
 
 The relocation does not update pinned 3.x dependencies or perform source migrations.
 Consumers must change to the new artifact ID to reliably discover future versions.
@@ -101,10 +86,10 @@ This repository can still publish 3.x maintenance releases using the existing AA
 
 ## Publishing a 3.x maintenance release
 
-The same workflow routes stable `3.x.y` tags (optionally prefixed with `v`) to the
-existing `release` publication. Only `4.0.0` selects the relocation publication;
-other major versions and prerelease tags are rejected. Neither path uses the aggregate
-`publish` task, so a patch cannot accidentally republish the relocation.
+The workflow accepts only stable `3.x.y` tags (optionally prefixed with `v`) and selects
+the existing `release` AAR publication. All other major versions, including the retired
+`4.0.0` relocation tag, and prerelease tags are rejected. The workflow selects the
+publication explicitly rather than using the aggregate `publish` task.
 
 The workflow checks out the release tag and passes its normalized version as
 `CHECKOUT_SHEET_KIT_VERSION`, keeping the Maven version and SDK build version aligned

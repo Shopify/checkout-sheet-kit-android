@@ -150,43 +150,6 @@ detekt {
 project.afterEvaluate {
     publishing {
         publications {
-            // Final publication at the old coordinate. No component means POM only.
-            relocation(MavenPublication) {
-                groupId = "com.shopify"
-                artifactId = "checkout-sheet-kit"
-                version = "4.0.0"
-                pom {
-                    name = "Checkout Sheet Kit (relocated)"
-                    description = "Shopify Checkout Sheet Kit has moved to com.shopify:checkout-kit."
-                    url = "https://github.com/Shopify/checkout-kit"
-                    licenses {
-                        license {
-                            name = "MIT"
-                            url = "https://opensource.org/licenses/MIT"
-                        }
-                    }
-                    developers {
-                        developer {
-                            name = "Shopify Inc."
-                        }
-                    }
-                    scm {
-                        connection = "scm:git:https://github.com/Shopify/checkout-kit.git"
-                        developerConnection = "scm:git:https://github.com/Shopify/checkout-kit.git"
-                        url = "https://github.com/Shopify/checkout-kit"
-                    }
-                    distributionManagement {
-                        relocation {
-                            groupId = "com.shopify"
-                            artifactId = "checkout-kit"
-                            version = "4.0.0"
-                            message = "Update your dependency to com.shopify:checkout-kit:4.0.0. " +
-                                "Future updates are published only under the new coordinate."
-                        }
-                    }
-                }
-            }
-
             release(MavenPublication) {
                 pom {
                     name = "CheckoutSheetKit"
@@ -232,28 +195,5 @@ project.afterEvaluate {
                 }
             }
         }
-    }
-}
-
-// Regression check for the final relocation publication; no signing or compilation needed.
-tasks.register('verifyRelocation') {
-    group = 'verification'
-    dependsOn 'generatePomFileForRelocationPublication'
-    doLast {
-        def pomFile = layout.buildDirectory.file('publications/relocation/pom-default.xml').get().asFile
-        def pom = new groovy.xml.XmlSlurper().parse(pomFile)
-        assert pom.groupId.text() == 'com.shopify'
-        assert pom.artifactId.text() == 'checkout-sheet-kit'
-        assert pom.version.text() == '4.0.0'
-        assert pom.packaging.text() == 'pom'
-        def relocation = pom.distributionManagement.relocation
-        assert relocation.groupId.text() == 'com.shopify'
-        assert relocation.artifactId.text() == 'checkout-kit'
-        assert relocation.version.text() == '4.0.0'
-        assert !relocation.message.text().empty
-        assert pom.dependencies.children().isEmpty()
-        assert !pomFile.text.contains('published-with-gradle-metadata')
-        assert publishing.publications.relocation.artifacts.empty
-        logger.lifecycle('Verified POM-only relocation to com.shopify:checkout-kit:4.0.0')
     }
 }
