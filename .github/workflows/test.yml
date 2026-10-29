@@ -27,9 +27,6 @@ jobs:
       - name: Test Release Publication Routing
         run: bash scripts/test_release_publication.sh
 
-      - name: Verify Relocation Publication
-        run: ./gradlew :lib:verifyRelocation --console=plain
-
       - name: Run Tests
         run: ./gradlew clean test --console=plain
 

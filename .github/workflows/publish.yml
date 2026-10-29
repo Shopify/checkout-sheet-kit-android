@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Existing release tag: 4.0.0 for relocation, or 3.x.y for a library patch (optional v prefix)'
+        description: 'Existing 3.x.y library patch release tag (optional v prefix)'
         required: true
         type: string
 
@@ -22,6 +22,13 @@ jobs:
       OSSRH_API_BASE_URL: https://ossrh-staging-api.central.sonatype.com
 
     steps:
+      # Check before checkout: the historical 4.0.0 tag still contains the old selector.
+      - name: Reject Retired Relocation Release
+        if: contains(fromJSON('["4.0.0", "v4.0.0"]'), github.event.release.tag_name || inputs.tag)
+        run: |
+          echo "The one-time 4.0.0 relocation is already published; only 3.x maintenance releases are supported." >&2
+          exit 1
+
       - name: Checkout Repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -39,10 +46,6 @@ jobs:
         with:
           distribution: zulu
           java-version: 17
-
-      - name: Verify Relocation Publication
-        if: steps.publication.outputs.publication == 'Relocation'
-        run: ./gradlew :lib:verifyRelocation --console=plain
 
       - name: Publish Selected Publication
         run: ./gradlew "$PUBLISH_TASK"
