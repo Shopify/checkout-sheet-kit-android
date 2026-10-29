@@ -28,8 +28,11 @@ jobs:
           distribution: zulu
           java-version: 17
 
-      - name: Publish Package
-        run: ./gradlew publishReleasePublicationToOssrh-staging-apiRepository
+      - name: Verify Relocation Publication
+        run: ./gradlew -p publishing/relocation check --console=plain
+
+      - name: Publish Relocation POM
+        run: ./gradlew -p publishing/relocation publishRelocationPublicationToOssrh-staging-apiRepository
         env:
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}

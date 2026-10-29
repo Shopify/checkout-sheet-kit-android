@@ -4,6 +4,7 @@
 /.idea/
 .DS_Store
 /build
+/publishing/relocation/build/
 /captures
 .externalNativeBuild
 .cxx

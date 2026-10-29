@@ -69,7 +69,38 @@ If your change intentionally modifies public API (adds, removes, or changes any 
 
 If you did *not* intend to change public API and `apiCheck` is failing, the diff shows what your change inadvertently affected — treat it as a signal that something in your PR has consumer-visible impact.
 
-## Releasing a new version
+## Final relocation release
+
+The release workflow now publishes a **POM-only** relocation from
+`com.shopify:checkout-sheet-kit:4.0.0` to `com.shopify:checkout-kit:4.0.0`.
+The standalone build in `publishing/relocation/` does not publish the Android library,
+Gradle Module Metadata, sources, or javadoc. Its coordinates are intentionally fixed;
+there is no need to bump `lib/build.gradle` for this final publication.
+
+This follows [Gradle's relocation guidance](https://docs.gradle.org/current/userguide/publishing_maven.html#publishing_maven:relocation)
+and the [Maven relocation guide](https://maven.apache.org/guides/mini/guide-relocation.html):
+publish a one-time relocation POM at the next old-coordinate version, matching the new
+artifact's version when version numbering continues across the rename.
+
+Before creating the `4.0.0` GitHub release, run:
+
+```bash
+./gradlew -p publishing/relocation clean check --console=plain
+```
+
+This verifies the locally published POM and checks that a Gradle consumer resolves the
+old coordinate to the new AAR. The consumer check downloads the destination from Maven Central.
+Publishing the GitHub release uses the existing deployment environment and signing secrets.
+Review the staged relocation POM before approving its release to Maven Central.
+Do not use the legacy library publication task for this release.
+
+The relocation does not update pinned 3.x dependencies or perform source migrations.
+Consumers must change to the new artifact ID to reliably discover future versions.
+All subsequent library releases belong in <https://github.com/Shopify/checkout-kit>.
+
+## Historical library release process
+
+The following process describes releases before the final relocation publication.
 
 Open a pull request with the following changes:
 

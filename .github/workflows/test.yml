@@ -24,6 +24,9 @@ jobs:
           java-version: 17
           cache: 'gradle'
 
+      - name: Verify Relocation Publication
+        run: ./gradlew -p publishing/relocation check --console=plain
+
       - name: Run Tests
         run: ./gradlew clean test --console=plain
 
