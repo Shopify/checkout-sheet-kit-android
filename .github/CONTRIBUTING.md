@@ -71,7 +71,7 @@ If you did *not* intend to change public API and `apiCheck` is failing, the diff
 
 ## Final relocation release
 
-The release workflow now publishes a **POM-only** relocation from
+For the `4.0.0` (or `v4.0.0`) tag, the release workflow publishes a **POM-only** relocation from
 `com.shopify:checkout-sheet-kit:4.0.0` to `com.shopify:checkout-kit:4.0.0`.
 The additional `relocation` publication in `lib/build.gradle` has no Android component,
 so it publishes no AAR, Gradle Module Metadata, sources, or javadoc. Its coordinates
@@ -96,11 +96,37 @@ Do not use the legacy library publication task for this release.
 
 The relocation does not update pinned 3.x dependencies or perform source migrations.
 Consumers must change to the new artifact ID to reliably discover future versions.
-All subsequent library releases belong in <https://github.com/Shopify/checkout-kit>.
+New 4.x releases belong in <https://github.com/Shopify/checkout-kit>.
+This repository can still publish 3.x maintenance releases using the existing AAR publication.
 
-## Historical library release process
+## Publishing a 3.x maintenance release
 
-The following process describes releases before the final relocation publication.
+The same workflow routes stable `3.x.y` tags (optionally prefixed with `v`) to the
+existing `release` publication. Only `4.0.0` selects the relocation publication;
+other major versions and prerelease tags are rejected. Neither path uses the aggregate
+`publish` task, so a patch cannot accidentally republish the relocation.
+
+The workflow checks out the release tag and passes its normalized version as
+`CHECKOUT_SHEET_KIT_VERSION`, keeping the Maven version and SDK build version aligned
+instead of falling back to the version in `lib/build.gradle`.
+
+1. Prepare and test the patch on a branch containing this publishing workflow and
+   `scripts/release_publication.sh` (backport them if using an older maintenance branch).
+2. Create a stable 3.x tag on the patch commit and publish its GitHub release.
+3. Use the existing deployment approval process and review the staged AAR publication.
+
+For manual publishing or retrying a release, dispatch **Deploy to Maven Central** with
+the existing release tag in its required `tag` input. It builds that tag, not the
+workflow's selected branch. Published Central versions are immutable; only retry when
+the version has not already been released.
+
+Run routing regression tests locally with:
+
+```bash
+bash scripts/test_release_publication.sh
+```
+
+## Historical library release preparation
 
 Open a pull request with the following changes:
 
@@ -114,7 +140,7 @@ To do so, navigate to <https://github.com/Shopify/checkout-sheet-kit-android/rel
 1. Create a tag for the new version
 2. Use the same tag as the name for the version
 3. Document a full list of changes since the previous release, tagging merged pull requests where applicable, in the description box
-4. Check "Set as the latest release"
+4. Choose whether to set it as the latest release (a 3.x maintenance release need not replace the migration announcement)
 5. When ready click "Publish release"
 
 This will trigger a GitHub workflow to start the process of publishing a new version of the library to maven central. **Note** - A manual approval by a maintainer is required before release to maven central.
