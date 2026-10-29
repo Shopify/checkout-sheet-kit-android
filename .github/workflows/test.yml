@@ -24,6 +24,9 @@ jobs:
           java-version: 17
           cache: 'gradle'
 
+      - name: Test Release Publication Routing
+        run: bash scripts/test_release_publication.sh
+
       - name: Verify Relocation Publication
         run: ./gradlew :lib:verifyRelocation --console=plain
 
