@@ -29,10 +29,10 @@ jobs:
           java-version: 17
 
       - name: Verify Relocation Publication
-        run: ./gradlew -p publishing/relocation check --console=plain
+        run: ./gradlew :lib:verifyRelocation --console=plain
 
       - name: Publish Relocation POM
-        run: ./gradlew -p publishing/relocation publishRelocationPublicationToOssrh-staging-apiRepository
+        run: ./gradlew :lib:publishRelocationPublicationToOssrh-staging-apiRepository
         env:
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}

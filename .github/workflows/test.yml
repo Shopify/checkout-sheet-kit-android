@@ -25,7 +25,7 @@ jobs:
           cache: 'gradle'
 
       - name: Verify Relocation Publication
-        run: ./gradlew -p publishing/relocation check --console=plain
+        run: ./gradlew :lib:verifyRelocation --console=plain
 
       - name: Run Tests
         run: ./gradlew clean test --console=plain
