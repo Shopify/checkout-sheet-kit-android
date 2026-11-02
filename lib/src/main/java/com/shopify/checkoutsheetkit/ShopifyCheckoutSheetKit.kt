@@ -51,7 +51,7 @@ public object ShopifyCheckoutSheetKit {
      */
     @JvmStatic
     public fun getConfiguration(): Configuration {
-        return configuration.copy()
+        return configuration.copy().also { it.edgeToEdge = configuration.edgeToEdge }
     }
 
     /**
