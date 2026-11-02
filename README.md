@@ -245,6 +245,18 @@ To customize the title of the Dialog that the checkout WebView is displayed with
 <string name="checkout_web_view_title">Buy Now!</string>
 ```
 
+### Edge-to-edge
+
+By default the checkout dialog is sized and placed by your app's dialog window theme. If your app draws edge-to-edge (the default when targeting Android 15 / API 35 and above), you can have the sheet fill the screen and draw behind the system bars too:
+
+```kotlin
+ShopifyCheckoutSheetKit.configure {
+    it.edgeToEdge = EdgeToEdge(enabled = true)
+}
+```
+
+When enabled, the header extends behind the status bar and display cutout using `headerBackground`, and the checkout extends behind the navigation bar using `webViewBackground`. The checkout is padded to stay above the keyboard. Status and navigation bar icons switch between light and dark based on those two colors.
+
 ## Preloading
 
 Initializing a checkout session requires communicating with Shopify servers, thus depending

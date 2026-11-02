@@ -144,6 +144,7 @@ public class InteropTest {
             config.setColorScheme(initialConfiguration.getColorScheme());
             config.setPreloading(initialConfiguration.getPreloading());
             config.setErrorRecovery(initialConfiguration.getErrorRecovery());
+            config.setEdgeToEdge(initialConfiguration.getEdgeToEdge());
         });
     }
 
@@ -285,6 +286,16 @@ public class InteropTest {
 
         configuration.getErrorRecovery().preRecoveryActions(exception, "https://shopify.dev");
         Mockito.verify(fn).apply("called");
+    }
+
+    @Test
+    public void canConfigureEdgeToEdge() {
+        ShopifyCheckoutSheetKit.configure(configuration -> configuration.setEdgeToEdge(new EdgeToEdge(true)));
+
+        Configuration configuration = ShopifyCheckoutSheetKit.getConfiguration();
+
+        assertThat(configuration.getEdgeToEdge().getEnabled()).isTrue();
+        assertThat(new EdgeToEdge().getEnabled()).isFalse();
     }
 
     @Test

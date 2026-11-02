@@ -29,12 +29,10 @@ if [[ $# -ne 1 ]]; then
 fi
 
 version="${1#v}"
-if [[ "$version" == "4.0.0" ]]; then
-  publication=Relocation
-elif [[ "$version" =~ ^3\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+if [[ "$version" =~ ^3\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
   publication=Release
 else
-  echo "Unsupported release tag '$1': expected 4.0.0 (relocation) or 3.x.y (library patch), optionally prefixed with v." >&2
+  echo "Unsupported release tag '$1': expected 3.x.y (library patch), optionally prefixed with v. The 4.0.0 relocation publication has been retired." >&2
   exit 1
 fi
 
