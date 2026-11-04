@@ -1,30 +1,32 @@
 # Shopify Checkout Kit - Android
 
+
+> [!IMPORTANT]
+> ## Maintenance notice
+>
+> Shopify has published V4 of Checkout Kit hosted in our new monorepo: [Shopify/checkout-kit](https://github.com/Shopify/checkout-kit), this will be the home for all future feature development.
+>
+> The Checkout Sheet Kit SDKs will begin a maintenance period beginning from now until the 1st May 2027.
+> During this period we will continue to publish fixes for security and bugs that prevent checkout completion.
+>
+> As of 1st May, Shopify will no longer update the Checkout Sheet Kit V3 SDKs.
+>
+> Checkout Sheet Kit V3 will continue to be available in package managers beyond this date, and we will not intentionally disable existing installations, however future compatibility will no longer be guaranteed.
+>
+> This policy covers:
+> - [Shopify/checkout-sheet-kit-swift](https://github.com/Shopify/checkout-sheet-kit-swift)
+> - [Shopify/checkout-sheet-kit-android](https://github.com/Shopify/checkout-sheet-kit-android)
+> - [Shopify/checkout-sheet-kit-react-native](https://github.com/Shopify/checkout-sheet-kit-react-native)
+>
+> To get started migrating see our migration guide: https://shopify.dev/docs/storefronts/mobile-next/checkout-kit/upgrade-to-v4 and if you run into any problems open an issue in Shopify/checkout-kit
+
+<img width="3200" height="800" alt="gradients" src="https://github.com/user-attachments/assets/1f1d7351-1715-4165-874e-c1f2195bcb20" />
+
 [![GitHub license](https://img.shields.io/badge/license-MIT-lightgrey.svg?style=flat)](/LICENSE)
 ![Tests](https://github.com/Shopify/checkout-sheet-kit-android/actions/workflows/test.yml/badge.svg?branch=main)
 [![GitHub Release](https://img.shields.io/github/release/shopify/checkout-sheet-kit-android.svg?style=flat)]()
 
-<img width="3200" height="800" alt="gradients" src="https://github.com/user-attachments/assets/1f1d7351-1715-4165-874e-c1f2195bcb20" />
-
 **Shopify's Checkout Kit for Android** is a library that enables Android apps to provide the world's highest converting, customizable, one-page checkout within an app. The presented experience is a fully-featured checkout that preserves all of the store customizations: Checkout UI extensions, Functions, Web Pixels, and more. It also provides idiomatic defaults such as support for light and dark mode, and convenient developer APIs to embed, customize and follow the lifecycle of the checkout experience. Check out our developer blog to [learn how Checkout Kit is built](https://www.shopify.com/partners/blog/mobile-checkout-sdks-for-ios-and-android).
-
-## Maintenance notice
-
-Shopify has published V4 of Checkout Kit hosted in our new monorepo: [Shopify/checkout-kit](https://github.com/Shopify/checkout-kit), this will be the home for all future feature development.
-
-The Checkout Sheet Kit SDKs will begin a maintenance period beginning from now until the 1st May 2027.
-During this period we will continue to publish fixes for security and bugs that prevent checkout completion.
-
-As of 1st May, Shopify will no longer update the Checkout Sheet Kit V3 SDKs.
-
-Checkout Sheet Kit V3 will continue to be available in package managers beyond this date, and we will not intentionally disable existing installations, however future compatibility will no longer be guaranteed.
-
-This policy covers:
-- [Shopify/checkout-sheet-kit-swift](https://github.com/Shopify/checkout-sheet-kit-swift)
-- [Shopify/checkout-sheet-kit-android](https://github.com/Shopify/checkout-sheet-kit-android)
-- [Shopify/checkout-sheet-kit-react-native](https://github.com/Shopify/checkout-sheet-kit-react-native)
-
-To get started migrating see our migration guide: https://shopify.dev/docs/storefronts/mobile-next/checkout-kit/upgrade-to-v4 and if you run into any problems open an issue in Shopify/checkout-kit
 
 - [Requirements](#requirements)
 - [Getting Started](#getting-started)
