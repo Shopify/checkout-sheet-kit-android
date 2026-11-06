@@ -11,10 +11,14 @@ updates:
   - package-ecosystem: gradle
     directory: "/"
     schedule:
-      interval: daily
+      interval: weekly
     open-pull-requests-limit: 10
     cooldown:
       default-days: 7
+    allow:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-patch"
     ignore:
       # Keep Kotlin on 1.9.x for compatibility
       - dependency-name: "org.jetbrains.kotlin.*"
@@ -33,10 +37,14 @@ updates:
   - package-ecosystem: gradle
     directory: "/samples/MobileBuyIntegration"
     schedule:
-      interval: daily
+      interval: weekly
     open-pull-requests-limit: 5
     cooldown:
       default-days: 7
+    allow:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-patch"
     groups:
       # These compiler plugins must stay on the same Kotlin release.
       kotlin-compiler-plugins:
