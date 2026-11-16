@@ -52,6 +52,8 @@ class FallbackWebViewTest {
             assertThat(view.visibility).isEqualTo(VISIBLE)
             assertThat(view.settings.javaScriptEnabled).isTrue
             assertThat(view.settings.domStorageEnabled).isTrue
+            assertThat(view.settings.useWideViewPort).isTrue
+            assertThat(view.settings.loadWithOverviewMode).isTrue
             assertThat(view.layoutParams.height).isEqualTo(MATCH_PARENT)
             assertThat(view.layoutParams.width).isEqualTo(MATCH_PARENT)
             assertThat(view.id).isNotNull
