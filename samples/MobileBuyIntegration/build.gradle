@@ -7,7 +7,7 @@ buildscript {
         coil_version = '2.7.0'
         core_version = '1.18.0'
         datastore_version = '1.2.1'
-        koin_android_compose_version = '4.2.1'
+        koin_android_compose_version = '4.2.2'
         kotlin_serialization_version = '1.11.0'
         lifecycle_version = '2.10.0'
         material3_version = '1.4.0'
